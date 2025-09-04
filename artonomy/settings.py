@@ -57,6 +57,10 @@ MIDDLEWARE = [
     'accounts.middleware.OnboardingRedirectMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # 🚨 Custom middleware
+    "core.middleware.require_login.RequireLoginMiddleware",
+
 ]
 
 ROOT_URLCONF = 'artonomy.urls'
