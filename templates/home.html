@@ -5,11 +5,10 @@
 <div class="sm:hidden flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 mobile-cat-pills">
   {# ALL pill (use a pleasant default bg) #}
   <a href="{% url 'explore' %}{% if current_feed %}?feed={{ current_feed }}{% endif %}"
-     class="mobile-cat-chip {% if not active_category %}active{% endif %}"
-     style="--chip-bg: url('https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=800&auto=format&fit=crop');">
-    <span class="label">All</span>
-  </a>
-
+   class="mobile-cat-chip {% if not active_category %}active{% endif %}"
+   style="--chip-bg: url('{% static 'images/all.jpeg' %}');">
+  <span class="label">All</span>
+</a>
   {# Real categories with backend images #}
   {% for c in categories %}
     <a href="{% url 'explore' %}?{% if current_feed %}feed={{ current_feed }}&{% endif %}cat={{ c.slug }}"

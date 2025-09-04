@@ -8,10 +8,10 @@
   <!-- Category Filter Pills (Mobile) -->
   <div class="sm:hidden flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 mobile-cat-pills">
     <a href="{% url 'explore' %}{% if current_feed %}?feed={{ current_feed }}{% endif %}"
-       class="mobile-cat-chip {% if not active_category %}active{% endif %}"
-       style="--chip-bg: url('https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=800&auto=format&fit=crop');">
-      <span class="label">All</span>
-    </a>
+   class="cat-tile {% if not active_category %}active{% endif %}">
+  <img src="{% static 'images/all.jpeg' %}" alt="All">
+  <span class="label">All</span>
+</a>
     {% for c in categories %}
       <a href="{% url 'explore' %}?{% if current_feed %}feed={{ current_feed }}&{% endif %}cat={{ c.slug }}"
          class="mobile-cat-chip {% if active_category and active_category.slug == c.slug %}active{% endif %}"
@@ -29,10 +29,10 @@
   <div class="relative hidden sm:block">
     <div id="catScroll" class="flex gap-4 overflow-x-auto no-scrollbar pb-2 scroll-smooth">
       <a href="{% url 'explore' %}{% if current_feed %}?feed={{ current_feed }}{% endif %}"
-         class="cat-tile {% if not active_category %}active{% endif %}">
-        <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=400" alt="All">
-        <span class="label">All</span>
-      </a>
+   class="mobile-cat-chip {% if not active_category %}active{% endif %}"
+   style="--chip-bg: url('{% static 'images/all.jpeg' %}');">
+  <span class="label">All</span>
+</a>
       {% for c in categories %}
         <a href="{% url 'explore' %}?feed={{ current_feed }}&cat={{ c.slug }}"
            class="cat-tile {% if active_category and active_category.slug == c.slug %}active{% endif %}">

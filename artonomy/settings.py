@@ -24,26 +24,28 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG")
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
-ALLOWED_HOSTS = ["artonomy.ir","www.artonomy.ir"]
-CSRF_TRUSTED_ORIGINS = [
-    "https://artonomy.ir",
-    "https://www.artonomy.ir",
-]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
+
 
 # Force HTTPS
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+if not DEBUG:
+    CSRF_TRUSTED_ORIGINS = [
+    "https://artonomy.ir",
+    "https://www.artonomy.ir",
+    ]
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
-# HSTS (only enable after you confirm HTTPS works!)
-SECURE_HSTS_SECONDS = 31536000       # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
+    # HSTS (only enable after you confirm HTTPS works!)
+    SECURE_HSTS_SECONDS = 31536000       # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
-# If behind a proxy/load balancer that sets X-Forwarded-Proto (common on shared hosts)
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # If behind a proxy/load balancer that sets X-Forwarded-Proto (common on shared hosts)
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Application definition
