@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root { --purple:#C240FF; --background:#101015; }
+  .category-card{ border-radius:1rem; overflow:hidden; position:relative; cursor:pointer; border:2px solid transparent; transition:.3s; }
+  .category-card::after{ content:''; position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 70%); transition:.3s; }
+  .category-card img{ transition:transform .4s; }
+  .category-card:hover img{ transform:scale(1.05); }
+  .category-card.selected{ border-color:var(--purple); box-shadow:0 0 30px -5px var(--purple); }
+  .category-card.selected::after{ background:linear-gradient(to top, rgba(194,64,255,.5) 0%, transparent 70%); }
+  .category-label{ position:absolute; bottom:1.25rem; left:1.25rem; z-index:10; font-size:1.25rem; font-weight:700; }
+  .continue-btn{ background:var(--purple); box-shadow:0 0 20px -8px var(--purple); transition:.3s; }
+  .continue-btn:hover{ transform:translateY(-2px); filter:brightness(1.1); }
+</style>
+
+<div class="w-full max-w-5xl mx-auto px-4 py-12 text-white">
+  <div class="text-center">
+    <h1 class="text-3xl sm:text-4xl font-bold mb-12">Choose the artwork Category</h1>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="category-grid">
+      {% for c in categories %}
+        <div class="category-card aspect-[3/4]" data-id="{{ c.id }}">
+          {% if c.image %}
+            <img src="{{ c.image.url }}" class="w-full h-full object-cover">
+          {% else %}
+            <img src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?q=80&w=600" class="w-full h-full object-cover">
+          {% endif %}
+          <span class="category-label">{{ c.name }}</span>
+        </div>
+      {% empty %}
+        <p class="col-span-full text-gray-400">No categories yet.</p>
+      {% endfor %}
+    </div>
+
+    <form id="catForm" method="post" class="hidden">
+      {% csrf_token %}
+      <div id="catInputs"></div>
+    </form>
+
+    <div class="text-center pt-12">
+      <a href="#" id="catContinue" class="continue-btn text-white font-bold py-3 px-12 rounded-lg inline-block">Continue</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const grid = document.getElementById('category-grid');
+  const inputsWrap = document.getElementById('catInputs');
+  const form = document.getElementById('catForm');
+
+  grid.addEventListener('click', (e)=>{
+    const card = e.target.closest('.category-card');
+    if(!card) return;
+    grid.querySelectorAll('.category-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+
+    inputsWrap.innerHTML = '';
+    const inp = document.createElement('input');
+    inp.type = 'hidden';
+    inp.name = 'categories[]';
+    inp.value = card.dataset.id;
+    inputsWrap.appendChild(inp);
+  });
+
+  document.getElementById('catContinue').addEventListener('click', (e)=>{
+    e.preventDefault();
+    // if nothing chosen, pick none (backend accepts empty to continue)
+    form.submit();
+  });
+</script>
+{% endblock %}

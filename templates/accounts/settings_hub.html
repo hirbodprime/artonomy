@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root{
+    --bg:#0D0F12; --panel:#12141A; --panel2:#171A22; --border:#222733; --text:#E6E8EC; --muted:#A3A9B6;
+    --purple:#570080; --green:#11C865;
+  }
+  .cardX{background:var(--panel);border:1px solid var(--border);border-radius:18px}
+  .btnP{
+    background:linear-gradient(135deg,var(--purple),#7b1bb8);
+    color:#fff; border:1px solid rgba(255,255,255,.08);
+    border-radius:12px; padding:.75rem 1rem; font-weight:700;
+    transition:transform .15s ease,filter .15s ease, box-shadow .2s;
+    box-shadow:0 8px 24px rgba(87,0,128,.35)
+  }
+  .btnP:hover{ transform:translateY(-1px); filter:brightness(1.06) }
+  .btnG{
+    background:linear-gradient(135deg,var(--green),#18d17a);
+    color:#05110a; font-weight:800; border-radius:12px; padding:.75rem 1rem;
+    box-shadow:0 8px 24px rgba(17,200,101,.25);
+    transition:transform .15s ease,filter .15s ease;
+  }
+  .btnG:hover{ transform:translateY(-1px); filter:brightness(1.05) }
+  .tile{
+    border:1px solid var(--border); border-radius:20px; padding:1.5rem;
+    background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  }
+  .tile:hover{ transform:translateY(-4px); border-color:#6e2aa6; box-shadow:0 18px 50px rgba(87,0,128,.25) }
+  .badge{
+    display:inline-flex; align-items:center; gap:.4rem; font-weight:700; letter-spacing:.02em;
+    background:rgba(17,200,101,.14); color:#b9ffd8; border:1px solid rgba(17,200,101,.3);
+    padding:.25rem .6rem; border-radius:999px; font-size:.75rem;
+  }
+</style>
+
+<div class="max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <div class="text-center mb-8 sm:mb-12">
+    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Edit your profile</h1>
+    <p class="text-[color:var(--muted)] mt-2">Choose what you want to update.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-5">
+    <!-- Personal Info -->
+    <div class="tile">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl grid place-items-center"
+             style="background:radial-gradient(55% 60% at 30% 35%, #7b1bb8, #570080)">
+          <i class="fa-regular fa-id-card text-white text-lg"></i>
+        </div>
+        <div class="min-w-0">
+          <h3 class="text-lg font-bold">Personal info</h3>
+          <p class="text-sm text-[color:var(--muted)]">Name, title, avatar &amp; cover, socials, values and more.</p>
+        </div>
+      </div>
+      <div class="mt-4 flex gap-3">
+        <a class="btnP" href="{% url 'settings_personal_start' %}">
+          Open wizard
+        </a>
+        <span class="badge"><i class="fa-solid fa-bolt"></i> 6 steps</span>
+      </div>
+    </div>
+
+    <!-- Portfolio -->
+    <div class="tile">
+      <div class="flex items-start gap-3">
+        <div class="w-11 h-11 rounded-xl grid place-items-center"
+             style="background:radial-gradient(55% 60% at 30% 35%, #2be98f, #11C865)">
+          <i class="fa-solid fa-briefcase text-gray-900 text-lg"></i>
+        </div>
+        <div class="min-w-0">
+          <h3 class="text-lg font-bold">Portfolio</h3>
+          <p class="text-sm text-[color:var(--muted)]">Education, experience, projects, skills, awards, books…</p>
+        </div>
+      </div>
+      <div class="mt-4 flex gap-3">
+        <a class="btnG" href="{% url 'settings_portfolio_start' %}">
+          Open wizard
+        </a>
+        <span class="badge" style="background:rgba(87,0,128,.14);border-color:#6e2aa6;color:#e8d1ff">
+          <i class="fa-solid fa-bolt"></i> 6 steps
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

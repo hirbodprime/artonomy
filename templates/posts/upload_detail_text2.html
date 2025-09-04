@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root { --purple:#C240FF; --background:#101015; --input-bg:#1A1A22; --input-border:#3A3A3A; --panel-bg:#141419; }
+  .form-input{ background-color:var(--input-bg); border:1px solid var(--input-border); transition:.3s; }
+  .form-input:focus{ border-color:var(--purple); box-shadow:0 0 0 2px rgba(194,64,255,.3); outline:none; }
+  .chapter-list-item{ border:1px solid transparent; transition:.3s; }
+  .chapter-list-item.active,.chapter-list-item:hover{ background-color:var(--input-bg); border-color:var(--input-border); }
+  .continue-btn{ background:var(--purple); box-shadow:0 0 20px -8px var(--purple); transition:.3s; }
+  .continue-btn:hover{ transform:translateY(-2px); filter:brightness(1.1); }
+</style>
+
+<div class="w-full max-w-6xl mx-auto px-4 py-12 text-white">
+<form id="textForm" method="post" enctype="multipart/form-data"
+      class="grid lg:grid-cols-[280px_1fr] gap-8">
+  {% csrf_token %}
+
+  <!-- Left Panel -->
+  <aside class="space-y-6">
+    <!-- Cover picker -->
+    <label for="coverInput"
+           id="coverBox"
+           class="bg-[var(--input-bg)] rounded-lg aspect-square flex items-center justify-center text-center p-4 border border-[var(--input-border)] cursor-pointer overflow-hidden">
+      <div id="coverEmpty">
+        <i class="fa-solid fa-plus-circle text-2xl text-gray-500"></i>
+        <p class="text-sm font-semibold mt-2">Add Cover</p>
+      </div>
+      <input id="coverInput" name="cover" type="file" accept="image/*" class="hidden">
+    </label>
+
+    <button type="button" id="addChapterBtn"
+            class="w-full p-2.5 rounded-lg font-semibold bg-[var(--input-bg)] border border-[var(--input-border)] hover:border-[var(--purple)] transition-colors">
+      + Add Chapter
+    </button>
+
+    <!-- Chapter list -->
+    <div class="bg-[var(--panel-bg)] p-2 rounded-lg border border-[var(--input-border)]">
+      <ul id="chapterList" class="space-y-1">
+        <!-- items injected by JS; we start with Chapter 1 -->
+      </ul>
+    </div>
+  </aside>
+
+  <!-- Right Panel -->
+  <main class="space-y-6">
+    <input name="title" type="text" placeholder="Post title..."
+           class="form-input rounded-lg w-full p-4 text-xl font-bold" required>
+
+    <!-- Chapters container (one visible at a time) -->
+    <div id="chapters"></div>
+
+    <div class="text-center pt-4">
+      <a href="#" id="textContinue" class="continue-btn text-white font-bold py-3 px-12 rounded-lg inline-block">Continue</a>
+    </div>
+  </main>
+</form>
+</div>
+
+
+<script>
+(function(){
+  /* ---------- Cover preview ---------- */
+  const coverInput = document.getElementById('coverInput');
+  const coverBox   = document.getElementById('coverBox');
+  const coverEmpty = document.getElementById('coverEmpty');
+
+  coverInput?.addEventListener('change', () => {
+    const f = coverInput.files?.[0];
+    if (!f) return;
+    const url = URL.createObjectURL(f);
+    coverBox.style.backgroundImage = `url(${url})`;
+    coverBox.style.backgroundSize  = 'cover';
+    coverBox.style.backgroundPosition = 'center';
+    coverEmpty.style.display = 'none';
+  });
+
+  /* ---------- Chapters manager ---------- */
+  const chapterList  = document.getElementById('chapterList');
+  const chaptersWrap = document.getElementById('chapters');
+  const addBtn       = document.getElementById('addChapterBtn');
+
+  let count = 0;                 // how many chapters we have
+  let activeIdx = -1;            // which chapter is active
+  const activeClass = 'bg-[var(--input-bg)] border-[var(--input-border)]';
+
+  function makeListItem(i){
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <a class="block p-3 rounded-md chapter-list-item" data-idx="${i}">
+        <span class="title">Chapter ${i+1}</span>
+      </a>`;
+    const a = li.querySelector('a');
+    a.addEventListener('click', () => setActive(i));
+    return li;
+  }
+
+  function makeChapterForm(i){
+    const wrap = document.createElement('div');
+    wrap.dataset.idx = i;
+    wrap.className = 'space-y-4';
+    wrap.innerHTML = `
+      <input name="chapter_title[]" type="text" placeholder="Chapter title..."
+             class="form-input rounded-lg w-full p-3">
+      <textarea name="chapter_content[]" placeholder="Body..." rows="20"
+                class="form-input rounded-lg w-full p-4 leading-relaxed"></textarea>
+    `;
+    return wrap;
+  }
+
+  function getSection(i){ return chaptersWrap.querySelector('[data-idx="'+i+'"]'); }
+  function getTitleInput(i){ return getSection(i).querySelector('input[name="chapter_title[]"]'); }
+  function getBodyInput(i){ return getSection(i).querySelector('textarea[name="chapter_content[]"]'); }
+
+  function setActive(i){
+    activeIdx = i;
+
+    // list active state
+    chapterList.querySelectorAll('.chapter-list-item').forEach(el=>{
+      el.classList.remove('active'); el.classList.remove(...activeClass.split(' '));
+    });
+    chapterList.querySelector('.chapter-list-item[data-idx="'+i+'"]')
+      ?.classList.add('active', ...activeClass.split(' '));
+
+    // show only this chapter's fields
+    chaptersWrap.querySelectorAll('[data-idx]').forEach(el=> el.style.display='none');
+    const sec = getSection(i);
+    if (sec) sec.style.display='block';
+
+    // only the active chapter's body is required
+    chaptersWrap.querySelectorAll('textarea[name="chapter_content[]"]').forEach(t => t.required = false);
+    const body = getBodyInput(i);
+    if (body) body.required = true;
+  }
+
+  function addChapter(){
+    const i = count++;                           // unique index for this chapter
+    const sec = makeChapterForm(i);
+    const li  = makeListItem(i);
+
+    // append DOM nodes
+    chaptersWrap.appendChild(sec);
+    chapterList.appendChild(li);
+
+    // keep sidebar label in sync with this chapter's title input
+    const titleInput = getTitleInput(i);
+    const titleLabel = chapterList.querySelector('.chapter-list-item[data-idx="'+i+'"] .title');
+    titleInput.addEventListener('input', (e)=>{
+      titleLabel.textContent = e.target.value || `Chapter ${i+1}`;
+    });
+
+    // new chapters start empty by default; activate this one
+    sec.style.display = 'none';
+    setActive(i);
+  }
+
+  // init with one empty chapter
+  addChapter();
+
+  // add more chapters on click
+  addBtn.addEventListener('click', addChapter);
+
+  // submit
+  document.getElementById('textContinue').addEventListener('click', (e)=>{
+    e.preventDefault();
+    document.getElementById('textForm').submit();
+  });
+})();
+</script>
+
+{% endblock %}

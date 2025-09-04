@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% load static form_extras %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#0D0F12; --panel:#12141A; --panel2:#171A22; --border:#222733;
+    --text:#E6E8EC; --muted:#A3A9B6; --purple:#570080; --green:#11C865;
+  }
+
+  /* Shell */
+  .wrap{
+    max-width:1100px; margin-inline:auto;
+    padding: clamp(16px, 2vw, 28px) clamp(12px, 3vw, 24px) 6.5rem;
+  }
+  @media (min-width:640px){ .wrap{ padding-bottom: 3rem } }
+
+  /* Fancy header */
+  .hero{
+    position:relative; overflow:hidden;
+    background: linear-gradient(180deg, rgba(23,26,34,.92), rgba(23,26,34,.86));
+    border:1px solid var(--border); border-radius:18px;
+    padding:18px clamp(14px, 3vw, 24px); margin-bottom:14px;
+  }
+  .hero:after{
+    content:""; position:absolute; right:-80px; top:-80px; width:220px; height:220px; border-radius:50%;
+    background: radial-gradient(60% 60% at 50% 50%, rgba(87,0,128,.28), transparent 70%);
+    filter: blur(18px);
+  }
+  .hero-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .brand-pill{
+    display:flex; align-items:center; gap:.65rem;
+    padding:.55rem .8rem; border-radius:12px; border:1px solid var(--border);
+    background: rgba(255,255,255,.03);
+  }
+  .brand-pill .dot{
+    width:10px; height:10px; border-radius:999px;
+    background:linear-gradient(135deg, var(--purple), #8f3bd2);
+    box-shadow:0 0 0 3px rgba(87,0,128,.25);
+  }
+  .hero-title{ font-weight:900; color:#fff; letter-spacing:.2px }
+  .hero-sub{ color:var(--muted); font-size:.9rem }
+
+  /* Card */
+  .cardX{
+    background: linear-gradient(180deg, rgba(18,20,26,.98), rgba(18,20,26,.92));
+    border:1px solid var(--border); border-radius:18px;
+    box-shadow: 0 16px 50px rgba(0,0,0,.35);
+  }
+
+  .sec-title{ font-weight:900; letter-spacing:.2px }
+
+  /* Inputs */
+  .f-input,.f-select,.f-textarea{
+    width:100%; color:var(--text);
+    background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.004));
+    border:1px solid var(--border); border-radius:12px; padding:.85rem 1rem; min-height:44px;
+    transition:border-color .18s, box-shadow .18s, background-color .18s;
+  }
+  .f-textarea{ min-height:132px; resize:vertical }
+  .f-input:focus,.f-select:focus,.f-textarea:focus{
+    outline:0; border-color:#7e33c0;
+    box-shadow:0 0 0 3px rgba(87,0,128,.25), 0 10px 26px rgba(87,0,128,.22);
+  }
+  .labelX{ font-size:.85rem; font-weight:800; color:#d7dbea; margin-bottom:.45rem }
+  .hint{ font-size:.85rem; color:var(--muted) }
+  .err{ color:#ff9aa6; font-size:.8rem; margin-top:.25rem }
+
+  /* Media pickers */
+  .media-box{ position:relative; border:1px dashed #3a3f4f; border-radius:14px; padding:.9rem; text-align:center; background: #0f1218; }
+  .media-thumb{ width:100%; max-height:240px; object-fit:cover; border-radius:12px; border:1px solid var(--border) }
+  .media-btn{ width:100% }
+
+  /* Chips */
+  .chips{
+    background:var(--panel2); border:1px solid var(--border); border-radius:12px;
+    padding:.5rem; display:flex; flex-wrap:wrap; gap:.5rem;
+  }
+  .chip{
+    display:inline-flex; align-items:center; gap:.45rem;
+    font-weight:800; letter-spacing:.01em;
+    background:rgba(87,0,128,.16); color:#ebd8ff; border:1px solid #6e2aa6;
+    border-radius:999px; padding:.38rem .72rem; line-height:1;
+  }
+  .chip .x{ cursor:pointer; opacity:.8 } .chip .x:hover{ opacity:1 }
+  .chips input[type="text"]{
+    flex:1 1 160px; min-width:120px; background:transparent; border:none; outline:none; color:var(--text);
+    padding:.38rem .5rem
+  }
+
+  /* Buttons */
+  .btnP{
+    background: linear-gradient(135deg, var(--purple), #7b1bb8);
+    color:#fff; border:1px solid rgba(255,255,255,.08);
+    border-radius:12px; padding:.9rem 1.15rem; font-weight:900;
+    box-shadow:0 12px 28px rgba(87,0,128,.35);
+    transition: filter .18s, transform .18s;
+  }
+  .btnP:hover{ filter:brightness(1.05); transform: translateY(-1px) }
+  .btnGhost{
+    padding:.9rem 1.1rem; border-radius:12px; border:1px solid var(--border);
+    background:var(--panel2); color:#d0d7e6; font-weight:700;
+  }
+
+  /* Layout helpers */
+  .grid-split{ display:grid; grid-template-columns:1fr; gap:14px }
+  @media (min-width:780px){ .grid-split{ grid-template-columns:1fr 1fr } }
+  .no-bleed{ min-width:0 }
+
+  /* Step spacing */
+  .form-pad{ padding: clamp(14px, 2vw, 22px) }
+</style>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-row">
+      <div class="brand-pill">
+        <span class="dot"></span>
+        <span class="hero-title">Personal settings</span>
+      </div>
+      <div class="hero-sub">Tune your profile so it looks and feels uniquely you.</div>
+    </div>
+  </div>
+
+  {% include "accounts/_wizard_stepper.html" with step=step steps=steps %}
+
+  <div class="cardX">
+    {% if step == 1 %}
+      <div class="form-pad">
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">Basics</h2>
+        <form method="post" enctype="multipart/form-data" class="space-y-6" id="basicForm">
+          {% csrf_token %}
+          <div class="grid-split no-bleed">
+            {% for field in form.visible_fields %}
+              {% if field.name == "avatar" or field.name == "cover" %}
+                <div class="sm:col-span-2">
+                  <label class="labelX" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  <div class="media-box">
+                    <input type="file" name="{{ field.html_name }}" id="{{ field.id_for_label }}" accept="image/*" class="hidden">
+                    <button type="button" data-target="{{ field.id_for_label }}" class="btnGhost media-btn">Choose {{ field.label }}</button>
+                    <div class="mt-3">
+                      <img id="{{ field.id_for_label }}_preview" class="media-thumb hidden" alt="">
+                    </div>
+                  </div>
+                  {% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}
+                </div>
+              {% else %}
+                <div>
+                  <label class="labelX" for="{{ field.id_for_label }}">
+                    {{ field.label }}{% if field.field.required %} *{% endif %}
+                  </label>
+                  {% if field.field.widget.input_type == "textarea" %}
+                    {{ field|add_class:"f-textarea" }}
+                  {% else %}
+                    {{ field|add_class:"f-input" }}
+                  {% endif %}
+                  {% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}
+                  {% if field.help_text %}<div class="hint mt-1">{{ field.help_text }}</div>{% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <div class="flex flex-col sm:flex-row justify-between gap-3 pt-1">
+            <span></span>
+            <button class="btnP" type="submit">Save &amp; Continue</button>
+          </div>
+        </form>
+      </div>
+
+    {% elif step == 2 %}
+      <div class="form-pad">
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">Skills</h2>
+        <form method="post" class="space-y-6" id="skillsForm">
+          {% csrf_token %}
+          <div class="hidden">{{ form.as_p }}</div>
+
+          <div>
+            <label class="labelX">Add or remove your skills</label>
+            <div class="chips" data-sync-name="skills_csv"></div>
+            <div class="hint mt-2">Type to add a skill. Press Enter to create or click a suggestion. Click × to remove.</div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row justify-between gap-3">
+            <a href="{% url 'settings_personal' 1 %}" class="btnGhost">Back</a>
+            <button class="btnP">Save &amp; Continue</button>
+          </div>
+        </form>
+      </div>
+
+    {% elif step == 3 %}
+      <div class="form-pad">
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">Values &amp; Hobbies</h2>
+        <form method="post" class="space-y-6" id="vhForm">
+          {% csrf_token %}
+          <div class="hidden">{{ form.as_p }}</div>
+
+          <div>
+            <label class="labelX">Personal values</label>
+            <div class="chips" data-sync-name="values_csv"></div>
+          </div>
+          <div>
+            <label class="labelX">Hobbies / Interests</label>
+            <div class="chips" data-sync-name="hobbies_csv"></div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row justify-between gap-3">
+            <a href="{% url 'settings_personal' 2 %}" class="btnGhost">Back</a>
+            <button class="btnP">Save &amp; Continue</button>
+          </div>
+        </form>
+      </div>
+
+    {% elif step == 4 %}
+      <div class="form-pad">
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">Fun facts</h2>
+        <form method="post" class="space-y-5">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <div class="flex flex-col sm:flex-row justify-between gap-3">
+            <a href="{% url 'settings_personal' 3 %}" class="btnGhost">Back</a>
+            <button class="btnP">Save &amp; Continue</button>
+          </div>
+        </form>
+      </div>
+
+    {% elif step == 5 %}
+      <div class="form-pad">
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">Social links</h2>
+        <form method="post" class="space-y-5">
+          {% csrf_token %}
+          {{ formset.management_form }}
+          {# inside step 5 block, above the grid #}
+{{ formset.management_form }}
+{% if formset.non_form_errors %}
+  <div class="mb-3 text-red-300 text-sm font-semibold">{{ formset.non_form_errors }}</div>
+{% endif %}
+
+<div class="grid sm:grid-cols-2 gap-4">
+  {% for f in formset %}
+    <div class="p-4 rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)]">
+      {{ f.non_field_errors }}
+      {% for field in f.visible_fields %}
+        <div class="mb-3">
+          <label class="text-sm font-semibold block mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field|add_class:"f-input" }}
+          {% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      {# 🔴 add this: #}
+      {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+
+      {% if f.instance.pk %}
+        <label class="inline-flex items-center gap-2 text-sm mt-1">{{ f.DELETE }} Delete</label>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+          <div class="flex flex-col sm:flex-row justify-between gap-3">
+  <a href="{% url 'settings_personal' 4 %}" class="btnGhost">Back</a>
+  <div class="flex gap-2">
+    <button name="skip" value="1" class="btnGhost" type="submit">Skip for now</button>
+    <button class="btnP" type="submit">Save &amp; Continue</button>
+  </div>
+</div>
+
+        </form>
+      </div>
+
+    {% else %}
+      <div class="form-pad">
+        <h2 class="sec-title text-xl sm:text-2xl mb-2">Review</h2>
+        <p class="text-[color:var(--muted)] mb-6">You’re all set. You can revisit any step anytime.</p>
+        <div class="flex gap-3 flex-wrap">
+          <a class="btnGhost" href="{% url 'settings_personal' 1 %}">Basics</a>
+          <a class="btnGhost" href="{% url 'settings_personal' 2 %}">Skills</a>
+          <a class="btnGhost" href="{% url 'settings_personal' 3 %}">Values &amp; Hobbies</a>
+          <a class="btnGhost" href="{% url 'settings_personal' 4 %}">Fun facts</a>
+          <a class="btnGhost" href="{% url 'settings_personal' 5 %}">Social links</a>
+          <a class="btnP" href="{% url 'profile_view' request.user.username %}">Done</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+/* media picker preview */
+document.querySelectorAll('.media-box button[data-target]').forEach(btn=>{
+  btn.addEventListener('click', ()=> document.getElementById(btn.dataset.target)?.click());
+});
+document.querySelectorAll('.media-box input[type=file]').forEach(inp=>{
+  inp.addEventListener('change', ()=>{
+    const img = document.getElementById(inp.id + '_preview');
+    if (inp.files?.[0] && img){ img.src = URL.createObjectURL(inp.files[0]); img.classList.remove('hidden'); }
+  });
+});
+
+/* GitHub-like chips (skills/values/hobbies) — same logic you already had */
+function buildChips(container){
+  const name = container.getAttribute('data-sync-name');
+  const orig = document.querySelector(`[name="${name}"]`);
+  const input = document.createElement('input'); input.type='text'; input.placeholder='Type and press Enter…';
+  container.appendChild(input);
+  function selected(){
+    if (orig && orig.tagName==='SELECT' && orig.multiple)
+      return [...orig.options].filter(o=>o.selected).map(o=>({value:o.value,label:o.text}));
+    return [...container.querySelectorAll('input[type=hidden][data-clone="1"]')].map(h=>({value:h.value,label:h.dataset.label||h.value}));
+  }
+  function add(v,l){
+    if(container.querySelector(`.chip[data-val="${CSS.escape(v)}"]`)) return;
+    const el=document.createElement('span'); el.className='chip'; el.dataset.val=v; el.innerHTML=`<span>${l||v}</span><span class="x">×</span>`;
+    container.insertBefore(el,input);
+    if (orig && orig.tagName==='SELECT' && orig.multiple){ const opt=[...orig.options].find(o=>o.value==v) || new Option(l||v,v,true,true); opt.selected=true; if(!opt.index) orig.add(opt); }
+    else{ const h=document.createElement('input'); h.type='hidden'; h.name=name; h.value=v; h.dataset.clone='1'; h.dataset.label=l||v; container.appendChild(h); }
+  }
+  function rem(v){
+    container.querySelector(`.chip[data-val="${CSS.escape(v)}"]`)?.remove();
+    if (orig && orig.tagName==='SELECT' && orig.multiple){ const o=[...orig.options].find(o=>o.value==v); if(o) o.selected=false; }
+    else container.querySelector(`input[type=hidden][data-clone="1"][value="${CSS.escape(v)}"]`)?.remove();
+  }
+  selected().forEach(({value,label})=>add(value,label));
+  container.addEventListener('click',e=>{ const x=e.target.closest('.chip .x'); if(!x) return; rem(x.closest('.chip').dataset.val); });
+  const sugg=(orig && orig.tagName==='SELECT')?[...orig.options].map(o=>({value:o.value,label:o.text})):[];
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      e.preventDefault();
+      const val=input.value.trim(); if(!val) return;
+      const hit=sugg.find(s=>s.label.toLowerCase()===val.toLowerCase());
+      add(hit?.value||val, hit?.label||val); input.value='';
+    }
+  });
+}
+document.querySelectorAll('.chips').forEach(buildChips);
+</script>
+{% endblock %}

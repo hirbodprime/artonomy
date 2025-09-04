@@ -1,0 +1,642 @@
+{% extends "base.html" %}
+{% load profile_extras %}
+{% load humanize %}
+
+{% block content %}
+<style>
+  /* === FABULOUS PROFILE REDESIGN V5 === */
+
+  /* 1. Brand Colors & Core Setup */
+  :root {
+    --deep-purple: #570080;
+    --light-purple: #C240FF;
+    --green: #11C865;
+    --blue: #216CFF;
+    
+    --background: #101015;
+    --glass-bg: rgba(26, 26, 34, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #EAEAEA;
+    --text-secondary: #A0A0B0;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--text-primary);
+  }
+
+  /* 2. Glassmorphism Panel Style */
+  .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 1.5rem; /* 24px */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  /* 3. Hero Section Styles */
+  .hero-banner {
+    background: linear-gradient(to top, var(--background) 5%, transparent 100%);
+  }
+  .hero-avatar {
+    border: 4px solid var(--background);
+    box-shadow: 0 0 25px -5px var(--light-purple);
+  }
+  .hero-subtitle {
+    font-weight: 500;
+    background: linear-gradient(90deg, var(--light-purple), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    text-shadow: 0 0 15px rgba(194, 64, 255, 0.3);
+  }
+  .hero-follow-btn {
+    background: var(--light-purple);
+    box-shadow: 0 0 20px -8px var(--light-purple);
+    transition: all 0.3s ease;
+  }
+  .hero-follow-btn.following {
+    background: var(--glass-bg);
+    box-shadow: none;
+    border: 1px solid var(--glass-border);
+  }
+  .hero-follow-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+
+  /* 4. Controls Bar, Tabs & Filters */
+  .controls-container {
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .profile-tab {
+    padding: 0.5rem 0;
+    margin: 0 0.5rem;
+    font-weight: 500;
+    position: relative;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+  }
+  @media (min-width: 640px) {
+    .profile-tab { margin: 0 1rem; }
+  }
+  .profile-tab:hover { color: var(--text-primary); }
+  .profile-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--light-purple);
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .profile-tab.active { color: white; }
+  .profile-tab.active::after { transform: scaleX(1); box-shadow: 0 0 10px var(--light-purple); }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(16, 16, 21, 0.7);
+    border: 1px solid var(--glass-border);
+    padding: 0.35rem;
+    border-radius: 0.75rem;
+  }
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  .filter-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
+  .filter-btn.active { background: var(--light-purple); color: white; box-shadow: 0 0 15px -5px var(--light-purple); }
+
+  .sort-select {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    padding: 0.6rem 2.5rem 0.6rem 1rem;
+    border-radius: 0.75rem;
+    appearance: none; -webkit-appearance: none;
+    font-size: 0.875rem; font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  .sort-select:hover { border-color: rgba(255, 255, 255, 0.3); }
+
+  /* 5. Timeline Grid & Item Styles */
+  .masonry { column-gap: 1.5rem; column-width: 340px; }
+  .masonry-item {
+    break-inside: avoid; margin-bottom: 1.5rem; width: 100%;
+    display: inline-block; vertical-align: top;
+    border-radius: 1.25rem; overflow: hidden; transition: transform 0.3s ease;
+  }
+  .masonry-item:hover { transform: translateY(-5px); }
+  .portfolio-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .group:hover .portfolio-overlay { opacity: 1; }
+
+  /* 6. RESTORED Portfolio & Personal Info Card Design */
+  .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+  .info-card { background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--glass-border); }
+  .info-card h3 { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 1.125rem; font-weight: 600; color: var(--text-primary); }
+  .info-card h3 .icon { color: var(--light-purple); font-size: 1.25rem; width: 20px; text-align: center; }
+  .skill-chip { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 0.875rem; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.8s ease forwards; }
+  .slide-up { animation: slideUp 0.8s ease forwards; }
+</style>
+
+<div class="max-w-7xl w-full mx-auto px-3 sm:px-6 py-6">
+
+  <!-- ===== FABULOUS Profile Hero ===== -->
+<section class="relative mb-8 text-center sm:text-left fade-in">
+  <!-- Banner -->
+  {% if profile_user.profile and profile_user.profile.cover %}
+    <div class="h-48 sm:h-64 rounded-2xl bg-center bg-cover relative"
+         style="background-image:url('{{ profile_user.profile.cover.url }}');">
+      <div class="absolute inset-0 hero-banner"></div>
+    </div>
+  {% else %}
+    <div class="h-48 sm:h-64 rounded-2xl relative overflow-hidden">
+      <div class="absolute inset-0"
+           style="background:
+                  radial-gradient(1200px 400px at -10% -30%, rgba(120,65,255,.18), rgba(120,65,255,0) 60%),
+                  radial-gradient(900px 300px at 110% 130%, rgba(65,120,255,.18), rgba(65,120,255,0) 60%),
+                  var(--panel2);"></div>
+      <div class="absolute inset-0 hero-banner"></div>
+    </div>
+  {% endif %}
+
+  <!-- Content -->
+  <div class="px-4 sm:px-8">
+    <div class="flex flex-col sm:flex-row items-center sm:items-end gap-5 -mt-16 sm:-mt-20">
+      <!-- Avatar -->
+<img src="{% if profile_user.profile.avatar %}{{ profile_user.profile.avatar.url }}{% else %}https://placehold.co/160x160/222/FFF?text=U{% endif %}"
+     class="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover hero-avatar slide-up"
+     style="animation-delay: 0.2s;"
+     alt="{{ profile_user.username }}">
+
+      
+      <!-- User Info -->
+      <div class="flex-1 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 w-full slide-up" style="animation-delay: 0.4s;">
+        <div class="min-w-0">
+          <!-- Username + suggestion counters on one line (wrap on small screens) -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-3xl sm:text-4xl font-bold truncate">{{ profile_user.username }}</h1>
+
+            <!-- Suggestion counters -->
+            {% if profile_user.role == 'ARTIST' %}
+              <!-- Suggested by others (received) -->
+              <span
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                style="background:#570080; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(87,0,128,.45);">
+                <i class="fa-solid fa-star text-[10px]"></i>
+                <span>Suggested by</span>
+                <span class="opacity-90">·</span>
+                <span>{{ suggestions_received_count|default:0 }}</span>
+              </span>
+            {% endif %}
+            <!-- Suggested (made by this user) -->
+            <span
+              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+              style="background:#11C865; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(17,200,101,.35);">
+              <i class="fa-solid fa-share-nodes text-[10px]"></i>
+              <span>Suggested</span>
+              <span class="opacity-90">·</span>
+              <span>{{ suggestions_made_count|default:0 }}</span>
+            </span>
+          </div>
+
+{# Hero cats in gradient style (falls back to profile title) #}
+{% if profile_user.role == 'AUDIENCE' %}
+  <p class="text-sm truncate hero-subtitle mt-1">Audience</p>
+{% else %}
+  {% if hero_cats %}
+    <p class="text-sm truncate hero-subtitle mt-1">
+      {% for c in hero_cats %}
+        {{ c.name }}{% if not forloop.last %} · {% endif %}
+      {% endfor %}
+    </p>
+  {% elif profile_user.profile.title %}
+    <p class="text-sm truncate hero-subtitle mt-1">{{ profile_user.profile.title }}</p>
+  {% endif %}
+{% endif %}
+
+        </div>
+
+        <div class="flex items-center gap-4 sm:gap-6 mt-4 sm:mt-0">
+           <div class="flex gap-4 text-sm text-gray-400">
+  <a href="{% url 'network:following_list' profile_user.username %}"
+     class="inline-flex items-center gap-1 px-2 py-1 rounded-full hover:bg-white/5 hover:text-white transition-colors"
+     title="See who {{ profile_user.username }} follows">
+    <b class="text-white font-semibold">{{ following_count|default:0 }}</b> Following
+  </a>
+
+  <a href="{% url 'network:followers_list' profile_user.username %}"
+     class="inline-flex items-center gap-1 px-2 py-1 rounded-full hover:bg-white/5 hover:text-white transition-colors"
+     title="See {{ profile_user.username }}’s followers">
+    <b class="text-white font-semibold">{{ followers_count|default:0 }}</b> Followers
+  </a>
+</div>
+
+          <div class="flex-shrink-0">
+              {% if request.user.is_authenticated and request.user != profile_user %}
+              <button
+                  class="px-5 py-2 text-sm font-semibold rounded-full hero-follow-btn js-follow-btn {% if is_following_author %}following{% endif %}"
+                  data-user="{{ profile_user.id }}"
+                  data-endpoint="{% url 'network:toggle_follow' profile_user.id %}"
+                  aria-pressed="{{ is_following_author|yesno:'true,false' }}">
+                  {% if is_following_author %}Following{% else %}Follow{% endif %}
+              </button>
+              {% elif request.user == profile_user and  show_market%}
+              <a href="{% url 'settings_profile' %}" class="px-5 py-2 text-sm font-semibold rounded-full hero-follow-btn following">Edit Profile</a>
+              {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- ===== Integrated Controls Bar ===== -->
+  <div class="flex flex-wrap items-center justify-center sm:justify-between gap-6 controls-container mb-8 slide-up" style="animation-delay: 0.6s;">
+      <div class="flex items-center flex-wrap justify-center">
+          <button class="profile-tab active" data-tab="timeline">Timeline</button>
+          <button class="profile-tab" data-tab="portfolio">Portfolio</button>
+          <button class="profile-tab" data-tab="personal">Personal Info</button>
+          {% if show_market %}
+<button class="profile-tab" data-tab="market">Marketplace</button>
+{% endif %}
+      </div>
+
+      <!-- Filters & Sort (only for Timeline) -->
+      <div id="timeline-controls" class="flex items-center gap-4">
+          <div class="filter-group">
+            <button class="filter-btn js-type active" data-type="all"><i class="fa-solid fa-layer-group text-xs"></i> <span>All</span></button>
+            <button class="filter-btn js-type" data-type="PHOTO">Photo</button>
+            <button class="filter-btn js-type" data-type="VIDEO">Video</button>
+            <button class="filter-btn js-type" data-type="TEXT">Text</button>
+          </div>
+          <!-- <div class="relative">
+             <select id="sortSelect" class="sort-select">
+                <option value="latest">Latest</option>
+                <option value="popular">Popular</option>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500 pointer-events-none"></i>
+          </div> -->
+      </div>
+  </div>
+
+  <!-- ===== PANELS ===== -->
+
+  <!-- TIMELINE PANEL -->
+  <section class="panel" data-panel="timeline">
+    <div class="masonry" id="timelineGrid">
+      {% for post in timeline_posts %}
+        <article class="masonry-item js-post group" data-type="{{ post.post_type }}" data-pop="{{ post.likes_count|default:0 }}">
+          <a href="{% url 'single_post' post.pk %}" class="block relative">
+            {% if post.post_type == "PHOTO" %}
+              {% with first_img=post.images.all|first %}
+                {% if first_img %}
+                  <img src="{{ first_img.image.url }}" class="w-full h-auto object-cover" alt="{{ post.title }}">
+                {% elif post.image %}
+                  <img src="{{ post.image.url }}" class="w-full h-auto object-cover" alt="{{ post.title }}">
+                {% else %}
+                  <img src="https://placehold.co/400x400/1E1E1E/FFF?text=Image" class="w-full h-auto object-cover" alt="">
+                {% endif %}
+              {% endwith %}
+{% elif post.post_type == "VIDEO" %}
+  {% with clip=post.videos.all|first %}
+    <div class="relative overflow-hidden rounded-2xl">
+      <!-- Mobile: 16:9, Desktop: exactly 349x195 -->
+      <div class="relative aspect-video sm:aspect-[349/195]">
+
+        {# Base image (poster or placeholder; replaced by 1s snapshot when needed) #}
+        <img id="thumb-{{ post.id }}"
+             src="{% if clip and clip.poster %}{{ clip.poster.url }}{% else %}https://placehold.co/800x600/12141A/EEE?text=Video{% endif %}"
+             alt="{{ post.title }}"
+             class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" />
+
+        {# Hidden video for snapshot-at-1s when no poster exists #}
+        {% if clip and not clip.poster %}
+          <video class="hidden js-make-thumb" preload="metadata"
+                 data-target="thumb-{{ post.id }}" data-second="1" crossorigin="anonymous">
+            <source src="{{ clip.file.url|default:clip.video.url }}" type="video/mp4">
+          </video>
+        {% elif not clip and post.video %}
+          <video class="hidden js-make-thumb" preload="metadata"
+                 data-target="thumb-{{ post.id }}" data-second="1" crossorigin="anonymous">
+            <source src="{{ post.video.url }}" type="video/mp4">
+          </video>
+        {% endif %}
+
+        <!-- Dim/hover layer -->
+        <span class="pointer-events-none absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></span>
+
+        <!-- Play badge -->
+        <span class="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <span class="relative grid place-items-center w-10 h-10 sm:w-11 sm:h-11 rounded-full
+                       bg-black/65 group-hover:bg-black/75 transition">
+            <span class="absolute -inset-1 rounded-full ring-2 ring-white/10"></span>
+            <i class="fa-solid fa-play text-white text-sm ml-0.5"></i>
+          </span>
+        </span>
+      </div>
+    </div>
+  {% endwith %}
+
+  
+
+            {% elif post.post_type == "TEXT" %}
+              <div class="p-6 h-full" style="background-color: #1a1a22;">
+                <h3 class="font-bold text-lg text-white mb-2 line-clamp-2">{{ post.title }}</h3>
+                <p class="text-sm text-gray-400 line-clamp-5">
+                  {% with ch=post.chapters.all|first %}
+                    {% if ch %}
+                      {{ ch.content|striptags|truncatewords:30 }}
+                    {% else %}
+                      {{ post.body|default:post.caption|striptags|truncatewords:30 }}
+                    {% endif %}
+                  {% endwith %}
+                </p>
+              </div>
+            {% endif %}
+            <div class="absolute inset-0 portfolio-overlay p-4 flex flex-col justify-end">
+              <h3 class="font-bold text-white truncate">{{ post.title }}</h3>
+              <p class="text-sm text-gray-300 truncate">by {{ post.author.username }}</p>
+            </div>
+          </a>
+        </article>
+      {% empty %}
+        <p class="text-gray-400 col-span-full text-center py-10">This artist hasn't posted anything on their timeline yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+  
+  <!-- NEW PORTFOLIO PANEL (Resume Style) -->
+  <section class="panel hidden" data-panel="portfolio">
+    <div class="info-grid">
+      <div class="info-card">
+        <h3><i class="fa-solid fa-graduation-cap icon"></i>Education</h3>
+        <div class="space-y-4">
+          {% for e in educations %}<p class="text-sm text-gray-300">{{ e.degree }} at <b>{{ e.school }}</b></p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
+        </div>
+      </div>
+      <div class="info-card">
+        <h3><i class="fa-solid fa-briefcase icon"></i>Work Experience</h3>
+        <div class="space-y-4">
+          {% for w in experiences %}<p class="text-sm text-gray-300">{{ w.title }} at <b>{{ w.company }}</b></p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
+        </div>
+      </div>
+      <div class="info-card">
+        <h3><i class="fa-solid fa-star icon"></i>Skills</h3>
+        <div class="flex flex-wrap gap-2">
+          {% for s in skills %}<span class="skill-chip">{{ s.name }}</span>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
+        </div>
+      </div>
+      <div class="info-card">
+        <h3><i class="fa-solid fa-award icon"></i>Awards</h3>
+        <div class="space-y-4">
+          {% for a in awards %}<p class="text-sm text-gray-300">{{ a.title }} from <b>{{ a.organization }}</b></p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
+        </div>
+      </div>
+      <div class="info-card">
+        <h3><i class="fa-solid fa-certificate icon"></i>Certifications</h3>
+        <div class="space-y-4">
+          {% for c in certifications %}<p class="text-sm text-gray-300">{{ c.name }} from <b>{{ c.issuer }}</b></p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
+        </div>
+      </div>
+      <div class="info-card">
+        <h3><i class="fa-solid fa-book-open icon"></i>Books</h3>
+        <div class="space-y-4">
+          {% for b in books %}<p class="text-sm text-gray-300"><b>{{ b.title }}</b> by {{ b.author }}</p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERSONAL INFO PANEL -->
+  <section data-panel="personal" class="hidden panel">
+    <div class="info-grid">
+      <div class="info-card lg:col-span-2">
+        <h3><i class="fa-regular fa-user icon"></i>About Me</h3>
+        <p class="text-sm text-gray-300 leading-relaxed">{{ profile_user.profile.bio|default:"No bio provided." }}</p>
+      </div>
+      <div class="info-card">
+        <h3><i class="fa-solid fa-link icon"></i>Contact</h3>
+        <div class="space-y-2 text-sm"><p>{{ profile_user.email }}</p></div>
+      </div>
+      <div class="info-card">
+        <h3><i class="fa-solid fa-heart icon"></i>Hobbies</h3>
+        <div class="flex flex-wrap gap-2">
+          {% for h in hobbies %}<span class="skill-chip">{{ h.name }}</span>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARKETPLACE PANEL -->
+  <!-- MARKETPLACE PANEL -->
+  <section class="panel hidden" data-panel="market">
+  <style>
+    /* Add Service card extras */
+    .add-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border, rgba(255,255,255,.08));
+      background:
+        radial-gradient(120% 100% at -10% 120%, rgba(125,92,255,.15), transparent 60%),
+        radial-gradient(90% 80% at 120% -10%, rgba(17,200,101,.12), transparent 55%),
+        rgba(255,255,255,.02);
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
+    }
+    .add-card:hover {
+      transform: translateY(-4px);
+      border-color: transparent;
+      box-shadow: 0 16px 48px rgba(125,92,255,.25);
+      background:
+        radial-gradient(120% 100% at -10% 120%, rgba(125,92,255,.20), transparent 60%),
+        radial-gradient(90% 80% at 120% -10%, rgba(17,200,101,.16), transparent 55%),
+        rgba(255,255,255,.03);
+    }
+    .add-card .pulse {
+      position:absolute; inset:-30%;
+      background: conic-gradient(from 0deg, rgba(125,92,255,.15), rgba(17,200,101,.10), rgba(125,92,255,.15));
+      filter: blur(30px);
+      animation: spin 12s linear infinite;
+      opacity:.55;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+    {# --- Add Service tile (first) — owner only --- #}
+    {% if is_owner %}
+      <a href="{% url 'marketplace:add' %}"
+         class="add-card group block"
+         aria-label="Add Service">
+        <div class="pulse"></div>
+
+        <div class="aspect-[4/3] flex items-center justify-center">
+          <div class="relative grid place-items-center">
+            <div class="w-16 h-16 rounded-full border border-white/15 bg-white/5 backdrop-blur grid place-items-center transition-transform duration-200 group-hover:scale-105">
+              <!-- plus icon (inline SVG, no deps) -->
+              <svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/>
+              </svg>
+            </div>
+            <div class="mt-4 text-center">
+              <div class="text-gray-200 font-semibold">Add Service</div>
+              <div class="text-xs text-[var(--muted)] mt-1">Create a new marketplace listing</div>
+            </div>
+          </div>
+        </div>
+      </a>
+    {% endif %}
+
+    {# --- Existing items --- #}
+    {% for item in market_items %}
+      <div class="glass-panel overflow-hidden group">
+        <div class="aspect-[4/3] bg-black/40">
+          {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+          {% endif %}
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold line-clamp-1">{{ item.title }}</h3>
+          <div class="mt-3 flex items-center justify-between">
+            <div>
+              <div class="font-bold text-lg text-[var(--green)]">
+                {{ item.currency }} {{ item.price|floatformat:0|intcomma }}
+              </div>
+              <div class="text-[11px] text-[var(--muted)] mt-1">
+                {{ item.created_at|date:"M d" }}
+              </div>
+            </div>
+            <a href="{% url 'marketplace:item' item.pk %}"
+               class="px-3 py-1.5 text-sm rounded-lg border border-[var(--glass-border)] hover:bg-[var(--light-purple)] hover:border-transparent transition-colors">
+              View
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      {# When there are no items: show a centered CTA for non-owners, but owners already see the Add tile #}
+      {% if not is_owner %}
+        <p class="text-gray-400 col-span-full text-center py-10">No marketplace listings yet.</p>
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+
+</div>
+<script>
+(function () {
+  document.querySelectorAll('video.js-make-thumb').forEach(function (v) {
+    const seekTo = +(v.dataset.second || 1);
+    const img = document.getElementById(v.dataset.target);
+    if (!img) return;
+
+    v.addEventListener('loadedmetadata', function () {
+      // seek to 1s (or duration if shorter)
+      v.currentTime = Math.min(seekTo, v.duration || seekTo);
+    }, { once: true });
+
+    v.addEventListener('seeked', function () {
+      const canvas = document.createElement('canvas');
+      // render at 2x for crispness: 349x195 -> 698x390
+      canvas.width = 698;
+      canvas.height = 390;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
+      img.src = canvas.toDataURL('image/jpeg', 0.86);
+    }, { once: true });
+  });
+})();
+</script>
+
+<script>
+  (function(){
+    const TABS = document.querySelectorAll('.profile-tab');
+    const PANELS = document.querySelectorAll('.panel');
+    const timelineControls = document.getElementById('timeline-controls');
+    function activate(name){
+      TABS.forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+      PANELS.forEach(p=>p.classList.toggle('hidden', p.dataset.panel!==name));
+      if (timelineControls) timelineControls.style.display = (name === 'timeline') ? 'flex' : 'none';
+    }
+    TABS.forEach(t=>t.addEventListener('click', ()=>activate(t.dataset.tab)));
+    activate( (location.hash||'').replace('#','') || 'timeline' );
+  })();
+
+  (function(){
+    const btns = document.querySelectorAll('.js-type');
+    const cards = document.querySelectorAll('.js-post');
+    btns.forEach(b => b.addEventListener('click', () => {
+      btns.forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const t = b.dataset.type;
+      cards.forEach(c => c.style.display = (t==='all' || c.dataset.type===t) ? '' : 'none');
+    }));
+  })();
+
+  (function(){
+    const select = document.getElementById('sortSelect');
+    const grid = document.getElementById('timelineGrid');
+    if (!select || !grid) return;
+    const originalOrder = Array.from(grid.children);
+    select.addEventListener('change', () => {
+      const children = Array.from(grid.children);
+      if (select.value === 'popular') {
+        children.sort((a,b) => (+b.dataset.pop||0) - (+a.dataset.pop||0));
+      } else {
+        originalOrder.forEach(el => grid.appendChild(el));
+      }
+      children.forEach(c => grid.appendChild(c));
+    });
+  })();
+
+  (function(){
+    function getCookie(name){
+      const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return m ? m.pop() : '';
+    }
+    const CSRF = getCookie('csrftoken');
+    function setFollowUI(btn, following){
+      btn.setAttribute('aria-pressed', following ? 'true' : 'false');
+      btn.classList.toggle('following', following);
+      btn.textContent = following ? 'Following' : 'Follow';
+    }
+    document.querySelectorAll('.js-follow-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const res = await fetch(btn.dataset.endpoint, {
+          method:'POST',
+          headers:{ 'X-CSRFToken': CSRF, 'Accept':'application/json' },
+          credentials:'same-origin'
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        document.querySelectorAll(`.js-follow-btn[data-user="${btn.dataset.user}"]`)
+          .forEach(b => setFollowUI(b, data.following));
+      });
+    });
+  })();
+</script>
+
+{% endblock %}

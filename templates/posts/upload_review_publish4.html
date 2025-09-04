@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root{ --purple:#C240FF; --green:#11C865; --background:#101015; --panel-bg:#141419; --input-border:#3A3A3A; }
+  .draft-btn,.publish-btn{ transition:.3s; }
+  .draft-btn{ background-color:var(--green); }
+  .publish-btn{ background-color:var(--purple); }
+  .draft-btn:hover,.publish-btn:hover{ transform:translateY(-2px); filter:brightness(1.1); }
+</style>
+
+<div class="w-full max-w-3xl mx-auto px-4 py-12 text-white">
+  <div class="bg-[var(--panel-bg)] border border-[var(--input-border)] p-6 sm:p-8 rounded-2xl">
+
+    <!-- Preview -->
+    {% if post.post_type == 'PHOTO' and post.image %}
+      <div class="rounded-xl overflow-hidden mb-6">
+        <img src="{{ post.image.url }}" class="w-full h-auto object-cover">
+      </div>
+    {% elif post.post_type == 'VIDEO' and post.video %}
+      <div class="rounded-xl overflow-hidden mb-6 bg-black">
+        <video src="{{ post.video.url }}" class="w-full h-auto" controls playsinline preload="metadata"></video>
+      </div>
+    {% elif post.post_type == 'TEXT' %}
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold mb-2">{{ post.title }}</h2>
+        <div class="prose prose-invert text-gray-300 max-w-none">
+          {% with ch=post.chapters.first %}
+            <p>{{ ch.content|default:post.body|truncatewords:160 }}</p>
+          {% endwith %}
+        </div>
+      </div>
+    {% endif %}
+
+    <h1 class="text-2xl font-bold mb-2">{{ post.title }}</h1>
+    {% if post.caption %}<p class="text-gray-400 leading-relaxed">{{ post.caption }}</p>{% endif %}
+
+    <form method="post" class="flex items-center justify-center gap-4 mt-10">
+      {% csrf_token %}
+      <!-- <button name="action" value="draft" class="draft-btn font-semibold py-3 px-8 rounded-lg">Save as draft</button> -->
+      <button name="action" value="publish" class="publish-btn font-semibold py-3 px-8 rounded-lg">Publish</button>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

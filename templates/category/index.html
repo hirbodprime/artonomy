@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root{
+    /* Responsive tile size: min 200px, typical ~18vw, max 280px */
+    --tile: clamp(200px, 18vw, 280px);
+    --gap: 1.75rem;
+    --radius: 22px;
+  }
+
+  .cat-wrap{
+    /* full width but with breathable edges */
+    width: 100%;
+    padding: 2.5rem min(5vw, 48px);
+    margin: 0 auto;
+  }
+
+  .cat-title{
+    font-size: clamp(1.25rem, 1.3rem + .3vw, 1.5rem);
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 1.25rem;
+  }
+
+  .cat-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--tile), 1fr));
+    gap: var(--gap);
+    align-items: start;
+  }
+
+  .cat-card{
+    height: var(--tile);               /* perfect square */
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    background: #0b0e13;
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 8px 30px rgba(0,0,0,.25);
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    will-change: transform;
+  }
+  .cat-card:hover{
+    transform: translateY(-4px);
+    border-color: rgba(124,58,237,.35);
+    box-shadow: 0 14px 46px rgba(124,58,237,.18);
+  }
+
+  .cat-img{
+    position:absolute; inset:0;
+  }
+  .cat-img img{
+    width: 100%; height: 100%; object-fit: cover; display:block;
+    transform: scale(1.02);
+    transition: transform .35s ease;
+  }
+  .cat-card:hover .cat-img img{ transform: scale(1.06); }
+
+  .cat-overlay{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    padding: .75rem;
+    text-align:center;
+    color:#fff; font-weight:800;
+    font-size: clamp(1rem, .9rem + .4vw, 1.25rem);
+    line-height:1.2;
+    text-shadow: 0 2px 12px rgba(0,0,0,.65);
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.0) 45%, rgba(0,0,0,.55) 100%);
+  }
+
+  /* keep long names tidy */
+  .cat-name{
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* small screens: tighten gap a touch */
+  @media (max-width: 640px){
+    :root{ --gap: 1.1rem; }
+  }
+</style>
+
+<div class="cat-wrap">
+  <h1 class="cat-title">Category</h1>
+
+  <div class="cat-grid">
+    {% for c in categories %}
+      <a href="{% url 'categories:detail' c.slug %}" class="cat-card">
+        <div class="cat-img">
+          {% if c.image %}
+            <img src="{{ c.image.url }}" alt="{{ c.name }}">
+          {% else %}
+            <img src="https://placehold.co/800x800/0D0F12/E6E8EC?text={{ c.name|urlencode }}" alt="{{ c.name }}">
+          {% endif %}
+        </div>
+        <div class="cat-overlay">
+          <span class="cat-name">{{ c.name }}</span>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

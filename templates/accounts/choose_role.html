@@ -1,0 +1,46 @@
+{% extends "accounts/hero_base.html" %}
+{% block page_title %}Artonomy — Choose Role{% endblock %}
+
+{% block right_card %}
+<div class="lg:bg-white lg:text-gray-900 card-shell overflow-hidden">
+  <div class="lg:p-8 text-center">
+    <div class="hidden lg:block mx-auto w-12 h-12 rounded-full hero-badge grid place-items-center text-white">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </div>
+    <h2 class="mt-4 text-4xl lg:text-[30px] font-extrabold">Which one<br/>are you?</h2>
+
+    <div class="mt-8 space-y-4">
+      <!-- Artist -->
+      <form method="post" action="{% url 'choose_role' %}">
+        {% csrf_token %}
+        <input type="hidden" name="role" value="ARTIST">
+        <button type="submit"
+                class="w-full h-12 rounded-full font-semibold text-base
+                       bg-purple-700 text-white hover:bg-purple-800">
+          Artist
+        </button>
+      </form>
+
+      <!-- Audience -->
+      <form method="post" action="{% url 'choose_role' %}">
+        {% csrf_token %}
+        <input type="hidden" name="role" value="AUDIENCE">
+        <button type="submit"
+                class="w-full h-12 rounded-full font-semibold text-base
+                       bg-white text-black hover:bg-gray-200
+                       lg:bg-gray-900 lg:text-white lg:hover:bg-black">
+          Audience
+        </button>
+      </form>
+    </div>
+
+    {% if messages %}
+      <div class="mt-5 space-y-2">
+        {% for m in messages %}
+          <p class="text-sm {% if m.tags == 'error' %}text-red-500 lg:text-red-600{% else %}text-gray-400 lg:text-gray-600{% endif %}">{{ m }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

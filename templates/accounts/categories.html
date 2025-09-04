@@ -1,0 +1,180 @@
+{% extends "accounts/hero_base.html" %}
+{% block page_title %}Artonomy — Categories{% endblock %}
+
+{% block right_card %}
+<div class="lg:bg-white lg:text-gray-900 card-shell overflow-hidden">
+  <div class="p-0 lg:p-6 lg:sm:p-8">
+    <!-- <a href="{% url 'signup' %}" class="hidden lg:inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
+      <i class="fa-solid fa-angle-left"></i> Back to Signup
+    </a> -->
+
+    <h2 class="text-center lg:text-left text-3xl lg:text-[28px] font-extrabold lg:mt-3">
+      {{ heading_text }}
+    </h2>
+
+    <!-- Rail -->
+    <div class="relative mt-6">
+      <div class="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-black to-transparent z-10 lg:from-white"></div>
+      <div class="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-black to-transparent z-10 lg:from-white"></div>
+
+      <!-- Arrows -->
+      <button id="btnPrev"
+              class="hidden sm:grid absolute left-2 top-1/2 -translate-y-1/2 z-30
+                     w-10 h-10 rounded-full bg-white border border-gray-200 shadow
+                     place-items-center hover:bg-white/95 focus:outline-none
+                     focus:ring-2 focus:ring-purple-600">
+        <i class="fa-solid fa-chevron-left text-gray-700 text-base leading-none"></i>
+      </button>
+
+      <button id="btnNext"
+              class="hidden sm:grid absolute right-2 top-1/2 -translate-y-1/2 z-30
+                     w-10 h-10 rounded-full bg-white border border-gray-200 shadow
+                     place-items-center hover:bg-white/95 focus:outline-none
+                     focus:ring-2 focus:ring-purple-600">
+        <i class="fa-solid fa-chevron-right text-gray-700 text-base leading-none"></i>
+      </button>
+
+      <!-- Scrollable row -->
+      <div id="catRail" class="no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-px-6 pr-2 pb-1 -mx-4 px-4">
+        {% for cat in categories %}
+          <button type="button"
+            class="cat-tile relative snap-start shrink-0
+                   w-44 h-28 sm:w-56 sm:h-32 md:w-64 md:h-36
+                   rounded-2xl overflow-hidden text-white grid place-items-center
+                   transition-transform duration-300 ease-out
+                   {% if cat.id in chosen_ids %}selected{% endif %}"
+            data-value="{{ cat.slug }}"
+            style="--bg:url('{% if cat.image %}{{ cat.image.url }}{% else %}https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1000{% endif %}');">
+
+            <span class="absolute -top-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-purple-600 shadow-md"></span>
+
+            <div class="absolute inset-0"
+                 style="background-image:var(--bg); background-size:cover; background-position:center;"></div>
+            <div class="absolute inset-0 bg-black/45"></div>
+
+            <div class="relative z-10 w-[70%] h-[76%] rounded-xl
+                        bg-gradient-to-b from-white/10 to-black/30 border border-white/15
+                        shadow-lg grid place-items-center text-center px-2">
+              <div class="text-sm font-semibold line-clamp-1">{{ cat.name }}</div>
+            </div>
+
+            <div class="absolute inset-0 ring-anim rounded-2xl pointer-events-none"></div>
+            <div class="check absolute top-2 right-2 h-6 w-6 rounded-full bg-purple-600 text-white items-center justify-center">
+              <i class="fa-solid fa-check text-xs"></i>
+            </div>
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Primary action -->
+    <button id="btnNextStep"
+            class="mt-8 w-full h-12 rounded-full bg-purple-700 text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
+      Next
+    </button>
+
+    <!-- Hidden POST form -->
+    <form id="catPostForm" method="post" action="{% url 'choose_categories' %}" class="hidden">
+      {% csrf_token %}
+      <input type="hidden" name="selected_slugs" id="selected_slugs">
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{-ms-overflow-style:none; scrollbar-width:none}
+#catRail { perspective: 1200px; scroll-snap-type: x mandatory; }
+.cat-tile { transform: translateZ(0); }
+.cat-tile .ring-anim { transition: box-shadow .18s ease; }
+.cat-tile.selected .ring-anim { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgb(147 51 234); }
+.cat-tile .check { display:none; }
+.cat-tile.selected .check { display:flex; }
+@media (prefers-color-scheme: dark){
+  #btnPrev, #btnNext{ background:#0b0b0b; border-color:#222; }
+  #btnPrev i, #btnNext i{ color:#e5e7eb; }
+}
+#catRail { cursor: grab; }
+#catRail.dragging { cursor: grabbing; }
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const rail = document.getElementById('catRail');
+  const nextBtn = document.getElementById('btnNextStep');
+  const hiddenInput = document.getElementById('selected_slugs');
+  const tiles = Array.from(rail.querySelectorAll('.cat-tile'));
+  const selected = new Set();
+
+  // preload server selection
+  tiles.forEach(t => { if (t.classList.contains('selected')) selected.add(t.dataset.value); });
+  nextBtn.disabled = selected.size === 0;
+
+  // coverflow
+  function updateCoverflow(){
+    const rect = rail.getBoundingClientRect();
+    const center = rect.left + rect.width / 2;
+    tiles.forEach(tile => {
+      const r = tile.getBoundingClientRect();
+      const mid = r.left + r.width / 2;
+      const dist = (mid - center) / (rect.width * 0.45);
+      const clamp = Math.max(-1, Math.min(1, dist));
+      const rotate = clamp * -25;
+      const translateY = Math.abs(clamp) * 10;
+      const scale = 1 - Math.abs(clamp) * 0.12;
+      tile.style.transform = `translateY(${translateY}px) rotateY(${rotate}deg) scale(${scale})`;
+      tile.style.zIndex = String(1000 - Math.floor(Math.abs(clamp) * 1000));
+    });
+  }
+  updateCoverflow();
+  rail.addEventListener('scroll', () => requestAnimationFrame(updateCoverflow), {passive:true});
+  window.addEventListener('resize', () => requestAnimationFrame(updateCoverflow));
+
+  // drag-to-scroll with click detection
+  let dragging = false, startX = 0, startLeft = 0, moved = 0, downTarget = null;
+  rail.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    dragging = true; rail.classList.add('dragging');
+    startX = e.clientX; startLeft = rail.scrollLeft; moved = 0; downTarget = e.target;
+    rail.setPointerCapture(e.pointerId);
+  });
+  rail.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    rail.scrollLeft = startLeft - dx; moved += Math.abs(e.movementX || 0);
+  });
+  function endPointer(e){
+    if (!dragging) return;
+    dragging = false; rail.classList.remove('dragging'); rail.releasePointerCapture(e.pointerId);
+    if (moved < 10) { const tile = downTarget && downTarget.closest('.cat-tile'); if (tile) toggleTile(tile); }
+    downTarget = null;
+  }
+  rail.addEventListener('pointerup', endPointer);
+  rail.addEventListener('pointercancel', endPointer);
+
+  function toggleTile(tile){
+    const slug = tile.dataset.value;
+    tile.classList.toggle('selected');
+    if (tile.classList.contains('selected')) selected.add(slug); else selected.delete(slug);
+    nextBtn.disabled = selected.size === 0;
+  }
+  tiles.forEach(t => t.addEventListener('click', () => { if (!dragging) toggleTile(t); }));
+
+  // arrows
+  const prev = document.getElementById('btnPrev');
+  const next = document.getElementById('btnNext');
+  const quantum = () => Math.max(240, rail.clientWidth * 0.8);
+  prev?.addEventListener('click', () => rail.scrollBy({left: -quantum(), behavior:'smooth'}));
+  next?.addEventListener('click', () => rail.scrollBy({left:  quantum(), behavior:'smooth'}));
+
+  // submit
+  nextBtn.addEventListener('click', () => {
+    if (!selected.size) return;
+    hiddenInput.value = Array.from(selected).join(',');
+    document.getElementById('catPostForm').submit();
+  });
+});
+</script>
+{% endblock %}

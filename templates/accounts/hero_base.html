@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block page_title %}Artonomy{% endblock %}</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --heroGlass: rgba(15,15,19,.55);
+      --heroRing : rgba(255,255,255,.16);
+    }
+    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    .mosaic img{object-fit:cover}
+
+    /* Shared page chrome */
+    .page-wrap{min-height:100vh; display:flex; align-items:center;}
+    .hero-grid{max-width:88rem; margin-inline:auto; width:100%;}
+    .hero-badge{background:linear-gradient(135deg,#6d28d9,#4f46e5);}
+
+    /* Background (mosaic + mood) */
+    .bg-stage{position:fixed; inset:0; z-index:-1;}
+    .bg-overlay{position:absolute; inset:0; background: radial-gradient(120% 120% at 70% 0%, rgba(103,0,163,.18), transparent 40%), rgba(0,0,0,.58);}
+
+    /* Centered mobile masthead */
+    .mobile-header{
+      position:fixed; top:0; left:0; right:0; height:3.75rem;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 .9rem; background:#000; z-index:50;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    /* Hero copy */
+    .hero-title{
+      font-weight:800; line-height:1.04; letter-spacing:-.02em;
+      text-shadow: 0 4px 24px rgba(0,0,0,.45);
+    }
+    .hero-glass{
+      background:var(--heroGlass);
+      border:1px solid var(--heroRing);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius:1rem;
+    }
+
+    /* Card container on the right */
+    .card-shell{
+      border-radius:32px;
+      box-shadow:0 30px 60px rgba(0,0,0,.45);
+    }
+
+    /* Utility for hiding desktop-only things on mobile */
+    @media (max-width:1023px){
+      .with-top-pad{ padding-top:4rem; }
+    }
+
+    {% block extra_css %}{% endblock  %}
+  </style>
+</head>
+<body class="bg-black text-gray-100">
+
+  <!-- Shared Background -->
+  <div class="bg-stage">
+    <div class="absolute inset-0 mosaic opacity-90 hidden lg:block">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 md:p-10">
+        <!-- Swap with your curated set anytime -->
+        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1554995207-c1e86f03c5b2?q=80&w=1600" alt="">
+        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1600" alt="">
+        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600" alt="">
+        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1495567720989-cebdbdd97913?q=80&w=1600" alt="">
+        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1600" alt="">
+        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1600" alt="">
+        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1600" alt="">
+        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600" alt="">
+      </div>
+    </div>
+    <!-- Mobile: use a soft gradient background in place of heavy mosaic -->
+    <div class="absolute inset-0 lg:hidden"
+         style="background:
+           radial-gradient(120% 120% at 50% 0%, #2a1140 0%, #0b0e13 58%),
+           linear-gradient(160deg, #0b0e13, #000);"></div>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <!-- Mobile header -->
+  <header class="mobile-header lg:hidden">
+    <button class="text-xl">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-full hero-badge grid place-items-center text-white font-extrabold">A</div>
+      <span class="font-bold text-base">Artonomy</span>
+    </div>
+    <button class="text-xl">
+      <i class="fa-regular fa-bell"></i>
+    </button>
+  </header>
+
+  <!-- Main two-column hero layout -->
+  <main class="page-wrap with-top-pad">
+    <div class="hero-grid px-4 sm:px-6">
+      <div class="flex flex-col lg:flex-row items-start justify-between gap-8 lg:gap-14">
+
+        <!-- Left: shared hero text -->
+        <section class="flex-1 min-w-0 mt-2 lg:mt-6">
+          <div class="hero-glass hidden lg:block p-5 md:p-6 w-fit">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full hero-badge grid place-items-center text-white font-extrabold">A</div>
+              <span class="text-sm text-gray-200/90">Welcome to Artonomy</span>
+            </div>
+          </div>
+
+          <h1 class="hero-title text-[42px] sm:text-6xl lg:text-7xl mt-4">
+            Artonomy Where<br class="hidden sm:block"/>
+            The Art Connects <span class="text-purple-500 align-middle">•</span>
+          </h1>
+
+          {% block hero_sub %}{% endblock %}
+        </section>
+
+        <!-- Right: page-specific content -->
+        <section class="w-full max-w-[520px] shrink-0 self-start">
+          {% block right_card %}{% endblock %}
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

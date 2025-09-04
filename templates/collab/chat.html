@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  :root{
+    --bg:#0D0F12; --panel:#12141A; --panel2:#171A22; --border:#222733;
+    --text:#E6E8EC; --muted:#A3A9B6; --purple:#7D5CFF; --purple-deep:#570080; --green:#11C865;
+  }
+.refresh-btn[disabled] { opacity:.6; cursor:not-allowed; }
+
+  .chat-shell{max-width:920px;margin:0 auto;padding:10px 14px 0;}
+
+  /* ===== Header ===== */
+  .chat-head{
+    position: sticky; top: 0; z-index: 5;
+    display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+    padding:12px 14px; border:1px solid rgba(255,255,255,.08);
+    background:linear-gradient(180deg,rgba(18,20,26,.96),rgba(18,20,26,.86));
+    backdrop-filter: blur(8px);
+    border-radius:16px;
+  }
+  .chat-title{display:flex; align-items:center; gap:.65rem;}
+  .chat-title .badge{font-size:.7rem; padding:.22rem .5rem; border-radius:999px;border:1px solid rgba(255,255,255,.12); color:#cfd3df; background:#1a1d25;}
+  .refresh-btn{border:1px solid rgba(255,255,255,.12); background:#1a1d25; color:#cfd3df; padding:.45rem .7rem; border-radius:10px;}
+  .refresh-btn:hover{ filter: brightness(1.08); }
+
+  /* ===== Thread ===== */
+  .chat-body{
+    margin-top:12px; border:1px solid rgba(255,255,255,.08); background:var(--panel2);
+    border-radius:16px; padding:12px 10px; height:min(70vh, calc(100vh - 260px));
+    overflow-y:auto; scroll-behavior:smooth;
+  }
+  .msg-row{display:flex; margin:6px 8px;}
+  .msg{max-width:75%; padding:.62rem .78rem .5rem; border-radius:16px; position:relative; line-height:1.35; font-size:.97rem;}
+  .msg.me{margin-left:auto; background:linear-gradient(135deg,var(--purple),#9C84FF); color:#fff;}
+  .msg.them{margin-right:auto; background:#14161d; color:#e9ebf4; border:1px solid rgba(255,255,255,.10);}
+  .msg[data-pending="1"]{opacity:.7; filter:saturate(.9);} /* pending look */
+
+  /* small tail */
+  .msg.me::after, .msg.them::after{
+    content:""; position:absolute; bottom:-2px; width:10px; height:10px; transform:rotate(45deg);
+  }
+  .msg.me::after{ right:10px; background:linear-gradient(135deg,var(--purple),#9C84FF); }
+  .msg.them::after{ left:10px; background:#14161d; border-right:1px solid rgba(255,255,255,.10); border-bottom:1px solid rgba(255,255,255,.10); }
+
+  .meta{display:flex; gap:.5rem; align-items:center; margin-top:.28rem; font-size:.7rem; opacity:.85;}
+  .meta .dot{width:4px;height:4px;border-radius:50%;background:#6b7280;display:inline-block}
+
+  /* ===== Composer ===== */
+  .composer{position: sticky; bottom: 0; z-index: 4; margin-top:12px; padding:10px; border:1px solid rgba(255,255,255,.08);
+    background:linear-gradient(180deg,rgba(18,20,26,.96),rgba(18,20,26,.86)); border-radius:16px; display:flex; gap:8px;}
+  .composer input[type="text"]{flex:1; background:#14161d; color:#fff; border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:.75rem 1rem;}
+  .composer button{border-radius:999px; padding:.75rem 1rem; font-weight:800; color:#06130c; background:linear-gradient(135deg,var(--green),#29f0a1); box-shadow: 0 8px 24px rgba(17,200,101,.30);}
+  .composer button:hover{ filter:brightness(1.05) }
+
+  /* ===== Mobile ===== */
+  @media (max-width:640px){
+    .msg{max-width:86%;}
+    .chat-body{height: calc(100vh - 260px);}
+    .chat-head{padding:10px 12px}
+    .composer{padding:8px}
+    .composer input[type="text"]{padding:.65rem .9rem}
+  }
+  .back-btn {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.back-btn i {
+  font-size: 0.95rem;
+}
+</style>
+
+<div class="chat-shell">
+  <!-- Header -->
+  <div class="chat-head">
+    <div class="chat-title">
+      <a href="{% url 'collab:notifications' %}?tab=chats"
+       class="back-btn flex items-center gap-2 px-3 py-1.5 rounded-md border border-white/10 bg-[#1c1f28] text-gray-300 hover:text-white hover:bg-[#222733] transition">
+      <i class="fa-solid fa-arrow-left"></i>
+      <span class="hidden sm:inline">Back</span>
+    </a>
+
+      <div class="w-9 h-9 rounded-full border border-white/10 bg-[#1c1f28] grid place-items-center">
+        <i class="fa-solid fa-comments text-purple-300"></i>
+      </div>
+      <div>
+        <div class="text-white font-semibold leading-tight">Chat · {{ conv.item.title }}</div>
+        <div class="text-[12px] text-[color:var(--muted)] truncate">
+          with {% if request.user.id == conv.user_a_id %}@{{ conv.user_b.username }}{% else %}@{{ conv.user_a.username }}{% endif %}
+        </div>
+      </div>
+      <span class="badge">Secure</span>
+    </div>
+
+    <!-- Optional; can remove if you want pure auto-poll -->
+    <button id="refreshBtn" class="refresh-btn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+  </div>
+
+  <!-- Thread (structure kept; only data-id added) -->
+  <div id="thread" class="chat-body">
+    {% for m in messages %}
+      <div class="msg-row">
+        <div class="msg {% if m.sender_id == request.user.id %}me{% else %}them{% endif %}" data-id="{{ m.id }}">
+          {% if m.text %}{{ m.text|linebreaksbr }}{% endif %}
+          <div class="meta">
+            <span class="opacity-80">@{{ m.sender.username }}</span>
+            <span class="dot"></span>
+            <span>{{ m.created_at|date:"H:i" }}</span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Composer (no file) -->
+  <form id="sendForm" class="composer">
+    {% csrf_token %}
+    <input type="text" name="text" placeholder="Write a message…" autocomplete="off" />
+    <button type="submit"><i class="fa-solid fa-paper-plane"></i>&nbsp;Send</button>
+  </form>
+</div>
+
+<script>
+(function(){
+  const convId  = {{ conv.id }};
+  let   lastId  = {{ last_id|default:0 }};
+  const meUser  = "{{ request.user.username|escapejs }}";
+
+  const thread     = document.getElementById('thread');
+  const form       = document.getElementById('sendForm');
+  const refreshBtn = document.getElementById('refreshBtn');
+
+  const shown = new Set(Array.from(thread.querySelectorAll('.msg[data-id]')).map(el => Number(el.dataset.id)));
+
+  function stickToBottom(){
+    const near = thread.scrollHeight - (thread.scrollTop + thread.clientHeight) < 40;
+    if (near) thread.scrollTop = thread.scrollHeight;
+  }
+  const esc   = s => (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const nl2br = s => esc(s).replace(/\n/g,'<br>');
+
+  function appendMsg({ id, sender, me, text, ts, pending=false }){
+    if (id && shown.has(id)) return;
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+
+    const msg = document.createElement('div');
+    msg.className = 'msg ' + (me ? 'me' : 'them');
+    if (id) msg.dataset.id = id;
+    if (pending) msg.dataset.pending = "1";
+
+    msg.innerHTML = `
+      ${text ? nl2br(text) : ''}
+      <div class="meta">
+        <span class="opacity-80">@${esc(sender)}</span>
+        <span class="dot"></span>
+        <span>${esc(ts || '')}</span>
+      </div>`;
+    row.appendChild(msg);
+    thread.appendChild(row);
+
+    if (id){ shown.add(id); lastId = Math.max(lastId, id); }
+    stickToBottom();
+    return msg;
+  }
+
+  function resolvePending(node, real){
+    node.removeAttribute('data-pending');
+    if (real.id){ node.dataset.id = real.id; shown.add(real.id); lastId = Math.max(lastId, real.id); }
+    const meta = node.querySelector('.meta span:last-child');
+    if (meta && real.ts) meta.textContent = real.ts;
+  }
+
+  async function safeJson(res){
+    const ct = res.headers.get('content-type') || '';
+    if (ct.includes('application/json')) return res.json();
+    // fall back to text (useful to surface CSRF error page)
+    const txt = await res.text();
+    throw new Error(res.status + ' ' + res.statusText + (txt.includes('CSRF') ? ' — CSRF failed' : ''));
+  }
+
+  async function pollOnce(){
+    try{
+      refreshBtn?.setAttribute('disabled','disabled');
+      const r = await fetch(`/collab/chat/${convId}/poll/?after=${lastId}`, { credentials:'same-origin' });
+      const data = await safeJson(r);
+      if (data.ok && Array.isArray(data.messages)){
+        for (const m of data.messages){
+          appendMsg({ id:m.id, sender:m.sender, me:!!m.me, text:m.text, ts:m.ts || '' });
+        }
+      }
+    }catch(_){ /* ignore */ }
+    finally{ refreshBtn?.removeAttribute('disabled'); stickToBottom(); }
+  }
+
+  stickToBottom();
+  if (refreshBtn) refreshBtn.addEventListener('click', pollOnce);
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+
+    const input = form.elements['text'];
+    const text  = (input.value || '').trim();
+    if (!text) return;
+
+    // prefer the hidden input token; fallback to cookie
+    const formToken = form.querySelector('input[name=csrfmiddlewaretoken]')?.value || '';
+    const cookieToken = (document.cookie.match('(^|;)\\s*csrftoken\\s*=\\s*([^;]+)')||[])[2] || '';
+    const csrfToken = formToken || cookieToken;
+
+    const optimistic = appendMsg({
+      id:null, sender: meUser, me:true, text,
+      ts: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), pending:true
+    });
+
+    input.value = ''; input.focus();
+
+    try{
+      const fd = new FormData();
+      fd.append('text', text);
+
+      const r = await fetch(`/collab/chat/${convId}/send/`, {
+        method:'POST',
+        credentials:'same-origin',
+        headers:{
+          'X-CSRFToken': csrfToken,
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: fd
+      });
+
+      const d = await safeJson(r);
+      if (!d.ok){ throw new Error(d.error || 'Failed'); }
+
+      resolvePending(optimistic, {
+  id: d.id,
+  ts: d.ts || new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+});
+
+
+      // one quick fetch to catch any concurrent messages
+      pollOnce();
+    }catch(err){
+      optimistic.remove();
+      alert(err.message || 'Network / CSRF error');
+    }
+  });
+})();
+</script>
+
+
+{% endblock %}

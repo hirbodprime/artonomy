@@ -1,0 +1,660 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Artonomy</title>
+
+  <!-- Google Fonts & Font Awesome -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+      :root { --dock-h: 108px; } /* ~62px FAB + ~46px dock; tweak if you change sizes */
+
+  .content-bottom-space {
+    padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+
+  /* On ≥sm we don’t need extra padding (no mobile dock) */
+  @media (min-width: 640px) {
+    .content-bottom-space { padding-bottom: 16px; }
+  }
+    :root{ --bg:#0D0F12; --panel:#12141A; --panel2:#171A22; --border:#222733; --text:#E6E8EC; --muted:#A3A9B6; --purple:#7C3AED; }
+    body{ font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text) }
+    .card{ background:var(--panel); border:1px solid var(--border) }
+    .glass{ background:rgba(13,15,18,.72); backdrop-filter:blur(8px) }
+    .no-scrollbar::-webkit-scrollbar{ display:none } .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none }
+    .thumb-active{ outline:3px solid var(--purple); box-shadow:0 0 0 4px rgba(124,58,237,.35) inset }
+    .tab-active{ color:#fff; border-color:var(--purple) }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2a2f3b; border-radius: 999px; }
+
+    .break-inside-avoid { break-inside: avoid; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .tag-switch { display:inline-flex; align-items:center; background:#1f222b; color:var(--text); border-radius:999px; padding:4px; gap:2px; box-shadow:0 4px 18px rgba(0,0,0,.25); border:1px solid var(--border); }
+    .tag-switch .seg { padding:.375rem .8rem; border-radius:999px; font-weight:600; font-size:.825rem; line-height:1; cursor:pointer; transition:background-color .2s,color .2s; }
+    .tag-switch .seg.active { background:var(--purple); color:#fff; }
+
+    .cat-tile { position:relative; overflow:hidden; border-radius:1.25rem; width:12rem; height:6rem; display:grid; place-items:center; transition:.2s; border:1px solid transparent; flex-shrink:0; }
+    .cat-tile img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .3s ease; }
+    .cat-tile:hover img { transform:scale(1.05); }
+    .cat-tile::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.6)); }
+    .cat-tile .label { position:relative; z-index:2; font-weight:600; font-size:1.125rem; color:white; }
+    .cat-tile.active { border-color:var(--purple); box-shadow:0 0 15px rgba(124,58,237,.5); }
+
+    @media (min-width: 640px){ .masonry { column-width: 349px; column-gap: 16px; } }
+    @media (max-width: 639.98px){ .masonry { column-width: 100%; column-gap: 16px; } }
+    .masonry-item { break-inside: avoid; display:block; margin-bottom:16px; }
+
+    .icon-active { color:#570080 !important; }
+    .icon-active path, .icon-active circle, .icon-active rect, .icon-active polygon { fill:#570080 !important; stroke:#570080 !important; transition: fill .15s, stroke .15s, color .15s; }
+    .count-active { color:#570080 !important; }
+
+    /* User menu dropdown */
+    .menu-card { background:var(--panel); border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.35); }
+    .menu-item { display:flex; align-items:center; gap:.6rem; padding:.6rem .8rem; border-radius:.6rem; }
+    .menu-item:hover { background:rgba(255,255,255,0.06); }
+
+
+    /* Mobile category strip with background images */
+@media (max-width: 639.98px){
+  .mobile-cat-pills{
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: .75rem;
+    padding: .6rem .75rem;
+  }
+  .mobile-cat-chip{
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;              /* a bit bigger */
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  }
+  .mobile-cat-chip::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--chip-bg);   /* set inline per-chip */
+    background-size: cover;
+    background-position: center;
+    filter: brightness(.9);
+    transform: scale(1.02);
+  }
+  .mobile-cat-chip::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.15));
+  }
+  .mobile-cat-chip .label{
+    position: relative;
+    z-index: 1;
+    font-weight: 700;
+    font-size: .95rem;
+  }
+  .mobile-cat-chip.active{
+    outline: 2px solid var(--purple);
+    box-shadow: 0 0 0 3px rgba(124,58,237,.25);
+  }
+}
+  .m-dock {
+    background: rgba(16,16,21,.78);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 -10px 40px rgba(0,0,0,.35);
+  }
+  .m-dock-list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0,1fr));
+    padding: .4rem .6rem;
+  }
+  .m-dock-item {
+    position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: .18rem;
+    padding: .55rem .25rem;
+    color: #9aa0ad;
+    font-size: 11px;
+    line-height: 1;
+    transition: color .2s ease;
+  }
+  .m-dock-item .ico {
+    font-size: 20px;
+    transition: transform .18s ease, color .18s ease, text-shadow .18s ease;
+  }
+  .m-dock-item:active .ico { transform: scale(.96); }
+
+  /* active state glow + accent */
+  .m-dock-item.active {
+    color: #fff;
+  }
+  .m-dock-item.active .ico {
+    color: var(--purple);
+    text-shadow: 0 0 18px rgba(124,58,237,.55);
+  }
+  .m-dock-item.active::before {
+    content: "";
+    position: absolute; bottom: 4px; left: 50%;
+    width: 28px; height: 3px; transform: translateX(-50%);
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(124,58,237,.95), rgba(124,58,237,.35));
+  }
+
+  /* Floating center FAB (New Post) */
+  .m-fab-wrap { position: relative; }
+  .m-fab {
+    position: absolute; left: 50%;
+    transform: translate(-50%, -26%);
+    width: 62px; height: 62px; border-radius: 999px;
+    display: grid; place-items: center; color: #fff;
+    background: radial-gradient(60% 60% at 30% 30%, #C240FF, #7C3AED);
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow:
+      0 12px 30px rgba(124,58,237,.5),
+      0 0 0 6px rgba(124,58,237,.18);
+    transition: transform .15s ease, filter .15s ease;
+    z-index: 5;
+  }
+  .m-fab:active { transform: translate(-50%, -26%) scale(.97); }
+
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+<div class="flex min-h-screen">
+
+
+    <!-- Sidebar -->
+<!-- Sidebar (icon-only on tablet, full on xl) -->
+<aside
+  class="hidden sm:flex shrink-0 flex-col justify-between
+         w-16 md:w-20 lg:w-24 xl:w-64
+         border-r border-[color:var(--border)] bg-[color:var(--panel)]
+         sticky top-0 h-screen"
+>
+  <div class="p-2 md:p-3 xl:p-6">
+    <!-- Logo -->
+    <div class="flex items-center justify-center xl:justify-start gap-3 mb-4 md:mb-6">
+      <a href="{% url 'explore' %}">
+  <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl border border-[color:var(--border)]"
+       style="background: var(--panel2) url('{% static 'images/logo_main.png' %}') center/85% no-repeat;">
+  </div>
+</a>
+<div class="hidden xl:block text-lg font-semibold"> <a href="{% url 'explore' %}" class="hidden xl:block text-lg font-semibold hover:text-purple-400 transition-colors">
+      Artonomy
+    </a></div>
+
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex flex-col p-2 xl:p-4 space-y-1 xl:space-y-2">
+      <!-- Home -->
+      <a href="{% url 'home' %}"
+         class="group flex items-center justify-center xl:justify-start
+                gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
+                {% if nav_active == 'home' %}
+                  bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30
+                {% else %}
+                  text-gray-400 hover:bg-gray-800/60 hover:text-white
+                {% endif %}">
+        <i class="fa-solid fa-house text-lg md:text-xl w-6 text-center
+                  {% if nav_active == 'home' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
+        <span class="hidden xl:inline font-semibold tracking-wide">Home</span>
+      </a>
+
+      <!-- Explore -->
+      <a href="{% url 'explore' %}"
+         class="group flex items-center justify-center xl:justify-start
+                gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
+                {% if nav_active == 'explore' %}
+                  bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30
+                {% else %}
+                  text-gray-400 hover:bg-gray-800/60 hover:text-white
+                {% endif %}">
+        <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center
+                  {% if nav_active == 'explore' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
+        <span class="hidden xl:inline font-semibold tracking-wide">Explore</span>
+      </a>
+<a href="{% url 'marketplace:list' %}"
+   class="group flex items-center justify-center xl:justify-start
+          gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
+          {% if nav_active == 'marketplace' %}
+            bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30
+          {% else %}
+            text-gray-400 hover:bg-gray-800/60 hover:text-white
+          {% endif %}">
+  <i class="fa-solid fa-store text-lg md:text-xl w-6 text-center
+            {% if nav_active == 'marketplace' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
+  <span class="hidden xl:inline font-semibold tracking-wide">Marketplace</span>
+</a>
+      <!-- Category -->
+      <a href="{% url 'categories:index' %}"
+         class="group flex items-center justify-center xl:justify-start
+                gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-400 hover:bg-gray-800/60 hover:text-white transition-all">
+        <i class="fa-solid fa-th-large text-lg md:text-xl w-6 text-center text-gray-500 group-hover:text-purple-400"></i>
+        <span class="hidden xl:inline font-semibold tracking-wide">Category</span>
+      </a>
+
+<!-- Art Exchange (disabled) -->
+<a href="#" aria-disabled="true" tabindex="-1" title="Coming soon"
+   onclick="return false;"
+   class="group flex items-center justify-center xl:justify-start
+          gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl 
+          text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+  <i class="fa-solid fa-arrows-rotate text-lg md:text-xl w-6 text-center"></i>
+  <span class="hidden xl:inline font-semibold tracking-wide">Art Exchange</span>
+</a>
+
+<!-- Blog (disabled) -->
+<a href="#" aria-disabled="true" tabindex="-1" title="Coming soon"
+   onclick="return false;"
+   class="group flex items-center justify-center xl:justify-start
+          gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl 
+          text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+  <i class="fa-solid fa-blog text-lg md:text-xl w-6 text-center"></i>
+  <span class="hidden xl:inline font-semibold tracking-wide">Blog</span>
+</a>
+
+<!-- Jobs (disabled) -->
+<a href="#" aria-disabled="true" tabindex="-1" title="Coming soon"
+   onclick="return false;"
+   class="group flex items-center justify-center xl:justify-start
+          gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl 
+          text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+  <i class="fa-solid fa-bullhorn text-lg md:text-xl w-6 text-center"></i>
+  <span class="hidden xl:inline font-semibold tracking-wide">Jobs</span>
+</a>
+
+      <!-- Divider -->
+      <div class="pt-3 xl:pt-4 pb-2">
+        <hr class="border-gray-700/60">
+      </div>
+
+      <!-- New Post -->
+{% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
+<a href="{% url 'post_new_start' %}"
+   class="flex items-center justify-center xl:justify-start gap-x-4 px-4 py-3 rounded-xl text-white
+          bg-[#570080] shadow-lg shadow-purple-700/40
+          hover:shadow-xl hover:shadow-purple-700/50 hover:scale-[1.02] transform
+          transition-all duration-300 ease-in-out">
+  <i class="fa-solid fa-square-plus w-6 text-center text-xl"></i>
+  <span class="hidden xl:inline font-bold tracking-wide">New Post</span>
+</a>
+
+{% endif %}
+
+
+    </nav>
+  </div>
+
+  <!-- Settings -->
+  <div class="p-2 md:p-3 xl:p-6">
+    <a href="{% url 'settings_profile' %}"
+       class="flex items-center justify-center xl:justify-start gap-3 px-2 xl:px-3 py-2 rounded-xl hover:bg-white/5">
+      <i class="fa-solid fa-gear w-5 text-center"></i>
+      <span class="hidden xl:inline">Settings</span>
+    </a>
+  </div>
+</aside>
+
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col overflow-y-auto custom-scrollbar content-bottom-space">
+
+
+      <!-- Desktop/Tablet Header -->
+      <header class="hidden sm:flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-700 sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md">
+        <div class="w-full max-w-2xl relative flex rounded-full bg-gray-800 border border-gray-700 overflow-hidden opacity-60 cursor-not-allowed">
+  <select disabled class="pl-4 pr-1 py-2 text-sm bg-gray-800 text-gray-400 border-r border-gray-700 focus:outline-none appearance-none">
+    <option>All</option>
+    <option>Artists</option>
+    <option>Posts</option>
+  </select>
+  <input disabled type="text" placeholder="Search Artonomy..." class="flex-1 pl-4 pr-10 py-2 bg-gray-800 text-gray-400 focus:outline-none cursor-not-allowed">
+  <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+</div>
+
+        <div class="flex items-center gap-4">
+          <!-- NEW: New Post (replaces chat icon) -->
+{% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
+  <a href="{% url 'post_new_start' %}" class="text-xl text-gray-400 hover:text-white" title="New Post">
+    <i class="fa-solid fa-square-plus"></i>
+  </a>
+{% endif %}
+{% if request.user.is_authenticated %}
+  {% with unread=notif_unread_count %}
+  <a href="{% url 'collab:notifications' %}"
+     class="relative inline-flex items-center justify-center"
+     id="notifBellDesk"
+     title="Notifications" aria-label="Notifications">
+    <i class="fa-solid fa-bell text-xl text-gray-400 hover:text-white"></i>
+    {% if unread %}
+      <span id="notifBadgeDesk"
+            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 rounded-full
+                   bg-[#7C3AED] text-white text-[10px] font-bold grid place-items-center">
+        {{ unread }}
+      </span>
+    {% else %}
+      <span id="notifBadgeDesk" class="hidden"></span>
+    {% endif %}
+  </a>
+  {% endwith %}
+{% else %}
+  <a href="{% url 'landing' %}" class="text-xl text-gray-400 hover:text-white" title="Login">
+    <i class="fa-solid fa-bell"></i>
+  </a>
+{% endif %}
+
+
+          <!-- Avatar + User menu -->
+          {% if request.user.is_authenticated %}
+          <div class="relative">
+            <button id="userMenuBtn" class="flex items-center">
+              {% if request.user.is_authenticated %}
+                {% if request.user.profile and request.user.profile.avatar %}
+                  <img src="{{ request.user.profile.avatar.url }}"
+                      class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
+                {% else %}
+                  <img src="https://placehold.co/100x100/7C3AED/FFFFFF?text=A"
+                      class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
+                {% endif %}
+              {% endif %}
+            </button>
+            <div id="userMenu" class="hidden absolute right-0 mt-3 w-56 menu-card p-2">
+              <div class="px-2 pb-2 text-sm text-[color:var(--muted)]">
+                Signed in as <span class="text-white font-semibold">{{ request.user.username }}</span>
+              </div>
+              <a class="menu-item" href="{% url 'profile_view' request.user.username %}">
+                <i class="fa-regular fa-user"></i><span>Profile</span>
+              </a>
+              <a class="menu-item" href="{% url 'settings_profile' %}">
+                <i class="fa-solid fa-sliders"></i><span>Settings</span>
+              </a>
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="menu-item w-full text-left" type="submit">
+                  <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+                </button>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          <div class="flex items-center gap-2">
+            <a href="{% url 'landing' %}" class="px-3 py-1.5 rounded-lg border border-[color:var(--border)] hover:bg-white/5 text-sm">Log in</a>
+            <a href="{% url 'signup' %}" class="px-3 py-1.5 rounded-lg bg-[color:var(--purple)] text-white text-sm">Sign up</a>
+          </div>
+          {% endif %}
+        </div>
+      </header>
+
+      <!-- Mobile Header (no hamburger; uses your logo) -->
+      <header class="sm:hidden flex items-center justify-between px-4 py-3 border-b border-gray-700 sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md">
+        <a href="{% url 'explore' %}" class="flex items-center gap-2">
+  <div class="w-8 h-8 rounded-lg border border-[color:var(--border)]"
+       style="background: var(--panel2) url('{% static 'images/logo_main.png' %}') center/85% no-repeat;">
+  </div>
+  <h1 class="text-xl font-bold text-white">Artonomy</h1>
+</a>
+
+
+        <div class="flex items-center gap-4">
+          <!-- New Post -->
+          {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
+  <a href="{% url 'post_new_start' %}" class="text-xl" title="New Post">
+    <i class="fa-solid fa-square-plus"></i>
+  </a>
+{% endif %}
+
+          <!-- Notifications -->
+          {% if request.user.is_authenticated %}
+  {% with unread=notif_unread_count %}
+  <a href="{% url 'collab:notifications' %}"
+     class="relative inline-flex items-center justify-center"
+     id="notifBellMobile"
+     title="Notifications" aria-label="Notifications">
+    <i class="fa-solid fa-bell text-xl"></i>
+    {% if unread %}
+      <span id="notifBadgeMobile"
+            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 rounded-full
+                   bg-[#7C3AED] text-white text-[10px] font-bold grid place-items-center">
+        {{ unread }}
+      </span>
+    {% else %}
+      <span id="notifBadgeMobile" class="hidden"></span>
+    {% endif %}
+  </a>
+  {% endwith %}
+{% else %}
+  <a href="{% url 'landing' %}" class="text-xl" title="Login"><i class="fa-solid fa-bell"></i></a>
+{% endif %}
+
+
+          <!-- Avatar + dropdown -->
+          {% if request.user.is_authenticated %}
+          <div class="relative">
+            <button id="userMenuBtnM">
+              {% if request.user.is_authenticated %}
+                {% if request.user.profile and request.user.profile.avatar %}
+                  <img src="{{ request.user.profile.avatar.url }}"
+                      class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
+                {% else %}
+                  <img src="https://placehold.co/100x100/7C3AED/FFFFFF?text=A"
+                      class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
+                {% endif %}
+              {% endif %}
+
+            </button>
+            <div id="userMenuM" class="hidden absolute right-0 mt-3 w-56 menu-card p-2">
+              <div class="px-2 pb-2 text-sm text-[color:var(--muted)]">
+                Signed in as <span class="text-white font-semibold">{{ request.user.username }}</span>
+              </div>
+              <a class="menu-item" href="{% url 'profile_view' request.user.username %}">
+                <i class="fa-regular fa-user"></i><span>Profile</span>
+              </a>
+              <a class="menu-item" href="{% url 'settings_profile' %}">
+                <i class="fa-solid fa-sliders"></i><span>Settings</span>
+              </a>
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="menu-item w-full text-left" type="submit">
+                  <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+                </button>
+              </form>
+            </div>
+          </div>
+          {% else %}
+          <a href="{% url 'landing' %}" class="text-sm underline">Login</a>
+          {% endif %}
+        </div>
+      </header>
+
+      {% block content %}{% endblock content %}
+
+      <!-- Bottom Mobile Dock -->
+<!-- Mobile Bottom Dock (stunning) -->
+<!-- Mobile Bottom Dock -->
+<nav class="sm:hidden fixed inset-x-0 bottom-0 z-40 m-fab-wrap px-4 pb-3">
+  {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
+    <!-- Floating New Post (FAB) for artists -->
+    <a href="{% url 'post_new_start' %}" aria-label="New post" class="m-fab">
+      <i class="fa-solid fa-plus text-2xl"></i>
+    </a>
+
+    <div class="m-dock max-w-screen-md mx-auto">
+      <ul class="m-dock-list">
+        <li>
+          <a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="Home">
+            <i class="ico fa-solid fa-house"></i><span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="Explore">
+            <i class="ico fa-solid fa-compass"></i><span>Explore</span>
+          </a>
+        </li>
+
+        <!-- Spacer beneath FAB -->
+        <li aria-hidden="true"></li>
+
+        <li>
+          <a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="Categories">
+            <i class="ico fa-solid fa-th-large"></i><span>Category</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'marketplace:list' %}" class="m-dock-item" aria-label="Marketplace">
+            <i class="ico fa-regular fa-store"></i><span>Marketplace</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  {% else %}
+    <!-- No FAB / 4 items for audiences & guests -->
+    <div class="m-dock max-w-screen-md mx-auto">
+      <ul class="m-dock-list" style="grid-template-columns: repeat(4, minmax(0,1fr));">
+        <li>
+          <a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="Home">
+            <i class="ico fa-solid fa-house"></i><span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="Explore">
+            <i class="ico fa-solid fa-compass"></i><span>Explore</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="Categories">
+            <i class="ico fa-solid fa-th-large"></i><span>Category</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'marketplace:list' %}" class="m-dock-item" aria-label="Marketplace">
+            <i class="ico fa-solid fa-store"></i><span>Marketplace</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  {% endif %}
+</nav>
+
+
+    </div>
+  </div>
+
+  <!-- JS: feed switch (unchanged from your base) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const feedSwitch = document.getElementById('globalFeedSwitch');
+      if (feedSwitch) {
+        feedSwitch.addEventListener('click', (e) => {
+          const button = e.target.closest('.seg');
+          if (!button) return;
+          feedSwitch.querySelectorAll('.seg').forEach(seg => seg.classList.remove('active'));
+          button.classList.add('active');
+          localStorage.setItem('artonomy_feed_mode', button.dataset.value);
+        });
+        const saved = localStorage.getItem('artonomy_feed_mode');
+        if (saved) {
+          feedSwitch.querySelectorAll('.seg').forEach(seg => {
+            seg.classList.toggle('active', seg.dataset.value === saved);
+          });
+        }
+      }
+    });
+  </script>
+
+  <!-- JS: horizontal category scroller (kept) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const scrollContainer = document.getElementById("catScroll");
+      const btnLeft = document.getElementById("scrollLeft");
+      const btnRight = document.getElementById("scrollRight");
+      if (!scrollContainer || !btnLeft || !btnRight) return;
+      function updateButtons() {
+        btnLeft.style.display = scrollContainer.scrollLeft > 0 ? "flex" : "none";
+        const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+        btnRight.style.display = scrollContainer.scrollLeft < maxScroll - 5 ? "flex" : "none";
+      }
+      btnLeft.addEventListener("click", () => scrollContainer.scrollBy({ left: -300, behavior: "smooth" }));
+      btnRight.addEventListener("click", () => scrollContainer.scrollBy({ left: 300, behavior: "smooth" }));
+      scrollContainer.addEventListener("scroll", updateButtons);
+      window.addEventListener("resize", updateButtons);
+      updateButtons();
+    });
+  </script>
+
+  <!-- JS: user menu dropdown (desktop + mobile) -->
+  <script>
+    (function(){
+      const pairs = [
+        ["userMenuBtn", "userMenu"],
+        ["userMenuBtnM", "userMenuM"],
+      ];
+      pairs.forEach(([btnId, menuId])=>{
+        const btn = document.getElementById(btnId);
+        const menu = document.getElementById(menuId);
+        if (!btn || !menu) return;
+        function closeAll(ev){
+          if (!menu.contains(ev.target) && !btn.contains(ev.target)){
+            menu.classList.add("hidden");
+            document.removeEventListener("click", closeAll);
+          }
+        }
+        btn.addEventListener("click", (e)=>{
+          e.stopPropagation();
+          menu.classList.toggle("hidden");
+          if (!menu.classList.contains("hidden")){
+            setTimeout(()=>document.addEventListener("click", closeAll), 0);
+          }
+        });
+      });
+    })();
+  </script>
+  <script>
+(function(){
+  const desk = document.getElementById('notifBadgeDesk');
+  const mob  = document.getElementById('notifBadgeMobile');
+  if(!desk && !mob) return;
+
+  // async function refresh(){
+  //   try{
+  //     const r = await fetch("{% url 'collab:unread_count' %}", {headers:{'X-Requested-With':'XMLHttpRequest'}});
+  //     if(!r.ok) return;
+  //     const {count} = await r.json();
+
+  //     const apply = (el)=>{
+  //       if(!el) return;
+  //       if(count > 0){
+  //         el.textContent = count;
+  //         el.classList.remove('hidden');
+  //       } else {
+  //         el.classList.add('hidden');
+  //       }
+  //     };
+  //     apply(desk); apply(mob);
+  //   }catch(e){ /* ignore */ }
+  // }
+
+  setInterval(refresh, 30000); // 30s
+})();
+</script>
+
+</body>
+</html>
