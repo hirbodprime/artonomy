@@ -13,7 +13,7 @@ class RequireLoginMiddleware:
         self.get_response = get_response
         self.exempt_urls = [
             reverse("landing"),    # your landing page
-            reverse("login"),      # login page
+            # reverse("login"),      # login page
             reverse("signup"),     # signup page
         ]
 
