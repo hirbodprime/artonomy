@@ -24,9 +24,26 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG")
 
 ALLOWED_HOSTS = ["artonomy.ir","www.artonomy.ir"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://artonomy.ir",
+    "https://www.artonomy.ir",
+]
+
+# Force HTTPS
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# HSTS (only enable after you confirm HTTPS works!)
+SECURE_HSTS_SECONDS = 31536000       # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+# If behind a proxy/load balancer that sets X-Forwarded-Proto (common on shared hosts)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Application definition
@@ -129,12 +146,27 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+from pathlib import Path
 
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]  # if you have a static/ folder in root
+BASE_DIR = Path(__file__).resolve().parent.parent
+HOME_DIR = Path.home()  # e.g. /home/yourcpaneluser
 
+# --- Static files ---
+STATIC_URL = "/static/"
+STATIC_ROOT = HOME_DIR / "public_html" / "static"   # /home/USER/public_html/static
+
+# If you also keep extra local assets within your repo:
+# STATICFILES_DIRS = [BASE_DIR / "static"]  # optional
+
+# --- Media uploads ---
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = HOME_DIR / "public_html" / "media"     # /home/USER/public_html/media
+
+# STATIC_URL = 'static/'
+# STATICFILES_DIRS = [BASE_DIR / "static"]  # if you have a static/ folder in root
+
+# MEDIA_URL = "/media/"
+# MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
