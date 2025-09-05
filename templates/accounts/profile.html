@@ -157,6 +157,24 @@
   @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   .fade-in { animation: fadeIn 0.8s ease forwards; }
   .slide-up { animation: slideUp 0.8s ease forwards; }
+
+
+    /* Public code badge */
+  .code-badge{
+    background: linear-gradient(90deg,#7c3aed,#4f46e5);
+    color:#fff; font-weight:800; letter-spacing:.02em;
+    padding:.2rem .55rem; border-radius:.7rem;
+    box-shadow: 0 2px 10px rgba(124,58,237,.35);
+    line-height:1; display:inline-flex; align-items:center;
+    transform: translateY(.05rem); /* keeps baseline tidy */
+    white-space:nowrap; flex-shrink:0;
+  }
+  @media (max-width: 640px){
+    .code-badge{ font-size:.75rem; padding:.2rem .5rem; }
+  }
+
+  /* Compact chip row spacing on mobile */
+  .chip-row{ row-gap:.35rem; }
 </style>
 
 <div class="max-w-7xl w-full mx-auto px-3 sm:px-6 py-6">
@@ -195,30 +213,38 @@
         <div class="min-w-0">
           <!-- Username + suggestion counters on one line (wrap on small screens) -->
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-3xl sm:text-4xl font-bold truncate">{{ profile_user.username }}</h1>
+             <h1 class="text-3xl sm:text-4xl font-bold truncate flex items-center gap-2">
+    {{ profile_user.username }}
 
+    {% if profile_user.public_code %}
+      <span
+        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold tracking-wide
+               bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
+        #{{ profile_user.public_code }}
+      </span>
+    {% endif %}
+  </h1>
             <!-- Suggestion counters -->
-            {% if profile_user.role == 'ARTIST' %}
-              <!-- Suggested by others (received) -->
-              <span
-                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                style="background:#570080; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(87,0,128,.45);">
-                <i class="fa-solid fa-star text-[10px]"></i>
-                <span>Suggested by</span>
-                <span class="opacity-90">·</span>
-                <span>{{ suggestions_received_count|default:0 }}</span>
-              </span>
-            {% endif %}
-            <!-- Suggested (made by this user) -->
-            <span
-              class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
-              style="background:#11C865; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(17,200,101,.35);">
-              <i class="fa-solid fa-share-nodes text-[10px]"></i>
-              <span>Suggested</span>
-              <span class="opacity-90">·</span>
-              <span>{{ suggestions_made_count|default:0 }}</span>
-            </span>
-          </div>
+  {% if profile_user.role == 'ARTIST' %}
+    <span
+      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+      style="background:#570080; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(87,0,128,.45);">
+      <i class="fa-solid fa-star text-[10px]"></i>
+      <span>Suggested by</span>
+      <span class="opacity-90">·</span>
+      <span>{{ suggestions_received_count|default:0 }}</span>
+    </span>
+  {% endif %}
+
+  <a href="{% url 'profile_suggested' profile_user.username %}"
+   class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+   style="background:#11C865; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(17,200,101,.35);">
+  <i class="fa-solid fa-share-nodes text-[10px]"></i>
+  <span>Suggested</span>
+  <span class="opacity-90">·</span>
+  <span>{{ suggestions_made_count|default:0 }}</span>
+</a>
+</div>
 
 {# Hero cats in gradient style (falls back to profile title) #}
 {% if profile_user.role == 'AUDIENCE' %}

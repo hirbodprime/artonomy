@@ -10,6 +10,7 @@ urlpatterns = [
     path("logout/", v.logout_view, name="logout"),
     # Edit profile hub
     path("settings/", v.settings_profile_start, name="settings_profile"),
+    path("<str:username>/suggested/", v.profile_suggested_posts, name="profile_suggested"),
 
     # Personal info wizard
     path("settings/personal/<int:step>/", v.settings_personal_wizard, name="settings_personal"),

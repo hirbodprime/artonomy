@@ -64,6 +64,8 @@ class User(AbstractUser):
 
     email = models.EmailField(_("email address"), unique=True)
     username = models.CharField(_("username"), max_length=150, unique=True)
+    public_number = models.PositiveIntegerField(unique=True, null=True, blank=True, db_index=True)
+    public_code   = models.CharField(max_length=24, unique=True, null=True, blank=True, db_index=True)  # e.g. "A-12345"
 
     role = models.CharField(
         max_length=8,
@@ -79,9 +81,19 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["username"]
 
     objects = UserManager()
+    def formatted_public_code(self) -> str:
+        # helper if you ever want zero-padding like A-00001
+        return f"A-{self.public_number}" if self.public_number else ""
 
     def __str__(self) -> str:
         return f"{self.username} <{self.email}>"
+class PublicNumberCounter(models.Model):
+    """Singleton counter to allocate the next public number atomically."""
+    name = models.CharField(max_length=32, unique=True, default="global")
+    last_number = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.name}:{self.last_number}"
 
 
 class UserCategory(models.Model):

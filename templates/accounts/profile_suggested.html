@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<style>
+  :root{
+    --bg:#0D0F12; --panel:#12141A; --panel2:#171A22; --border:#222733;
+    --text:#E6E8EC; --muted:#A3A9B6; --purple:#570080; --green:#11C865;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:22px clamp(14px,4vw,24px);}
+
+  .head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:linear-gradient(180deg,rgba(18,20,26,.9),rgba(18,20,26,.75));
+    border:1px solid var(--border); border-radius:16px; padding:14px 16px; backdrop-filter: blur(8px);
+  }
+  .lhs{display:flex; align-items:center; gap:12px; min-width:0;}
+  .ava{width:42px;height:42px;border-radius:999px;border:1px solid var(--border);background:#1b1e26;object-fit:cover;display:grid;place-items:center;font-weight:900; color:#dfe3ed}
+  .title{color:#fff;font-weight:800;line-height:1.1}
+  .subtitle{font-size:.85rem;color:var(--muted)}
+  .badge{
+    display:inline-flex;align-items:center;gap:.4rem;
+    padding:.3rem .6rem;border-radius:999px;font-size:.72rem;font-weight:900;
+    background:rgba(17,200,101,.2);border:1px solid rgba(17,200,101,.5);color:#eafff5;text-decoration:none;
+  }
+
+  /* ===== Responsive grid ===== */
+  .grid{
+    margin-top:14px;
+    display:grid;
+    gap:12px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+  .card{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:16px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .card:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.14); box-shadow:0 12px 26px rgba(0,0,0,.35);}
+
+  .media{
+    aspect-ratio:16/10;
+    background:#0b0d12;
+    position:relative;
+    display:block;
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .media img,.media video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+
+  .content{padding:12px; display:flex; flex-direction:column; gap:8px; min-height:110px;}
+  .p-title{color:#fff; font-weight:800; font-size:.98rem; line-height:1.2; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; text-decoration:none}
+  .preview{color:var(--muted); font-size:.9rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .author{display:flex;align-items:center;gap:8px;font-size:.9rem;}
+  .mini{width:22px;height:22px;border-radius:999px;border:1px solid var(--border);object-fit:cover;background:#1b1e26;display:grid;place-items:center;font-size:.76rem;font-weight:900;color:#dfe3ed}
+  .author a{display:flex;align-items:center;gap:8px;color:#cfd3df;text-decoration:none}
+  .author a:hover{color:#fff}
+  .meta{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.78rem;}
+  .dot{width:4px;height:4px;border-radius:999px;background:#6b7280;display:inline-block}
+  .pill{display:inline-flex;align-items:center;gap:.4rem;padding:.22rem .55rem;border-radius:999px;border:1px solid rgba(255,255,255,.12);font-size:.7rem; color:#eedbff;background:rgba(87,0,128,.22);}
+  .footer{display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-top:1px solid rgba(255,255,255,.06)}
+  .cta{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .8rem;border-radius:999px;font-weight:800;border:1px solid rgba(255,255,255,.12);color:#dfe3ed;background:#1b1f28;text-decoration:none}
+  .cta:hover{filter:brightness(1.05)}
+
+  .pager{display:flex;justify-content:center;gap:8px;margin-top:16px}
+  .pagebtn{padding:.55rem .85rem;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#151921;color:#dfe3ed;text-decoration:none}
+  .pagebtn[aria-current="true"]{background:linear-gradient(135deg,#7D5CFF,#b58dff); color:#0b0d12; font-weight:900; border-color:transparent; box-shadow:0 8px 20px rgba(124,58,237,.35)}
+</style>
+
+<div class="wrap">
+  <div class="head">
+    <div class="lhs">
+      <a href="{% url 'profile_view' profile_user.username %}">
+        {% if profile_user.profile and profile_user.profile.avatar %}
+          <img class="ava" src="{{ profile_user.profile.avatar.url }}" alt="{{ profile_user.username }}">
+        {% else %}
+          <div class="ava">{{ profile_user.username|first|upper }}</div>
+        {% endif %}
+      </a>
+      <div>
+        <div class="title">Suggested by @{{ profile_user.username }}</div>
+        <div class="subtitle">Hand-picked posts that {{ profile_user.username }} shared</div>
+      </div>
+    </div>
+    <a href="{% url 'profile_view' profile_user.username %}" class="badge">
+      <i class="fa-solid fa-arrow-left"></i> Back to profile
+    </a>
+  </div>
+
+  {% if page_obj.object_list %}
+    <div class="grid">
+      {% for p in page_obj.object_list %}
+      <article class="card">
+
+        <!-- MEDIA (no .url without a file) -->
+        <a class="media" href="{% url 'single_post' p.pk %}">
+          {% with img=p.images.first vid=p.videos.first %}
+            {% if img %}
+              <img src="{{ img.image.url }}" alt="{{ p.title|default:'Post' }}">
+            {% elif vid %}
+              <video preload="metadata" playsinline muted
+                {% if vid.poster %}poster="{{ vid.poster.url }}"
+                {% elif p.cover %}poster="{{ p.cover.url }}"
+                {% elif p.image %}poster="{{ p.image.url }}"
+                {% endif %}>
+                <source src="{{ vid.file.url }}" type="video/mp4">
+              </video>
+            {% elif p.image %}
+              <img src="{{ p.image.url }}" alt="{{ p.title|default:'Post' }}">
+            {% elif p.video %}
+              <video preload="metadata" playsinline muted
+                {% if p.cover %}poster="{{ p.cover.url }}"{% endif %}>
+                <source src="{{ p.video.url }}" type="video/mp4">
+              </video>
+            {% else %}
+              <img src="{% static 'images/placeholder_dark.jpg' %}" alt="">
+            {% endif %}
+          {% endwith %}
+        </a>
+
+        <div class="content">
+          <a class="p-title" href="{% url 'single_post' p.pk %}">
+            {{ p.title|default:"Untitled post" }}
+          </a>
+
+          {% if p.post_type == "TEXT" %}
+            {% with ch=p.chapters.first %}
+              <div class="preview">
+                {{ ch.content|default:p.body|truncatechars:120 }}
+              </div>
+            {% endwith %}
+          {% endif %}
+
+          <div class="author">
+            <a href="{% url 'profile_view' p.author.username %}">
+              {% if p.author.profile and p.author.profile.avatar %}
+                <img class="mini" src="{{ p.author.profile.avatar.url }}" alt="{{ p.author.username }}">
+              {% else %}
+                <div class="mini">{{ p.author.username|first|upper }}</div>
+              {% endif %}
+              <span class="truncate">@{{ p.author.username }}</span>
+            </a>
+          </div>
+
+          <div class="meta">
+            <span>{{ p.created_at|date:"M d, Y" }}</span>
+            <span class="dot"></span>
+            <span class="pill">Suggested</span>
+          </div>
+        </div>
+
+        <div class="footer">
+          <a class="cta" href="{% url 'single_post' p.pk %}">
+            <i class="fa-solid fa-eye"></i> View
+          </a>
+          <span class="meta">
+            {{ p.images.all|length }} img • {{ p.videos.all|length }} vid
+          </span>
+        </div>
+
+      </article>
+      {% endfor %}
+    </div>
+
+    <!-- Paginator (no elif chain, so it never renders as text) -->
+<nav class="pager" aria-label="pagination">
+  {% if page_obj.has_previous %}
+    <a class="pagebtn" href="?page={{ page_obj.previous_page_number }}">&laquo; Prev</a>
+  {% endif %}
+
+  {% for i in page_obj.paginator.page_range %}
+    {% if i == page_obj.number %}
+      <span class="pagebtn" aria-current="true">{{ i }}</span>
+
+    {% elif i <= 2 %}
+      <a class="pagebtn" href="?page={{ i }}">{{ i }}</a>
+
+    {% elif i >= page_obj.paginator.num_pages|add:"-1" %}
+      <a class="pagebtn" href="?page={{ i }}">{{ i }}</a>
+
+    {% elif i >= page_obj.number|add:"-1" and i <= page_obj.number|add:"1" %}
+      <a class="pagebtn" href="?page={{ i }}">{{ i }}</a>
+
+    {% elif i == 3 or i == page_obj.paginator.num_pages|add:"-2" %}
+      <span class="pagebtn" aria-disabled="true">&#8230;</span>
+    {% endif %}
+  {% endfor %}
+
+  {% if page_obj.has_next %}
+    <a class="pagebtn" href="?page={{ page_obj.next_page_number }}">Next &raquo;</a>
+  {% endif %}
+</nav>
+
+
+
+
+  {% else %}
+    <div class="mt-6" style="color:var(--muted)">No suggestions yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

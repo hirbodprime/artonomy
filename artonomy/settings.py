@@ -154,21 +154,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 HOME_DIR = Path.home()  # e.g. /home/yourcpaneluser
 
 # --- Static files ---
-STATIC_URL = "/static/"
-STATIC_ROOT = HOME_DIR / "public_html" / "static"   # /home/USER/public_html/static
+if not DEBUG:
+    STATIC_URL = "/static/"
+    STATIC_ROOT = HOME_DIR / "public_html" / "static"   # /home/USER/public_html/static
 
-# If you also keep extra local assets within your repo:
-# STATICFILES_DIRS = [BASE_DIR / "static"]  # optional
 
-# --- Media uploads ---
-MEDIA_URL = "/media/"
-MEDIA_ROOT = HOME_DIR / "public_html" / "media"     # /home/USER/public_html/media
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = HOME_DIR / "public_html" / "media"     # /home/USER/public_html/media
+else:
+    STATIC_URL = 'static/'
+    STATICFILES_DIRS = [BASE_DIR / "static"]  # if you have a static/ folder in root
 
-# STATIC_URL = 'static/'
-# STATICFILES_DIRS = [BASE_DIR / "static"]  # if you have a static/ folder in root
-
-# MEDIA_URL = "/media/"
-# MEDIA_ROOT = BASE_DIR / "media"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

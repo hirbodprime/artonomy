@@ -61,9 +61,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ("username", "email", "role", "is_staff", "is_superuser")
+    list_display = ("username", "email", "role", "is_staff", "is_superuser", "public_code", "public_number")
     list_filter = ("role", "is_staff", "is_superuser")
-    search_fields = ("username", "email")
+    search_fields = ("username", "email", "public_code", "public_number")
     inlines = [UserCategoryInline]
 
 

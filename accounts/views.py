@@ -279,8 +279,45 @@ def profile_view(request, username: str):
 
 
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Prefetch
+from django.contrib.auth import get_user_model
+from posts.models import Post  # adjust if your model path differs
 
+@login_required
+def profile_suggested_posts(request, username: str):
+    User = get_user_model()
+    profile_user = get_object_or_404(
+        User.objects.select_related("profile"),
+        username=username
+    )
 
+    # Posts this user suggested (fast prefetch for media)
+    qs = (
+        Post.objects
+        .filter(suggestions__suggester=profile_user)
+        .select_related("author", "author__profile")
+        .prefetch_related("images", "videos", "chapters")
+        .order_by("-suggestions__created_at", "-created_at")
+        .distinct()
+    )
+
+    paginator = Paginator(qs, 12)  # 12 cards per page
+    page = request.GET.get("page") or 1
+    try:
+        page_obj = paginator.page(page)
+    except (PageNotAnInteger, EmptyPage):
+        page_obj = paginator.page(1)
+
+    return render(
+        request,
+        "accounts/profile_suggested.html",
+        {
+            "profile_user": profile_user,
+            "page_obj": page_obj,
+            "total": paginator.count,
+        },
+    )
 
 
 
