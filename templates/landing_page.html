@@ -75,7 +75,7 @@
               </h2>
 
               <!-- Login Form -->
-              <form method="post" class="mt-8 space-y-5">
+              <form method="post" action="{% url 'landing' %}" class="mt-8 space-y-5">
                 {% csrf_token %}
 
                 <div>

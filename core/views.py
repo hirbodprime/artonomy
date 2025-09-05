@@ -9,6 +9,7 @@ from django.db.models.functions import Now, Coalesce
 from network.models import Follow
 from accounts.models import UserCategory  # your through model
 from posts.models import Post, Category, Like  # your posts app
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 User = get_user_model()
 
@@ -210,6 +211,7 @@ def explore_view(request):
         "feed_tab": request.GET.get("feed", "bests"),
     })
 
+@ensure_csrf_cookie
 def landing_page(request):
     if request.method == "POST":
         email = request.POST.get("email")
