@@ -9,7 +9,7 @@ from posts.models import Post
 from network.models import Follow
 from accounts.models import (
     Profile, Education, Experience, Book, Certification, Course, Project, Award,
-    SkillTag, SocialLink, PersonalValue, HobbyInterest, Achievement, Goal, FunFact,UserCategory,Category,User
+    SkillTag, SocialLink, PersonalValue, HobbyInterest, Achievement, Goal, FunFact,UserCategory,Category,User,User ,username_validator
 )
 from suggest.models import Suggestion
 
@@ -24,6 +24,9 @@ from .forms import (
     SocialLinkFormSet,
     EducationFS, ExperienceFS, ProjectFS, CertificationFS, CourseFS, AwardFS, BookFS
 )
+import re
+from django.core.exceptions import ValidationError
+
 
 User = get_user_model()
 
@@ -34,32 +37,49 @@ def logout_view(request):
     logout(request)
     return redirect(reverse("landing"))
 
+
 def signup_view(request):
-    # if request.user:
-    #     return redirect('explore')
     if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        # password2 = request.POST.get("password2")
+        username = (request.POST.get("username") or "").strip()
+        email    = (request.POST.get("email") or "").strip()
+        password = (request.POST.get("password") or "")
 
-        # if password != password2:
-        #     messages.error(request, "Passwords do not match")
-        #     return render(request, "accounts/signup.html")
+        # normalize username: only keep [a-zA-Z0-9_], force lowercase
+        cleaned_username = re.sub(r'[^a-zA-Z0-9_]', '', username).lower()
 
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already in use")
+        if not cleaned_username:
+            messages.error(request, "Please choose a valid username (letters, numbers, underscores).")
             return render(request, "accounts/signup.html")
 
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Username already taken")
+        # run validator (gives nice Django ValidationError message if needed)
+        try:
+            username_validator(cleaned_username)
+        except ValidationError as e:
+            messages.error(request, e.message)
+            return render(request, "accounts/signup.html")
+
+        if User.objects.filter(username__iexact=cleaned_username).exists():
+            messages.error(request, "Username already taken.")
+            return render(request, "accounts/signup.html")
+
+        if not email:
+            messages.error(request, "Email is required.")
+            return render(request, "accounts/signup.html")
+
+        if User.objects.filter(email__iexact=email).exists():
+            messages.error(request, "Email already in use.")
+            return render(request, "accounts/signup.html")
+
+        if len(password) < 8:
+            messages.error(request, "Password must be at least 8 characters.")
             return render(request, "accounts/signup.html")
 
         user = User.objects.create_user(
-            username=username, email=email, password=password
+            username=cleaned_username,
+            email=email,
+            password=password,
         )
         login(request, user)
-        # Middleware will redirect correctly, but we can jump straight to role
         return redirect("choose_role")
 
     return render(request, "accounts/signup.html")

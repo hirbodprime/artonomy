@@ -14,8 +14,11 @@
 
       <div>
         <label class="block text-sm font-medium mb-2 text-gray-300 lg:text-gray-700">Username</label>
-        <input type="text" name="username" placeholder="username"
-               class="w-full h-12 text-base rounded-full border-none bg-[#1C1C1E] lg:border lg:border-gray-300 lg:bg-white px-5 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white lg:text-gray-900"/>
+<input type="text" name="username" placeholder="username"
+       pattern="[A-Za-z0-9_]+"
+       title="Only letters, numbers, and underscores"
+       oninput="this.value=this.value.replace(/[^A-Za-z0-9_]/g,'').toLowerCase()"
+       class="w-full h-12 text-base rounded-full border-none bg-[#1C1C1E] lg:border lg:border-gray-300 lg:bg-white px-5 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white lg:text-gray-900"/>
       </div>
 
       <div>
