@@ -147,28 +147,42 @@ USE_I18N = True
 
 USE_TZ = True
 
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
+HOME_DIR = Path.home()
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]      # your project /static for sources
+STATIC_ROOT = BASE_DIR / "staticfiles"        # collectstatic target (always defined)
+
+MEDIA_URL = "/media/"
+if DEBUG:
+    MEDIA_ROOT = BASE_DIR / "media"
+else:
+    # if you really want to serve media under public_html on the server
+    MEDIA_ROOT = HOME_DIR / "public_html" / "media"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-from pathlib import Path
+# from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-HOME_DIR = Path.home()  # e.g. /home/yourcpaneluser
+# BASE_DIR = Path(__file__).resolve().parent.parent
+# HOME_DIR = Path.home()  # e.g. /home/yourcpaneluser
 
 # --- Static files ---
-if not DEBUG:
-    STATIC_URL = "/static/"
-    STATIC_ROOT = HOME_DIR / "public_html" / "static"   # /home/USER/public_html/static
+# if DEBUG == False:
+#     STATIC_URL = "/static/"
+#     STATIC_ROOT = HOME_DIR / "public_html" / "static"   # /home/USER/public_html/static
 
 
-    MEDIA_URL = "/media/"
-    MEDIA_ROOT = HOME_DIR / "public_html" / "media"     # /home/USER/public_html/media
-else:
-    STATIC_URL = 'static/'
-    STATICFILES_DIRS = [BASE_DIR / "static"]  # if you have a static/ folder in root
+#     MEDIA_URL = "/media/"
+#     MEDIA_ROOT = HOME_DIR / "public_html" / "media"     # /home/USER/public_html/media
+# else:
+#     STATIC_URL = 'static/'
+#     STATICFILES_DIRS = [BASE_DIR / "static"]  # if you have a static/ folder in root
 
-    MEDIA_URL = "/media/"
-    MEDIA_ROOT = BASE_DIR / "media"
+#     MEDIA_URL = "/media/"
+#     MEDIA_ROOT = BASE_DIR / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
