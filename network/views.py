@@ -8,6 +8,8 @@ from django.http import JsonResponse
 from urllib.parse import urlencode
 from accounts.models import UserCategory  # add
 from .models import Follow
+from django.contrib import messages
+from django.urls import reverse
 
 User = get_user_model()
 
@@ -98,26 +100,40 @@ def following_list(request, username: str):
         "ROLE_AUDIENCE": User.Role.AUDIENCE,
     })
 
-
 @login_required
 def toggle_follow(request, user_id: int):
-    """Follow/unfollow and redirect back (supports AJAX too)."""
     target = get_object_or_404(User, pk=user_id)
-    next_url = request.GET.get("next") or request.POST.get("next")
 
     if target == request.user:
         messages.error(request, "You can’t follow yourself.")
-        return redirect(next_url or "profile_view", username=target.username)
+        return redirect(request.META.get("HTTP_REFERER", reverse("explore")))
 
     obj, created = Follow.objects.get_or_create(follower=request.user, following=target)
     if not created:
         obj.delete()
-        status = "unfollowed"
-    else:
-        status = "followed"
 
-    # AJAX support
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        return JsonResponse({"status": status})
+    # always reload the previous page
+    return redirect(request.META.get("HTTP_REFERER", reverse("explore")))
 
-    return redirect(next_url or "profile_view", username=target.username)
+# @login_required
+# def toggle_follow(request, user_id: int):
+#     """Follow/unfollow and redirect back (supports AJAX too)."""
+#     target = get_object_or_404(User, pk=user_id)
+#     next_url = request.GET.get("next") or request.POST.get("next")
+
+#     if target == request.user:
+#         messages.error(request, "You can’t follow yourself.")
+#         return redirect(next_url or "profile_view", username=target.username)
+
+#     obj, created = Follow.objects.get_or_create(follower=request.user, following=target)
+#     if not created:
+#         obj.delete()
+#         status = "unfollowed"
+#     else:
+#         status = "followed"
+
+#     # AJAX support
+#     if request.headers.get("x-requested-with") == "XMLHttpRequest":
+#         return JsonResponse({"status": status})
+
+#     return redirect(next_url or "profile_view", username=target.username)

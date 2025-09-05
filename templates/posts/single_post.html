@@ -328,7 +328,11 @@
     <img class="w-8 h-8 rounded-full border border-[color:var(--border)]"
          src="{{ post.author.avatar|default:'https://placehold.co/64x64/222/FFF?text=U' }}" alt="">
     <div class="min-w-0">
-      <div class="m-topbar-name truncate">{{ post.author.username }}</div>
+      <a href="{% url 'profile_view' username=post.author.username %}"
+   class="m-topbar-name truncate hover:underline">
+  {{ post.author.username }}
+</a>
+
       {% if post.author.profile and post.author.profile.title %}
         <div class="m-topbar-title truncate">{{ post.author.profile.title }}</div>
       {% endif %}
@@ -705,7 +709,11 @@
         <img class="w-10 h-10 rounded-full object-cover border border-[color:var(--border)]"
              src="{{ post.author.avatar|default:'https://placehold.co/80x80/222/FFF?text=U' }}" />
         <div class="leading-tight">
-          <div class="font-semibold">{{ post.author.username }}</div>
+          <a href="{% url 'profile_view' username=post.author.username %}"
+   class="font-semibold hover:underline">
+  {{ post.author.username }}
+</a>
+
           {% if post.author.profile and post.author.profile.title %}
             <div class="text-xs text-[color:var(--muted)]">{{ post.author.profile.title }}</div>
           {% endif %}
@@ -840,9 +848,11 @@
         <img class="w-10 h-10 rounded-full object-cover border border-[color:var(--border)]"
              src="{{ post.author.avatar|default:'https://placehold.co/80x80/222/FFF?text=U' }}">
         <div class="leading-tight">
-          <a href="{{ post.author.get_absolute_url|default:'#' }}" class="font-semibold hover:underline">
-            {{ post.author.username }}
-          </a>
+          <a href="{% url 'profile_view' username=post.author.username %}"
+   class="font-semibold hover:underline">
+  {{ post.author.username }}
+</a>
+
           <div class="text-xs text-[color:var(--muted)]">{{ post.author.profile.title|default:'Creator' }}</div>
         </div>
 

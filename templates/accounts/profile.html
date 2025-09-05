@@ -644,25 +644,26 @@
       return m ? m.pop() : '';
     }
     const CSRF = getCookie('csrftoken');
-    function setFollowUI(btn, following){
-      btn.setAttribute('aria-pressed', following ? 'true' : 'false');
-      btn.classList.toggle('following', following);
-      btn.textContent = following ? 'Following' : 'Follow';
-    }
+
     document.querySelectorAll('.js-follow-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const res = await fetch(btn.dataset.endpoint, {
-          method:'POST',
-          headers:{ 'X-CSRFToken': CSRF, 'Accept':'application/json' },
-          credentials:'same-origin'
-        });
-        if (!res.ok) return;
-        const data = await res.json();
-        document.querySelectorAll(`.js-follow-btn[data-user="${btn.dataset.user}"]`)
-          .forEach(b => setFollowUI(b, data.following));
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault(); // stop default navigation
+        try {
+          const res = await fetch(btn.dataset.endpoint, {
+            method:'POST',
+            headers:{ 'X-CSRFToken': CSRF },
+            credentials:'same-origin'
+          });
+          if (!res.ok) return;
+          // after server processes, just reload current page
+          window.location.reload();
+        } catch (err) {
+          console.error('Toggle follow failed:', err);
+        }
       });
     });
   })();
+
 </script>
 
 {% endblock %}
