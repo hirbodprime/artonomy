@@ -1,0 +1,1 @@
+from artonomy.wsgi import application
