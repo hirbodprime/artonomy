@@ -2,8 +2,10 @@ from django.contrib import admin
 from .models import (
     Category, User, UserCategory, SkillTag, Profile, SocialLink,
     PersonalValue, HobbyInterest, Achievement, Goal, FunFact,
-    Education, Experience, Book, Certification, Course, Project, Award
+    Education, Experience, Book, Certification, Course, Project, Award,PublicNumberCounter
 )
+
+
 
 
 # -------------------------
@@ -156,6 +158,24 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ("name", "org")
     list_filter = ("date",)
 
+
+
+@admin.register(PublicNumberCounter)
+class PublicNumberCounterAdmin(admin.ModelAdmin):
+    list_display = ("name", "last_number")
+    list_editable = ("last_number",)
+    search_fields = ("name",)
+    ordering = ("name",)
+
+    def has_add_permission(self, request):
+        """Allow adding only if no object exists (singleton pattern)."""
+        if PublicNumberCounter.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        """Optional: prevent deletion (singleton safety)."""
+        return False
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
