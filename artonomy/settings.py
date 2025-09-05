@@ -149,18 +149,13 @@ USE_TZ = True
 
 from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
-HOME_DIR = Path.home()
 
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]      # your project /static for sources
-STATIC_ROOT = BASE_DIR / "staticfiles"        # collectstatic target (always defined)
+STATICFILES_DIRS = [BASE_DIR / "static"]   # source files (exists in your repo)
+STATIC_ROOT = BASE_DIR / "staticfiles"     # collectstatic target (ALWAYS defined)
 
 MEDIA_URL = "/media/"
-if DEBUG:
-    MEDIA_ROOT = BASE_DIR / "media"
-else:
-    # if you really want to serve media under public_html on the server
-    MEDIA_ROOT = HOME_DIR / "public_html" / "media"
+MEDIA_ROOT = BASE_DIR / "media"            # dev; map differently in prod if you want
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
