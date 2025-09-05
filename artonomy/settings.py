@@ -77,8 +77,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # 🚨 Custom middleware
-    "core.middleware.require_login.RequireLoginMiddleware",
+    # Custom middleware
+    'core.middleware.wizard_guard.WizardGuardMiddleware',
+    'core.middleware.require_login.RequireLoginMiddleware',
 
 ]
 
