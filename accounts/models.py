@@ -2,8 +2,13 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
+from django.core.validators import RegexValidator
+import re
 
-
+username_validator = RegexValidator(
+    regex=r'^[a-zA-Z0-9_]+$',
+    message=_("Username may only contain letters, numbers, and underscores."),
+)
 # -------------------------
 # Core taxonomy / user
 # -------------------------
@@ -34,8 +39,13 @@ class UserManager(BaseUserManager):
         if not email:
             raise ValueError("Users must have an email address")
         email = self.normalize_email(email)
+
         if not extra_fields.get("username"):
-            extra_fields["username"] = email.split("@")[0]
+            base_username = email.split("@")[0]
+            # strip invalid chars, keep only [a-zA-Z0-9_]
+            base_username = re.sub(r'[^a-zA-Z0-9_]', '', base_username)
+            extra_fields["username"] = base_username or "user"
+
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -63,7 +73,14 @@ class User(AbstractUser):
         AUDIENCE = "AUDIENCE", _("Audience")
 
     email = models.EmailField(_("email address"), unique=True)
-    username = models.CharField(_("username"), max_length=150, unique=True)
+    username = models.CharField(
+        _("username"),
+        max_length=150,
+        unique=True,
+        validators=[username_validator],
+        help_text=_("Required. Letters, numbers, and underscores only."),
+    )
+
     public_number = models.PositiveIntegerField(unique=True, null=True, blank=True, db_index=True)
     public_code   = models.CharField(max_length=24, unique=True, null=True, blank=True, db_index=True)  # e.g. "A-12345"
 
