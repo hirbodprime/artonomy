@@ -10,6 +10,9 @@ from network.models import Follow
 from accounts.models import UserCategory  # your through model
 from posts.models import Post, Category, Like  # your posts app
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils import timezone
+from suggest.models import ExplorePin
+from suggest.explore_pins import select_today_pins
 
 User = get_user_model()
 
@@ -200,6 +203,15 @@ def explore_view(request):
     # diversity (cap per author), and limit what you render for speed
     posts_bests = _diversify(posts_bests_qs, limit=60, max_per_author=3)
     posts_for_you = _diversify(posts_for_you_qs, limit=60, max_per_author=3)
+    today = timezone.localdate()
+    pin_qs = ExplorePin.objects.filter(date=today).select_related('post')
+
+    if pin_qs.count() < 4:
+        # self-heal (in case cron didn't run yet)
+        selected = select_today_pins(dry_run=False)
+        pinned_posts = selected
+    else:
+        pinned_posts = [p.post for p in pin_qs.order_by('created_at')[:4]]
 
     return render(request, "explore.html", {
         "nav_active": "explore",
@@ -207,6 +219,7 @@ def explore_view(request):
         "active_category": active_category,
         "posts_bests": posts_bests,
         "posts_for_you": posts_for_you,
+        "pinned_posts": pinned_posts,
         # default feed tab = 'bests' unless user passed ?feed=for-you
         "feed_tab": request.GET.get("feed", "bests"),
     })

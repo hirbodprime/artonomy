@@ -89,15 +89,21 @@ def marketplace_list(request):
     }
     return render(request, "marketplace/list.html", ctx)
 
+from django.http import Http404
 
 def marketplace_item(request, pk):
     item = get_object_or_404(
         MarketItem.objects.select_related("seller", "seller__profile", "category"),
-        pk=pk, status=MarketItem.Status.ACTIVE
+        pk=pk
     )
-    # increment views
-    MarketItem.objects.filter(pk=item.pk).update(views=F("views") + 1)
 
+    is_owner_or_staff = request.user.is_authenticated and (
+        request.user.is_staff or request.user == item.seller
+    )
+    if not is_owner_or_staff and item.status != MarketItem.Status.ACTIVE:
+        raise Http404()
+
+    MarketItem.objects.filter(pk=item.pk).update(views=F("views") + 1)
     return render(request, "marketplace/item.html", {
         "nav_active": "marketplace",
         "item": item,
@@ -214,10 +220,9 @@ def marketitem_create(request):
                 title=s2["title"],
                 description=s2["description"],
                 price=price,
-                currency=s3.get("currency", "TOMAN"),  # ✅ safety net
-                status=MarketItem.Status.ACTIVE if form.cleaned_data.get("publish") else MarketItem.Status.DRAFT,
+                currency=s3.get("currency", "TOMAN"),
+                status=MarketItem.Status.ACTIVE,
             )
-
 
             # attach image if provided in final POST
             image_file = request.FILES.get("image")

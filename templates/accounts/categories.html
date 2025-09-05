@@ -4,177 +4,236 @@
 {% block right_card %}
 <div class="lg:bg-white lg:text-gray-900 card-shell overflow-hidden">
   <div class="p-0 lg:p-6 lg:sm:p-8">
-    <!-- <a href="{% url 'signup' %}" class="hidden lg:inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
-      <i class="fa-solid fa-angle-left"></i> Back to Signup
-    </a> -->
+    <!-- Header -->
+<div class="text-center">
+  <h2 class="text-2xl lg:text-[28px] font-extrabold">
+    {{ heading_text }}
+  </h2>
+</div>
+    <!-- Selected chips -->
+    <!-- <div id="chipBar" class="mt-3 hidden flex-wrap gap-2 no-scrollbar overflow-x-auto -mx-4 px-4"> -->
+      <!-- chips injected -->
+    <!-- </div> -->
 
-    <h2 class="text-center lg:text-left text-3xl lg:text-[28px] font-extrabold lg:mt-3">
-      {{ heading_text }}
-    </h2>
-
-    <!-- Rail -->
-    <div class="relative mt-6">
-      <div class="pointer-events-none absolute left-0 top-0 h-full w-8 bg-gradient-to-r from-black to-transparent z-10 lg:from-white"></div>
-      <div class="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-black to-transparent z-10 lg:from-white"></div>
-
-      <!-- Arrows -->
-      <button id="btnPrev"
-              class="hidden sm:grid absolute left-2 top-1/2 -translate-y-1/2 z-30
+    <!-- Carousel (no native scroll) -->
+    <div class="relative mt-5">
+      <!-- navigation -->
+      <button id="navPrev"
+              class="grid absolute left-2 top-1/2 -translate-y-1/2 z-30
                      w-10 h-10 rounded-full bg-white border border-gray-200 shadow
                      place-items-center hover:bg-white/95 focus:outline-none
                      focus:ring-2 focus:ring-purple-600">
         <i class="fa-solid fa-chevron-left text-gray-700 text-base leading-none"></i>
       </button>
 
-      <button id="btnNext"
-              class="hidden sm:grid absolute right-2 top-1/2 -translate-y-1/2 z-30
+      <button id="navNext"
+              class="grid absolute right-2 top-1/2 -translate-y-1/2 z-30
                      w-10 h-10 rounded-full bg-white border border-gray-200 shadow
                      place-items-center hover:bg-white/95 focus:outline-none
                      focus:ring-2 focus:ring-purple-600">
         <i class="fa-solid fa-chevron-right text-gray-700 text-base leading-none"></i>
       </button>
 
-      <!-- Scrollable row -->
-      <div id="catRail" class="no-scrollbar flex gap-4 overflow-x-auto snap-x snap-mandatory scroll-px-6 pr-2 pb-1 -mx-4 px-4">
-        {% for cat in categories %}
-          <button type="button"
-            class="cat-tile relative snap-start shrink-0
-                   w-44 h-28 sm:w-56 sm:h-32 md:w-64 md:h-36
-                   rounded-2xl overflow-hidden text-white grid place-items-center
-                   transition-transform duration-300 ease-out
-                   {% if cat.id in chosen_ids %}selected{% endif %}"
-            data-value="{{ cat.slug }}"
-            style="--bg:url('{% if cat.image %}{{ cat.image.url }}{% else %}https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1000{% endif %}');">
+      <!-- viewport -->
+      <div id="viewport" class="relative overflow-hidden -mx-6 px-6">
+        <!-- edge fades -->
+        <div class="pointer-events-none absolute left-0 top-0 h-full w-10 bg-gradient-to-r from-black to-transparent z-10 lg:from-white"></div>
+        <div class="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-black to-transparent z-10 lg:from-white"></div>
 
-            <span class="absolute -top-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-purple-600 shadow-md"></span>
+        <!-- track -->
+        <div id="track" class="flex gap-5 will-change-transform transition-transform duration-400 ease-out select-none">
+          {% for cat in categories %}
+            <button type="button"
+              class="cat-card relative shrink-0
+                     w-44 h-52 sm:w-56 sm:h-60 md:w-64 md:h-72
+                     rounded-2xl overflow-hidden text-white
+                     transition-transform duration-300 ease-out
+                     focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500
+                     {% if cat.id in chosen_ids %}is-selected{% endif %}"
+              role="switch"
+              aria-checked="{% if cat.id in chosen_ids %}true{% else %}false{% endif %}"
+              aria-label="Category {{ cat.name }}"
+              data-slug="{{ cat.slug }}"
+              data-name="{{ cat.name }}"
+              data-idx="{{ forloop.counter0 }}"
+              style="--bg:url('{% if cat.image %}{{ cat.image.url }}{% else %}https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1200{% endif %}');">
 
-            <div class="absolute inset-0"
-                 style="background-image:var(--bg); background-size:cover; background-position:center;"></div>
-            <div class="absolute inset-0 bg-black/45"></div>
+              <!-- background -->
+              <div class="absolute inset-0 pointer-events-none"
+                   style="background-image:var(--bg); background-size:cover; background-position:center;"></div>
+              <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/70 pointer-events-none"></div>
 
-            <div class="relative z-10 w-[70%] h-[76%] rounded-xl
-                        bg-gradient-to-b from-white/10 to-black/30 border border-white/15
-                        shadow-lg grid place-items-center text-center px-2">
-              <div class="text-sm font-semibold line-clamp-1">{{ cat.name }}</div>
-            </div>
+              <!-- top row -->
+              <div class="absolute inset-x-0 top-0 flex items-center justify-between p-2">
+                <span class="inline-flex items-center gap-1 rounded-full bg-black/40 backdrop-blur px-2 py-1 text-[11px]">
+                  <i class="fa-solid fa-folder-open text-[10px]"></i> Category
+                </span>
+                <span class="sel-dot w-2.5 h-2.5 rounded-full bg-white/50 border border-white/70"></span>
+              </div>
 
-            <div class="absolute inset-0 ring-anim rounded-2xl pointer-events-none"></div>
-            <div class="check absolute top-2 right-2 h-6 w-6 rounded-full bg-purple-600 text-white items-center justify-center">
-              <i class="fa-solid fa-check text-xs"></i>
-            </div>
-          </button>
-        {% endfor %}
+              <!-- name + check -->
+              <div class="absolute inset-x-0 bottom-0 p-3">
+                <div class="rounded-xl bg-black/35 border border-white/10 backdrop-blur px-3 py-2">
+                  <div class="flex items-center gap-2">
+<div class="grow font-semibold tracking-tight whitespace-normal break-words">
+  {{ cat.name }}
+</div>
+                    <div class="checkmark w-6 h-6 rounded-full bg-purple-600 text-white grid place-items-center opacity-0 scale-90 transition-all duration-200">
+                      <i class="fa-solid fa-check text-xs"></i>
+                    </div>
+                  </div>
+                  <div class="text-[11px] text-white/80 mt-1">
+  Tap to {% if cat.id in chosen_ids %}unselect{% else %}select{% endif %}
+</div>
+
+                </div>
+              </div>
+
+              <!-- selection ring -->
+              <div class="ring-anim absolute inset-0 rounded-2xl pointer-events-none"></div>
+            </button>
+          {% endfor %}
+        </div>
       </div>
     </div>
 
-    <!-- Primary action -->
-    <button id="btnNextStep"
-            class="mt-8 w-full h-12 rounded-full bg-purple-700 text-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
-      Next
-    </button>
+    <!-- CTA -->
+    <div class="mt-6 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-center">
+      <p class="text-sm text-gray-300 lg:text-gray-600">
+        Pick as many categories as you like. You can change this later.
+      </p>
+      <button id="goNext" type="button"
+        class="h-12 rounded-full text-white font-semibold px-6 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        style="background-color:#570080;"
+        onmouseover="this.style.backgroundColor='#6b0aa0';"
+        onmouseout="this.style.backgroundColor='#570080';"
+        disabled>
+  Next
+</button>
+    </div>
 
     <!-- Hidden POST form -->
-    <form id="catPostForm" method="post" action="{% url 'choose_categories' %}" class="hidden">
+    <form id="catForm" method="post" action="{% url 'choose_categories' %}" class="hidden">
       {% csrf_token %}
       <input type="hidden" name="selected_slugs" id="selected_slugs">
     </form>
   </div>
 </div>
 {% endblock %}
-
 {% block extra_css %}
-.no-scrollbar::-webkit-scrollbar{display:none}
-.no-scrollbar{-ms-overflow-style:none; scrollbar-width:none}
-#catRail { perspective: 1200px; scroll-snap-type: x mandatory; }
-.cat-tile { transform: translateZ(0); }
-.cat-tile .ring-anim { transition: box-shadow .18s ease; }
-.cat-tile.selected .ring-anim { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgb(147 51 234); }
-.cat-tile .check { display:none; }
-.cat-tile.selected .check { display:flex; }
-@media (prefers-color-scheme: dark){
-  #btnPrev, #btnNext{ background:#0b0b0b; border-color:#222; }
-  #btnPrev i, #btnNext i{ color:#e5e7eb; }
-}
-#catRail { cursor: grab; }
-#catRail.dragging { cursor: grabbing; }
-{% endblock %}
+#viewport { position: relative; }
+#track { transform: translateX(0); }
 
+/* Cards */
+.cat-card { transform: translateZ(0) scale(0.96); }
+.cat-card.active { transform: translateZ(0) scale(1); }
+.cat-card .ring-anim { transition: box-shadow .18s ease; }
+.cat-card.is-selected .ring-anim { box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgb(147 51 234); }
+.cat-card.is-selected .checkmark { opacity:1; transform:scale(1) }
+.cat-card.is-selected .sel-dot { background:#22c55e; border-color:#22c55e; }
+{% endblock %}
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const rail = document.getElementById('catRail');
-  const nextBtn = document.getElementById('btnNextStep');
-  const hiddenInput = document.getElementById('selected_slugs');
-  const tiles = Array.from(rail.querySelectorAll('.cat-tile'));
-  const selected = new Set();
+  const track    = document.getElementById('track');
+  const viewport = document.getElementById('viewport');
+  const prevBtn  = document.getElementById('navPrev');
+  const nextBtn  = document.getElementById('navNext');
+  const nextBtnEl = document.getElementById('goNext');
+  const hidden   = document.getElementById('selected_slugs');
 
-  // preload server selection
-  tiles.forEach(t => { if (t.classList.contains('selected')) selected.add(t.dataset.value); });
-  nextBtn.disabled = selected.size === 0;
+  // If something critical is missing, bail early
+  if (!track || !viewport || !nextBtnEl || !hidden) return;
 
-  // coverflow
-  function updateCoverflow(){
-    const rect = rail.getBoundingClientRect();
-    const center = rect.left + rect.width / 2;
-    tiles.forEach(tile => {
-      const r = tile.getBoundingClientRect();
-      const mid = r.left + r.width / 2;
-      const dist = (mid - center) / (rect.width * 0.45);
-      const clamp = Math.max(-1, Math.min(1, dist));
-      const rotate = clamp * -25;
-      const translateY = Math.abs(clamp) * 10;
-      const scale = 1 - Math.abs(clamp) * 0.12;
-      tile.style.transform = `translateY(${translateY}px) rotateY(${rotate}deg) scale(${scale})`;
-      tile.style.zIndex = String(1000 - Math.floor(Math.abs(clamp) * 1000));
+  const cards = Array.from(track.querySelectorAll('.cat-card'));
+  const selected = new Map(); // slug -> { name, card }
+  let activeIndex = Math.min(1, Math.max(0, cards.length - 1));
+
+  // Preload selections
+  cards.forEach(card => {
+    if (card.classList.contains('is-selected')) {
+      selected.set(card.dataset.slug, { name: card.dataset.name, card });
+      card.setAttribute('aria-checked','true');
+    }
+  });
+
+  function getTranslateX(el){
+    const t = getComputedStyle(el).transform;
+    if (!t || t === 'none') return 0;
+    try { return new DOMMatrixReadOnly(t).m41 || 0; } catch { return 0; }
+  }
+
+  function clamp(i){ return Math.max(0, Math.min(cards.length - 1, i)); }
+
+  function centerActive() {
+    cards.forEach((c, i) => c.classList.toggle('active', i === activeIndex));
+    const card = cards[activeIndex];
+    if (!card) return;
+    const vp = viewport.getBoundingClientRect();
+    const cr = card.getBoundingClientRect();
+    const delta = (cr.left + cr.width/2) - (vp.left + vp.width/2);
+    const nextX = getTranslateX(track) - delta;
+    track.style.transform = `translateX(${nextX}px)`;
+  }
+
+  function renderState(){
+    const n = selected.size;
+
+    // Enable/disable Next — update both property and attribute
+    if (n > 0) {
+      nextBtnEl.disabled = false;
+      nextBtnEl.removeAttribute('disabled');
+      nextBtnEl.setAttribute('aria-disabled', 'false');
+    } else {
+      nextBtnEl.disabled = true;
+      nextBtnEl.setAttribute('disabled', 'disabled');
+      nextBtnEl.setAttribute('aria-disabled', 'true');
+    }
+
+    hidden.value = Array.from(selected.keys()).join(',');
+  }
+
+  function toggleCard(card){
+    const slug = card.dataset.slug;
+    const name = card.dataset.name;
+    if (selected.has(slug)) {
+      selected.delete(slug);
+      card.classList.remove('is-selected');
+      card.setAttribute('aria-checked','false');
+    } else {
+      selected.set(slug, { name, card });
+      card.classList.add('is-selected');
+      card.setAttribute('aria-checked','true');
+    }
+    renderState();
+  }
+
+  // Nav
+  if (prevBtn) prevBtn.addEventListener('click', () => { activeIndex = clamp(activeIndex - 1); centerActive(); });
+  if (nextBtn) nextBtn.addEventListener('click', () => { activeIndex = clamp(activeIndex + 1); centerActive(); });
+
+  // Card interactions
+  cards.forEach((card, idx) => {
+    card.addEventListener('click', () => { activeIndex = idx; centerActive(); toggleCard(card); });
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activeIndex = idx; centerActive(); toggleCard(card); }
+      if (e.key === 'ArrowRight') { activeIndex = clamp(idx + 1); centerActive(); }
+      if (e.key === 'ArrowLeft')  { activeIndex = clamp(idx - 1); centerActive(); }
     });
-  }
-  updateCoverflow();
-  rail.addEventListener('scroll', () => requestAnimationFrame(updateCoverflow), {passive:true});
-  window.addEventListener('resize', () => requestAnimationFrame(updateCoverflow));
-
-  // drag-to-scroll with click detection
-  let dragging = false, startX = 0, startLeft = 0, moved = 0, downTarget = null;
-  rail.addEventListener('pointerdown', e => {
-    if (e.button !== 0) return;
-    dragging = true; rail.classList.add('dragging');
-    startX = e.clientX; startLeft = rail.scrollLeft; moved = 0; downTarget = e.target;
-    rail.setPointerCapture(e.pointerId);
   });
-  rail.addEventListener('pointermove', e => {
-    if (!dragging) return;
-    const dx = e.clientX - startX;
-    rail.scrollLeft = startLeft - dx; moved += Math.abs(e.movementX || 0);
-  });
-  function endPointer(e){
-    if (!dragging) return;
-    dragging = false; rail.classList.remove('dragging'); rail.releasePointerCapture(e.pointerId);
-    if (moved < 10) { const tile = downTarget && downTarget.closest('.cat-tile'); if (tile) toggleTile(tile); }
-    downTarget = null;
-  }
-  rail.addEventListener('pointerup', endPointer);
-  rail.addEventListener('pointercancel', endPointer);
 
-  function toggleTile(tile){
-    const slug = tile.dataset.value;
-    tile.classList.toggle('selected');
-    if (tile.classList.contains('selected')) selected.add(slug); else selected.delete(slug);
-    nextBtn.disabled = selected.size === 0;
-  }
-  tiles.forEach(t => t.addEventListener('click', () => { if (!dragging) toggleTile(t); }));
-
-  // arrows
-  const prev = document.getElementById('btnPrev');
-  const next = document.getElementById('btnNext');
-  const quantum = () => Math.max(240, rail.clientWidth * 0.8);
-  prev?.addEventListener('click', () => rail.scrollBy({left: -quantum(), behavior:'smooth'}));
-  next?.addEventListener('click', () => rail.scrollBy({left:  quantum(), behavior:'smooth'}));
-
-  // submit
-  nextBtn.addEventListener('click', () => {
+  // Submit
+  nextBtnEl.addEventListener('click', () => {
     if (!selected.size) return;
-    hiddenInput.value = Array.from(selected).join(',');
-    document.getElementById('catPostForm').submit();
+    const form = document.getElementById('catForm');
+    if (form) form.submit();
   });
+
+  // Init
+  window.addEventListener('resize', centerActive);
+  centerActive();
+  renderState();
 });
 </script>
+
 {% endblock %}

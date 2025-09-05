@@ -1,0 +1,18 @@
+/* Keep your global default */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+
+html, body {
+  font-family: "Poppins", sans-serif !important;
+  font-weight: 400;
+}
+
+/* Let everything inherit… */
+* { font-family: inherit !important; }
+
+/* …except Font Awesome icons */
+.fa, .fas, .fa-solid, .far, .fa-regular, .fab, .fa-brands {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;            /* solid */
+}
+.fa-regular { font-weight: 400 !important; }
+.fa-brands  { font-family: "Font Awesome 6 Brands" !important; font-weight: 400 !important; }

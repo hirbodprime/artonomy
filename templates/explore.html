@@ -50,11 +50,105 @@
       <i class="fa-solid fa-chevron-right"></i>
     </button>
   </div>
+{% if pinned_posts %}
+  <section class="mb-6">
+    <h3 class="text-lg sm:text-xl font-bold text-gray-100 mb-3">Trending Picks</h3>
+
+    <!-- Mobile: 2x2, Desktop: 4 in a row -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      {% for post in pinned_posts %}
+        {% if post.post_type == "VIDEO" %}
+          <a href="{% url 'single_post' post.pk %}" class="block relative rounded-[20px] overflow-hidden aspect-video bg-black">
+            {% with v=post.videos.all|first %}
+              {% if v and v.poster %}
+                <img src="{{ v.poster.url }}" class="w-full h-full object-cover" alt="{{ post.title|default:'Video' }}">
+              {% elif v %}
+                <video class="w-full h-full object-cover" src="{{ v.file.url }}" muted playsinline></video>
+              {% elif post.video %}
+                <video class="w-full h-full object-cover" src="{{ post.video.url }}" muted playsinline></video>
+              {% else %}
+                <img src="https://placehold.co/800x450/0D0F12/E6E8EC?text=Video" class="w-full h-full object-cover" alt="Video">
+              {% endif %}
+            {% endwith %}
+            <span class="absolute inset-0 m-auto w-9 h-9 rounded-full bg-black/60 grid place-items-center text-white">
+              <i class="fa-solid fa-play text-xs"></i>
+            </span>
+            <!-- ⭐ green star -->
+            <span class="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/60 grid place-items-center">
+              <i class="fa-solid fa-star text-[11px]" style="color:#11C865"></i>
+            </span>
+          </a>
+
+        {% elif post.post_type == "PHOTO" %}
+          <a href="{% url 'single_post' post.pk %}" class="block relative rounded-[20px] overflow-hidden aspect-square bg-black/40">
+            {% with first_img=post.images.all|first %}
+              {% if first_img %}
+                <img src="{{ first_img.image.url }}" class="w-full h-full object-cover" alt="{{ post.title|default:'Photo' }}">
+              {% elif post.image %}
+                <img src="{{ post.image.url }}" class="w-full h-full object-cover" alt="{{ post.title|default:'Photo' }}">
+              {% else %}
+                <img src="https://placehold.co/600x600/0D0F12/E6E8EC?text=Photo" class="w-full h-full object-cover" alt="Photo">
+              {% endif %}
+            {% endwith %}
+            <!-- ⭐ green star -->
+            <span class="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/60 grid place-items-center">
+              <i class="fa-solid fa-star text-[11px]" style="color:#11C865"></i>
+            </span>
+          </a>
+
+        {% elif post.post_type == "TEXT" %}
+          <a href="{% url 'single_post' post.pk %}" class="block relative">
+            <div class="rounded-[22px] bg-[#E9EEF2] text-gray-900 p-3 sm:p-4 min-h-[150px] overflow-hidden">
+              <div class="font-extrabold leading-tight text-[15px] sm:text-[16px] line-clamp-2">
+                {{ post.title|default:post.author.username }}
+              </div>
+              <div class="mt-1 text-[11px] text-gray-600 truncate">{{ post.author.username }}</div>
+              <p class="mt-2 text-[13px] leading-snug line-clamp-3">
+                {% with ch=post.chapters.all|first %}
+                  {% if ch %}{{ ch.content|striptags }}{% else %}{{ post.body|default:post.caption|striptags }}{% endif %}
+                {% endwith %}
+              </p>
+            </div>
+            <!-- ⭐ green star -->
+            <span class="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/60 grid place-items-center">
+              <i class="fa-solid fa-star text-[11px]" style="color:#11C865"></i>
+            </span>
+          </a>
+
+        {% elif post.post_type == "MUSIC" %}
+          <a href="{% url 'single_post' post.pk %}" class="block relative rounded-[22px] bg-[#E9EEF2] text-gray-900 p-3.5 min-h-[120px] overflow-hidden">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-300 shrink-0">
+                {% with cover=post.cover|default:post.image %}
+                  {% if cover %}
+                    <img src="{{ cover.url }}" class="w-full h-full object-cover" alt="Cover">
+                  {% else %}
+                    <img src="https://placehold.co/160x160/cccccc/333333?text=♪" class="w-full h-full object-cover" alt="Cover">
+                  {% endif %}
+                {% endwith %}
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] text-gray-600 truncate">{{ post.artist|default:post.author.username }}</p>
+                <p class="font-extrabold leading-tight text-[15px] truncate">{{ post.title|default:'Track' }}</p>
+              </div>
+            </div>
+            <!-- ⭐ green star -->
+            <span class="absolute top-2 right-2 w-5 h-5 rounded-full bg-black/60 grid place-items-center">
+              <i class="fa-solid fa-star text-[11px]" style="color:#11C865"></i>
+            </span>
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}
 
   {# ======================MOBILE FEEDS (same design as Home)====================== #}
 
   <!-- Bests — MOBILE -->
   <div class="sm:hidden" id="feed-bests-m" data-feed="bests" data-vp="mobile" style="display:none">
+    <h3 class="text-lg sm:text-xl font-bold text-gray-100 mb-3">Explore</h3>
+
     <div class="grid grid-cols-2 grid-flow-dense gap-3">
       {% for post in posts_bests %}
 

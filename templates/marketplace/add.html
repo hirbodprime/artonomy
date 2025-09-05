@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% load add_class_market %} 
+{% load add_class_market %}
 {% block content %}
 <style>
   :root{
@@ -37,14 +37,17 @@
 <div class="wrap">
   <h1 class="text-xl font-extrabold mb-4 text-[var(--text)]">Add Service</h1>
 
-  <div class="progress">
+  {# Optional progress UI (kept commented) #}
+
+  <!-- <div class="progress">
     {% for s in progress %}
       <div class="step {% if step == s.num %}step--active{% endif %}">
         <span>{{ s.label }}</span>
         <span class="badge">Step {{ s.num }}</span>
       </div>
     {% endfor %}
-  </div>
+  </div> -->
+
 
   <div class="card">
     {# STEP 1 #}
@@ -88,7 +91,7 @@
 
     {# STEP 3 #}
     {% if step == 3 %}
-      <form method="post" enctype="multipart/form-data" class="form" id="step3">
+      <form method="post" class="form" id="step3">
         {% csrf_token %}<input type="hidden" name="step" value="3">
         <div class="row row--split">
           <div class="field">
@@ -98,11 +101,6 @@
           <div class="field">
             <label class="label">Currency</label>
             {{ form.currency|add_class:"select" }}
-          </div>
-          <div class="field" style="grid-column:1 / -1;">
-            <label class="label">Cover image</label>
-            {{ form.image|add_class:"input" }}
-            <div class="preview mt-2" id="imgPreview"><span class="hint">Preview will appear here</span></div>
           </div>
         </div>
         <div class="actions">
@@ -128,17 +126,17 @@
               <div style="margin-top:8px"><b>Price:</b> {{ data.s3.price }} {{ data.s3.currency }}</div>
             </div>
           </div>
+
           <div class="field">
             <label class="label">Upload your cover image</label>
-            <input type="file" name="image" class="input">
-            <p class="hint">We ask for the file here so we don't keep files in session.</p>
-          </div>
-          <div class="field">
-            <label class="label">{{ form.publish.label }}</label>
-            {{ form.publish }}
-            <p class="hint">If unchecked, we’ll save this as Draft.</p>
+            <input type="file" name="image" class="input" accept="image/*" id="finalImageInput">
+            <div class="preview mt-2" id="imgPreviewFinal">
+              <span class="hint">Preview will appear here</span>
+            </div>
+            <p class="hint">This will be used as the cover image.</p>
           </div>
         </div>
+
         <div class="actions">
           <button class="btn btn--ghost" name="nav" value="back">Back</button>
           <button class="btn btn--finish" name="nav" value="finish">Publish</button>
@@ -149,17 +147,18 @@
 </div>
 
 <script>
-document.addEventListener("change", (e)=>{
-  if(e.target.name === "image"){
-    const file = e.target.files[0];
-    const box  = document.getElementById("imgPreview");
-    if(!box) return;
+document.addEventListener("change", (e) => {
+  if (e.target && e.target.id === "finalImageInput") {
+    const file = e.target.files && e.target.files[0];
+    const box  = document.getElementById("imgPreviewFinal");
+    if (!box) return;
     box.innerHTML = "";
-    if(file){
+    if (file) {
       const img = document.createElement("img");
       img.src = URL.createObjectURL(file);
+      img.alt = "Cover preview";
       box.appendChild(img);
-    }else{
+    } else {
       box.innerHTML = '<span class="hint">Preview will appear here</span>';
     }
   }

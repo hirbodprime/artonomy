@@ -40,3 +40,24 @@ class Suggestion(models.Model):
 
     def __str__(self):
         return f"{self.suggester} suggested Post#{self.post_id}"
+
+
+class ExplorePin(models.Model):
+    """
+    Stores which post is pinned for a given day (global, not per-category).
+    Exactly 4 rows per date when available.
+    """
+    date = models.DateField(db_index=True, default=timezone.localdate)
+    post = models.ForeignKey('posts.Post', on_delete=models.CASCADE, related_name='explore_pins')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('date', 'post')
+        indexes = [
+            models.Index(fields=['date']),
+            models.Index(fields=['post']),
+        ]
+        ordering = ['-date', '-created_at']
+
+    def __str__(self):
+        return f"{self.date} → Post#{self.post_id}"
