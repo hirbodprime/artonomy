@@ -33,6 +33,8 @@ ALLOWED_HOSTS = ["artonomy.ir","www.artonomy.ir","127.0.0.1"]
 if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [
     "https://artonomy.ir",
+    "artonomy.ir",
+    "www.artonomy.ir",
     "https://www.artonomy.ir",
     ]
     SECURE_SSL_REDIRECT = True
