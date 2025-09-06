@@ -29,6 +29,8 @@ urlpatterns = [
     path("suggest/", include(("suggest.urls", "suggest"), namespace="suggest")),
     path("category/", include("category_app.urls", namespace="categories")),
     path("collab/", include("collab.urls", namespace="collab")),
+    path("dashboard/", include("dashboard.urls", namespace="dashboard")),
+
 
 
 
