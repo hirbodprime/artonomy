@@ -178,17 +178,15 @@
 </style>
 
 <div class="max-w-7xl w-full mx-auto px-3 sm:px-6 py-6">
-
-  <!-- ===== FABULOUS Profile Hero ===== -->
+<!-- ===== FABULOUS Profile Hero (username fixed) ===== -->
 <section class="relative mb-8 text-center sm:text-left fade-in">
-  <!-- Banner -->
   {% if profile_user.profile and profile_user.profile.cover %}
-    <div class="h-48 sm:h-64 rounded-2xl bg-center bg-cover relative"
+    <div class="h-48 sm:h-64 rounded-2xl bg-center bg-cover relative pb-10 sm:pb-0"
          style="background-image:url('{{ profile_user.profile.cover.url }}');">
       <div class="absolute inset-0 hero-banner"></div>
     </div>
   {% else %}
-    <div class="h-48 sm:h-64 rounded-2xl relative overflow-hidden">
+    <div class="h-48 sm:h-64 rounded-2xl relative overflow-hidden pb-10 sm:pb-0">
       <div class="absolute inset-0"
            style="background:
                   radial-gradient(1200px 400px at -10% -30%, rgba(120,65,255,.18), rgba(120,65,255,0) 60%),
@@ -198,104 +196,104 @@
     </div>
   {% endif %}
 
-  <!-- Content -->
   <div class="px-4 sm:px-8">
     <div class="flex flex-col sm:flex-row items-center sm:items-end gap-5 -mt-16 sm:-mt-20">
       <!-- Avatar -->
-<img src="{% if profile_user.profile.avatar %}{{ profile_user.profile.avatar.url }}{% else %}https://placehold.co/160x160/222/FFF?text=U{% endif %}"
-     class="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover hero-avatar slide-up"
-     style="animation-delay: 0.2s;"
-     alt="{{ profile_user.username }}">
+      <img
+        src="{% if profile_user.profile.avatar %}{{ profile_user.profile.avatar.url }}{% else %}https://placehold.co/160x160/222/FFF?text=U{% endif %}"
+        class="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover hero-avatar slide-up"
+        style="animation-delay:.2s" alt="{{ profile_user.username }}"
+      >
 
-      
       <!-- User Info -->
-      <div class="flex-1 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 w-full slide-up" style="animation-delay: 0.4s;">
-        <div class="min-w-0">
-          <!-- Username + suggestion counters on one line (wrap on small screens) -->
-          <div class="flex items-center gap-2 flex-wrap">
-             <h1 class="text-3xl sm:text-4xl font-bold truncate flex items-center gap-2">
-    {{ profile_user.username }}
+      <div class="flex-1 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 w-full slide-up" style="animation-delay:.4s;">
+        <div class="min-w-0 w-full">
+          <!-- Username on its own row (prevents squeezing on mobile) -->
+          <h1 class="text-3xl sm:text-4xl font-bold truncate max-w-full">
+            {{ profile_user.username }}
+          </h1>
 
-    {% if profile_user.public_code %}
-      <span
-        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold tracking-wide
-               bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
-        #{{ profile_user.public_code }}
-      </span>
-    {% endif %}
-  </h1>
-            <!-- Suggestion counters -->
-  {% if profile_user.role == 'ARTIST' %}
-    <span
-      class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
-      style="background:#570080; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(87,0,128,.45);">
-      <i class="fa-solid fa-star text-[10px]"></i>
-      <span>Suggested by</span>
-      <span class="opacity-90">·</span>
-      <span>{{ suggestions_received_count|default:0 }}</span>
-    </span>
-  {% endif %}
+          <!-- Chips / badges row -->
+          <div class="mt-2 flex items-center gap-2 flex-wrap">
+            {% if profile_user.public_code %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold tracking-wide
+                           bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
+                #{{ profile_user.public_code }}
+              </span>
+            {% endif %}
 
-  <a href="{% url 'profile_suggested' profile_user.username %}"
-   class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+            {% if profile_user.role == 'ARTIST' %}
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                    style="background:#570080; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(87,0,128,.45);">
+                <i class="fa-solid fa-star text-[10px]"></i>
+                <span>Suggested by</span>
+                <span class="opacity-90">·</span>
+                <span>{{ suggestions_received_count|default:0 }}</span>
+              </span>
+            {% endif %}
+
+            <a href="{% url 'profile_suggested' profile_user.username %}"
+   class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold text-black"
    style="background:#11C865; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(17,200,101,.35);">
-  <i class="fa-solid fa-share-nodes text-[10px]"></i>
-  <span>Suggested by this user</span>
+  <i class="fa-solid fa-lightbulb text-[10px]"></i>
+  <span>Suggestions</span>
   <span class="opacity-90">·</span>
   <span>{{ suggestions_made_count|default:0 }}</span>
 </a>
-</div>
 
-{# Hero cats in gradient style (falls back to profile title) #}
-{% if profile_user.role == 'AUDIENCE' %}
-  <p class="text-sm truncate hero-subtitle mt-1">Audience</p>
-{% else %}
-  {% if hero_cats %}
-    <p class="text-sm truncate hero-subtitle mt-1">
-      {% for c in hero_cats %}
-        {{ c.name }}{% if not forloop.last %} · {% endif %}
-      {% endfor %}
-    </p>
-  {% elif profile_user.profile.title %}
-    <p class="text-sm truncate hero-subtitle mt-1">{{ profile_user.profile.title }}</p>
-  {% endif %}
-{% endif %}
+          </div>
 
+          <!-- Categories / title line (compact) -->
+          {% if profile_user.role == 'AUDIENCE' %}
+            <p class="text-sm truncate hero-subtitle mt-1">Audience</p>
+          {% elif hero_cats and hero_cats|length %}
+            {% with total=hero_cats|length %}
+              <p class="text-sm truncate hero-subtitle mt-1">
+                {% for c in hero_cats|slice:":3" %}
+                  {{ c.name }}{% if not forloop.last %} · {% endif %}
+                {% endfor %}
+                {% if total > 3 %} · +{{ total|add:"-3" }} more{% endif %}
+              </p>
+            {% endwith %}
+          {% elif profile_user.profile and profile_user.profile.title %}
+            <p class="text-sm truncate hero-subtitle mt-1">{{ profile_user.profile.title }}</p>
+          {% endif %}
         </div>
 
+        <!-- Follow / counts -->
         <div class="flex items-center gap-4 sm:gap-6 mt-4 sm:mt-0">
-           <div class="flex gap-4 text-sm text-gray-400">
-  <a href="{% url 'network:following_list' profile_user.username %}"
-     class="inline-flex items-center gap-1 px-2 py-1 rounded-full hover:bg-white/5 hover:text-white transition-colors"
-     title="See who {{ profile_user.username }} follows">
-    <b class="text-white font-semibold">{{ following_count|default:0 }}</b> Following
-  </a>
-
-  <a href="{% url 'network:followers_list' profile_user.username %}"
-     class="inline-flex items-center gap-1 px-2 py-1 rounded-full hover:bg-white/5 hover:text-white transition-colors"
-     title="See {{ profile_user.username }}’s followers">
-    <b class="text-white font-semibold">{{ followers_count|default:0 }}</b> Followers
-  </a>
-</div>
+          <div class="flex gap-4 text-sm text-gray-400">
+            <a href="{% url 'network:following_list' profile_user.username %}"
+               class="inline-flex items-center gap-1 px-2 py-1 rounded-full hover:bg-white/5 hover:text-white transition-colors"
+               title="See who {{ profile_user.username }} follows">
+              <b class="text-white font-semibold">{{ following_count|default:0 }}</b> Following
+            </a>
+            <a href="{% url 'network:followers_list' profile_user.username %}"
+               class="inline-flex items-center gap-1 px-2 py-1 rounded-full hover:bg-white/5 hover:text-white transition-colors"
+               title="See {{ profile_user.username }}’s followers">
+              <b class="text-white font-semibold">{{ followers_count|default:0 }}</b> Followers
+            </a>
+          </div>
 
           <div class="flex-shrink-0">
-              {% if request.user.is_authenticated and request.user != profile_user %}
+            {% if request.user.is_authenticated and request.user != profile_user %}
               <button
-                  class="px-5 py-2 text-sm font-semibold rounded-full hero-follow-btn js-follow-btn {% if is_following_author %}following{% endif %}"
-                  data-user="{{ profile_user.id }}"
-                  data-endpoint="{% url 'network:toggle_follow' profile_user.id %}"
-                  aria-pressed="{{ is_following_author|yesno:'true,false' }}">
-                  {% if is_following_author %}Following{% else %}Follow{% endif %}
+                class="px-5 py-2 text-sm font-semibold rounded-full hero-follow-btn js-follow-btn {% if is_following_author %}following{% endif %}"
+                data-user="{{ profile_user.id }}"
+                data-endpoint="{% url 'network:toggle_follow' profile_user.id %}"
+                aria-pressed="{{ is_following_author|yesno:'true,false' }}">
+                {% if is_following_author %}Following{% else %}Follow{% endif %}
               </button>
-              {% elif request.user == profile_user and  show_market%}
+            {% elif request.user == profile_user and show_market %}
               <a href="{% url 'settings_profile' %}" class="px-5 py-2 text-sm font-semibold rounded-full hero-follow-btn following">Edit Profile</a>
-              {% endif %}
+            {% endif %}
           </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
 
   <!-- ===== Integrated Controls Bar ===== -->
   <div class="flex flex-wrap items-center justify-center sm:justify-between gap-6 controls-container mb-8 slide-up" style="animation-delay: 0.6s;">
