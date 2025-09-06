@@ -446,7 +446,30 @@
       </div>
 
       <!-- Right action rail -->
-      <div class="m-reel__rail">
+  <div class="m-reel__rail">
+{% if request.user.id != post.author.id %}
+  <button
+    class="m-rail-btn js-follow-btn {% if is_following_author %}text-white{% endif %}"
+    data-user="{{ post.author.id }}"
+    data-endpoint="{% url 'network:toggle_follow' post.author.id %}"
+    aria-pressed="{{ is_following_author|yesno:'true,false' }}">
+      {% if is_following_author %}
+        <!-- Unfollow icon -->
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15 12H9v2h6v-2zM12 2a5 5 0 100 10 5 5 0 000-10zM4 20c0-2.67 5.33-4 8-4s8 1.33 8 4v2H4v-2z"/>
+        </svg>
+      {% else %}
+        <!-- Follow icon (plus sign) -->
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15 12h-3V9h-2v3H7v2h3v3h2v-3h3v-2zM12 2a5 5 0 100 10 5 5 0 000-10zM4 20c0-2.67 5.33-4 8-4s8 1.33 8 4v2H4v-2z"/>
+        </svg>
+      {% endif %}
+  </button>
+  <div class="m-rail-badge js-follow-badge">
+    {% if is_following_author %}Following{% else %}Follow{% endif %}
+  </div>
+{% endif %}
+
   <button
     class="m-rail-btn js-like-btn {% if is_liked_by_user %}text-white{% endif %}"
     data-kind="like"
@@ -1619,6 +1642,43 @@ document.addEventListener("DOMContentLoaded", () => {
     last=now;
   }, {passive:true});
 })();
+
+(function () {
+  const csrf = document.querySelector('input[name=csrfmiddlewaretoken]')?.value
+            || document.cookie.match(/csrftoken=([^;]+)/)?.[1];
+
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.js-follow-btn');
+    if (!btn) return;
+
+    const url = btn.dataset.endpoint;               // <-- use explicit endpoint
+    const userId = btn.dataset.user;
+
+    if (!url) { console.warn('Missing data-endpoint on follow button'); return; }
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest'},
+        body: new FormData() // if your view expects nothing else
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      const data = await res.json(); // expect {following:true/false, followers_count?:int}
+      const following = !!data.following;
+
+      // update UI
+      btn.setAttribute('aria-pressed', following ? 'true' : 'false');
+      btn.classList.toggle('text-white', following);
+
+      const badge = btn.parentElement.querySelector('.js-follow-badge');
+      if (badge) badge.textContent = following ? 'Following' : 'Follow';
+    } catch (err) {
+      console.error('Follow toggle failed:', err);
+    }
+  });
+})();
+
 </script>
 
 {% endblock %}

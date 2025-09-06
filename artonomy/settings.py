@@ -163,7 +163,7 @@ if not DEBUG:
     MEDIA_URL = "/media/"
     MEDIA_ROOT = HOME_DIR / "public_html" / "media"     # /home/USER/public_html/media
 else:
-    STATIC_URL = 'static/'
+    STATIC_URL = '/static/'
     STATICFILES_DIRS = [BASE_DIR / "static"]  # if you have a static/ folder in root
 
     MEDIA_URL = "/media/"
