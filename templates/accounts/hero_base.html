@@ -30,8 +30,12 @@
     .hero-grid{max-width:88rem; margin-inline:auto; width:100%;}
     .hero-badge{background:linear-gradient(135deg,#6d28d9,#4f46e5);}
 
-    /* Background (mosaic + mood) */
+    /* Background (mosaic + mood + image) */
     .bg-stage{position:fixed; inset:0; z-index:-1;}
+    .bg-stage .bg-image{
+      position:absolute; inset:0; background-size:cover; background-position:center;
+      background-image:url('{% static "images/landing-background.png" %}');
+    }
     .bg-overlay{position:absolute; inset:0; background: radial-gradient(120% 120% at 70% 0%, rgba(103,0,163,.18), transparent 40%), rgba(0,0,0,.58);}
 
     /* Centered mobile masthead */
@@ -73,9 +77,11 @@
 
   <!-- Shared Background -->
   <div class="bg-stage">
-    <div class="absolute inset-0 mosaic opacity-90 hidden lg:block">
+    <!-- Added background image -->
+    <div class="bg-image"></div>
+
+    <!-- <div class="absolute inset-0 mosaic opacity-90 hidden lg:block">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 md:p-10">
-        <!-- Swap with your curated set anytime -->
         <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1554995207-c1e86f03c5b2?q=80&w=1600" alt="">
         <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1600" alt="">
         <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600" alt="">
@@ -85,12 +91,14 @@
         <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1600" alt="">
         <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600" alt="">
       </div>
-    </div>
-    <!-- Mobile: use a soft gradient background in place of heavy mosaic -->
+    </div> -->
+
+    <!-- Mobile fallback gradient -->
     <div class="absolute inset-0 lg:hidden"
          style="background:
            radial-gradient(120% 120% at 50% 0%, #2a1140 0%, #0b0e13 58%),
            linear-gradient(160deg, #0b0e13, #000);"></div>
+
     <div class="bg-overlay"></div>
   </div>
 
@@ -112,29 +120,13 @@
   <main class="page-wrap with-top-pad">
     <div class="hero-grid px-4 sm:px-6">
       <div class="flex flex-col lg:flex-row items-start justify-between gap-8 lg:gap-14">
-
-        <!-- Left: shared hero text -->
         <section class="flex-1 min-w-0 mt-2 lg:mt-6">
-          <!-- <div class="hero-glass hidden lg:block p-5 md:p-6 w-fit">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full hero-badge grid place-items-center text-white font-extrabold">A</div>
-              <span class="text-sm text-gray-200/90">Welcome to Artonomy</span>
-            </div>
-          </div> -->
-
-          <!-- <h1 class="hero-title text-[42px] sm:text-6xl lg:text-7xl mt-4">
-            Artonomy Where<br class="hidden sm:block"/>
-            The Art Connects <span class="text-purple-500 align-middle">•</span>
-          </h1> -->
-
           {% block hero_sub %}{% endblock %}
         </section>
 
-        <!-- Right: page-specific content -->
         <section class="w-full max-w-[520px] shrink-0 self-start">
           {% block right_card %}{% endblock %}
         </section>
-
       </div>
     </div>
   </main>

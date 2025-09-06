@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
   <main class="w-full max-w-screen-2xl mx-auto p-4 sm:p-6 space-y-6 pb-40 sm:pb-24">
     <h2 class="text-2xl font-bold text-gray-100 hidden sm:block">Home</h2>
 <div class="sm:hidden flex gap-3 overflow-x-auto no-scrollbar -mx-4 px-4 mobile-cat-pills">
   {# ALL pill (use a pleasant default bg) #}
-  <a href="{% url 'explore' %}{% if current_feed %}?feed={{ current_feed }}{% endif %}"
-     class="mobile-cat-chip {% if not active_category %}active{% endif %}"
-     style="--chip-bg: url('https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=800&auto=format&fit=crop');">
-    <span class="label">All</span>
-  </a>
+<a href="{% url 'explore' %}{% if current_feed %}?feed={{ current_feed }}{% endif %}"
+   class="mobile-cat-chip {% if not active_category %}active{% endif %}"
+   style="--chip-bg: url('{% static 'images/category_images/All.jpg' %}');">
+  <span class="label">All</span>
+</a>
 
   {# Real categories with backend images #}
   {% for c in categories %}

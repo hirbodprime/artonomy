@@ -54,28 +54,38 @@
     {% for u in artists %}
       <div class="artist-card">
         <div class="artist-cover">
-          {% if u.profile.cover %}<img src="{{ u.profile.cover.url }}" alt="{{ u.username }}">
-          {% else %}<img src="https://placehold.co/800x450/111/EEE?text=Cover" alt="{{ u.username }}">{% endif %}
+          <a href="{% url 'profile_view' username=u.username %}">
+            {% if u.profile.cover %}<img src="{{ u.profile.cover.url }}" alt="{{ u.username }}">
+            {% else %}<img src="https://placehold.co/800x450/111/EEE?text=Cover" alt="{{ u.username }}">{% endif %}
+          </a>
         </div>
 
         <div class="artist-info">
-          {% if u.profile.avatar %}
-            <img src="{{ u.profile.avatar.url }}" class="artist-avatar" alt="{{ u.username }}">
-          {% else %}
-            <img src="https://placehold.co/96x96/222/EEE?text={{ u.username|first|upper }}" class="artist-avatar" alt="{{ u.username }}">
-          {% endif %}
+          <a href="{% url 'profile_view' username=u.username %}">
+            {% if u.profile.avatar %}
+              <img src="{{ u.profile.avatar.url }}" class="artist-avatar" alt="{{ u.username }}">
+            {% else %}
+              <img src="https://placehold.co/96x96/222/EEE?text={{ u.username|first|upper }}" class="artist-avatar" alt="{{ u.username }}">
+            {% endif %}
+          </a>
 
           <div class="flex items-center justify-between mt-6">
             <div>
-              <div class="font-bold text-white text-lg">{{ u.get_full_name|default:u.username }}</div>
-              <div class="text-gray-400 text-sm">@{{ u.username }}</div>
+              <a href="{% url 'profile_view' username=u.username %}" class="font-bold text-white text-lg hover:underline">
+                {{ u.get_full_name|default:u.username }}
+              </a>
+              <div class="text-gray-400 text-sm">
+                <a href="{% url 'profile_view' username=u.username %}" class="hover:underline">@{{ u.username }}</a>
+              </div>
             </div>
 
             {% if request.user.is_authenticated and request.user != u %}
-              <button class="follow-btn"
-                      data-url="{% url 'network:toggle_follow' u.id %}">
-                {% if u.id in following_ids %}Unfollow{% else %}Follow{% endif %}
-              </button>
+              <form method="post" action="{% url 'network:toggle_follow' user_id=u.id %}">
+                {% csrf_token %}
+                <button type="submit" class="follow-btn">
+                  {% if u.id in following_ids %}Unfollow{% else %}Follow{% endif %}
+                </button>
+              </form>
             {% endif %}
           </div>
 
@@ -138,34 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // ---------- CSRF helper ----------
-  function getCookie(name){
-    const m = document.cookie.match('(^|;)\\s*'+name+'\\s*=\\s*([^;]+)');
-    return m ? m.pop() : '';
-  }
-  const csrftoken = getCookie('csrftoken');
-
-  // ---------- Follow / Unfollow ----------
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.follow-btn');
-    if(!btn) return;
-
-    try{
-      const res = await fetch(btn.dataset.url, {
-        method: 'POST',
-        headers: { 'X-CSRFToken': csrftoken },
-      });
-      const data = await res.json();
-      if(data.error){ alert(data.error); return; }
-
-      btn.textContent = data.is_following ? 'Unfollow' : 'Follow';
-      const box = btn.closest('.artist-info').querySelector('.followers-count');
-      if(box) box.textContent = data.followers_count;
-    }catch(err){
-      console.error(err);
-      // alert('Network error. Please try again.');
-    }
-  });
+  // (No follow AJAX here — follow button posts a form for a full reload)
 });
 </script>
 {% endblock %}
