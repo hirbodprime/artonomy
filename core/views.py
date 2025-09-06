@@ -1,228 +1,186 @@
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from django.shortcuts import render, redirect,get_object_or_404
-
+from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
-from datetime import timedelta
-from django.db.models import (F, Q, Value, IntegerField, FloatField, Count, Case, When,ExpressionWrapper)
-from django.db.models.functions import Now, Coalesce
-from network.models import Follow
-from accounts.models import UserCategory  # your through model
-from posts.models import Post, Category, Like  # your posts app
+
+from django.db.models import Q
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils import timezone
+
+from network.models import Follow
+from accounts.models import UserCategory  # through model
+from posts.models import Post, Category
 from suggest.models import ExplorePin
-from suggest.explore_pins import select_today_pins
+from suggest.explore_pins import select_today_pins  # if you use self-heal
 
 User = get_user_model()
 
-
-def _cat_filter(queryset, active_category):
-    """Apply category filter if present."""
-    if active_category:
-        queryset = queryset.filter(categories=active_category)
-    return queryset
+# ---- Tuning knobs for lightweight feeds ----
+PAGE_SIZE = 5          # how many items we show
+BUFFER = 200            # how many IDs to pull before trimming
+PER_AUTHOR_CAP = 3      # diversity cap per author
 
 
-def _common_selects(qs):
-    """Shared select_related/prefetch for cards & single view parity."""
-    return (
-        qs.select_related("author")
-          .prefetch_related("images", "videos", "chapters", "categories")
-    )
+# ========= Shared lightweight helpers =========
 
+def _light_base():
+    """Minimal selection for fast lists (no heavy prefetch)."""
+    return Post.objects.select_related("author")
 
-def home_view(request):
-    """
-    Home: ONLY posts from authors the user follows + the user's own posts,
-    ordered by newest first. Anonymous users see nothing (intentional).
-    Optional filter: ?cat=<slug>
-    """
-    cat_slug = request.GET.get("cat")
-    categories = Category.objects.all().order_by("name")
-    active_category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
-
-    if request.user.is_authenticated:
-        following_ids = Follow.objects.filter(
-            follower=request.user
-        ).values_list("following_id", flat=True)
-
-        qs = Post.objects.filter(
-            Q(author_id__in=following_ids) | Q(author=request.user)
-        ).order_by("-created_at")
-
-        qs = _cat_filter(qs, active_category)
-        qs = _common_selects(qs)
-    else:
-        # You asked for "only following + own" — so anonymous gets an empty feed
-        qs = Post.objects.none()
-
-    context = {
-        "nav_active": "home",
-        "categories": categories,
-        "active_category": active_category,
-        "posts": qs,
-    }
-    return render(request, "home.html", context)
-
-
-# ----- helpers -----
-def _common_selects(qs):
-    return (qs.select_related("author")
-             .prefetch_related("images", "videos", "categories", "chapters"))
-
-def _cat_filter(qs, active_category):
+def _apply_category(qs, active_category):
+    """Optional category filter by instance."""
     return qs.filter(categories=active_category) if active_category else qs
 
-def _recency_boost():
-    """Tiered recency multiplier: simple & DB-agnostic."""
-    return Case(
-        When(created_at__gte=Now() - Value(timedelta(days=2)),  then=Value(1.6)),
-        When(created_at__gte=Now() - Value(timedelta(days=7)),  then=Value(1.3)),
-        When(created_at__gte=Now() - Value(timedelta(days=30)), then=Value(1.1)),
-        default=Value(1.0),
-        output_field=FloatField(),
-    )
-
-def _popularity():
-    """3*likes + 2*bookmarks + 2*shares + 1*views with null-safe Coalesce."""
-    return (
-        3 * Coalesce(F("likes"),     Value(0)) +
-        2 * Coalesce(F("bookmarks"), Value(0)) +
-        2 * Coalesce(F("shares"),    Value(0)) +
-        1 * Coalesce(F("views"),     Value(0))
-    )
-
-def _diversify(qs, limit=60, max_per_author=3):
-    """
-    Greedy author cap. Fetch a buffer, then trim in Python.
-    Keeps ordering from the DB.
-    """
-    buf = list(qs[:200])  # small buffer
-    out, per_author = [], {}
-    for p in buf:
+def _cap_per_author(posts, limit=PAGE_SIZE, cap=PER_AUTHOR_CAP):
+    """Greedy per-author cap done in Python (cheap on small buffers)."""
+    out, seen_per_author = [], {}
+    for p in posts:
         a = p.author_id
-        if per_author.get(a, 0) >= max_per_author:
+        if seen_per_author.get(a, 0) >= cap:
             continue
-        per_author[a] = per_author.get(a, 0) + 1
+        seen_per_author[a] = seen_per_author.get(a, 0) + 1
         out.append(p)
         if len(out) >= limit:
             break
     return out
 
-# ----- EXPLORE -----
-def explore_view(request):
+
+# ========= HOME (simplified & SQLite-friendly) =========
+
+def home_view(request):
     """
-    Explore: two feeds
-      - posts_bests: popularity × recency
-      - posts_for_you: preference-weighted + popularity × recency (+follow boost)
-    Both respect ?cat=<slug>.
+    Home: ONLY posts from authors the user follows + the user's own posts,
+    newest first. Optional filter: ?cat=<slug>. Minimal selects + early limit.
     """
     cat_slug = request.GET.get("cat")
     categories = Category.objects.all().order_by("name")
     active_category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
 
-    base = _common_selects(_cat_filter(Post.objects.all(), active_category))
+    if not request.user.is_authenticated:
+        qs = Post.objects.none()
+    else:
+        following_ids = Follow.objects.filter(
+            follower=request.user
+        ).values_list("following_id", flat=True)
 
-    # ---------- Artonomy Bests ----------
-    recency = _recency_boost()
-    pop     = _popularity()
-    posts_bests_qs = (
-        base
-        .annotate(pop=pop, recency=recency)
-        .annotate(score=F("pop") * F("recency"))
-        .order_by("-score", "-created_at")
-    )
+        base = _light_base().filter(
+            Q(author_id__in=following_ids) | Q(author=request.user)
+        )
+        qs = _apply_category(base, active_category).order_by("-created_at", "-id")
 
-    # ---------- For You ----------
-    posts_for_you_qs = base
+    # Simple offset pagination (keeps template changes minimal)
+    # If you don’t want pagination yet, comment the slice and pass qs directly.
+    try:
+        page = max(int(request.GET.get("page", 1)), 1)
+    except ValueError:
+        page = 1
+    start = (page - 1) * PAGE_SIZE
+    end = start + PAGE_SIZE
+    posts_page = list(qs[start:end])
+
+    context = {
+        "nav_active": "home",
+        "categories": categories,
+        "active_category": active_category,
+        "posts": posts_page,
+        "page": page,
+        "has_next": len(posts_page) == PAGE_SIZE,  # simple next flag
+    }
+    return render(request, "home.html", context)
+
+
+# ========= EXPLORE (MVP-fast, SQLite-friendly) =========
+
+def explore_view(request):
+    """
+    Explore: two feeds (cheap)
+      - posts_bests: order by -likes, then -created_at
+      - posts_for_you: union of followed authors + WORK/FAV categories, newest first
+    Both respect ?cat=<slug>. De-dup + author cap in Python.
+    """
+    cat_slug = request.GET.get("cat")
+    categories = Category.objects.all().order_by("name")
+    active_category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
+
+    # ---------- Artonomy Bests (cheap) ----------
+    bests_qs = _apply_category(_light_base(), active_category).order_by("-likes", "-created_at", "-id")
+    best_ids = list(bests_qs.values_list("id", flat=True)[:BUFFER])
+
+    # ---------- For You (cheap union) ----------
+    for_you_ids = []
     if request.user.is_authenticated:
-        # user category preferences
-        work_ids = list(
-            UserCategory.objects
-            .filter(user=request.user, kind=UserCategory.Kind.WORK)
-            .values_list("category_id", flat=True)
-        )
-        fav_ids = list(
-            UserCategory.objects
-            .filter(user=request.user, kind=UserCategory.Kind.FAV)
-            .values_list("category_id", flat=True)
-        )
-        liked_cat_ids = list(
-            Like.objects
-            .filter(user=request.user)
-            .values_list("post__categories", flat=True)
-        )
-
-        # any preferences?
-        pref_ids = set([cid for cid in (work_ids + fav_ids + liked_cat_ids) if cid])
-
-        # follow boost (small)
         following_ids = list(
             Follow.objects.filter(follower=request.user)
             .values_list("following_id", flat=True)
         )
+        work_ids = list(
+            UserCategory.objects.filter(user=request.user, kind=UserCategory.Kind.WORK)
+            .values_list("category_id", flat=True)
+        )
+        fav_ids = list(
+            UserCategory.objects.filter(user=request.user, kind=UserCategory.Kind.FAV)
+            .values_list("category_id", flat=True)
+        )
+        pref_cat_ids = list(set(work_ids + fav_ids))
 
-        if pref_ids:
-            interest_work = Count(
-                "categories", filter=Q(categories__in=work_ids), distinct=True
-            ) * Value(3, output_field=IntegerField())
-            interest_fav = Count(
-                "categories", filter=Q(categories__in=fav_ids), distinct=True
-            ) * Value(2, output_field=IntegerField())
-            interest_like = Count(
-                "categories", filter=Q(categories__in=liked_cat_ids), distinct=True
-            ) * Value(1, output_field=IntegerField())
+        base = _apply_category(_light_base(), active_category)
 
-            follow_bonus = Case(
-                When(author_id__in=following_ids, then=Value(5)),
-                default=Value(0),
-                output_field=IntegerField(),
+        q_id_iters = []
+        if following_ids:
+            q_id_iters.append(
+                base.filter(author_id__in=following_ids)
+                    .order_by("-created_at", "-id")
+                    .values_list("id", flat=True)[:BUFFER]
+            )
+        if pref_cat_ids:
+            q_id_iters.append(
+                base.filter(categories__in=pref_cat_ids)
+                    .order_by("-created_at", "-id")
+                    .values_list("id", flat=True)[:BUFFER]
             )
 
-            posts_for_you_qs = (
-                posts_for_you_qs
-                .filter(categories__in=list(pref_ids))
-                .distinct()
-                .annotate(
-                    interest=interest_work + interest_fav + interest_like,
-                    pop=pop,
-                    recency=recency,
-                    follow_bonus=follow_bonus,
-                )
-                # weight interest higher so it actually changes order
-                .annotate(score=F("interest") * Value(10) + F("pop") * F("recency") + F("follow_bonus"))
-                .order_by("-score", "-created_at")
-            )
-        else:
-            # cold start → same as bests
-            posts_for_you_qs = posts_bests_qs
-    else:
-        posts_for_you_qs = posts_bests_qs  # anon → same as bests
+        # merge ids in Python (avoid DISTINCT on sqlite)
+        seen = set()
+        merged = []
+        for it in q_id_iters:
+            for pid in it:
+                if pid not in seen:
+                    seen.add(pid)
+                    merged.append(pid)
+        for_you_ids = merged[:BUFFER]
 
-    # diversity (cap per author), and limit what you render for speed
-    posts_bests = _diversify(posts_bests_qs, limit=60, max_per_author=3)
-    posts_for_you = _diversify(posts_for_you_qs, limit=60, max_per_author=3)
+    # Fallback for anon / no prefs
+    if not for_you_ids:
+        for_you_ids = best_ids[:BUFFER]
+
+    # ---------- Fetch & order in Python ----------
+    best_posts = list(_light_base().filter(id__in=best_ids))
+    for_you_posts = list(_light_base().filter(id__in=for_you_ids))
+
+    best_posts.sort(key=lambda p: (p.created_at, p.likes, p.id), reverse=True)
+    for_you_posts.sort(key=lambda p: (p.created_at, p.likes, p.id), reverse=True)
+
+    # diversity + final limit
+    best_posts = _cap_per_author(best_posts, limit=PAGE_SIZE, cap=PER_AUTHOR_CAP)
+    for_you_posts = _cap_per_author(for_you_posts, limit=PAGE_SIZE, cap=PER_AUTHOR_CAP)
+
+    # (optional) pins — keep or skip if slow
     today = timezone.localdate()
     pin_qs = ExplorePin.objects.filter(date=today).select_related('post')
-
-    if pin_qs.count() < 4:
-        # self-heal (in case cron didn't run yet)
-        selected = select_today_pins(dry_run=False)
-        pinned_posts = selected
-    else:
-        pinned_posts = [p.post for p in pin_qs.order_by('created_at')[:4]]
+    pinned_posts = [p.post for p in pin_qs.order_by('created_at')[:4]]
 
     return render(request, "explore.html", {
         "nav_active": "explore",
         "categories": categories,
         "active_category": active_category,
-        "posts_bests": posts_bests,
-        "posts_for_you": posts_for_you,
+        "posts_bests": best_posts,
+        "posts_for_you": for_you_posts,
         "pinned_posts": pinned_posts,
-        # default feed tab = 'bests' unless user passed ?feed=for-you
         "feed_tab": request.GET.get("feed", "bests"),
     })
+
+
+# ========= Auth / Landing (unchanged) =========
 
 @ensure_csrf_cookie
 def landing_page(request):
@@ -248,14 +206,124 @@ def landing_page(request):
     return render(request, "landing_page.html")
 
 
-
-
-
-
-
-
-
-
-
 def coming_soon_view(req):
-    return render(req,'coming_soon.html')
+    return render(req, 'coming_soon.html')
+
+
+
+# views.py  (add imports at top)
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+
+# HOME API
+def home_feed_api(request):
+    try:
+        page = max(int(request.GET.get("page", 1)), 1)
+    except ValueError:
+        page = 1
+
+    cat_slug = request.GET.get("cat")
+    active_category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
+
+    if not request.user.is_authenticated:
+        return JsonResponse({"html_mobile": "", "html_desktop": "", "has_next": False})
+
+    following_ids = Follow.objects.filter(
+        follower=request.user
+    ).values_list("following_id", flat=True)
+
+    base = _light_base().filter(Q(author_id__in=following_ids) | Q(author=request.user))
+    qs = _apply_category(base, active_category).order_by("-created_at", "-id")
+
+    start = (page - 1) * PAGE_SIZE
+    end = start + PAGE_SIZE
+    posts = list(qs[start:end])
+    has_next = len(posts) == PAGE_SIZE
+
+    html_mobile  = render_to_string("partials/home_cards_mobile.html",  {"posts": posts}, request=request)
+    html_desktop = render_to_string("partials/home_cards_desktop.html", {"posts": posts}, request=request)
+    return JsonResponse({"html_mobile": html_mobile, "html_desktop": html_desktop, "has_next": has_next})
+
+
+# EXPLORE API
+def explore_feed_api(request):
+    """
+    expects: feed=bests|for-you, page=1.., cat=<slug>
+    returns: html chunks for current viewport (we return both; JS picks which to append)
+    """
+    feed = (request.GET.get("feed") or "bests").lower()
+    try:
+        page = max(int(request.GET.get("page", 1)), 1)
+    except ValueError:
+        page = 1
+
+    cat_slug = request.GET.get("cat")
+    active_category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
+
+    # --- compute the two lists exactly like your explore_view (fast/MVP) ---
+    # Bests
+    bests_qs = _apply_category(_light_base(), active_category).order_by("-likes", "-created_at", "-id")
+    best_ids = list(bests_qs.values_list("id", flat=True)[:BUFFER])
+
+    # For You
+    for_you_ids = []
+    if request.user.is_authenticated:
+        following_ids = list(
+            Follow.objects.filter(follower=request.user)
+            .values_list("following_id", flat=True)
+        )
+        work_ids = list(
+            UserCategory.objects.filter(user=request.user, kind=UserCategory.Kind.WORK)
+            .values_list("category_id", flat=True)
+        )
+        fav_ids = list(
+            UserCategory.objects.filter(user=request.user, kind=UserCategory.Kind.FAV)
+            .values_list("category_id", flat=True)
+        )
+        pref_cat_ids = list(set(work_ids + fav_ids))
+
+        base = _apply_category(_light_base(), active_category)
+
+        q_id_iters = []
+        if following_ids:
+            q_id_iters.append(
+                base.filter(author_id__in=following_ids)
+                    .order_by("-created_at", "-id")
+                    .values_list("id", flat=True)[:BUFFER]
+            )
+        if pref_cat_ids:
+            q_id_iters.append(
+                base.filter(categories__in=pref_cat_ids)
+                    .order_by("-created_at", "-id")
+                    .values_list("id", flat=True)[:BUFFER]
+            )
+
+        seen, merged = set(), []
+        for it in q_id_iters:
+            for pid in it:
+                if pid not in seen:
+                    seen.add(pid)
+                    merged.append(pid)
+        for_you_ids = merged[:BUFFER]
+
+    if not for_you_ids:
+        for_you_ids = best_ids[:BUFFER]
+
+    # fetch + global order (same as page)
+    if feed == "for-you":
+        items = list(_light_base().filter(id__in=for_you_ids))
+    else:
+        items = list(_light_base().filter(id__in=best_ids))
+
+    items.sort(key=lambda p: (p.created_at, p.likes, p.id), reverse=True)
+    items = _cap_per_author(items, limit=BUFFER, cap=PER_AUTHOR_CAP)
+
+    # paginate the items list
+    start = (page - 1) * PAGE_SIZE
+    end = start + PAGE_SIZE
+    posts = items[start:end]
+    has_next = len(posts) == PAGE_SIZE
+
+    html_mobile  = render_to_string("partials/explore_cards_mobile.html",  {"posts": posts}, request=request)
+    html_desktop = render_to_string("partials/explore_cards_desktop.html", {"posts": posts}, request=request)
+    return JsonResponse({"html_mobile": html_mobile, "html_desktop": html_desktop, "has_next": has_next})

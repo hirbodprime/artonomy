@@ -20,7 +20,7 @@ def category_index(request):
         )
         .order_by("name")
     )
-    return render(request, "category/index.html", {"categories": categories})
+    return render(request, "category/index.html", {"categories": categories,"nav_active": "category"})
 
 # views.py  (category_artists)
 def category_artists(request, slug):
@@ -57,6 +57,8 @@ def category_artists(request, slug):
         )
 
     return render(request, "category/detail.html", {
+        "nav_active": "category",
+
         "category": category,
         "artists": page_obj,
         "page_obj": page_obj,

@@ -533,4 +533,90 @@
   show(currentFeed);
 })();
 </script>
+<script>
+(function(){
+  let page = 1, loading = false, hasNext = true;
+
+  const params = new URLSearchParams(location.search);
+  let currentFeed = (params.get('feed') || 'bests').toLowerCase();
+
+  const mq = window.matchMedia('(min-width: 640px)');
+  const viewport = () => (mq.matches ? 'desktop' : 'mobile');
+
+  // Wrapper section (has data-feed/data-vp)
+  function currentSection() {
+    return document.querySelector(`[data-feed="${currentFeed}"][data-vp="${viewport()}"]`);
+  }
+
+  // The actual list to append into:
+  //  - desktop: the section *is* the masonry
+  //  - mobile: append into its inner .grid
+  function currentList() {
+    const sec = currentSection();
+    if (!sec) return null;
+    return sec.classList.contains('masonry') ? sec : sec.querySelector('.grid');
+  }
+
+  // --- sentinel lives inside the LIST
+  const sentinel = document.createElement('div');
+  sentinel.id = 'explore-sentinel';
+  sentinel.className = 'py-8 text-center text-gray-400 col-span-2'; // spans both cols on mobile grid
+  (currentList() || document.body).appendChild(sentinel);
+
+  function resetAndMoveSentinel() {
+    page = 1; hasNext = true; loading = false;
+    sentinel.innerHTML = '';
+    const list = currentList();
+    if (list && list.lastElementChild !== sentinel) list.appendChild(sentinel);
+  }
+
+  // hook your existing feed switchers
+  document.querySelectorAll('#globalFeedSwitch .seg')
+    .forEach(b => b.addEventListener('click', () => { currentFeed = b.dataset.value; resetAndMoveSentinel(); }));
+
+  if (mq.addEventListener) mq.addEventListener('change', resetAndMoveSentinel);
+  else mq.addListener(resetAndMoveSentinel);
+
+  async function loadMore() {
+    if (loading || !hasNext) return;
+    loading = true;
+    sentinel.innerHTML = '<span>Loading…</span>';
+
+    const cat = {% if active_category %}"{{ active_category.slug|escapejs }}"{% else %}""{% endif %};
+    const url = new URL("{% url 'explore_feed_api' %}", window.location.origin);
+    url.searchParams.set('feed', currentFeed);
+    url.searchParams.set('page', (page + 1));
+    if (cat) url.searchParams.set('cat', cat);
+
+    try {
+      const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+      const data = await res.json();
+      const html = viewport() === 'mobile' ? data.html_mobile : data.html_desktop;
+
+      const list = currentList();
+      if (list) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        while (tmp.firstChild) list.insertBefore(tmp.firstChild, sentinel);
+      }
+      page += 1;
+      hasNext = data.has_next;
+      sentinel.innerHTML = hasNext ? '' : '<span class="opacity-60">No more</span>';
+    } catch (e) {
+      console.error(e);
+      sentinel.innerHTML = '<span class="text-red-400">Error</span>';
+      hasNext = false;
+    } finally {
+      loading = false;
+    }
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) loadMore(); });
+  }, { rootMargin: '800px 0px 800px 0px' });
+
+  io.observe(sentinel);
+})();
+</script>
+
 {% endblock %}

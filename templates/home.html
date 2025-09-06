@@ -219,4 +219,76 @@
     </div>
 
   </main>
+  <script>
+(function(){
+  let page = {{ page|default:1 }};
+  let loading = false;
+  let hasNext = {{ has_next|yesno:"true,false" }};
+const cat = {% if active_category %}"{{ active_category.slug|escapejs }}"{% else %}""{% endif %};
+
+  // choose proper container per viewport
+  const mq = window.matchMedia('(min-width: 640px)');
+  const viewport = () => (mq.matches ? 'desktop' : 'mobile');
+  function container() {
+    return document.querySelector(mq.matches ? '.masonry' : '.grid');
+  }
+
+  const sentinel = document.createElement('div');
+  sentinel.id = 'home-sentinel';
+  sentinel.className = 'py-8 text-center text-gray-400';
+  sentinel.innerHTML = hasNext ? '' : '<span class="opacity-60">No more</span>';
+  (container() || document.body).appendChild(sentinel);
+
+  function moveSentinel() {
+    const c = container();
+    if (c && c.lastElementChild !== sentinel) c.appendChild(sentinel);
+  }
+  if (mq.addEventListener) mq.addEventListener('change', moveSentinel);
+  else mq.addListener(moveSentinel);
+
+  async function loadMore() {
+    if (loading || !hasNext) return;
+    loading = true;
+    sentinel.innerHTML = '<span>Loading…</span>';
+
+    const url = new URL("{% url 'home_feed_api' %}", window.location.origin);
+    url.searchParams.set('page', (page + 1));
+    if (cat) url.searchParams.set('cat', cat);
+
+    try {
+      const res = await fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+      const data = await res.json();
+      const html = viewport() === 'mobile' ? data.html_mobile : data.html_desktop;
+
+      const c = container();
+      if (c) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        while (tmp.firstChild) c.insertBefore(tmp.firstChild, sentinel);
+      }
+      page += 1;
+      hasNext = data.has_next;
+      sentinel.innerHTML = hasNext ? '' : '<span class="opacity-60">No more</span>';
+    } catch (e) {
+      console.error(e);
+      sentinel.innerHTML = '<span class="text-red-400">Error</span>';
+      hasNext = false;
+    } finally {
+      loading = false;
+    }
+  }
+function container() {
+  return window.matchMedia('(min-width: 640px)').matches
+    ? document.getElementById('home-masonry')      // the masonry itself
+    : document.getElementById('home-grid-mobile'); // the inner grid
+}
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) loadMore(); });
+  }, { rootMargin: '800px 0px 800px 0px' });
+
+  io.observe(sentinel);
+})();
+</script>
+
 {% endblock content %}

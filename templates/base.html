@@ -254,6 +254,11 @@
       <!-- Category -->
       <a href="{% url 'categories:index' %}"
          class="group flex items-center justify-center xl:justify-start
+         {% if nav_active == 'category' %}
+            bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30
+          {% else %}
+            text-gray-400 hover:bg-gray-800/60 hover:text-white
+          {% endif %}
                 gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-400 hover:bg-gray-800/60 hover:text-white transition-all">
         <i class="fa-solid fa-th-large text-lg md:text-xl w-6 text-center text-gray-500 group-hover:text-purple-400"></i>
         <span class="hidden xl:inline font-semibold tracking-wide">Artists</span>
@@ -526,7 +531,7 @@
           </a>
         </li>
         <li>
-          <a href="{% url 'marketplace:list' %}" class="m-dock-item" aria-label="Marketplace">
+          <a href="{% url 'marketplace:list' %}" class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" aria-label="Marketplace">
             <i class="ico fa-regular fa-store"></i><span>Marketplace</span>
           </a>
         </li>

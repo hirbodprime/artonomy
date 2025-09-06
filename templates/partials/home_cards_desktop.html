@@ -1,0 +1,69 @@
+{# Used for Home desktop masonry. Expects: posts #}
+{% for post in posts %}
+
+  {% if post.post_type == "PHOTO" %}
+    <article class="masonry-item">
+      <a href="{% url 'single_post' post.pk %}" class="block rounded-[20px] overflow-hidden h-[349px]">
+        {% with first_img=post.images.all|first %}
+          {% if first_img %}
+            <img src="{{ first_img.image.url }}" class="w-full h-full object-cover" alt="{{ post.title|default:'Photo' }}">
+          {% elif post.image %}
+            <img src="{{ post.image.url }}" class="w-full h-full object-cover" alt="{{ post.title|default:'Photo' }}">
+          {% else %}
+            <img src="https://placehold.co/349x349/0D0F12/E6E8EC?text=Image" class="w-full h-full object-cover" alt="Image">
+          {% endif %}
+        {% endwith %}
+      </a>
+    </article>
+  {% endif %}
+
+  {% if post.post_type == "TEXT" %}
+    <article class="masonry-item">
+      <a href="{% url 'single_post' post.pk %}" class="block">
+        <div class="bg-gray-200 text-gray-900 rounded-[20px] p-4 h-[218px] grid grid-rows-[auto_1fr] overflow-hidden">
+          <div class="flex items-start justify-between">
+            <div class="flex items-start gap-3 min-w-0">
+              <img class="w-10 h-10 rounded-lg object-cover" src="{{ post.author.avatar|default:'https://placehold.co/100x100/cccccc/333333?text=U' }}">
+              <div class="min-w-0">
+                <div class="font-bold leading-tight truncate">{{ post.title|default:post.author.username }}</div>
+                <div class="text-xs text-gray-600 truncate">{{ post.author.username }}</div>
+              </div>
+            </div>
+            <div class="w-8 h-8 rounded-lg grid place-items-center bg-gray-300 text-gray-700 flex-shrink-0">
+              <i class="fa-regular fa-rectangle-list"></i>
+            </div>
+          </div>
+          <div class="mt-2 overflow-hidden">
+            <p class="text-sm leading-relaxed h-full overflow-hidden [display:-webkit-box] [-webkit-line-clamp:999] [-webkit-box-orient:vertical]">
+              {% with ch=post.chapters.all|first %}
+                {% if ch %}{{ ch.content|striptags }}{% else %}{{ post.body|default:post.caption|striptags }}{% endif %}
+              {% endwith %}
+            </p>
+          </div>
+        </div>
+      </a>
+    </article>
+  {% endif %}
+
+  {% if post.post_type == "VIDEO" %}
+    <article class="masonry-item">
+      <a href="{% url 'single_post' post.pk %}" class="block rounded-[20px] overflow-hidden h-[195px] relative bg-black">
+        {% with v=post.videos.all|first %}
+          {% if v and v.poster %}
+            <img src="{{ v.poster.url }}" class="w-full h-full object-cover" alt="{{ post.title|default:'Video' }}">
+          {% elif v %}
+            <video class="w-full h-full object-cover" src="{{ v.file.url }}" muted playsinline></video>
+          {% elif post.video %}
+            <video class="w-full h-full object-cover" src="{{ post.video.url }}" muted playsinline></video>
+          {% else %}
+            <img src="https://placehold.co/349x195/0D0F12/E6E8EC?text=Video" class="w-full h-full object-cover" alt="Video">
+          {% endif %}
+        {% endwith %}
+        <span class="absolute inset-0 m-auto w-10 h-10 rounded-full bg-black/60 grid place-items-center text-white">
+          <i class="fa-solid fa-play text-sm"></i>
+        </span>
+      </a>
+    </article>
+  {% endif %}
+
+{% endfor %}
