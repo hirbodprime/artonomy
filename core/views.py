@@ -1,7 +1,11 @@
+# views.py
+
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.contrib.auth import get_user_model
+from django.http import JsonResponse
+from django.template.loader import render_to_string
 
 from django.db.models import Q
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -15,10 +19,12 @@ from suggest.explore_pins import select_today_pins  # if you use self-heal
 
 User = get_user_model()
 
-# ---- Tuning knobs for lightweight feeds ----
-PAGE_SIZE = 5          # how many items we show
-BUFFER = 200            # how many IDs to pull before trimming
-PER_AUTHOR_CAP = 3      # diversity cap per author
+# =========================
+# Tuning knobs for feeds
+# =========================
+PAGE_SIZE = 24          # items per page (initial and API pages)
+BUFFER = 500            # how many IDs we consider before slicing to a page
+PER_AUTHOR_CAP = 0      # 0 = no per-author cap in page chunks (safer for "all posts")
 
 
 # ========= Shared lightweight helpers =========
@@ -28,11 +34,21 @@ def _light_base():
     return Post.objects.select_related("author")
 
 def _apply_category(qs, active_category):
-    """Optional category filter by instance."""
-    return qs.filter(categories=active_category) if active_category else qs
+    """
+    Optional category filter. Use distinct() ONLY when category is active
+    to avoid duplicate rows from M2M join consuming page slots.
+    """
+    if active_category:
+        return qs.filter(categories=active_category).distinct()
+    return qs
 
-def _cap_per_author(posts, limit=PAGE_SIZE, cap=PER_AUTHOR_CAP):
-    """Greedy per-author cap done in Python (cheap on small buffers)."""
+def _cap_per_author(posts, limit, cap):
+    """
+    Greedy per-author cap. If cap == 0, return the input (no cap).
+    Use ONLY on page-sized chunks; applying globally starves later pages.
+    """
+    if not cap:
+        return list(posts)[:limit]
     out, seen_per_author = [], {}
     for p in posts:
         a = p.author_id
@@ -44,13 +60,23 @@ def _cap_per_author(posts, limit=PAGE_SIZE, cap=PER_AUTHOR_CAP):
             break
     return out
 
+def _dedup_ordered(ids):
+    """De-duplicate while preserving order (sqlite-friendly)."""
+    seen, out = set(), []
+    for x in ids:
+        if x not in seen:
+            seen.add(x)
+            out.append(x)
+    return out
+
 
 # ========= HOME (simplified & SQLite-friendly) =========
 
 def home_view(request):
     """
     Home: ONLY posts from authors the user follows + the user's own posts,
-    newest first. Optional filter: ?cat=<slug>. Minimal selects + early limit.
+    newest first. Optional filter: ?cat=<slug>. Returns the first PAGE_SIZE;
+    the rest are loaded via /home/feed API by your JS.
     """
     cat_slug = request.GET.get("cat")
     categories = Category.objects.all().order_by("name")
@@ -63,48 +89,33 @@ def home_view(request):
             follower=request.user
         ).values_list("following_id", flat=True)
 
-        base = _light_base().filter(
-            Q(author_id__in=following_ids) | Q(author=request.user)
-        )
+        base = _light_base().filter(Q(author_id__in=following_ids) | Q(author=request.user))
         qs = _apply_category(base, active_category).order_by("-created_at", "-id")
 
-    # Simple offset pagination (keeps template changes minimal)
-    # If you don’t want pagination yet, comment the slice and pass qs directly.
-    try:
-        page = max(int(request.GET.get("page", 1)), 1)
-    except ValueError:
-        page = 1
-    start = (page - 1) * PAGE_SIZE
-    end = start + PAGE_SIZE
-    posts_page = list(qs[start:end])
+    # first page only; infinite scroll calls /home/feed for the next ones
+    posts_page = list(qs[:PAGE_SIZE])
 
     context = {
         "nav_active": "home",
         "categories": categories,
         "active_category": active_category,
         "posts": posts_page,
-        "page": page,
-        "has_next": len(posts_page) == PAGE_SIZE,  # simple next flag
+        "page": 1,
+        "has_next": len(posts_page) == PAGE_SIZE,
     }
     return render(request, "home.html", context)
 
 
 # ========= EXPLORE (MVP-fast, SQLite-friendly) =========
 
-def explore_view(request):
+def _explore_id_lists(request, active_category):
     """
-    Explore: two feeds (cheap)
-      - posts_bests: order by -likes, then -created_at
-      - posts_for_you: union of followed authors + WORK/FAV categories, newest first
-    Both respect ?cat=<slug>. De-dup + author cap in Python.
+    Build ID lists for 'bests' and 'for_you' (deduped, ordered) without heavy SQL.
     """
-    cat_slug = request.GET.get("cat")
-    categories = Category.objects.all().order_by("name")
-    active_category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
-
     # ---------- Artonomy Bests (cheap) ----------
     bests_qs = _apply_category(_light_base(), active_category).order_by("-likes", "-created_at", "-id")
     best_ids = list(bests_qs.values_list("id", flat=True)[:BUFFER])
+    best_ids = _dedup_ordered(best_ids)
 
     # ---------- For You (cheap union) ----------
     for_you_ids = []
@@ -139,30 +150,42 @@ def explore_view(request):
                     .values_list("id", flat=True)[:BUFFER]
             )
 
-        # merge ids in Python (avoid DISTINCT on sqlite)
-        seen = set()
+        # merge and de-dup in Python
         merged = []
+        seen = set()
         for it in q_id_iters:
             for pid in it:
                 if pid not in seen:
                     seen.add(pid)
                     merged.append(pid)
-        for_you_ids = merged[:BUFFER]
+        for_you_ids = _dedup_ordered(merged)[:BUFFER]
 
-    # Fallback for anon / no prefs
+    # Fallback (anon / no prefs) → use bests ordering
     if not for_you_ids:
-        for_you_ids = best_ids[:BUFFER]
+        for_you_ids = list(best_ids)
 
-    # ---------- Fetch & order in Python ----------
-    best_posts = list(_light_base().filter(id__in=best_ids))
-    for_you_posts = list(_light_base().filter(id__in=for_you_ids))
+    return best_ids, for_you_ids
 
-    best_posts.sort(key=lambda p: (p.created_at, p.likes, p.id), reverse=True)
-    for_you_posts.sort(key=lambda p: (p.created_at, p.likes, p.id), reverse=True)
 
-    # diversity + final limit
-    best_posts = _cap_per_author(best_posts, limit=PAGE_SIZE, cap=PER_AUTHOR_CAP)
-    for_you_posts = _cap_per_author(for_you_posts, limit=PAGE_SIZE, cap=PER_AUTHOR_CAP)
+def explore_view(request):
+    """
+    Explore landing: serve the FIRST PAGE for both feeds.
+    Infinite scroll uses /explore/feed API for further pages.
+    """
+    cat_slug = request.GET.get("cat")
+    categories = Category.objects.all().order_by("name")
+    active_category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
+
+    best_ids, for_you_ids = _explore_id_lists(request, active_category)
+
+    # fetch first PAGE_SIZE for each feed (sort in Python for stability)
+    def fetch_first(ids):
+        items = list(_light_base().filter(id__in=ids))
+        items.sort(key=lambda p: (p.created_at, p.likes, p.id), reverse=True)
+        return items[:PAGE_SIZE], len(items) > PAGE_SIZE
+
+    best_posts, best_has_more = fetch_first(best_ids)
+    for_you_posts, fy_has_more = fetch_first(for_you_ids)
 
     # (optional) pins — keep or skip if slow
     today = timezone.localdate()
@@ -177,6 +200,9 @@ def explore_view(request):
         "posts_for_you": for_you_posts,
         "pinned_posts": pinned_posts,
         "feed_tab": request.GET.get("feed", "bests"),
+        "page": 1,
+        "has_next_bests": best_has_more,
+        "has_next_for_you": fy_has_more,
     })
 
 
@@ -188,19 +214,12 @@ def landing_page(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        print(" Login attempt on landing_page")
-        print("Email entered:", email)
-        print("Password length:", len(password) if password else 0)
-
         user = authenticate(request, email=email, password=password)
-        print("Authenticate returned:", user)
 
         if user is not None:
             login(request, user)
-            print("Login successful for:", user)
-            return redirect("explore")   # or wherever your post-login page is
+            return redirect("explore")
         else:
-            print("Invalid login credentials")
             messages.error(request, "Invalid email or password")
 
     return render(request, "landing_page.html")
@@ -210,13 +229,13 @@ def coming_soon_view(req):
     return render(req, 'coming_soon.html')
 
 
+# ========= JSON APIs for infinite scroll =========
 
-# views.py  (add imports at top)
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-
-# HOME API
 def home_feed_api(request):
+    """
+    GET params: page=2.., cat=<slug>
+    Returns: html_mobile, html_desktop, has_next
+    """
     try:
         page = max(int(request.GET.get("page", 1)), 1)
     except ValueError:
@@ -245,11 +264,10 @@ def home_feed_api(request):
     return JsonResponse({"html_mobile": html_mobile, "html_desktop": html_desktop, "has_next": has_next})
 
 
-# EXPLORE API
 def explore_feed_api(request):
     """
-    expects: feed=bests|for-you, page=1.., cat=<slug>
-    returns: html chunks for current viewport (we return both; JS picks which to append)
+    GET params: feed=bests|for-you, page=1.., cat=<slug>
+    Returns: html chunks + has_next for infinite scroll.
     """
     feed = (request.GET.get("feed") or "bests").lower()
     try:
@@ -260,69 +278,21 @@ def explore_feed_api(request):
     cat_slug = request.GET.get("cat")
     active_category = Category.objects.filter(slug=cat_slug).first() if cat_slug else None
 
-    # --- compute the two lists exactly like your explore_view (fast/MVP) ---
-    # Bests
-    bests_qs = _apply_category(_light_base(), active_category).order_by("-likes", "-created_at", "-id")
-    best_ids = list(bests_qs.values_list("id", flat=True)[:BUFFER])
+    best_ids, for_you_ids = _explore_id_lists(request, active_category)
+    ids = for_you_ids if feed == "for-you" else best_ids
 
-    # For You
-    for_you_ids = []
-    if request.user.is_authenticated:
-        following_ids = list(
-            Follow.objects.filter(follower=request.user)
-            .values_list("following_id", flat=True)
-        )
-        work_ids = list(
-            UserCategory.objects.filter(user=request.user, kind=UserCategory.Kind.WORK)
-            .values_list("category_id", flat=True)
-        )
-        fav_ids = list(
-            UserCategory.objects.filter(user=request.user, kind=UserCategory.Kind.FAV)
-            .values_list("category_id", flat=True)
-        )
-        pref_cat_ids = list(set(work_ids + fav_ids))
-
-        base = _apply_category(_light_base(), active_category)
-
-        q_id_iters = []
-        if following_ids:
-            q_id_iters.append(
-                base.filter(author_id__in=following_ids)
-                    .order_by("-created_at", "-id")
-                    .values_list("id", flat=True)[:BUFFER]
-            )
-        if pref_cat_ids:
-            q_id_iters.append(
-                base.filter(categories__in=pref_cat_ids)
-                    .order_by("-created_at", "-id")
-                    .values_list("id", flat=True)[:BUFFER]
-            )
-
-        seen, merged = set(), []
-        for it in q_id_iters:
-            for pid in it:
-                if pid not in seen:
-                    seen.add(pid)
-                    merged.append(pid)
-        for_you_ids = merged[:BUFFER]
-
-    if not for_you_ids:
-        for_you_ids = best_ids[:BUFFER]
-
-    # fetch + global order (same as page)
-    if feed == "for-you":
-        items = list(_light_base().filter(id__in=for_you_ids))
-    else:
-        items = list(_light_base().filter(id__in=best_ids))
-
+    # fetch all candidates, apply global order once
+    items = list(_light_base().filter(id__in=ids))
     items.sort(key=lambda p: (p.created_at, p.likes, p.id), reverse=True)
-    items = _cap_per_author(items, limit=BUFFER, cap=PER_AUTHOR_CAP)
 
-    # paginate the items list
+    # paginate FIRST, then (optionally) cap per author within the page
     start = (page - 1) * PAGE_SIZE
     end = start + PAGE_SIZE
-    posts = items[start:end]
-    has_next = len(posts) == PAGE_SIZE
+    page_chunk = items[start:end]
+
+    # if you want diversity inside the page, set PER_AUTHOR_CAP > 0
+    posts = _cap_per_author(page_chunk, limit=PAGE_SIZE, cap=PER_AUTHOR_CAP)
+    has_next = len(page_chunk) == PAGE_SIZE
 
     html_mobile  = render_to_string("partials/explore_cards_mobile.html",  {"posts": posts}, request=request)
     html_desktop = render_to_string("partials/explore_cards_desktop.html", {"posts": posts}, request=request)
