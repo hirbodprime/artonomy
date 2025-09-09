@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
+
 {% block content %}
 <style>
   :root{
@@ -69,6 +71,14 @@
   .pagebtn[aria-current="true"]{background:linear-gradient(135deg,#7D5CFF,#b58dff); color:#0b0d12; font-weight:900; border-color:transparent; box-shadow:0 8px 20px rgba(124,58,237,.35)}
 </style>
 
+{% trans "Post" as POST_LABEL %}
+{% trans "Untitled post" as UNTITLED_POST %}
+{% trans "Back to profile" as BACK_TO_PROFILE %}
+{% trans "Suggested" as SUGGESTED_LABEL %}
+{% trans "View" as VIEW_LABEL %}
+{% trans "Prev" as PREV_LABEL %}
+{% trans "Next" as NEXT_LABEL %}
+
 <div class="wrap">
   <div class="head">
     <div class="lhs">
@@ -80,12 +90,16 @@
         {% endif %}
       </a>
       <div>
-        <div class="title">Suggested by @{{ profile_user.username }}</div>
-        <div class="subtitle">Hand-picked posts that {{ profile_user.username }} shared</div>
+        <div class="title">
+          {% blocktrans with u=profile_user.username %}Suggested by @{{ u }}{% endblocktrans %}
+        </div>
+        <div class="subtitle">
+          {% blocktrans with u=profile_user.username %}Hand-picked posts that {{ u }} shared{% endblocktrans %}
+        </div>
       </div>
     </div>
     <a href="{% url 'profile_view' profile_user.username %}" class="badge">
-      <i class="fa-solid fa-arrow-left"></i> Back to profile
+      <i class="fa-solid fa-arrow-left"></i> {{ BACK_TO_PROFILE }}
     </a>
   </div>
 
@@ -98,7 +112,7 @@
         <a class="media" href="{% url 'single_post' p.pk %}">
           {% with img=p.images.first vid=p.videos.first %}
             {% if img %}
-              <img src="{{ img.image.url }}" alt="{{ p.title|default:'Post' }}">
+              <img src="{{ img.image.url }}" alt="{{ p.title|default:POST_LABEL }}">
             {% elif vid %}
               <video preload="metadata" playsinline muted
                 {% if vid.poster %}poster="{{ vid.poster.url }}"
@@ -108,7 +122,7 @@
                 <source src="{{ vid.file.url }}" type="video/mp4">
               </video>
             {% elif p.image %}
-              <img src="{{ p.image.url }}" alt="{{ p.title|default:'Post' }}">
+              <img src="{{ p.image.url }}" alt="{{ p.title|default:POST_LABEL }}">
             {% elif p.video %}
               <video preload="metadata" playsinline muted
                 {% if p.cover %}poster="{{ p.cover.url }}"{% endif %}>
@@ -122,7 +136,7 @@
 
         <div class="content">
           <a class="p-title" href="{% url 'single_post' p.pk %}">
-            {{ p.title|default:"Untitled post" }}
+            {{ p.title|default:UNTITLED_POST }}
           </a>
 
           {% if p.post_type == "TEXT" %}
@@ -145,18 +159,33 @@
           </div>
 
           <div class="meta">
-            <span>{{ p.created_at|date:"M d, Y" }}</span>
+            <span>{{ p.created_at|date:"DATE_FORMAT" }}</span>
             <span class="dot"></span>
-            <span class="pill">Suggested</span>
+            <span class="pill">{{ SUGGESTED_LABEL }}</span>
           </div>
         </div>
 
         <div class="footer">
           <a class="cta" href="{% url 'single_post' p.pk %}">
-            <i class="fa-solid fa-eye"></i> View
+            <i class="fa-solid fa-eye"></i> {{ VIEW_LABEL }}
           </a>
           <span class="meta">
-            {{ p.images.all|length }} img • {{ p.videos.all|length }} vid
+            {# images count with pluralization #}
+            {% with ic=p.images.all|length vc=p.videos.all|length %}
+              {{ ic }}
+              {% blocktrans count count=ic %}
+                img
+              {% plural %}
+                imgs
+              {% endblocktrans %}
+              •
+              {{ vc }}
+              {% blocktrans count count=vc %}
+                vid
+              {% plural %}
+                vids
+              {% endblocktrans %}
+            {% endwith %}
           </span>
         </div>
 
@@ -164,40 +193,37 @@
       {% endfor %}
     </div>
 
-    <!-- Paginator (no elif chain, so it never renders as text) -->
-<nav class="pager" aria-label="pagination">
-  {% if page_obj.has_previous %}
-    <a class="pagebtn" href="?page={{ page_obj.previous_page_number }}">&laquo; Prev</a>
-  {% endif %}
+    <!-- Paginator -->
+    <nav class="pager" aria-label="pagination">
+      {% if page_obj.has_previous %}
+        <a class="pagebtn" href="?page={{ page_obj.previous_page_number }}">&laquo; {{ PREV_LABEL }}</a>
+      {% endif %}
 
-  {% for i in page_obj.paginator.page_range %}
-    {% if i == page_obj.number %}
-      <span class="pagebtn" aria-current="true">{{ i }}</span>
+      {% for i in page_obj.paginator.page_range %}
+        {% if i == page_obj.number %}
+          <span class="pagebtn" aria-current="true">{{ i }}</span>
 
-    {% elif i <= 2 %}
-      <a class="pagebtn" href="?page={{ i }}">{{ i }}</a>
+        {% elif i <= 2 %}
+          <a class="pagebtn" href="?page={{ i }}">{{ i }}</a>
 
-    {% elif i >= page_obj.paginator.num_pages|add:"-1" %}
-      <a class="pagebtn" href="?page={{ i }}">{{ i }}</a>
+        {% elif i >= page_obj.paginator.num_pages|add:"-1" %}
+          <a class="pagebtn" href="?page={{ i }}">{{ i }}</a>
 
-    {% elif i >= page_obj.number|add:"-1" and i <= page_obj.number|add:"1" %}
-      <a class="pagebtn" href="?page={{ i }}">{{ i }}</a>
+        {% elif i >= page_obj.number|add:"-1" and i <= page_obj.number|add:"1" %}
+          <a class="pagebtn" href="?page={{ i }}">{{ i }}</a>
 
-    {% elif i == 3 or i == page_obj.paginator.num_pages|add:"-2" %}
-      <span class="pagebtn" aria-disabled="true">&#8230;</span>
-    {% endif %}
-  {% endfor %}
+        {% elif i == 3 or i == page_obj.paginator.num_pages|add:"-2" %}
+          <span class="pagebtn" aria-disabled="true">&#8230;</span>
+        {% endif %}
+      {% endfor %}
 
-  {% if page_obj.has_next %}
-    <a class="pagebtn" href="?page={{ page_obj.next_page_number }}">Next &raquo;</a>
-  {% endif %}
-</nav>
-
-
-
+      {% if page_obj.has_next %}
+        <a class="pagebtn" href="?page={{ page_obj.next_page_number }}">{{ NEXT_LABEL }} &raquo;</a>
+      {% endif %}
+    </nav>
 
   {% else %}
-    <div class="mt-6" style="color:var(--muted)">No suggestions yet.</div>
+    <div class="mt-6" style="color:var(--muted)">{% trans "No suggestions yet." %}</div>
   {% endif %}
 </div>
 {% endblock %}

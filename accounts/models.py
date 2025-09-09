@@ -4,6 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
 from django.core.validators import RegexValidator
 import re
+from django.utils.translation import get_language
+
 
 username_validator = RegexValidator(
     regex=r'^[a-zA-Z0-9_]+$',
@@ -11,25 +13,54 @@ username_validator = RegexValidator(
 )
 # -------------------------
 # Core taxonomy / user
-# -------------------------
 class Category(models.Model):
     """Neutral taxonomy for posts (no WORK/FAV here)."""
+    # English (existing)
     name = models.CharField(max_length=80, unique=True)
     slug = models.SlugField(max_length=96, unique=True, blank=True)
-    image = models.ImageField(upload_to="categories/", blank=True, null=True,
-                              help_text=_("Representative image for this category."))
+
+    # Persian (new)
+    name_fa = models.CharField(_("Persian name"), max_length=80, blank=True, null=True)
+    slug_fa = models.SlugField(
+        _("Persian slug"),
+        max_length=96,
+        unique=True,
+        blank=True,
+        null=True,
+        allow_unicode=True,   # lets you keep Persian chars in the slug
+    )
+
+    image = models.ImageField(
+        upload_to="categories/",
+        blank=True, null=True,
+        help_text=_("Representative image for this category.")
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["name"]
 
     def __str__(self) -> str:
-        return self.name
+        # Show localized label in admin etc., but keep .name as English
+        return self.display_name
 
     def save(self, *args, **kwargs):
-        if not self.slug:
+        if not self.slug and self.name:
             self.slug = slugify(self.name)
+        if self.name_fa and not self.slug_fa:
+            # unicode slug for Persian
+            self.slug_fa = slugify(self.name_fa, allow_unicode=True)
         super().save(*args, **kwargs)
+
+    @property
+    def display_name(self) -> str:
+        lang = (get_language() or "").lower()
+        return self.name_fa or self.name if lang.startswith("fa") else self.name
+
+    @property
+    def display_slug(self) -> str:
+        lang = (get_language() or "").lower()
+        return (self.slug_fa or self.slug) if lang.startswith("fa") else self.slug
 
 
 class UserManager(BaseUserManager):
@@ -66,11 +97,13 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("role", User.Role.ARTIST)
         return self._create_user(email, password, **extra_fields)
 
+LANG_CHOICES = (("fa", "Persian"), ("en", "English"))
 
 class User(AbstractUser):
     class Role(models.TextChoices):
         ARTIST = "ARTIST", _("Artist")
         AUDIENCE = "AUDIENCE", _("Audience")
+    language = models.CharField(max_length=5, choices=LANG_CHOICES, default="fa")
 
     email = models.EmailField(_("email address"), unique=True)
     username = models.CharField(

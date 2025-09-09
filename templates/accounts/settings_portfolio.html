@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static form_extras %}
+{% load i18n %}
 {% block content %}
 
 <style>
@@ -52,8 +53,8 @@
 <div class="wrap">
   <div class="hero">
     <div class="hero-row">
-      <div class="brand-pill"><span class="dot"></span><span class="hero-title">Portfolio settings</span></div>
-      <div class="hero-sub">Your education, experience, projects, and achievements — beautifully organized.</div>
+      <div class="brand-pill"><span class="dot"></span><span class="hero-title">{% trans "Portfolio settings" %}</span></div>
+      <div class="hero-sub">{% trans "Your education, experience, projects, and achievements — beautifully organized." %}</div>
     </div>
   </div>
 
@@ -70,18 +71,22 @@
 
         <div class="flex items-center justify-between mb-2">
           <h2 class="sec-title text-xl sm:text-2xl">
-            {% if step == 1 %}Education{% elif step == 2 %}Work experience{% else %}Projects{% endif %}
+            {% if step == 1 %}{% trans "Education" %}
+            {% elif step == 2 %}{% trans "Work experience" %}
+            {% else %}{% trans "Projects" %}{% endif %}
           </h2>
-          <button type="button" class="btnAdd" data-add-row>Add row</button>
+          <button type="button" class="btnAdd" data-add-row>{% trans "Add row" %}</button>
         </div>
 
         <div class="grid2" id="rows">
           {% for f in formset.forms %}
             <div class="row-card" data-row>
               <div class="row-head">
-                <div class="row-title">Item {{ forloop.counter }}</div>
+                <div class="row-title">{% blocktrans with n=forloop.counter %}Item {{ n }}{% endblocktrans %}</div>
                 <div class="row-actions">
-                  {% if formset.can_delete %}<label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} Delete</label>{% endif %}
+                  {% if formset.can_delete %}
+                    <label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} {% trans "Delete" %}</label>
+                  {% endif %}
                 </div>
               </div>
 
@@ -97,19 +102,20 @@
                   {% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}
                 </div>
               {% endfor %}
-              {# include the hidden id field if present #}
               {% if f.hidden_fields %}{% for h in f.hidden_fields %}{{ h }}{% endfor %}{% endif %}
             </div>
           {% empty %}
-            <div class="hint">No items yet. Click <strong>Add row</strong> to create your first one.</div>
+            <div class="hint">
+              {% blocktrans %}No items yet. Click <strong>Add row</strong> to create your first one.{% endblocktrans %}
+            </div>
           {% endfor %}
         </div>
 
         <template id="empty-form">
           <div class="row-card" data-row>
             <div class="row-head">
-              <div class="row-title">New item</div>
-              <div class="row-actions"><button type="button" data-remove-row>Remove</button></div>
+              <div class="row-title">{% trans "New item" %}</div>
+              <div class="row-actions"><button type="button" data-remove-row>{% trans "Remove" %}</button></div>
             </div>
             <!-- fields will be injected by cloning the empty_form HTML below -->
           </div>
@@ -117,11 +123,11 @@
 
         <div class="flex flex-col sm:flex-row justify-between gap-3">
           {% if step > 1 %}
-            <a href="{% url 'settings_portfolio' step|add:'-1' %}" class="btnGhost">Back</a>
+            <a href="{% url 'settings_portfolio' step|add:'-1' %}" class="btnGhost">{% trans "Back" %}</a>
           {% else %}<span></span>{% endif %}
           <div class="flex gap-2">
-            <button name="skip" value="1" class="btnGhost" type="submit">Skip</button>
-            <button class="btnP">Save &amp; Continue</button>
+            <button name="skip" value="1" class="btnGhost" type="submit">{% trans "Skip" %}</button>
+            <button class="btnP">{% trans "Save & Continue" %}</button>
           </div>
         </div>
 
@@ -135,20 +141,20 @@
         {% csrf_token %}
         {{ formset_certs.management_form }} {{ formset_courses.management_form }}
 
-        <h2 class="sec-title text-xl sm:text-2xl">Certifications &amp; Courses</h2>
+        <h2 class="sec-title text-xl sm:text-2xl">{% trans "Certifications & Courses" %}</h2>
         <div class="grid2">
           <div class="fieldset" data-fs-block="cert">
             <div class="flex items-center justify-between mb-2">
-              <div class="legend">Certifications</div>
-              <button type="button" class="btnAdd" data-add-row="cert">Add certification</button>
+              <div class="legend">{% trans "Certifications" %}</div>
+              <button type="button" class="btnAdd" data-add-row="cert">{% trans "Add certification" %}</button>
             </div>
             {% if formset_certs.non_form_errors %}<div class="err mb-2">{{ formset_certs.non_form_errors }}</div>{% endif %}
             <div id="rows-cert">
               {% for f in formset_certs %}
                 <div class="row-card" data-row>
                   <div class="row-head">
-                    <div class="row-title">Item {{ forloop.counter }}</div>
-                    <div class="row-actions">{% if formset_certs.can_delete %}<label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} Delete</label>{% endif %}</div>
+                    <div class="row-title">{% blocktrans with n=forloop.counter %}Item {{ n }}{% endblocktrans %}</div>
+                    <div class="row-actions">{% if formset_certs.can_delete %}<label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} {% trans "Delete" %}</label>{% endif %}</div>
                   </div>
                   {{ f.non_field_errors }}
                   {% for field in f.visible_fields %}
@@ -161,7 +167,7 @@
                   {% for h in f.hidden_fields %}{{ h }}{% endfor %}
                 </div>
               {% empty %}
-                <div class="hint">Add your first certification.</div>
+                <div class="hint">{% trans "Add your first certification." %}</div>
               {% endfor %}
             </div>
             <div class="hidden" id="empty-cert">{{ formset_certs.empty_form.as_p }}</div>
@@ -169,29 +175,33 @@
 
           <div class="fieldset" data-fs-block="course">
             <div class="flex items-center justify-between mb-2">
-              <div class="legend">Courses</div>
-              <button type="button" class="btnAdd" data-add-row="course">Add course</button>
+              <div class="legend">{% trans "Courses" %}</div>
+              <button type="button" class="btnAdd" data-add-row="course">{% trans "Add course" %}</button>
             </div>
             {% if formset_courses.non_form_errors %}<div class="err mb-2">{{ formset_courses.non_form_errors }}</div>{% endif %}
             <div id="rows-course">
               {% for f in formset_courses %}
                 <div class="row-card" data-row>
                   <div class="row-head">
-                    <div class="row-title">Item {{ forloop.counter }}</div>
-                    <div class="row-actions">{% if formset_courses.can_delete %}<label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} Delete</label>{% endif %}</div>
+                    <div class="row-title">{% blocktrans with n=forloop.counter %}Item {{ n }}{% endblocktrans %}</div>
+                    <div class="row-actions">{% if formset_courses.can_delete %}<label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} {% trans "Delete" %}</label>{% endif %}</div>
                   </div>
                   {{ f.non_field_errors }}
                   {% for field in f.visible_fields %}
                     <div class="mb-3">
                       <label class="labelX">{{ field.label }}</label>
-                      {% if field.field.widget.input_type == 'textarea' %}{{ field|add_class:"f-textarea" }}{% else %}{{ field|add_class:"f-input" }}{% endif %}
+                      {% if field.field.widget.input_type == 'textarea' %}
+                        {{ field|add_class:"f-textarea" }}
+                      {% else %}
+                        {{ field|add_class:"f-input" }}
+                      {% endif %}
                       {% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}
                     </div>
                   {% endfor %}
                   {% for h in f.hidden_fields %}{{ h }}{% endfor %}
                 </div>
               {% empty %}
-                <div class="hint">Add your first course.</div>
+                <div class="hint">{% trans "Add your first course." %}</div>
               {% endfor %}
             </div>
             <div class="hidden" id="empty-course">{{ formset_courses.empty_form.as_p }}</div>
@@ -199,10 +209,10 @@
         </div>
 
         <div class="flex flex-col sm:flex-row justify-between gap-3">
-          <a href="{% url 'settings_portfolio' 3 %}" class="btnGhost">Back</a>
+          <a href="{% url 'settings_portfolio' 3 %}" class="btnGhost">{% trans "Back" %}</a>
           <div class="flex gap-2">
-            <button name="skip" value="1" class="btnGhost" type="submit">Skip</button>
-            <button class="btnP">Save &amp; Continue</button>
+            <button name="skip" value="1" class="btnGhost" type="submit">{% trans "Skip" %}</button>
+            <button class="btnP" type="submit">{% trans "Save & Continue" %}</button>
           </div>
         </div>
       </form>
@@ -211,81 +221,93 @@
       <form method="post" class="space-y-6" id="dualFS2" data-fs="dual">
         {% csrf_token %}
         {{ formset_awards.management_form }} {{ formset_books.management_form }}
-        <h2 class="sec-title text-xl sm:text-2xl">Awards &amp; Books</h2>
+        <h2 class="sec-title text-xl sm:text-2xl">{% trans "Awards & Books" %}</h2>
 
         <div class="grid2">
           <div class="fieldset" data-fs-block="award">
             <div class="flex items-center justify-between mb-2">
-              <div class="legend">Awards</div>
-              <button type="button" class="btnAdd" data-add-row="award">Add award</button>
+              <div class="legend">{% trans "Awards" %}</div>
+              <button type="button" class="btnAdd" data-add-row="award">{% trans "Add award" %}</button>
             </div>
             {% if formset_awards.non_form_errors %}<div class="err mb-2">{{ formset_awards.non_form_errors }}</div>{% endif %}
             <div id="rows-award">
               {% for f in formset_awards %}
                 <div class="row-card" data-row>
                   <div class="row-head">
-                    <div class="row-title">Item {{ forloop.counter }}</div>
-                    <div class="row-actions">{% if formset_awards.can_delete %}<label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} Delete</label>{% endif %}</div>
+                    <div class="row-title">{% blocktrans with n=forloop.counter %}Item {{ n }}{% endblocktrans %}</div>
+                    <div class="row-actions">{% if formset_awards.can_delete %}<label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} {% trans "Delete" %}</label>{% endif %}</div>
                   </div>
                   {{ f.non_field_errors }}
                   {% for field in f.visible_fields %}
-                    <div class="mb-3"><label class="labelX">{{ field.label }}</label>{{ field|add_class:"f-input" }}{% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}</div>
+                    <div class="mb-3">
+                      <label class="labelX">{{ field.label }}</label>
+                      {{ field|add_class:"f-input" }}
+                      {% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}
+                    </div>
                   {% endfor %}
                   {% for h in f.hidden_fields %}{{ h }}{% endfor %}
                 </div>
-              {% empty %}<div class="hint">Add your first award.</div>{% endfor %}
+              {% empty %}<div class="hint">{% trans "Add your first award." %}</div>{% endfor %}
             </div>
             <div class="hidden" id="empty-award">{{ formset_awards.empty_form.as_p }}</div>
           </div>
 
           <div class="fieldset" data-fs-block="book">
             <div class="flex items-center justify-between mb-2">
-              <div class="legend">Books</div>
-              <button type="button" class="btnAdd" data-add-row="book">Add book</button>
+              <div class="legend">{% trans "Books" %}</div>
+              <button type="button" class="btnAdd" data-add-row="book">{% trans "Add book" %}</button>
             </div>
             {% if formset_books.non_form_errors %}<div class="err mb-2">{{ formset_books.non_form_errors }}</div>{% endif %}
             <div id="rows-book">
               {% for f in formset_books %}
                 <div class="row-card" data-row>
                   <div class="row-head">
-                    <div class="row-title">Item {{ forloop.counter }}</div>
-                    <div class="row-actions">{% if formset_books.can_delete %}<label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} Delete</label>{% endif %}</div>
+                    <div class="row-title">{% blocktrans with n=forloop.counter %}Item {{ n }}{% endblocktrans %}</div>
+                    <div class="row-actions">{% if formset_books.can_delete %}<label class="inline-flex items-center gap-2 text-sm">{{ f.DELETE }} {% trans "Delete" %}</label>{% endif %}</div>
                   </div>
                   {{ f.non_field_errors }}
                   {% for field in f.visible_fields %}
-                    <div class="mb-3"><label class="labelX">{{ field.label }}</label>{{ field|add_class:"f-input" }}{% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}</div>
+                    <div class="mb-3">
+                      <label class="labelX">{{ field.label }}</label>
+                      {{ field|add_class:"f-input" }}
+                      {% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}
+                    </div>
                   {% endfor %}
                   {% for h in f.hidden_fields %}{{ h }}{% endfor %}
                 </div>
-              {% empty %}<div class="hint">Add your first book.</div>{% endfor %}
+              {% empty %}<div class="hint">{% trans "Add your first book." %}</div>{% endfor %}
             </div>
             <div class="hidden" id="empty-book">{{ formset_books.empty_form.as_p }}</div>
           </div>
         </div>
 
         <div class="flex flex-col sm:flex-row justify-between gap-3">
-          <a href="{% url 'settings_portfolio' 4 %}" class="btnGhost">Back</a>
+          <a href="{% url 'settings_portfolio' 4 %}" class="btnGhost">{% trans "Back" %}</a>
           <div class="flex gap-2">
-            <button name="skip" value="1" class="btnGhost" type="submit">Skip</button>
-            <button class="btnP">Save &amp; Continue</button>
+            <button name="skip" value="1" class="btnGhost" type="submit">{% trans "Skip" %}</button>
+            <button class="btnP" type="submit">{% trans "Save & Continue" %}</button>
           </div>
         </div>
       </form>
 
     {% else %}
-      <h2 class="sec-title text-xl sm:text-2xl mb-2">Review</h2>
-      <p class="text-[color:var(--muted)] mb-6">Looks great. Jump to any section to tweak, or finish up.</p>
+      <h2 class="sec-title text-xl sm:text-2xl mb-2">{% trans "Review" %}</h2>
+      <p class="text-[color:var(--muted)] mb-6">{% trans "Looks great. Jump to any section to tweak, or finish up." %}</p>
       <div class="flex gap-3 flex-wrap">
-        <a class="btnGhost" href="{% url 'settings_portfolio' 1 %}">Education</a>
-        <a class="btnGhost" href="{% url 'settings_portfolio' 2 %}">Experience</a>
-        <a class="btnGhost" href="{% url 'settings_portfolio' 3 %}">Projects</a>
-        <a class="btnGhost" href="{% url 'settings_portfolio' 4 %}">Certs &amp; Courses</a>
-        <a class="btnGhost" href="{% url 'settings_portfolio' 5 %}">Awards &amp; Books</a>
-        <a class="btnP" href="{% url 'profile_view' request.user.username %}">Done</a>
+        <a class="btnGhost" href="{% url 'settings_portfolio' 1 %}">{% trans "Education" %}</a>
+        <a class="btnGhost" href="{% url 'settings_portfolio' 2 %}">{% trans "Experience" %}</a>
+        <a class="btnGhost" href="{% url 'settings_portfolio' 3 %}">{% trans "Projects" %}</a>
+        <a class="btnGhost" href="{% url 'settings_portfolio' 4 %}">{% trans "Certs & Courses" %}</a>
+        <a class="btnGhost" href="{% url 'settings_portfolio' 5 %}">{% trans "Awards & Books" %}</a>
+        <a class="btnP" href="{% url 'profile_view' request.user.username %}">{% trans "Done" %}</a>
       </div>
     {% endif %}
   </div>
 </div>
+
+{% comment %} JS i18n constants for dynamic rows {% endcomment %}
+{% trans "New item" as NEW_ITEM %}
+{% trans "Remove" as REMOVE_LABEL %}
 
 <script>
 /* ---------- Formset row add/remove (works for single or dual formsets) ---------- */
@@ -294,7 +316,6 @@ function bumpTotal(input, delta){
   input.value = String(v + delta);
 }
 function createRowFromEmpty(html, prefix, index){
-  // Replace __prefix__ with index in empty_form HTML
   return html.replaceAll(/__prefix__/g, index);
 }
 
@@ -315,7 +336,6 @@ document.addEventListener('click', (e)=>{
     const fieldsHTML = createRowFromEmpty(emptyHTML, '', idx);
     const inner = document.createElement('div');
     inner.innerHTML = fieldsHTML;
-    // Move visible fields into the card
     card.append(...inner.querySelectorAll('p>*'));
     rows.appendChild(card);
 
@@ -323,9 +343,8 @@ document.addEventListener('click', (e)=>{
   }
 
   // Add row in dual blocks (data-add-row="cert" etc.)
-  const dualBtn = e.target.closest('[data-add-row][data-add-row!=""][data-fs]');
-  const blockBtn = e.target.closest('[data-add-row]:not([data-fs])') ? null : e.target.closest('[data-add-row]');
-  if(blockBtn && blockBtn.hasAttribute('data-add-row')){
+  const blockBtn = e.target.closest('[data-add-row]');
+  if(blockBtn && blockBtn.hasAttribute('data-add-row') && blockBtn.closest('[data-fs-block]')){
     const kind = blockBtn.getAttribute('data-add-row');
     const fieldset = blockBtn.closest(`[data-fs-block="${kind}"]`);
     if(fieldset){
@@ -339,8 +358,8 @@ document.addEventListener('click', (e)=>{
       cardWrap.setAttribute('data-row','');
       cardWrap.innerHTML = `
         <div class="row-head">
-          <div class="row-title">New item</div>
-          <div class="row-actions"><button type="button" data-remove-row>Remove</button></div>
+          <div class="row-title">{{ NEW_ITEM|escapejs }}</div>
+          <div class="row-actions"><button type="button" data-remove-row>{{ REMOVE_LABEL|escapejs }}</button></div>
         </div>`;
       const inner = document.createElement('div');
       inner.innerHTML = createRowFromEmpty(empty, '', idx);
@@ -354,8 +373,6 @@ document.addEventListener('click', (e)=>{
   const removeBtn = e.target.closest('[data-remove-row]');
   if(removeBtn){
     const card = removeBtn.closest('[data-row]');
-    const container = card.parentElement;
-    // If DELETE checkbox exists, tick it and hide; otherwise just remove
     const del = card.querySelector('input[type=checkbox][name$="-DELETE"]');
     if(del){ del.checked = true; card.style.display='none'; }
     else { card.remove(); }

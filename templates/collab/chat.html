@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <style>
   :root{
@@ -68,31 +69,39 @@
   font-size: 0.95rem;
 }
 </style>
-
 <div class="chat-shell">
   <!-- Header -->
   <div class="chat-head">
     <div class="chat-title">
       <a href="{% url 'collab:notifications' %}?tab=chats"
-       class="back-btn flex items-center gap-2 px-3 py-1.5 rounded-md border border-white/10 bg-[#1c1f28] text-gray-300 hover:text-white hover:bg-[#222733] transition">
-      <i class="fa-solid fa-arrow-left"></i>
-      <span class="hidden sm:inline">Back</span>
-    </a>
+         class="back-btn flex items-center gap-2 px-3 py-1.5 rounded-md border border-white/10 bg-[#1c1f28] text-gray-300 hover:text-white hover:bg-[#222733] transition">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span class="hidden sm:inline">{% trans "Back" %}</span>
+      </a>
 
       <div class="w-9 h-9 rounded-full border border-white/10 bg-[#1c1f28] grid place-items-center">
         <i class="fa-solid fa-comments text-purple-300"></i>
       </div>
       <div>
-        <div class="text-white font-semibold leading-tight">Chat · {{ conv.item.title }}</div>
+        <div class="text-white font-semibold leading-tight">
+          {% blocktrans with t=conv.item.title %}Chat · {{ t }}{% endblocktrans %}
+        </div>
         <div class="text-[12px] text-[color:var(--muted)] truncate">
-          with {% if request.user.id == conv.user_a_id %}@{{ conv.user_b.username }}{% else %}@{{ conv.user_a.username }}{% endif %}
+          {% trans "with" %} 
+          {% if request.user.id == conv.user_a_id %}
+            <bdi>@{{ conv.user_b.username }}</bdi>
+          {% else %}
+            <bdi>@{{ conv.user_a.username }}</bdi>
+          {% endif %}
         </div>
       </div>
-      <span class="badge">Secure</span>
+      <span class="badge">{% trans "Secure" %}</span>
     </div>
 
     <!-- Optional; can remove if you want pure auto-poll -->
-    <button id="refreshBtn" class="refresh-btn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+    <button id="refreshBtn" class="refresh-btn" aria-label="{% trans 'Refresh' %}">
+      <i class="fa-solid fa-rotate"></i> {% trans "Refresh" %}
+    </button>
   </div>
 
   <!-- Thread (structure kept; only data-id added) -->
@@ -102,7 +111,7 @@
         <div class="msg {% if m.sender_id == request.user.id %}me{% else %}them{% endif %}" data-id="{{ m.id }}">
           {% if m.text %}{{ m.text|linebreaksbr }}{% endif %}
           <div class="meta">
-            <span class="opacity-80">@{{ m.sender.username }}</span>
+            <span class="opacity-80">@<bdi>{{ m.sender.username }}</bdi></span>
             <span class="dot"></span>
             <span>{{ m.created_at|date:"H:i" }}</span>
           </div>
@@ -114,10 +123,11 @@
   <!-- Composer (no file) -->
   <form id="sendForm" class="composer">
     {% csrf_token %}
-    <input type="text" name="text" placeholder="Write a message…" autocomplete="off" />
-    <button type="submit"><i class="fa-solid fa-paper-plane"></i>&nbsp;Send</button>
+    <input type="text" name="text" placeholder="{% trans 'Write a message…' %}" autocomplete="off" />
+    <button type="submit"><i class="fa-solid fa-paper-plane"></i>&nbsp;{% trans "Send" %}</button>
   </form>
 </div>
+
 
 <script>
 (function(){

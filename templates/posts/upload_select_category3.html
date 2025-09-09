@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <style>
   :root { --purple:#C240FF; --background:#101015; }
@@ -15,20 +16,20 @@
 
 <div class="w-full max-w-5xl mx-auto px-4 py-12 text-white">
   <div class="text-center">
-    <h1 class="text-3xl sm:text-4xl font-bold mb-12">Choose the artwork Category</h1>
+    <h1 class="text-3xl sm:text-4xl font-bold mb-12">{% trans "Choose the artwork Category" %}</h1>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="category-grid">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="category-grid" role="list">
       {% for c in categories %}
-        <div class="category-card aspect-[3/4]" data-id="{{ c.id }}">
+        <div class="category-card aspect-[3/4]" data-id="{{ c.id }}" role="listitem">
           {% if c.image %}
-            <img src="{{ c.image.url }}" class="w-full h-full object-cover">
+            <img src="{{ c.image.url }}" class="w-full h-full object-cover" alt="{{ c.display_name|default:c.name }}">
           {% else %}
-            <img src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?q=80&w=600" class="w-full h-full object-cover">
+            <img src="https://images.unsplash.com/photo-1547891654-e66ed7ebb968?q=80&w=600" class="w-full h-full object-cover" alt="{{ c.display_name|default:c.name }}">
           {% endif %}
-          <span class="category-label">{{ c.name }}</span>
+          <span class="category-label">{{ c.display_name|default:c.name }}</span>
         </div>
       {% empty %}
-        <p class="col-span-full text-gray-400">No categories yet.</p>
+        <p class="col-span-full text-gray-400">{% trans "No categories yet." %}</p>
       {% endfor %}
     </div>
 
@@ -38,7 +39,9 @@
     </form>
 
     <div class="text-center pt-12">
-      <a href="#" id="catContinue" class="continue-btn text-white font-bold py-3 px-12 rounded-lg inline-block">Continue</a>
+      <a href="#" id="catContinue" class="continue-btn text-white font-bold py-3 px-12 rounded-lg inline-block">
+        {% trans "Continue" %}
+      </a>
     </div>
   </div>
 </div>
@@ -64,7 +67,7 @@
 
   document.getElementById('catContinue').addEventListener('click', (e)=>{
     e.preventDefault();
-    // if nothing chosen, pick none (backend accepts empty to continue)
+    // if nothing chosen, backend accepts empty to continue
     form.submit();
   });
 </script>

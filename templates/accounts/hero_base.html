@@ -1,11 +1,13 @@
-{% load static %}
+{% load static i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE|default:'en' }}" dir="{% if LANGUAGE_CODE == 'fa' %}rtl{% else %}ltr{% endif %}">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>{% block page_title %}Artonomy{% endblock %}</title>
 
+  <!-- Favicons -->
   <link rel="icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
@@ -17,12 +19,21 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Persian font when fa is active -->
+  {% if LANGUAGE_CODE == 'fa' %}
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet">
+  {% endif %}
+
   <style>
     :root{
       --heroGlass: rgba(15,15,19,.55);
       --heroRing : rgba(255,255,255,.16);
     }
-    body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    body{
+      font-family:
+        {% if LANGUAGE_CODE == 'fa' %}"Vazirmatn",{% endif %}
+        Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial
+    }
     .mosaic img{object-fit:cover}
 
     /* Shared page chrome */
@@ -70,6 +81,10 @@
       .with-top-pad{ padding-top:4rem; }
     }
 
+    /* Small RTL niceties */
+    html[dir="rtl"] .text-left { text-align: right; }
+    html[dir="rtl"] .ml-auto { margin-left: 0; margin-right: auto; }
+
     {% block extra_css %}{% endblock  %}
   </style>
 </head>
@@ -77,21 +92,7 @@
 
   <!-- Shared Background -->
   <div class="bg-stage">
-    <!-- Added background image -->
     <div class="bg-image"></div>
-
-    <!-- <div class="absolute inset-0 mosaic opacity-90 hidden lg:block">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 md:p-10">
-        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1554995207-c1e86f03c5b2?q=80&w=1600" alt="">
-        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1526318472351-c75fcf070305?q=80&w=1600" alt="">
-        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600" alt="">
-        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1495567720989-cebdbdd97913?q=80&w=1600" alt="">
-        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=1600" alt="">
-        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=1600" alt="">
-        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1600" alt="">
-        <img class="rounded-2xl h-56" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600" alt="">
-      </div>
-    </div> -->
 
     <!-- Mobile fallback gradient -->
     <div class="absolute inset-0 lg:hidden"
@@ -104,16 +105,25 @@
 
   <!-- Mobile header -->
   <header class="mobile-header lg:hidden">
-    <button class="text-xl">
+    <button class="text-xl" aria-label="{% trans 'Menu' %}">
       <i class="fa-solid fa-bars"></i>
     </button>
     <div class="flex items-center gap-2">
       <div class="w-8 h-8 rounded-full hero-badge grid place-items-center text-white font-extrabold">A</div>
-      <span class="font-bold text-base">Artonomy</span>
+      <span class="font-bold text-base">{%trans "Artonomy" %}</span>
     </div>
-    <button class="text-xl">
-      <i class="fa-regular fa-bell"></i>
-    </button>
+
+    <!-- Compact language switcher -->
+    <form action="{% url 'set_language' %}" method="post" class="text-xs">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <select name="language"
+              class="bg-transparent border border-white/20 rounded-md px-1.5 py-1"
+              onchange="this.form.submit()">
+        <option value="en" {% if LANGUAGE_CODE == 'en' %}selected{% endif %}>EN</option>
+        <option value="fa" {% if LANGUAGE_CODE == 'fa' %}selected{% endif %}>FA</option>
+      </select>
+    </form>
   </header>
 
   <!-- Main two-column hero layout -->

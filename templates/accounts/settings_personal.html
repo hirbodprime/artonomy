@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static form_extras %}
+{% load i18n %}
 {% block content %}
 
 <style>
@@ -116,9 +117,9 @@
     <div class="hero-row">
       <div class="brand-pill">
         <span class="dot"></span>
-        <span class="hero-title">Personal settings</span>
+        <span class="hero-title">{% trans "Personal settings" %}</span>
       </div>
-      <div class="hero-sub">Tune your profile so it looks and feels uniquely you.</div>
+      <div class="hero-sub">{% trans "Tune your profile so it looks and feels uniquely you." %}</div>
     </div>
   </div>
 
@@ -127,7 +128,7 @@
   <div class="cardX">
     {% if step == 1 %}
       <div class="form-pad">
-        <h2 class="sec-title text-xl sm:text-2xl mb-4">Basics</h2>
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">{% trans "Basics" %}</h2>
         <form method="post" enctype="multipart/form-data" class="space-y-6" id="basicForm">
           {% csrf_token %}
           <div class="grid-split no-bleed">
@@ -137,7 +138,9 @@
                   <label class="labelX" for="{{ field.id_for_label }}">{{ field.label }}</label>
                   <div class="media-box">
                     <input type="file" name="{{ field.html_name }}" id="{{ field.id_for_label }}" accept="image/*" class="hidden">
-                    <button type="button" data-target="{{ field.id_for_label }}" class="btnGhost media-btn">Choose {{ field.label }}</button>
+                    <button type="button" data-target="{{ field.id_for_label }}" class="btnGhost media-btn">
+                      {% blocktrans with lbl=field.label %}Choose {{ lbl }}{% endblocktrans %}
+                    </button>
                     <div class="mt-3">
                       <img id="{{ field.id_for_label }}_preview" class="media-thumb hidden" alt="">
                     </div>
@@ -163,122 +166,121 @@
 
           <div class="flex flex-col sm:flex-row justify-between gap-3 pt-1">
             <span></span>
-            <button class="btnP" type="submit">Save &amp; Continue</button>
+            <button class="btnP" type="submit">{% trans "Save & Continue" %}</button>
           </div>
         </form>
       </div>
 
     {% elif step == 2 %}
       <div class="form-pad">
-        <h2 class="sec-title text-xl sm:text-2xl mb-4">Skills</h2>
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">{% trans "Skills" %}</h2>
         <form method="post" class="space-y-6" id="skillsForm">
           {% csrf_token %}
           <div class="hidden">{{ form.as_p }}</div>
 
           <div>
-            <label class="labelX">Add or remove your skills</label>
+            <label class="labelX">{% trans "Add or remove your skills" %}</label>
             <div class="chips" data-sync-name="skills_csv"></div>
-            <div class="hint mt-2">Type to add a skill. Press Enter to create or click a suggestion. Click × to remove.</div>
+            <div class="hint mt-2">
+              {% trans "Type to add a skill. Press Enter to create or click a suggestion. Click × to remove." %}
+            </div>
           </div>
 
           <div class="flex flex-col sm:flex-row justify-between gap-3">
-            <a href="{% url 'settings_personal' 1 %}" class="btnGhost">Back</a>
-            <button class="btnP">Save &amp; Continue</button>
+            <a href="{% url 'settings_personal' 1 %}" class="btnGhost">{% trans "Back" %}</a>
+            <button class="btnP">{% trans "Save & Continue" %}</button>
           </div>
         </form>
       </div>
 
     {% elif step == 3 %}
       <div class="form-pad">
-        <h2 class="sec-title text-xl sm:text-2xl mb-4">Values &amp; Hobbies</h2>
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">{% trans "Values & Hobbies" %}</h2>
         <form method="post" class="space-y-6" id="vhForm">
           {% csrf_token %}
           <div class="hidden">{{ form.as_p }}</div>
 
           <div>
-            <label class="labelX">Personal values</label>
+            <label class="labelX">{% trans "Personal values" %}</label>
             <div class="chips" data-sync-name="values_csv"></div>
           </div>
           <div>
-            <label class="labelX">Hobbies / Interests</label>
+            <label class="labelX">{% trans "Hobbies / Interests" %}</label>
             <div class="chips" data-sync-name="hobbies_csv"></div>
           </div>
 
           <div class="flex flex-col sm:flex-row justify-between gap-3">
-            <a href="{% url 'settings_personal' 2 %}" class="btnGhost">Back</a>
-            <button class="btnP">Save &amp; Continue</button>
+            <a href="{% url 'settings_personal' 2 %}" class="btnGhost">{% trans "Back" %}</a>
+            <button class="btnP">{% trans "Save & Continue" %}</button>
           </div>
         </form>
       </div>
 
     {% elif step == 4 %}
       <div class="form-pad">
-        <h2 class="sec-title text-xl sm:text-2xl mb-4">Fun facts</h2>
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">{% trans "Fun facts" %}</h2>
         <form method="post" class="space-y-5">
           {% csrf_token %}
           {{ form.as_p }}
           <div class="flex flex-col sm:flex-row justify-between gap-3">
-            <a href="{% url 'settings_personal' 3 %}" class="btnGhost">Back</a>
-            <button class="btnP">Save &amp; Continue</button>
+            <a href="{% url 'settings_personal' 3 %}" class="btnGhost">{% trans "Back" %}</a>
+            <button class="btnP">{% trans "Save & Continue" %}</button>
           </div>
         </form>
       </div>
 
     {% elif step == 5 %}
       <div class="form-pad">
-        <h2 class="sec-title text-xl sm:text-2xl mb-4">Social links</h2>
+        <h2 class="sec-title text-xl sm:text-2xl mb-4">{% trans "Social links" %}</h2>
         <form method="post" class="space-y-5">
           {% csrf_token %}
           {{ formset.management_form }}
-          {# inside step 5 block, above the grid #}
-{{ formset.management_form }}
-{% if formset.non_form_errors %}
-  <div class="mb-3 text-red-300 text-sm font-semibold">{{ formset.non_form_errors }}</div>
-{% endif %}
+          {% if formset.non_form_errors %}
+            <div class="mb-3 text-red-300 text-sm font-semibold">{{ formset.non_form_errors }}</div>
+          {% endif %}
 
-<div class="grid sm:grid-cols-2 gap-4">
-  {% for f in formset %}
-    <div class="p-4 rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)]">
-      {{ f.non_field_errors }}
-      {% for field in f.visible_fields %}
-        <div class="mb-3">
-          <label class="text-sm font-semibold block mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
-          {{ field|add_class:"f-input" }}
-          {% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}
-        </div>
-      {% endfor %}
-      {# 🔴 add this: #}
-      {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+          <div class="grid sm:grid-cols-2 gap-4">
+            {% for f in formset %}
+              <div class="p-4 rounded-xl border border-[color:var(--border)] bg-[color:var(--panel2)]">
+                {{ f.non_field_errors }}
+                {% for field in f.visible_fields %}
+                  <div class="mb-3">
+                    <label class="text-sm font-semibold block mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field|add_class:"f-input" }}
+                    {% for err in field.errors %}<div class="err">{{ err }}</div>{% endfor %}
+                  </div>
+                {% endfor %}
+                {% for h in f.hidden_fields %}{{ h }}{% endfor %}
 
-      {% if f.instance.pk %}
-        <label class="inline-flex items-center gap-2 text-sm mt-1">{{ f.DELETE }} Delete</label>
-      {% endif %}
-    </div>
-  {% endfor %}
-</div>
+                {% if f.instance.pk %}
+                  <label class="inline-flex items-center gap-2 text-sm mt-1">{{ f.DELETE }} {% trans "Delete" %}</label>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
 
           <div class="flex flex-col sm:flex-row justify-between gap-3">
-  <a href="{% url 'settings_personal' 4 %}" class="btnGhost">Back</a>
-  <div class="flex gap-2">
-    <button name="skip" value="1" class="btnGhost" type="submit">Skip for now</button>
-    <button class="btnP" type="submit">Save &amp; Continue</button>
-  </div>
-</div>
+            <a href="{% url 'settings_personal' 4 %}" class="btnGhost">{% trans "Back" %}</a>
+            <div class="flex gap-2">
+              <button name="skip" value="1" class="btnGhost" type="submit">{% trans "Skip for now" %}</button>
+              <button class="btnP" type="submit">{% trans "Save & Continue" %}</button>
+            </div>
+          </div>
 
         </form>
       </div>
 
     {% else %}
       <div class="form-pad">
-        <h2 class="sec-title text-xl sm:text-2xl mb-2">Review</h2>
-        <p class="text-[color:var(--muted)] mb-6">You’re all set. You can revisit any step anytime.</p>
+        <h2 class="sec-title text-xl sm:text-2xl mb-2">{% trans "Review" %}</h2>
+        <p class="text-[color:var(--muted)] mb-6">{% trans "You’re all set. You can revisit any step anytime." %}</p>
         <div class="flex gap-3 flex-wrap">
-          <a class="btnGhost" href="{% url 'settings_personal' 1 %}">Basics</a>
-          <a class="btnGhost" href="{% url 'settings_personal' 2 %}">Skills</a>
-          <a class="btnGhost" href="{% url 'settings_personal' 3 %}">Values &amp; Hobbies</a>
-          <a class="btnGhost" href="{% url 'settings_personal' 4 %}">Fun facts</a>
-          <a class="btnGhost" href="{% url 'settings_personal' 5 %}">Social links</a>
-          <a class="btnP" href="{% url 'profile_view' request.user.username %}">Done</a>
+          <a class="btnGhost" href="{% url 'settings_personal' 1 %}">{% trans "Basics" %}</a>
+          <a class="btnGhost" href="{% url 'settings_personal' 2 %}">{% trans "Skills" %}</a>
+          <a class="btnGhost" href="{% url 'settings_personal' 3 %}">{% trans "Values & Hobbies" %}</a>
+          <a class="btnGhost" href="{% url 'settings_personal' 4 %}">{% trans "Fun facts" %}</a>
+          <a class="btnGhost" href="{% url 'settings_personal' 5 %}">{% trans "Social links" %}</a>
+          <a class="btnP" href="{% url 'profile_view' request.user.username %}">{% trans "Done" %}</a>
         </div>
       </div>
     {% endif %}
@@ -301,7 +303,7 @@ document.querySelectorAll('.media-box input[type=file]').forEach(inp=>{
 function buildChips(container){
   const name = container.getAttribute('data-sync-name');
   const orig = document.querySelector(`[name="${name}"]`);
-  const input = document.createElement('input'); input.type='text'; input.placeholder='Type and press Enter…';
+  const input = document.createElement('input'); input.type='text'; input.placeholder='{% trans "Type and press Enter…" %}';
   container.appendChild(input);
   function selected(){
     if (orig && orig.tagName==='SELECT' && orig.multiple)

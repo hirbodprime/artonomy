@@ -19,6 +19,8 @@ urlpatterns = [
     # Portfolio wizard
     path("settings/portfolio/<int:step>/", v.settings_portfolio_wizard, name="settings_portfolio"),
     path("settings/portfolio/", v.settings_portfolio_wizard, {"step": 1}, name="settings_portfolio_start"),
+    path("set-language/", v.set_user_language, name="account_set_language"),
+
 ]
 
 

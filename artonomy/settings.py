@@ -68,39 +68,45 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "accounts.User" 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'accounts.middleware.OnboardingRedirectMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
 
-    # Custom middleware
-    'core.middleware.wizard_guard.WizardGuardMiddleware',
-    'core.middleware.require_login.RequireLoginMiddleware',
+    "django.contrib.auth.middleware.AuthenticationMiddleware",  # ← before ours
+    "core.middleware.user_language.UserLanguageMiddleware",     # ← ours
 
+    "django.middleware.locale.LocaleMiddleware",                # ← after ours
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "accounts.middleware.OnboardingRedirectMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
+    "core.middleware.wizard_guard.WizardGuardMiddleware",
+    "core.middleware.require_login.RequireLoginMiddleware",
+    # "core.middleware.guest_readonly.GuestReadOnlyMiddleware",
 ]
 
 ROOT_URLCONF = 'artonomy.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ["templates"],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": ["templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
                 "collab.context_processors.notif_unread_count",
 
+                # ✅ required for {% trans %}, {% get_current_language %}, etc.
+                "django.template.context_processors.i18n",
             ],
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'artonomy.wsgi.application'
 
@@ -138,13 +144,23 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
+TIME_ZONE = "UTC"
+
+# Default language = Persian (unprefixed URLs)
+LANGUAGE_CODE = "fa"
+
+LANGUAGES = (
+    ("fa", "Persian"),
+    ("en", "English"),
+)
+
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
+# Cookies (defaults are fine; listed here for clarity)
+LANGUAGE_COOKIE_NAME = "django_language"
+LANGUAGE_COOKIE_SAMESITE = "Lax"
 
 
 # Static files (CSS, JavaScript, Images)
@@ -168,6 +184,12 @@ else:
 
     MEDIA_URL = "/media/"
     MEDIA_ROOT = BASE_DIR / "media"
+
+    
+IMAGE_DEFAULT_QUALITY = 72        # 60-80 is a good range
+IMAGE_MAX_SIZE = (2560, 2560)     # downscale very large uploads (WxH)
+VIDEO_COMPRESS = True             # flip to False to disable
+FFMPEG_BIN = "ffmpeg"             # or full path if needed (e.g. "/usr/bin/ffmpeg")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

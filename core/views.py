@@ -208,22 +208,34 @@ def explore_view(request):
 
 # ========= Auth / Landing (unchanged) =========
 
+from django.shortcuts import render, redirect, resolve_url
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.csrf import ensure_csrf_cookie
+
 @ensure_csrf_cookie
 def landing_page(request):
+    # capture ?next=... for GET and POST
+    next_url = request.POST.get("next") or request.GET.get("next")
+
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
 
         user = authenticate(request, email=email, password=password)
-
         if user is not None:
             login(request, user)
-            return redirect("explore")
-        else:
-            messages.error(request, "Invalid email or password")
 
-    return render(request, "landing_page.html")
+            # honor next if safe, else go to localized 'explore'
+            if next_url and url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+                return redirect(next_url)
+            return redirect(resolve_url("explore"))
 
+        messages.error(request, "Invalid email or password")
+
+    # ALWAYS return a response (GET or failed POST)
+    return render(request, "landing_page.html", {"next": next_url})
 
 def coming_soon_view(req):
     return render(req, 'coming_soon.html')
@@ -297,3 +309,4 @@ def explore_feed_api(request):
     html_mobile  = render_to_string("partials/explore_cards_mobile.html",  {"posts": posts}, request=request)
     html_desktop = render_to_string("partials/explore_cards_desktop.html", {"posts": posts}, request=request)
     return JsonResponse({"html_mobile": html_mobile, "html_desktop": html_desktop, "has_next": has_next})
+

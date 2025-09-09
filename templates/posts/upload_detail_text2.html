@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load i18n %}
+
 {% block content %}
 <style>
   :root { --purple:#C240FF; --background:#101015; --input-bg:#1A1A22; --input-border:#3A3A3A; --panel-bg:#141419; }
@@ -11,51 +13,52 @@
 </style>
 
 <div class="w-full max-w-6xl mx-auto px-4 py-12 text-white">
-<form id="textForm" method="post" enctype="multipart/form-data"
-      class="grid lg:grid-cols-[280px_1fr] gap-8">
-  {% csrf_token %}
+  <form id="textForm" method="post" enctype="multipart/form-data"
+        class="grid lg:grid-cols-[280px_1fr] gap-8">
+    {% csrf_token %}
 
-  <!-- Left Panel -->
-  <aside class="space-y-6">
-    <!-- Cover picker -->
-    <label for="coverInput"
-           id="coverBox"
-           class="bg-[var(--input-bg)] rounded-lg aspect-square flex items-center justify-center text-center p-4 border border-[var(--input-border)] cursor-pointer overflow-hidden">
-      <div id="coverEmpty">
-        <i class="fa-solid fa-plus-circle text-2xl text-gray-500"></i>
-        <p class="text-sm font-semibold mt-2">Add Cover</p>
+    <!-- Left Panel -->
+    <aside class="space-y-6">
+      <!-- Cover picker -->
+      <label for="coverInput"
+             id="coverBox"
+             class="bg-[var(--input-bg)] rounded-lg aspect-square flex items-center justify-center text-center p-4 border border-[var(--input-border)] cursor-pointer overflow-hidden">
+        <div id="coverEmpty">
+          <i class="fa-solid fa-plus-circle text-2xl text-gray-500"></i>
+          <p class="text-sm font-semibold mt-2">{% trans "Add Cover" %}</p>
+        </div>
+        <input id="coverInput" name="cover" type="file" accept="image/*" class="hidden">
+      </label>
+
+      <button type="button" id="addChapterBtn"
+              class="w-full p-2.5 rounded-lg font-semibold bg-[var(--input-bg)] border border-[var(--input-border)] hover:border-[var(--purple)] transition-colors">
+        + {% trans "Add Chapter" %}
+      </button>
+
+      <!-- Chapter list -->
+      <div class="bg-[var(--panel-bg)] p-2 rounded-lg border border-[var(--input-border)]">
+        <ul id="chapterList" class="space-y-1">
+          <!-- items injected by JS; we start with Chapter 1 -->
+        </ul>
       </div>
-      <input id="coverInput" name="cover" type="file" accept="image/*" class="hidden">
-    </label>
+    </aside>
 
-    <button type="button" id="addChapterBtn"
-            class="w-full p-2.5 rounded-lg font-semibold bg-[var(--input-bg)] border border-[var(--input-border)] hover:border-[var(--purple)] transition-colors">
-      + Add Chapter
-    </button>
+    <!-- Right Panel -->
+    <main class="space-y-6">
+      <input name="title" type="text" placeholder="{% trans 'Post title...' %}"
+             class="form-input rounded-lg w-full p-4 text-xl font-bold" required>
 
-    <!-- Chapter list -->
-    <div class="bg-[var(--panel-bg)] p-2 rounded-lg border border-[var(--input-border)]">
-      <ul id="chapterList" class="space-y-1">
-        <!-- items injected by JS; we start with Chapter 1 -->
-      </ul>
-    </div>
-  </aside>
+      <!-- Chapters container (one visible at a time) -->
+      <div id="chapters"></div>
 
-  <!-- Right Panel -->
-  <main class="space-y-6">
-    <input name="title" type="text" placeholder="Post title..."
-           class="form-input rounded-lg w-full p-4 text-xl font-bold" required>
-
-    <!-- Chapters container (one visible at a time) -->
-    <div id="chapters"></div>
-
-    <div class="text-center pt-4">
-      <a href="#" id="textContinue" class="continue-btn text-white font-bold py-3 px-12 rounded-lg inline-block">Continue</a>
-    </div>
-  </main>
-</form>
+      <div class="text-center pt-4">
+        <a href="#" id="textContinue" class="continue-btn text-white font-bold py-3 px-12 rounded-lg inline-block">
+          {% trans "Continue" %}
+        </a>
+      </div>
+    </main>
+  </form>
 </div>
-
 
 <script>
 (function(){

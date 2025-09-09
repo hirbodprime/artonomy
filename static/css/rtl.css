@@ -1,0 +1,9 @@
+/* Flip common layout utilities when in RTL */
+html[dir="rtl"] .ml-auto { margin-left: 0 !important; margin-right: auto !important; }
+html[dir="rtl"] .mr-auto { margin-right: 0 !important; margin-left: auto !important; }
+html[dir="rtl"] .text-left { text-align: right !important; }
+html[dir="rtl"] .text-right { text-align: left !important; }
+
+/* If you use icons/arrows that imply direction, rotate them if needed */
+html[dir="rtl"] .chev-left { transform: scaleX(-1); }
+/* Add any component-specific corrections here */

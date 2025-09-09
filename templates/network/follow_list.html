@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block content %}
 <style>
@@ -51,36 +52,36 @@
         {% if profile_user.profile and profile_user.profile.avatar %}
           <img src="{{ profile_user.profile.avatar.url }}" class="avatar" alt="{{ profile_user.username }}">
         {% else %}
-          <img src="https://placehold.co/160x160/222/FFF?text=U" class="avatar" alt="{{ profile_user.username }}">
+          <img src="https://placehold.co/160x160/222/FFF?text={{ profile_user.username|first|upper }}" class="avatar" alt="{{ profile_user.username }}">
         {% endif %}
 
         <div>
-          <div class="text-2xl sm:text-3xl font-extrabold">{{ profile_user.username }}</div>
+          <div class="text-2xl sm:text-3xl font-extrabold"><bdi>{{ profile_user.username }}</bdi></div>
           <div class="text-sm text-[color:var(--muted)]">
-            {% if profile_user.profile and profile_user.profile.title %}{{ profile_user.profile.title }}{% else %}Creator{% endif %}
+            <bdi>{% if profile_user.profile and profile_user.profile.title %}{{ profile_user.profile.title }}{% else %}{% trans "Creator" %}{% endif %}</bdi>
           </div>
           <div class="mt-3 flex gap-2">
             <a class="pill {% if active_tab == 'followers' %}active{% endif %}"
                href="{% url 'network:followers_list' profile_user.username %}">
-              Followers <span class="badge">{{ followers_count }}</span>
+              {% trans "Followers" %} <span class="badge">{{ followers_count }}</span>
             </a>
             <a class="pill {% if active_tab == 'following' %}active{% endif %}"
                href="{% url 'network:following_list' profile_user.username %}">
-              Following <span class="badge">{{ following_count }}</span>
+              {% trans "Following" %} <span class="badge">{{ following_count }}</span>
             </a>
           </div>
         </div>
       </div>
 
       <a class="back" href="{% url 'profile_view' profile_user.username %}">
-        <i class="fa-solid fa-arrow-left"></i> Back to profile
+        <i class="fa-solid fa-arrow-left"></i> {% trans "Back to profile" %}
       </a>
     </div>
 
     <!-- search -->
     <form method="get" action="" class="mt-4 search-wrap">
-      <input class="search" name="q" value="{{ q|default:'' }}" placeholder="Search users…">
-      <button class="sbtn" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+      <input class="search" name="q" value="{{ q|default:'' }}" placeholder="{% trans 'Search users…' %}">
+      <button class="sbtn" aria-label="{% trans 'Search' %}"><i class="fa-solid fa-magnifying-glass"></i></button>
     </form>
   </section>
 
@@ -91,31 +92,25 @@
         {% if u.profile and u.profile.avatar %}
           <img src="{{ u.profile.avatar.url }}" class="avatar" alt="{{ u.username }}">
         {% else %}
-          <div class="avatar grid place-items-center bg-[color:var(--panel2)] border border-[color:var(--border)]">U</div>
+          <div class="avatar grid place-items-center bg-[color:var(--panel2)] border border-[color:var(--border)]">
+            {{ u.username|first|upper }}
+          </div>
         {% endif %}
 
         <div class="min-w-0 flex-1">
-          <a href="{% url 'profile_view' u.username %}" class="title hover:underline truncate block">{{ u.username }}</a>
+          <a href="{% url 'profile_view' u.username %}" class="title hover:underline truncate block"><bdi>{{ u.username }}</bdi></a>
 
           <div class="mt-1 flex flex-wrap items-center gap-2">
             {% if u.role == ROLE_AUDIENCE %}
-              <span class="role role-audience"><i class="fa-solid fa-user"></i> Audience</span>
+              <span class="role role-audience"><i class="fa-solid fa-user"></i> {% trans "Audience" %}</span>
             {% elif u.role == ROLE_ARTIST %}
-              <span class="role role-artist"><i class="fa-solid fa-palette"></i> Artist</span>
-              {# “type of artist”: show up to 3 WORK categories as chips #}
-              <!-- {% with shown=0 %}
-                {% for uc in u.usercategory_set.all %}
-                  {% if uc.kind == UC_KIND_WORK and shown < 3 %}
-                    <span class="chip">{{ uc.category.name }}</span>
-                    {% widthratio shown 1 1 as shown %}{# increase counter #}
-                  {% endif %}
-                {% endfor %}
-              {% endwith %} -->
+              <span class="role role-artist"><i class="fa-solid fa-palette"></i> {% trans "Artist" %}</span>
+              {# chips block kept commented #}
             {% endif %}
           </div>
 
           {% if u.profile and u.profile.title %}
-            <div class="line mt-1 truncate">{{ u.profile.title }}</div>
+            <div class="line mt-1 truncate"><bdi>{{ u.profile.title }}</bdi></div>
           {% endif %}
         </div>
 
@@ -124,24 +119,24 @@
                 action="{% url 'network:toggle_follow' u.id %}?next={{ request.get_full_path|urlencode }}">
             {% csrf_token %}
             <button class="btn {% if u.i_follow %}following{% else %}follow{% endif %}">
-              {% if u.i_follow %}Following{% else %}Follow{% endif %}
+              {% if u.i_follow %}{% trans "Following" %}{% else %}{% trans "Follow" %}{% endif %}
             </button>
           </form>
         {% endif %}
       </div>
     {% empty %}
-      <div class="text-center text-[color:var(--muted)] col-span-full py-10">No users found.</div>
+      <div class="text-center text-[color:var(--muted)] col-span-full py-10">{% trans "No users found." %}</div>
     {% endfor %}
   </div>
 
   {% if page_obj.paginator.num_pages > 1 %}
     <div class="mt-6 flex justify-center gap-2">
       {% if page_obj.has_previous %}
-        <a class="btn" href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Prev</a>
+        <a class="btn" href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">{% trans "Prev" %}</a>
       {% endif %}
       <span class="btn">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
       {% if page_obj.has_next %}
-        <a class="btn" href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+        <a class="btn" href="?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">{% trans "Next" %}</a>
       {% endif %}
     </div>
   {% endif %}

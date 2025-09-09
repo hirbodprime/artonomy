@@ -26,6 +26,9 @@ from .forms import (
 )
 import re
 from django.core.exceptions import ValidationError
+from django.db.models import Q, F
+from django.db.models.functions import Coalesce
+from django.utils.translation import gettext as _, get_language
 
 
 User = get_user_model()
@@ -112,15 +115,16 @@ def choose_categories(request):
         return redirect("explore")
 
     user = request.user
-    rel_kind = (
-        UserCategory.Kind.WORK if user.role == User.Role.ARTIST else UserCategory.Kind.FAV
-    )
+    rel_kind = UserCategory.Kind.WORK if user.role == User.Role.ARTIST else UserCategory.Kind.FAV
 
     if request.method == "POST":
         slugs = [s.strip() for s in request.POST.get("selected_slugs", "").split(",") if s.strip()]
-        cats = list(Category.objects.filter(slug__in=slugs))
+        # Accept both English and Persian slugs
+        cats = list(Category.objects.filter(Q(slug__in=slugs) | Q(slug_fa__in=slugs)))
 
+        # remove deselected
         UserCategory.objects.filter(user=user, kind=rel_kind).exclude(category__in=cats).delete()
+
         existing = set(
             UserCategory.objects.filter(user=user, kind=rel_kind).values_list("category_id", flat=True)
         )
@@ -131,23 +135,29 @@ def choose_categories(request):
         if to_create:
             UserCategory.objects.bulk_create(to_create, ignore_conflicts=True)
 
-        messages.success(request, "Preferences saved.")
+        messages.success(request, _("Preferences saved."))
         return redirect("explore")  # onboarding complete
 
+    # Preselect current choices
     chosen_ids = set(
         UserCategory.objects.filter(user=user, kind=rel_kind).values_list("category_id", flat=True)
     )
-    categories = Category.objects.all().order_by("name")
-    heading_text = "Your Favorite Categories" if rel_kind == UserCategory.Kind.FAV else "Your Work Categories"
+
+    # Language-aware ordering for the chooser grid
+    lang = (get_language() or "").lower()
+    if lang.startswith("fa"):
+        categories = Category.objects.annotate(sort_name=Coalesce("name_fa", "name")).order_by("sort_name")
+    else:
+        categories = Category.objects.all().order_by("name")
+
+    heading_text = _("Your Favorite Categories") if rel_kind == UserCategory.Kind.FAV else _("Your Work Categories")
 
     return render(request, "accounts/categories.html", {
-    "categories": categories,
-    "chosen_ids": chosen_ids,
-    "rel_kind": rel_kind,
-    "heading_text": heading_text,  # <-- add
-})
-
-
+        "categories": categories,
+        "chosen_ids": chosen_ids,
+        "rel_kind": rel_kind,
+        "heading_text": heading_text,
+    })
 
 
 
@@ -159,33 +169,26 @@ def profile_view(request, username: str):
         UserModel.objects.select_related("profile"),
         username=username
     )
-    profile = getattr(profile_user, "profile", None)
+    profile = getattr(profile_user, "profile", None) or Profile.objects.create(user=profile_user) if not hasattr(profile_user, "profile") else profile_user.profile
 
-    # Ensure a profile exists (if you create it in signals, this is a no-op)
-    if not hasattr(profile_user, "profile"):
-        profile = Profile.objects.create(user=profile_user)
-    else:
-        profile = profile_user.profile
-
-    # --- follow stats / state ---
-    followers_count = profile_user.follower_relations.count()      # users who follow profile_user
-    following_count = profile_user.following_relations.count()     # users profile_user follows
+    # follow stats / state
+    followers_count = profile_user.follower_relations.count()
+    following_count = profile_user.following_relations.count()
     is_following = (
         request.user.is_authenticated
         and request.user != profile_user
         and Follow.objects.filter(follower=request.user, following=profile_user).exists()
     )
 
-    # --- timeline posts (fast prefetch) ---
+    # timeline
     timeline_posts = (
-        Post.objects
-        .filter(author=profile_user)
+        Post.objects.filter(author=profile_user)
         .select_related("author", "author__profile")
         .prefetch_related("images", "videos", "chapters")
         .order_by("-created_at")
     )
 
-    # --- personal info blocks ---
+    # personal info
     social_links = profile.social_links.all()
     values       = profile.values.all()
     hobbies      = profile.hobbies.all()
@@ -193,29 +196,28 @@ def profile_view(request, username: str):
     goals        = profile.goals.all()
     funfacts     = profile.funfacts.all()
 
-    # --- portfolio (resume) blocks ---
-    educations      = profile.educations.all()
-    experiences     = profile.experiences.all()
-    skills          = profile.skills.all()
-    books           = profile.books.all()
-    certifications  = profile.certifications.all()
-    courses         = profile.courses.all()
-    projects        = profile.projects.all()
-    awards          = profile.awards.all()
+    # portfolio (resume)
+    educations     = profile.educations.all()
+    experiences    = profile.experiences.all()
+    skills         = profile.skills.all()
+    books          = profile.books.all()
+    certifications = profile.certifications.all()
+    courses        = profile.courses.all()
+    projects       = profile.projects.all()
+    awards         = profile.awards.all()
 
-    # --- marketplace (optional app) ---
+    # marketplace (optional)
     market_items = []
     try:
-        # IMPORTANT: use your marketplace app + model names
         from marketplace.models import MarketItem
         market_items = (
-            MarketItem.objects
-            .filter(seller=profile_user, status=MarketItem.Status.ACTIVE)
+            MarketItem.objects.filter(seller=profile_user, status=MarketItem.Status.ACTIVE)
             .select_related("seller", "seller__profile", "category")
             .order_by("-created_at")[:18]
         )
     except Exception:
         pass
+
     work_cats = Category.objects.filter(
         usercategory__user=profile_user,
         usercategory__kind=UserCategory.Kind.WORK
@@ -225,47 +227,57 @@ def profile_view(request, username: str):
         usercategory__user=profile_user,
         usercategory__kind=UserCategory.Kind.FAV
     ).order_by("name")
+
     suggestions_made_count = Suggestion.objects.filter(suggester=profile_user).count()
     suggestions_received_count = Suggestion.objects.filter(post__author=profile_user).count()
 
-    # Posts this profile_user has suggested (for later UI)
     suggested_posts = (
-        Post.objects
-        .filter(suggestions__suggester=profile_user)
+        Post.objects.filter(suggestions__suggester=profile_user)
         .select_related("author", "author__profile")
         .prefetch_related("images", "videos", "chapters")
         .order_by("-suggestions__created_at")
     )
+
+    # ---- language-aware category label + ordering for hero chips ----
+    lang = (get_language() or "").lower()
     if profile_user.role == User.Role.ARTIST:
         kind = UserCategory.Kind.WORK
-        hero_cats_label = "Working categories"
+        hero_cats_label = _("Working categories")
     else:
         kind = UserCategory.Kind.FAV
-        hero_cats_label = "Favorite categories"
+        hero_cats_label = _("Favorite categories")
 
-    hero_cats = (
-        Category.objects
-        .filter(usercategory__user=profile_user, usercategory__kind=kind)
-        .order_by("name")[:6]   # show up to 6 chips
-    )
+    if lang.startswith("fa"):
+        # order by Persian name if available, else English name
+        hero_cats = (
+            Category.objects
+            .filter(usercategory__user=profile_user, usercategory__kind=kind)
+            .annotate(sort_name=Coalesce("name_fa", "name"))
+            .order_by("sort_name")[:6]
+        )
+    else:
+        hero_cats = (
+            Category.objects
+            .filter(usercategory__user=profile_user, usercategory__kind=kind)
+            .order_by("name")[:6]
+        )
+
     show_market = (profile_user.role == User.Role.ARTIST)
-
     is_owner = request.user.is_authenticated and request.user == profile_user
+
     ctx = {
         "nav_active": None,
         "profile_user": profile_user,
         "profile": profile,
         "show_market": show_market,
 
-        # follow info
         "followers_count": followers_count,
         "following_count": following_count,
         "is_following_author": is_following,
 
-        # timeline
         "timeline_posts": timeline_posts,
         "is_owner": is_owner,
-        # personal info
+
         "social_links": social_links,
         "values": values,
         "hobbies": hobbies,
@@ -273,7 +285,6 @@ def profile_view(request, username: str):
         "goals": goals,
         "funfacts": funfacts,
 
-        # portfolio (resume)
         "educations": educations,
         "experiences": experiences,
         "skills": skills,
@@ -283,20 +294,15 @@ def profile_view(request, username: str):
         "projects": projects,
         "awards": awards,
 
-        # marketplace
         "market_items": market_items,
 
-        "profile_user": profile_user,
-        "profile": profile,
         "hero_cats": hero_cats,
         "hero_cats_label": hero_cats_label,
         "suggestions_made_count": suggestions_made_count,
         "suggestions_received_count": suggestions_received_count,
         "suggested_posts": suggested_posts,
-
     }
     return render(request, "accounts/profile.html", ctx)
-
 
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -531,3 +537,40 @@ def settings_portfolio_wizard(request, step=1):
 
     # Step 6 Review
     return render_step({"profile": profile})
+
+
+
+
+
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from django.shortcuts import redirect
+from django.urls import translate_url
+
+@require_POST
+@login_required
+def set_user_language(request):
+    lang = request.POST.get("language") in ("fa", "en") and request.POST["language"] or None
+    next_url = request.POST.get("next") or "/"
+    if not lang:
+        return redirect(next_url)
+
+    request.user.language = lang
+    request.user.save(update_fields=["language"])
+
+    # let middleware also sync session, but we redirect now to correct URL
+    return redirect(translate_url(next_url, lang))
+
+from django.http import HttpResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+
+@require_POST
+@login_required
+def api_save_language(request):
+    lang = request.POST.get("language")
+    if lang in ("fa","en"):
+        request.user.language = lang
+        request.user.save(update_fields=["language"])
+    return HttpResponse(status=204)
+

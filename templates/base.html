@@ -1,670 +1,681 @@
-{% load static %}
+{% load static i18n %}
+{% get_current_language as CURRENT_LANG %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE|default:'en' }}" dir="{% if LANGUAGE_CODE == 'fa' %}rtl{% else %}ltr{% endif %}">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Artonomy</title>
+  <title>{% block title %}Artonomy{% endblock %}</title>
+
+  <!-- Favicons -->
   <link rel="icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
   <link rel="icon" type="image/png" sizes="192x192" href="{% static 'favicon/android-chrome-192x192.png' %}">
   <link rel="icon" type="image/png" sizes="512x512" href="{% static 'favicon/android-chrome-512x512.png' %}">
   <link rel="apple-touch-icon" href="{% static 'favicon/apple-touch-icon.png' %}">
+
+  <!-- Global CSS -->
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
-
-  <!-- Google Fonts & Font Awesome -->
-  <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"> -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
-  <!-- Tailwind CSS -->
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Persian font only when fa is active -->
+  {% if LANGUAGE_CODE == 'fa' %}
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet">
+  {% endif %}
+
   <style>
-      :root { --dock-h: 108px; } /* ~62px FAB + ~46px dock; tweak if you change sizes */
-
-  .content-bottom-space {
-    padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 16px);
-  }
-
-  /* On ≥sm we don’t need extra padding (no mobile dock) */
-  @media (min-width: 640px) {
-    .content-bottom-space { padding-bottom: 16px; }
-  }
-    :root{ --bg:#0D0F12; --panel:#12141A; --panel2:#171A22; --border:#222733; --text:#E6E8EC; --muted:#A3A9B6; --purple:#7C3AED; }
-    body{ font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text) }
+    :root { --dock-h: 108px; --bg:#0D0F12; --panel:#12141A; --panel2:#171A22; --border:#222733; --text:#E6E8EC; --muted:#A3A9B6; --purple:#7C3AED; }
+    body{
+      font-family:
+        {% if LANGUAGE_CODE == 'fa' %}"Vazirmatn",{% endif %}
+        Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:var(--bg); color:var(--text)
+    }
     .card{ background:var(--panel); border:1px solid var(--border) }
     .glass{ background:rgba(13,15,18,.72); backdrop-filter:blur(8px) }
     .no-scrollbar::-webkit-scrollbar{ display:none } .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none }
     .thumb-active{ outline:3px solid var(--purple); box-shadow:0 0 0 4px rgba(124,58,237,.35) inset }
     .tab-active{ color:#fff; border-color:var(--purple) }
-
     .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2a2f3b; border-radius: 999px; }
-
     .break-inside-avoid { break-inside: avoid; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
     .tag-switch { display:inline-flex; align-items:center; background:#1f222b; color:var(--text); border-radius:999px; padding:4px; gap:2px; box-shadow:0 4px 18px rgba(0,0,0,.25); border:1px solid var(--border); }
     .tag-switch .seg { padding:.375rem .8rem; border-radius:999px; font-weight:600; font-size:.825rem; line-height:1; cursor:pointer; transition:background-color .2s,color .2s; }
     .tag-switch .seg.active { background:var(--purple); color:#fff; }
-
     .cat-tile { position:relative; overflow:hidden; border-radius:1.25rem; width:12rem; height:6rem; display:grid; place-items:center; transition:.2s; border:1px solid transparent; flex-shrink:0; }
     .cat-tile img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .3s ease; }
     .cat-tile:hover img { transform:scale(1.05); }
     .cat-tile::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.6)); }
     .cat-tile .label { position:relative; z-index:2; font-weight:600; font-size:1.125rem; color:white; }
     .cat-tile.active { border-color:var(--purple); box-shadow:0 0 15px rgba(124,58,237,.5); }
-
     @media (min-width: 640px){ .masonry { column-width: 349px; column-gap: 16px; } }
     @media (max-width: 639.98px){ .masonry { column-width: 100%; column-gap: 16px; } }
     .masonry-item { break-inside: avoid; display:block; margin-bottom:16px; }
-
     .icon-active { color:#570080 !important; }
     .icon-active path, .icon-active circle, .icon-active rect, .icon-active polygon { fill:#570080 !important; stroke:#570080 !important; transition: fill .15s, stroke .15s, color .15s; }
     .count-active { color:#570080 !important; }
-
-    /* User menu dropdown */
     .menu-card { background:var(--panel); border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.35); }
     .menu-item { display:flex; align-items:center; gap:.6rem; padding:.6rem .8rem; border-radius:.6rem; }
     .menu-item:hover { background:rgba(255,255,255,0.06); }
+    @media (max-width: 639.98px){
+      .mobile-cat-pills{ background: var(--panel2); border: 1px solid var(--border); border-radius: .75rem; padding: .6rem .75rem; }
+      .mobile-cat-chip{ position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 110px; height: 44px; padding: 0 14px; border-radius: 999px; overflow: hidden; border: 1px solid var(--border); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6);}
+      .mobile-cat-chip::before{ content: ""; position: absolute; inset: 0; background-image: var(--chip-bg); background-size: cover; background-position: center; filter: brightness(.9); transform: scale(1.02); }
+      .mobile-cat-chip::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.15)); }
+      .mobile-cat-chip .label{ position: relative; z-index: 1; font-weight: 700; font-size: .95rem; }
+      .mobile-cat-chip.active{ outline: 2px solid var(--purple); box-shadow: 0 0 0 3px rgba(124,58,237,.25); }
+    }
+    .m-dock { background: rgba(16,16,21,.78); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 -10px 40px rgba(0,0,0,.35); }
+    .m-dock-list { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); padding: .4rem .6rem; }
+    .m-dock-item { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .18rem; padding: .55rem .25rem; color: #9aa0ad; font-size: 11px; line-height: 1; transition: color .2s ease; }
+    .m-dock-item .ico { font-size: 20px; transition: transform .18s ease, color .18s ease, text-shadow .18s ease; }
+    .m-dock-item:active .ico { transform: scale(.96); }
+    .m-dock-item.active { color: #fff; }
+    .m-dock-item.active .ico { color: var(--purple); text-shadow: 0 0 18px rgba(124,58,237,.55); }
+    .m-dock-item.active::before { content: ""; position: absolute; bottom: 4px; left: 50%; width: 28px; height: 3px; transform: translateX(-50%); border-radius: 999px; background: linear-gradient(90deg, rgba(124,58,237,.95), rgba(124,58,237,.35)); }
+    .m-fab-wrap { position: relative; }
+    .m-fab { position: absolute; left: 50%; transform: translate(-50%, -26%); width: 62px; height: 62px; border-radius: 999px; display: grid; place-items: center; color: #fff; background: radial-gradient(60% 60% at 30% 30%, #C240FF, #7C3AED); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 12px 30px rgba(124,58,237,.5), 0 0 0 6px rgba(124,58,237,.18); transition: transform .15s ease, filter .15s ease; z-index: 5; }
+    .m-fab:active { transform: translate(-50%, -26%) scale(.97); }
 
+    :root { --dock-h: 108px; }
+    .content-bottom-space { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 16px); }
+    @media (min-width: 640px) { .content-bottom-space { padding-bottom: 16px; } }
 
-    /* Mobile category strip with background images */
-@media (max-width: 639.98px){
-  .mobile-cat-pills{
-    background: var(--panel2);
-    border: 1px solid var(--border);
-    border-radius: .75rem;
-    padding: .6rem .75rem;
-  }
-  .mobile-cat-chip{
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 110px;              /* a bit bigger */
-    height: 44px;
-    padding: 0 14px;
-    border-radius: 999px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0,0,0,.6);
-  }
-  .mobile-cat-chip::before{
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: var(--chip-bg);   /* set inline per-chip */
-    background-size: cover;
-    background-position: center;
-    filter: brightness(.9);
-    transform: scale(1.02);
-  }
-  .mobile-cat-chip::after{
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.15));
-  }
-  .mobile-cat-chip .label{
-    position: relative;
-    z-index: 1;
-    font-weight: 700;
-    font-size: .95rem;
-  }
-  .mobile-cat-chip.active{
-    outline: 2px solid var(--purple);
-    box-shadow: 0 0 0 3px rgba(124,58,237,.25);
-  }
+    /* small tweak for RTL paddings in sidebar text labels */
+    html[dir="rtl"] .xl\:inline { direction: rtl; }
+/* Desktop glass group */
+.lang-switch{
+  display:inline-flex; align-items:center; gap:.25rem; padding:.25rem;
+  border-radius:9999px; background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-  .m-dock {
-    background: rgba(16,16,21,.78);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    box-shadow: 0 -10px 40px rgba(0,0,0,.35);
-  }
-  .m-dock-list {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0,1fr));
-    padding: .4rem .6rem;
-  }
-  .m-dock-item {
-    position: relative;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: .18rem;
-    padding: .55rem .25rem;
-    color: #9aa0ad;
-    font-size: 11px;
-    line-height: 1;
-    transition: color .2s ease;
-  }
-  .m-dock-item .ico {
-    font-size: 20px;
-    transition: transform .18s ease, color .18s ease, text-shadow .18s ease;
-  }
-  .m-dock-item:active .ico { transform: scale(.96); }
 
-  /* active state glow + accent */
-  .m-dock-item.active {
-    color: #fff;
-  }
-  .m-dock-item.active .ico {
-    color: var(--purple);
-    text-shadow: 0 0 18px rgba(124,58,237,.55);
-  }
-  .m-dock-item.active::before {
-    content: "";
-    position: absolute; bottom: 4px; left: 50%;
-    width: 28px; height: 3px; transform: translateX(-50%);
-    border-radius: 999px;
-    background: linear-gradient(90deg, rgba(124,58,237,.95), rgba(124,58,237,.35));
-  }
+/* Pills */
+.lang-switch .pill{
+  display:inline-flex; align-items:center; gap:.45rem;
+  padding:.5rem .8rem; border-radius:9999px; border:0; cursor:pointer;
+  color:var(--text-secondary); font-weight:700; font-size:.85rem;
+  background:transparent; transition:transform .15s ease, background .2s ease, color .2s ease, box-shadow .2s;
+}
+.lang-switch .pill:hover{ transform:translateY(-1px); background:rgba(255,255,255,.06); color:var(--text-primary); }
+.lang-switch .pill:focus-visible{
+  outline:none; box-shadow:0 0 0 2px rgba(99,102,241,.35);
+}
+.lang-switch .pill.active{
+  background:linear-gradient(90deg, var(--light-purple), var(--blue));
+  color:#fff; box-shadow:0 8px 26px rgba(86,0,255,.28), inset 0 0 0 1px rgba(255,255,255,.18);
+}
+.lang-switch .pill[disabled]{ cursor:default; filter:saturate(.95); }
 
-  /* Floating center FAB (New Post) */
-  .m-fab-wrap { position: relative; }
-  .m-fab {
-    position: absolute; left: 50%;
-    transform: translate(-50%, -26%);
-    width: 62px; height: 62px; border-radius: 999px;
-    display: grid; place-items: center; color: #fff;
-    background: radial-gradient(60% 60% at 30% 30%, #C240FF, #7C3AED);
-    border: 1px solid rgba(255,255,255,.12);
-    box-shadow:
-      0 12px 30px rgba(124,58,237,.5),
-      0 0 0 6px rgba(124,58,237,.18);
-    transition: transform .15s ease, filter .15s ease;
-    z-index: 5;
-  }
-  .m-fab:active { transform: translate(-50%, -26%) scale(.97); }
+/* Small bits */
+.lang-switch .flag{ font-size:1rem; line-height:1; }
+.lang-switch .label{ line-height:1; }
+.lang-switch .divider{
+  width:1px; height:18px; background:rgba(255,255,255,.12); border-radius:1px;
+}
+
+/* RTL safe ordering */
+html[dir="rtl"] .lang-switch{ direction:rtl; }
+
+.lang-compact{
+  position: relative;
+  display: inline-block;
+  border-radius: 12px;
+}
+.lang-compact__select{
+  appearance: none; -webkit-appearance: none; -moz-appearance: none;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 12px;
+  color: #eaeaea;
+  font-weight: 800;
+  font-size: .80rem;         /* “EN” size */
+  line-height: 1;
+  padding: .5rem 1.6rem .5rem .7rem;  /* room for chevron on the right */
+  min-width: 56px;           /* keeps pill width stable */
+}
+.lang-compact__select:hover{
+  border-color: rgba(255,255,255,.24);
+}
+.lang-compact__select:focus{
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99,102,241,.35);
+}
+.lang-compact::after{
+  content: "▾";              /* chevron */
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: .7rem;
+  color: rgba(255,255,255,.75);
+}
+
+/* RTL: flip chevron + padding sides */
+html[dir="rtl"] .lang-compact__select{
+  padding: .5rem .7rem .5rem 1.6rem;
+}
+html[dir="rtl"] .lang-compact::after{
+  right: auto; left: 8px;
+}
+/* Custom dropdown */
+.lang-dd { position: relative; display: inline-block; z-index: 40; }
+summary::-webkit-details-marker { display: none; }
+
+.lang-dd__btn{
+  all: unset;
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:.5rem .8rem; min-width:56px;
+  border:1px solid rgba(255,255,255,.14); border-radius:12px;
+  background: rgba(255,255,255,.06);
+  color:#eaeaea; font-weight:800; font-size:.8rem; cursor:pointer;
+}
+.lang-dd__btn:focus{ outline:none; box-shadow:0 0 0 2px rgba(99,102,241,.35); }
+.lang-dd__btn .chev{ font-size:.7rem; opacity:.8; transition:transform .15s ease; }
+details[open] .lang-dd__btn .chev{ transform: rotate(180deg); }
+
+.lang-dd__menu{
+  position:absolute; right:0; top:calc(100% + 6px);
+  min-width:110px; padding:.35rem;
+  background:linear-gradient(180deg, rgba(23,26,34,.95), rgba(23,26,34,.85));
+  border:1px solid rgba(255,255,255,.12); border-radius:12px;
+  box-shadow:0 16px 40px rgba(0,0,0,.45);
+}
+.lang-dd__item{
+  display:block; width:100%; text-align:left;
+  padding:.55rem .65rem; border-radius:10px;
+  font-weight:700; font-size:.9rem;
+  color:var(--text-secondary); background:transparent;
+}
+.lang-dd__item:hover, .lang-dd__item:focus{
+  color:#fff; background:rgba(255,255,255,.08);
+}
+.lang-dd__item.is-active{
+  color:#fff; background:linear-gradient(90deg, var(--light-purple), var(--blue));
+}
+
+/* RTL anchor */
+html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
+.lang-dd summary { list-style: none; }
+.lang-dd summary::-webkit-details-marker { display: none; }
+.lang-dd summary::marker { content: ""; }
+
+/* Make sure label is visible */
+.lang-dd__btn { color:#eaeaea; }
+.lang-dd__btn .abbr { font-weight:800; font-size:.8rem; text-transform:uppercase; }
 
   </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
 <div class="flex min-h-screen">
 
-
-    <!-- Sidebar -->
-<!-- Sidebar (icon-only on tablet, full on xl) -->
-<aside
-  class="hidden sm:flex shrink-0 flex-col justify-between
+  <!-- ===== Sidebar ===== -->
+  <aside class="hidden sm:flex shrink-0 flex-col justify-between
          w-16 md:w-20 lg:w-24 xl:w-64
          border-r border-[color:var(--border)] bg-[color:var(--panel)]
-         sticky top-0 h-screen"
->
-  <div class="p-2 md:p-3 xl:p-6">
-    <!-- Logo -->
-    <div class="flex items-center justify-center xl:justify-start gap-3 mb-4 md:mb-6">
-      <a href="{% url 'explore' %}">
-  <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl border border-[color:var(--border)]"
-       style="background: var(--panel2) url('{% static 'favicon/favicon-32x32.png' %}') center/85% no-repeat;">
-  </div>
-</a>
-<div class="hidden xl:block text-lg font-semibold"> <a href="{% url 'explore' %}" class="hidden xl:block text-lg font-semibold hover:text-purple-400 transition-colors">
-      Artonomy
-    </a></div>
-
-    </div>
-
-    <!-- Nav -->
-    <nav class="flex flex-col p-2 xl:p-4 space-y-1 xl:space-y-2">
-      <!-- Home -->
-      <a href="{% url 'home' %}"
-         class="group flex items-center justify-center xl:justify-start
-                gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
-                {% if nav_active == 'home' %}
-                  bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30
-                {% else %}
-                  text-gray-400 hover:bg-gray-800/60 hover:text-white
-                {% endif %}">
-        <i class="fa-solid fa-house text-lg md:text-xl w-6 text-center
-                  {% if nav_active == 'home' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
-        <span class="hidden xl:inline font-semibold tracking-wide">Home</span>
-      </a>
-
-      <!-- Explore -->
-      <a href="{% url 'explore' %}"
-         class="group flex items-center justify-center xl:justify-start
-                gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
-                {% if nav_active == 'explore' %}
-                  bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30
-                {% else %}
-                  text-gray-400 hover:bg-gray-800/60 hover:text-white
-                {% endif %}">
-        <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center
-                  {% if nav_active == 'explore' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
-        <span class="hidden xl:inline font-semibold tracking-wide">Explore</span>
-      </a>
-<a href="{% url 'marketplace:list' %}"
-   class="group flex items-center justify-center xl:justify-start
-          gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
-          {% if nav_active == 'marketplace' %}
-            bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30
-          {% else %}
-            text-gray-400 hover:bg-gray-800/60 hover:text-white
-          {% endif %}">
-  <i class="fa-solid fa-store text-lg md:text-xl w-6 text-center
-            {% if nav_active == 'marketplace' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
-  <span class="hidden xl:inline font-semibold tracking-wide">Marketplace</span>
-</a>
-      <!-- Category -->
-      <a href="{% url 'categories:index' %}"
-         class="group flex items-center justify-center xl:justify-start
-         {% if nav_active == 'category' %}
-            bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30
-          {% else %}
-            text-gray-400 hover:bg-gray-800/60 hover:text-white
-          {% endif %}
-                gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-400 hover:bg-gray-800/60 hover:text-white transition-all">
-        <i class="fa-solid fa-th-large text-lg md:text-xl w-6 text-center text-gray-500 group-hover:text-purple-400"></i>
-        <span class="hidden xl:inline font-semibold tracking-wide">Artists</span>
-      </a>
-
-<!-- Art Exchange (disabled) -->
-<a href="#" aria-disabled="true" tabindex="-1" title="Coming soon"
-   onclick="return false;"
-   class="group flex items-center justify-center xl:justify-start
-          gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl 
-          text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
-  <i class="fa-solid fa-arrows-rotate text-lg md:text-xl w-6 text-center"></i>
-  <span class="hidden xl:inline font-semibold tracking-wide">Art Exchange</span>
-</a>
-
-<!-- Blog (disabled) -->
-<a href="#" aria-disabled="true" tabindex="-1" title="Coming soon"
-   onclick="return false;"
-   class="group flex items-center justify-center xl:justify-start
-          gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl 
-          text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
-  <i class="fa-solid fa-blog text-lg md:text-xl w-6 text-center"></i>
-  <span class="hidden xl:inline font-semibold tracking-wide">Blog</span>
-</a>
-
-<!-- Jobs (disabled) -->
-<a href="#" aria-disabled="true" tabindex="-1" title="Coming soon"
-   onclick="return false;"
-   class="group flex items-center justify-center xl:justify-start
-          gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl 
-          text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
-  <i class="fa-solid fa-bullhorn text-lg md:text-xl w-6 text-center"></i>
-  <span class="hidden xl:inline font-semibold tracking-wide">Jobs</span>
-</a>
-
-      <!-- Divider -->
-      <div class="pt-3 xl:pt-4 pb-2">
-        <hr class="border-gray-700/60">
+         sticky top-0 h-screen">
+    <div class="p-2 md:p-3 xl:p-6">
+      <!-- Logo -->
+      <div class="flex items-center justify-center xl:justify-start gap-3 mb-4 md:mb-6">
+        <a href="{% url 'explore' %}">
+          <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl border border-[color:var(--border)]"
+               style="background: var(--panel2) url('{% static 'favicon/favicon-32x32.png' %}') center/85% no-repeat;">
+          </div>
+        </a>
+        <div class="hidden xl:block text-lg font-semibold">
+          <a href="{% url 'explore' %}" class="hidden xl:block text-lg font-semibold hover:text-purple-400 transition-colors">
+            {% trans "Artonomy" %}
+          </a>
+        </div>
       </div>
 
-      <!-- New Post -->
-{% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-<a href="{% url 'post_new_start' %}"
-   class="flex items-center justify-center xl:justify-start gap-x-4 px-4 py-3 rounded-xl text-white
-          bg-[#570080] shadow-lg shadow-purple-700/40
-          hover:shadow-xl hover:shadow-purple-700/50 hover:scale-[1.02] transform
-          transition-all duration-300 ease-in-out">
-  <i class="fa-solid fa-square-plus w-6 text-center text-xl"></i>
-  <span class="hidden xl:inline font-bold tracking-wide">New Post</span>
-</a>
+      <!-- Nav -->
+      <nav class="flex flex-col p-2 xl:p-4 space-y-1 xl:space-y-2">
+        <!-- Home -->
+        <a href="{% url 'home' %}"
+           class="group flex items-center justify-center xl:justify-start
+                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
+                  {% if nav_active == 'home' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
+          <i class="fa-solid fa-house text-lg md:text-xl w-6 text-center
+                    {% if nav_active == 'home' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Home" %}</span>
+        </a>
 
-{% endif %}
+        <!-- Explore -->
+        <a href="{% url 'explore' %}"
+           class="group flex items-center justify-center xl:justify-start
+                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
+                  {% if nav_active == 'explore' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
+          <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center
+                    {% if nav_active == 'explore' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Explore" %}</span>
+        </a>
 
+        <!-- Marketplace -->
+        <a href="{% url 'marketplace:list' %}"
+           class="group flex items-center justify-center xl:justify-start
+                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
+                  {% if nav_active == 'marketplace' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
+          <i class="fa-solid fa-store text-lg md:text-xl w-6 text-center
+                    {% if nav_active == 'marketplace' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Marketplace" %}</span>
+        </a>
 
-    </nav>
-  </div>
+        <!-- Artists -->
+        <a href="{% url 'categories:index' %}"
+           class="group flex items-center justify-center xl:justify-start
+                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
+                  {% if nav_active == 'category' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
+          <i class="fa-solid fa-th-large text-lg md:text-xl w-6 text-center text-gray-500 group-hover:text-purple-400"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Artists" %}</span>
+        </a>
 
-  <!-- Settings -->
-  <div class="p-2 md:p-3 xl:p-6">
-    <a href="{% url 'settings_profile' %}"
-       class="flex items-center justify-center xl:justify-start gap-3 px-2 xl:px-3 py-2 rounded-xl hover:bg-white/5">
-      <i class="fa-solid fa-gear w-5 text-center"></i>
-      <span class="hidden xl:inline">Settings</span>
-    </a>
-  </div>
-</aside>
+        <!-- Disabled examples kept -->
+        <a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+          <i class="fa-solid fa-arrows-rotate text-lg md:text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Art Exchange" %}</span>
+        </a>
+        <a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+          <i class="fa-solid fa-blog text-lg md:text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Blog" %}</span>
+        </a>
+        <a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+          <i class="fa-solid fa-bullhorn text-lg md:text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Jobs" %}</span>
+        </a>
 
+        <!-- Divider -->
+        <div class="pt-3 xl:pt-4 pb-2"><hr class="border-gray-700/60"></div>
 
-    <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col overflow-y-auto custom-scrollbar content-bottom-space">
+        <!-- New Post (artists only) -->
+        {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
+          <a href="{% url 'post_new_start' %}"
+             class="flex items-center justify-center xl:justify-start gap-x-4 px-4 py-3 rounded-xl text-white
+                    bg-[#570080] shadow-lg shadow-purple-700/40 hover:shadow-xl hover:shadow-purple-700/50
+                    hover:scale-[1.02] transform transition-all duration-300 ease-in-out">
+            <i class="fa-solid fa-square-plus w-6 text-center text-xl"></i>
+            <span class="hidden xl:inline font-bold tracking-wide">{% trans "New Post" %}</span>
+          </a>
+        {% endif %}
+      </nav>
+    </div>
 
-
-      <!-- Desktop/Tablet Header -->
-      <header class="hidden sm:flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-700 sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md">
-        <div class="w-full max-w-2xl relative flex rounded-full bg-gray-800 border border-gray-700 overflow-hidden opacity-60 cursor-not-allowed">
-  <select disabled class="pl-4 pr-1 py-2 text-sm bg-gray-800 text-gray-400 border-r border-gray-700 focus:outline-none appearance-none">
-    <option>All</option>
-    <option>Artists</option>
-    <option>Posts</option>
-  </select>
-  <input disabled type="text" placeholder="Search Artonomy..." class="flex-1 pl-4 pr-10 py-2 bg-gray-800 text-gray-400 focus:outline-none cursor-not-allowed">
-  <i class="fa-solid fa-magnifying-glass absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-</div>
-
-        <div class="flex items-center gap-4">
-          <!-- NEW: New Post (replaces chat icon) -->
-{% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-  <a href="{% url 'post_new_start' %}" class="text-xl text-gray-400 hover:text-white" title="New Post">
-    <i class="fa-solid fa-square-plus"></i>
-  </a>
-{% endif %}
+    <!-- Settings + Language switcher -->
+    <div class="p-2 md:p-3 xl:p-6 space-y-2">
+      <!-- Language switcher -->
 {% if request.user.is_authenticated %}
-  {% with unread=notif_unread_count %}
-  <a href="{% url 'collab:notifications' %}"
-     class="relative inline-flex items-center justify-center"
-     id="notifBellDesk"
-     title="Notifications" aria-label="Notifications">
-    <i class="fa-solid fa-bell text-xl text-gray-400 hover:text-white"></i>
-    {% if unread %}
-      <span id="notifBadgeDesk"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 rounded-full
-                   bg-[#7C3AED] text-white text-[10px] font-bold grid place-items-center">
-        {{ unread }}
-      </span>
-    {% else %}
-      <span id="notifBadgeDesk" class="hidden"></span>
-    {% endif %}
-  </a>
-  {% endwith %}
-{% else %}
-  <a href="{% url 'landing' %}" class="text-xl text-gray-400 hover:text-white" title="Login">
-    <i class="fa-solid fa-bell"></i>
-  </a>
+{% with active=request.LANGUAGE_CODE|default:LANGUAGE_CODE|lower %}
+<form action="{% url 'account_set_language' %}" method="post"
+      class="lang-switch hidden sm:inline-flex"
+      aria-label="{% trans 'Language' %}">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+  <button type="submit" name="language" value="fa"
+          class="pill {% if active|slice:':2' == 'fa' %}active{% endif %}"
+          aria-pressed="{% if active|slice:':2' == 'fa' %}true{% else %}false{% endif %}"
+          {% if active|slice:':2' == 'fa' %}disabled{% endif %}>
+    <span class="flag" aria-hidden="true">🇮🇷</span>
+    <span class="label">فارسی</span>
+  </button>
+
+  <span class="divider" aria-hidden="true"></span>
+
+  <button type="submit" name="language" value="en"
+          class="pill {% if active|slice:':2' == 'en' %}active{% endif %}"
+          aria-pressed="{% if active|slice:':2' == 'en' %}true{% else %}false{% endif %}"
+          {% if active|slice:':2' == 'en' %}disabled{% endif %}>
+    <span class="flag" aria-hidden="true">🇬🇧</span>
+    <span class="label">English</span>
+  </button>
+</form>
+{% endwith %}
 {% endif %}
 
 
-          <!-- Avatar + User menu -->
-          {% if request.user.is_authenticated %}
+      <a href="{% url 'settings_profile' %}" class="flex items-center justify-center xl:justify-start gap-3 px-2 xl:px-3 py-2 rounded-xl hover:bg-white/5">
+        <i class="fa-solid fa-gear w-5 text-center"></i>
+        <span class="hidden xl:inline">{% trans "Settings" %}</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <div class="flex-1 flex flex-col overflow-y-auto custom-scrollbar content-bottom-space">
+
+    <!-- Desktop/Tablet Header -->
+    <header class="hidden sm:flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-700 sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md">
+      <div class="w-full max-w-2xl relative flex rounded-full bg-gray-800 border border-gray-700 overflow-hidden opacity-60 cursor-not-allowed">
+        <select disabled class="pl-4 pr-1 py-2 text-sm bg-gray-800 text-gray-400 border-r border-gray-700 focus:outline-none appearance-none">
+          <option>{% trans "All" %}</option>
+          <option>{% trans "Artists" %}</option>
+          <option>{% trans "Posts" %}</option>
+        </select>
+        <input disabled type="text" placeholder="{% trans 'Search Artonomy...' %}" class="flex-1 pl-4 pr-10 py-2 bg-gray-800 text-gray-400 focus:outline-none cursor-not-allowed">
+        <i class="fa-solid fa-magnifying-glass absolute {% if LANGUAGE_CODE == 'fa' %}left-4{% else %}right-4{% endif %} top-1/2 -translate-y-1/2 text-gray-400"></i>
+      </div>
+
+      <div class="flex items-center gap-4">
+        {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
+          <a href="{% url 'post_new_start' %}" class="text-xl text-gray-400 hover:text-white" title="{% trans 'New Post' %}">
+            <i class="fa-solid fa-square-plus"></i>
+          </a>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+          {% with unread=notif_unread_count %}
+          <a href="{% url 'collab:notifications' %}" class="relative inline-flex items-center justify-center" id="notifBellDesk" title="{% trans 'Notifications' %}" aria-label="{% trans 'Notifications' %}">
+            <i class="fa-solid fa-bell text-xl text-gray-400 hover:text-white"></i>
+            {% if unread %}
+              <span id="notifBadgeDesk" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 rounded-full bg-[#7C3AED] text-white text-[10px] font-bold grid place-items-center">{{ unread }}</span>
+            {% else %}
+              <span id="notifBadgeDesk" class="hidden"></span>
+            {% endif %}
+          </a>
+          {% endwith %}
+        {% else %}
+          <a href="{% url 'landing' %}" class="text-xl text-gray-400 hover:text-white" title="{% trans 'Login' %}">
+            <i class="fa-solid fa-bell"></i>
+          </a>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
           <div class="relative">
             <button id="userMenuBtn" class="flex items-center">
-              {% if request.user.is_authenticated %}
-                {% if request.user.profile and request.user.profile.avatar %}
-                  <img src="{{ request.user.profile.avatar.url }}"
-                      class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
-                {% else %}
-                  <img src="https://placehold.co/100x100/7C3AED/FFFFFF?text=A"
-                      class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
-                {% endif %}
+              {% if request.user.profile and request.user.profile.avatar %}
+                <img src="{{ request.user.profile.avatar.url }}" class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
+              {% else %}
+                <img src="https://placehold.co/100x100/7C3AED/FFFFFF?text=A" class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
               {% endif %}
             </button>
-            <div id="userMenu" class="hidden absolute right-0 mt-3 w-56 menu-card p-2">
+            <div id="userMenu" class="hidden absolute {% if LANGUAGE_CODE == 'fa' %}left-0{% else %}right-0{% endif %} mt-3 w-56 menu-card p-2">
               <div class="px-2 pb-2 text-sm text-[color:var(--muted)]">
-                Signed in as <span class="text-white font-semibold">{{ request.user.username }}</span>
+                {% trans "Signed in as" %} <span class="text-white font-semibold">{{ request.user.username }}</span>
               </div>
               <a class="menu-item" href="{% url 'profile_view' request.user.username %}">
-                <i class="fa-regular fa-user"></i><span>Profile</span>
+                <i class="fa-regular fa-user"></i><span>{% trans "Profile" %}</span>
               </a>
               <a class="menu-item" href="{% url 'settings_profile' %}">
-                <i class="fa-solid fa-sliders"></i><span>Settings</span>
+                <i class="fa-solid fa-sliders"></i><span>{% trans "Settings" %}</span>
               </a>
-              <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
+              <form method="post" action="{% url 'logout' %}">{% csrf_token %}
                 <button class="menu-item w-full text-left" type="submit">
-                  <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+                  <i class="fa-solid fa-right-from-bracket"></i><span>{% trans "Logout" %}</span>
                 </button>
               </form>
             </div>
           </div>
-          {% else %}
+        {% else %}
           <div class="flex items-center gap-2">
-            <a href="{% url 'landing' %}" class="px-3 py-1.5 rounded-lg border border-[color:var(--border)] hover:bg-white/5 text-sm">Log in</a>
-            <a href="{% url 'signup' %}" class="px-3 py-1.5 rounded-lg bg-[color:var(--purple)] text-white text-sm">Sign up</a>
+            <a href="{% url 'landing' %}" class="px-3 py-1.5 rounded-lg border border-[color:var(--border)] hover:bg-white/5 text-sm">{% trans "Log in" %}</a>
+            <a href="{% url 'signup' %}" class="px-3 py-1.5 rounded-lg bg-[color:var(--purple)] text-white text-sm">{% trans "Sign up" %}</a>
           </div>
-          {% endif %}
-        </div>
-      </header>
+        {% endif %}
+      </div>
+    </header>
 
-      <!-- Mobile Header (no hamburger; uses your logo) -->
-      <header class="sm:hidden flex items-center justify-between px-4 py-3 border-b border-gray-700 sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md">
-        <a href="{% url 'explore' %}" class="flex items-center gap-2">
-  <div class="w-8 h-8 rounded-lg border border-[color:var(--border)]"
-       style="background: var(--panel2) url('{% static 'favicon/favicon-32x32.png' %}') center/85% no-repeat;">
-  </div>
-  <h1 class="text-xl font-bold text-white">Artonomy</h1>
-</a>
+    <!-- Mobile Header -->
+    <header class="sm:hidden flex items-center justify-between px-4 py-3 border-b border-gray-700 sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md">
+      <a href="{% url 'explore' %}" class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg border border-[color:var(--border)]"
+             style="background: var(--panel2) url('{% static 'favicon/favicon-32x32.png' %}') center/85% no-repeat;"></div>
+        <h1 class="text-xl font-bold text-white">{% trans "Artonomy" %}</h1>
+      </a>
 
+      <div class="flex items-center gap-3">
 
-        <div class="flex items-center gap-4">
-          <!-- New Post -->
-          {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-  <a href="{% url 'post_new_start' %}" class="text-xl" title="New Post">
-    <i class="fa-solid fa-square-plus"></i>
-  </a>
+{% if request.user.is_authenticated %}
+{% with active=request.LANGUAGE_CODE|default:LANGUAGE_CODE|default:'en' %}
+<form id="langFormMobile"
+      action="{% url 'account_set_language' %}"
+      method="post"
+      class="sm:hidden"
+      aria-label="{% trans 'Language' %}">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <input type="hidden" name="language" id="langField" value="{{ active|slice:":2" }}">
+
+  <details class="lang-dd" dir="{% if active|slice:":2" == 'fa' %}rtl{% else %}ltr{% endif %}">
+    <summary class="lang-dd__btn">
+      <span class="abbr">{{ active|slice:":2"|upper }}</span>
+      <span class="chev" aria-hidden="true">▾</span>
+    </summary>
+
+    <ul class="lang-dd__menu" role="listbox">
+      <li>
+        <button type="button"
+                class="lang-dd__item {% if active|slice:":2" == 'fa' %}is-active{% endif %}"
+                data-lang="fa" role="option"
+                aria-selected="{% if active|slice:":2" == 'fa' %}true{% else %}false{% endif %}">
+          FA
+        </button>
+      </li>
+      <li>
+        <button type="button"
+                class="lang-dd__item {% if active|slice:":2" == 'en' %}is-active{% endif %}"
+                data-lang="en" role="option"
+                aria-selected="{% if active|slice:":2" == 'en' %}true{% else %}false{% endif %}">
+          EN
+        </button>
+      </li>
+    </ul>
+  </details>
+</form>
+
+<script>
+(function () {
+  const form  = document.getElementById('langFormMobile');
+  if (!form) return;
+  const field = form.querySelector('#langField');
+  form.querySelectorAll('.lang-dd__item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      field.value = btn.dataset.lang;
+      form.submit();
+    });
+  });
+})();
+</script>
+{% endwith %}
 {% endif %}
 
-          <!-- Notifications -->
-          {% if request.user.is_authenticated %}
-  {% with unread=notif_unread_count %}
-  <a href="{% url 'collab:notifications' %}"
-     class="relative inline-flex items-center justify-center"
-     id="notifBellMobile"
-     title="Notifications" aria-label="Notifications">
-    <i class="fa-solid fa-bell text-xl"></i>
-    {% if unread %}
-      <span id="notifBadgeMobile"
-            class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 rounded-full
-                   bg-[#7C3AED] text-white text-[10px] font-bold grid place-items-center">
-        {{ unread }}
-      </span>
-    {% else %}
-      <span id="notifBadgeMobile" class="hidden"></span>
-    {% endif %}
-  </a>
-  {% endwith %}
-{% else %}
-  <a href="{% url 'landing' %}" class="text-xl" title="Login"><i class="fa-solid fa-bell"></i></a>
-{% endif %}
+        {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
+          <a href="{% url 'post_new_start' %}" class="text-xl" title="{% trans 'New Post' %}">
+            <i class="fa-solid fa-square-plus"></i>
+          </a>
+        {% endif %}
 
+        {% if request.user.is_authenticated %}
+          {% with unread=notif_unread_count %}
+          <a href="{% url 'collab:notifications' %}" class="relative inline-flex items-center justify-center" id="notifBellMobile" title="{% trans 'Notifications' %}" aria-label="{% trans 'Notifications' %}">
+            <i class="fa-solid fa-bell text-xl"></i>
+            {% if unread %}
+              <span id="notifBadgeMobile" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 rounded-full bg-[#7C3AED] text-white text-[10px] font-bold grid place-items-center">{{ unread }}</span>
+            {% else %}
+              <span id="notifBadgeMobile" class="hidden"></span>
+            {% endif %}
+          </a>
+          {% endwith %}
+        {% else %}
+          <a href="{% url 'landing' %}" class="text-sm underline">{% trans "Login" %}</a>
+        {% endif %}
 
-          <!-- Avatar + dropdown -->
-          {% if request.user.is_authenticated %}
+        {% if request.user.is_authenticated %}
           <div class="relative">
             <button id="userMenuBtnM">
-              {% if request.user.is_authenticated %}
-                {% if request.user.profile and request.user.profile.avatar %}
-                  <img src="{{ request.user.profile.avatar.url }}"
-                      class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
-                {% else %}
-                  <img src="https://placehold.co/100x100/7C3AED/FFFFFF?text=A"
-                      class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
-                {% endif %}
+              {% if request.user.profile and request.user.profile.avatar %}
+                <img src="{{ request.user.profile.avatar.url }}" class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
+              {% else %}
+                <img src="https://placehold.co/100x100/7C3AED/FFFFFF?text=A" class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
               {% endif %}
-
             </button>
-            <div id="userMenuM" class="hidden absolute right-0 mt-3 w-56 menu-card p-2">
+            <div id="userMenuM" class="hidden absolute {% if LANGUAGE_CODE == 'fa' %}left-0{% else %}right-0{% endif %} mt-3 w-56 menu-card p-2">
               <div class="px-2 pb-2 text-sm text-[color:var(--muted)]">
-                Signed in as <span class="text-white font-semibold">{{ request.user.username }}</span>
+                {% trans "Signed in as" %} <span class="text-white font-semibold">{{ request.user.username }}</span>
               </div>
               <a class="menu-item" href="{% url 'profile_view' request.user.username %}">
-                <i class="fa-regular fa-user"></i><span>Profile</span>
+                <i class="fa-regular fa-user"></i><span>{% trans "Profile" %}</span>
               </a>
               <a class="menu-item" href="{% url 'settings_profile' %}">
-                <i class="fa-solid fa-sliders"></i><span>Settings</span>
+                <i class="fa-solid fa-sliders"></i><span>{% trans "Settings" %}</span>
               </a>
-              <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
+              <form method="post" action="{% url 'logout' %}">{% csrf_token %}
                 <button class="menu-item w-full text-left" type="submit">
-                  <i class="fa-solid fa-right-from-bracket"></i><span>Logout</span>
+                  <i class="fa-solid fa-right-from-bracket"></i><span>{% trans "Logout" %}</span>
                 </button>
               </form>
             </div>
           </div>
-          {% else %}
-          <a href="{% url 'landing' %}" class="text-sm underline">Login</a>
-          {% endif %}
+        {% endif %}
+      </div>
+    </header>
+
+    {% block content %}{% endblock content %}
+
+    <!-- Mobile Bottom Dock -->
+    <nav class="sm:hidden fixed inset-x-0 bottom-0 z-40 m-fab-wrap px-4 pb-3">
+      {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
+        <a href="{% url 'post_new_start' %}" aria-label="{% trans 'New post' %}" class="m-fab">
+          <i class="fa-solid fa-plus text-2xl"></i>
+        </a>
+        <div class="m-dock max-w-screen-md mx-auto">
+          <ul class="m-dock-list">
+            <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li>
+            <li><a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
+            <li aria-hidden="true"></li>
+            <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
+            <li><a href="{% url 'marketplace:list' %}" class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
+          </ul>
         </div>
-      </header>
+      {% else %}
+        <div class="m-dock max-w-screen-md mx-auto">
+          <ul class="m-dock-list" style="grid-template-columns: repeat(4, minmax(0,1fr));">
+            <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li>
+            <li><a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
+            <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
+            <li><a href="{% url 'marketplace:list' %}" class="m-dock-item" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
+          </ul>
+        </div>
+      {% endif %}
+    </nav>
 
-      {% block content %}{% endblock content %}
-
-      <!-- Bottom Mobile Dock -->
-<!-- Mobile Bottom Dock (stunning) -->
-<!-- Mobile Bottom Dock -->
-<nav class="sm:hidden fixed inset-x-0 bottom-0 z-40 m-fab-wrap px-4 pb-3">
-  {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-    <!-- Floating New Post (FAB) for artists -->
-    <a href="{% url 'post_new_start' %}" aria-label="New post" class="m-fab">
-      <i class="fa-solid fa-plus text-2xl"></i>
-    </a>
-
-    <div class="m-dock max-w-screen-md mx-auto">
-      <ul class="m-dock-list">
-        <li>
-          <a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="Home">
-            <i class="ico fa-solid fa-house"></i><span>Home</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="Explore">
-            <i class="ico fa-solid fa-compass"></i><span>Explore</span>
-          </a>
-        </li>
-
-        <!-- Spacer beneath FAB -->
-        <li aria-hidden="true"></li>
-
-        <li>
-          <a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="Categories">
-            <i class="ico fa-solid fa-th-large"></i><span>Artists</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'marketplace:list' %}" class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" aria-label="Marketplace">
-            <i class="ico fa-regular fa-store"></i><span>Marketplace</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  {% else %}
-    <!-- No FAB / 4 items for audiences & guests -->
-    <div class="m-dock max-w-screen-md mx-auto">
-      <ul class="m-dock-list" style="grid-template-columns: repeat(4, minmax(0,1fr));">
-        <li>
-          <a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="Home">
-            <i class="ico fa-solid fa-house"></i><span>Home</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="Explore">
-            <i class="ico fa-solid fa-compass"></i><span>Explore</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="Categories">
-            <i class="ico fa-solid fa-th-large"></i><span>Artists</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'marketplace:list' %}" class="m-dock-item" aria-label="Marketplace">
-            <i class="ico fa-solid fa-store"></i><span>Marketplace</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  {% endif %}
-</nav>
-
-
-    </div>
   </div>
+</div>
 
-  <!-- JS: feed switch (unchanged from your base) -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const feedSwitch = document.getElementById('globalFeedSwitch');
-      if (feedSwitch) {
-        feedSwitch.addEventListener('click', (e) => {
-          const button = e.target.closest('.seg');
-          if (!button) return;
-          feedSwitch.querySelectorAll('.seg').forEach(seg => seg.classList.remove('active'));
-          button.classList.add('active');
-          localStorage.setItem('artonomy_feed_mode', button.dataset.value);
-        });
-        const saved = localStorage.getItem('artonomy_feed_mode');
-        if (saved) {
-          feedSwitch.querySelectorAll('.seg').forEach(seg => {
-            seg.classList.toggle('active', seg.dataset.value === saved);
-          });
+<!-- Feed toggle memory -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const feedSwitch = document.getElementById('globalFeedSwitch');
+    if (!feedSwitch) return;
+    feedSwitch.addEventListener('click', (e) => {
+      const button = e.target.closest('.seg');
+      if (!button) return;
+      feedSwitch.querySelectorAll('.seg').forEach(seg => seg.classList.remove('active'));
+      button.classList.add('active');
+      localStorage.setItem('artonomy_feed_mode', button.dataset.value);
+    });
+    const saved = localStorage.getItem('artonomy_feed_mode');
+    if (saved) {
+      feedSwitch.querySelectorAll('.seg').forEach(seg => seg.classList.toggle('active', seg.dataset.value === saved));
+    }
+  });
+</script>
+
+<!-- Horizontal category scroller -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const scrollContainer = document.getElementById("catScroll");
+    const btnLeft = document.getElementById("scrollLeft");
+    const btnRight = document.getElementById("scrollRight");
+    if (!scrollContainer || !btnLeft || !btnRight) return;
+    function updateButtons() {
+      btnLeft.style.display = scrollContainer.scrollLeft > 0 ? "flex" : "none";
+      const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+      btnRight.style.display = scrollContainer.scrollLeft < maxScroll - 5 ? "flex" : "none";
+    }
+    btnLeft.addEventListener("click", () => scrollContainer.scrollBy({ left: -300, behavior: "smooth" }));
+    btnRight.addEventListener("click", () => scrollContainer.scrollBy({ left: 300, behavior: "smooth" }));
+    scrollContainer.addEventListener("scroll", updateButtons);
+    window.addEventListener("resize", updateButtons);
+    updateButtons();
+  });
+</script>
+
+<!-- User menu dropdowns -->
+<script>
+  (function(){
+    const pairs = [["userMenuBtn","userMenu"],["userMenuBtnM","userMenuM"]];
+    pairs.forEach(([btnId, menuId])=>{
+      const btn = document.getElementById(btnId);
+      const menu = document.getElementById(menuId);
+      if (!btn || !menu) return;
+      function closeAll(ev){
+        if (!menu.contains(ev.target) && !btn.contains(ev.target)){
+          menu.classList.add("hidden");
+          document.removeEventListener("click", closeAll);
         }
       }
-    });
-  </script>
-
-  <!-- JS: horizontal category scroller (kept) -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const scrollContainer = document.getElementById("catScroll");
-      const btnLeft = document.getElementById("scrollLeft");
-      const btnRight = document.getElementById("scrollRight");
-      if (!scrollContainer || !btnLeft || !btnRight) return;
-      function updateButtons() {
-        btnLeft.style.display = scrollContainer.scrollLeft > 0 ? "flex" : "none";
-        const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-        btnRight.style.display = scrollContainer.scrollLeft < maxScroll - 5 ? "flex" : "none";
-      }
-      btnLeft.addEventListener("click", () => scrollContainer.scrollBy({ left: -300, behavior: "smooth" }));
-      btnRight.addEventListener("click", () => scrollContainer.scrollBy({ left: 300, behavior: "smooth" }));
-      scrollContainer.addEventListener("scroll", updateButtons);
-      window.addEventListener("resize", updateButtons);
-      updateButtons();
-    });
-  </script>
-
-  <!-- JS: user menu dropdown (desktop + mobile) -->
-  <script>
-    (function(){
-      const pairs = [
-        ["userMenuBtn", "userMenu"],
-        ["userMenuBtnM", "userMenuM"],
-      ];
-      pairs.forEach(([btnId, menuId])=>{
-        const btn = document.getElementById(btnId);
-        const menu = document.getElementById(menuId);
-        if (!btn || !menu) return;
-        function closeAll(ev){
-          if (!menu.contains(ev.target) && !btn.contains(ev.target)){
-            menu.classList.add("hidden");
-            document.removeEventListener("click", closeAll);
-          }
+      btn.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        menu.classList.toggle("hidden");
+        if (!menu.classList.contains("hidden")){
+          setTimeout(()=>document.addEventListener("click", closeAll), 0);
         }
-        btn.addEventListener("click", (e)=>{
-          e.stopPropagation();
-          menu.classList.toggle("hidden");
-          if (!menu.classList.contains("hidden")){
-            setTimeout(()=>document.addEventListener("click", closeAll), 0);
-          }
-        });
       });
-    })();
-  </script>
-  <script>
+    });
+  })();
+</script>
+
+<!-- (Optional) notifications polling stub kept commented -->
+<script>
 (function(){
   const desk = document.getElementById('notifBadgeDesk');
   const mob  = document.getElementById('notifBadgeMobile');
   if(!desk && !mob) return;
+  // function refresh(){/* your AJAX here */ }
+  // setInterval(refresh, 30000);
+})();
+</script>
+<script>
+(function(){
+  const sel = document.getElementById('langSelect');
+  // set current selection
+  sel.value = (document.documentElement.lang || 'fa').slice(0,2);
 
-  // async function refresh(){
-  //   try{
-  //     const r = await fetch("{% url 'collab:unread_count' %}", {headers:{'X-Requested-With':'XMLHttpRequest'}});
-  //     if(!r.ok) return;
-  //     const {count} = await r.json();
+  sel.addEventListener('change', async function(){
+    const lang = sel.value;
+    const {pathname, search, hash} = window.location;
+    let newPath = pathname;
 
-  //     const apply = (el)=>{
-  //       if(!el) return;
-  //       if(count > 0){
-  //         el.textContent = count;
-  //         el.classList.remove('hidden');
-  //       } else {
-  //         el.classList.add('hidden');
-  //       }
-  //     };
-  //     apply(desk); apply(mob);
-  //   }catch(e){ /* ignore */ }
-  // }
+    // add/remove '/en' prefix
+    if (lang === 'en' && !pathname.startsWith('/en/')) {
+      newPath = '/en' + (pathname === '/' ? '' : pathname);
+    } else if (lang === 'fa' && pathname.startsWith('/en/')) {
+      newPath = pathname.replace(/^\/en(\/|$)/, '/');
+    }
 
-  setInterval(refresh, 30000); // 30s
+    // fire-and-forget save to DB (optional)
+    try {
+      await fetch('/account/set-language/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/)||[])[1] || ''
+        },
+        body: new URLSearchParams({language: lang})
+      });
+    } catch(e) {}
+
+    // navigate to translated URL
+    window.location.assign(newPath + search + hash);
+  });
 })();
 </script>
 

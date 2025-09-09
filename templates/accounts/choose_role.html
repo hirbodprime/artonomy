@@ -1,5 +1,7 @@
 {% extends "accounts/hero_base.html" %}
-{% block page_title %}Artonomy — Choose Role{% endblock %}
+{% load i18n %}
+
+{% block page_title %}{% trans "Artonomy — Choose Role" %}{% endblock %}
 
 {% block right_card %}
 <div class="lg:bg-white lg:text-gray-900 card-shell overflow-hidden 
@@ -11,7 +13,7 @@
 
     <!-- Smaller heading to fit one line -->
     <h2 class="mt-0 text-2xl lg:text-[24px] font-extrabold">
-      Which one are you?
+      {% trans "Which one are you?" %}
     </h2>
 
     <div class="mt-6 space-y-4">
@@ -25,7 +27,7 @@
                 style="background-color:#570080;"
                 onmouseover="this.style.backgroundColor='#6b0aa0';"
                 onmouseout="this.style.backgroundColor='#570080';">
-          Artist
+          {% trans "Artist" %}
         </button>
       </form>
 
@@ -39,7 +41,7 @@
                 style="background-color:#ffffff;"
                 onmouseover="this.style.backgroundColor='#0fa95a';"
                 onmouseout="this.style.backgroundColor='#ffffff';">
-          Audience
+          {% trans "Audience" %}
         </button>
       </form>
     </div>

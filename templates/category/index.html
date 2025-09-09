@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load i18n %}
+
 {% block content %}
 <style>
   :root{
@@ -9,7 +11,6 @@
   }
 
   .cat-wrap{
-    /* full width but with breathable edges */
     width: 100%;
     padding: 2.5rem min(5vw, 48px);
     margin: 0 auto;
@@ -30,7 +31,7 @@
   }
 
   .cat-card{
-    height: var(--tile);               /* perfect square */
+    height: var(--tile);
     border-radius: var(--radius);
     overflow: hidden;
     position: relative;
@@ -46,9 +47,7 @@
     box-shadow: 0 14px 46px rgba(124,58,237,.18);
   }
 
-  .cat-img{
-    position:absolute; inset:0;
-  }
+  .cat-img{ position:absolute; inset:0; }
   .cat-img img{
     width: 100%; height: 100%; object-fit: cover; display:block;
     transform: scale(1.02);
@@ -69,7 +68,6 @@
       linear-gradient(180deg, rgba(0,0,0,.0) 45%, rgba(0,0,0,.55) 100%);
   }
 
-  /* keep long names tidy */
   .cat-name{
     max-width: 90%;
     white-space: nowrap;
@@ -77,29 +75,30 @@
     text-overflow: ellipsis;
   }
 
-  /* small screens: tighten gap a touch */
   @media (max-width: 640px){
     :root{ --gap: 1.1rem; }
   }
 </style>
 
 <div class="cat-wrap">
-  <h1 class="cat-title">Category</h1>
+  <h1 class="cat-title">{% trans "Category" %}</h1>
 
   <div class="cat-grid">
     {% for c in categories %}
       <a href="{% url 'categories:detail' c.slug %}" class="cat-card">
         <div class="cat-img">
           {% if c.image %}
-            <img src="{{ c.image.url }}" alt="{{ c.name }}">
+            <img src="{{ c.image.url }}" alt="{{ c.display_name|default:c.name }}">
           {% else %}
             <img src="https://placehold.co/800x800/0D0F12/E6E8EC?text={{ c.name|urlencode }}" alt="{{ c.name }}">
           {% endif %}
         </div>
         <div class="cat-overlay">
-          <span class="cat-name">{{ c.name }}</span>
+          <span class="cat-name"><bdi>{{ c.display_name|default:c.name }}</bdi></span>
         </div>
       </a>
+    {% empty %}
+      <p class="text-gray-400">{% trans "No categories available." %}</p>
     {% endfor %}
   </div>
 </div>

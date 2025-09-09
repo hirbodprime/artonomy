@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <style>
   :root{
@@ -159,18 +160,17 @@
 }
 
 </style>
-
 <div class="wrap inbox-page">
-  <h1 class="text-xl font-extrabold mb-4 text-white">Inbox</h1>
+  <h1 class="text-xl font-extrabold mb-4 text-white">{% trans "Inbox" %}</h1>
 
   <!-- Tabs -->
   <div class="tabs" id="tabs">
     <button class="tab {% if active_tab != 'chats' %}active{% endif %}" data-tab="notifs">
-      <i class="fa-solid fa-bell"></i> Notifications
+      <i class="fa-solid fa-bell"></i> {% trans "Notifications" %}
       {% if unread_notif_count %}<span class="badge">{{ unread_notif_count }}</span>{% endif %}
     </button>
     <button class="tab {% if active_tab == 'chats' %}active{% endif %}" data-tab="chats">
-      <i class="fa-solid fa-comments"></i> Chats
+      <i class="fa-solid fa-comments"></i> {% trans "Chats" %}
       <span class="badge">{{ conversations|length }}</span>
     </button>
   </div>
@@ -203,7 +203,7 @@
 
                 <div class="req-main">
                   <div class="req-top">
-                    <span class="req-name">@{{ n.request.requester.username }}</span>
+                    <span class="req-name">@<bdi>{{ n.request.requester.username }}</bdi></span>
                     <span class="req-when">• {{ n.request.created_at|date:"M d, H:i" }}</span>
                   </div>
 
@@ -212,25 +212,35 @@
                       {% if n.request.item.image %}<img src="{{ n.request.item.image.url }}" alt="{{ n.request.item.title }}">{% endif %}
                     </div>
                     <div>
-                      Requested: <span class="font-semibold"><a href="{% url 'marketplace:item' n.request.item_id %}" class="hover:underline">{{ n.request.item.title }}</a></span>
+                      {% trans "Requested:" %} <span class="font-semibold">
+                        <a href="{% url 'marketplace:item' n.request.item_id %}" class="hover:underline">
+                          <bdi>{{ n.request.item.title }}</bdi>
+                        </a>
+                      </span>
                     </div>
                   </div>
 
                   {% if n.request.brief %}<div class="req-brief">{{ n.request.brief|truncatechars:240 }}</div>{% endif %}
 
                   <div class="req-meta">
-                    <span class="req-chip">Status: {{ n.request.get_status_display }}</span>
-                    <span class="req-chip">Category: {{ n.request.item.category.name|default:"—" }}</span>
-                    <span class="req-chip">Price: {{ n.request.item.price|floatformat:0 }} {{ n.request.item.currency }}</span>
+                    <span class="req-chip">
+                      {% blocktrans with s=n.request.get_status_display %}Status: {{ s }}{% endblocktrans %}
+                    </span>
+                    <span class="req-chip">
+                      {% blocktrans with c=n.request.item.category.name|default:"—" %}Category: {{ c }}{% endblocktrans %}
+                    </span>
+                    <span class="req-chip">
+                      {% blocktrans with p=n.request.item.price|floatformat:"0" cur=n.request.item.currency %}Price: {{ p }} {{ cur }}{% endblocktrans %}
+                    </span>
                   </div>
 
                   {% if n.kind == "REQUEST" and n.request.provider_id == request.user.id and n.request.status == "PENDING_PROVIDER" %}
                     <div class="btn-row mt-3">
                       <button class="btn btn-accept accept" data-url="{% url 'collab:provider_accept' n.request_id %}">
-                        <i class="fa-solid fa-check"></i> Accept
+                        <i class="fa-solid fa-check"></i> {% trans "Accept" %}
                       </button>
                       <button class="btn btn-decline decline" data-url="{% url 'collab:provider_decline' n.request_id %}">
-                        <i class="fa-solid fa-xmark"></i> Decline
+                        <i class="fa-solid fa-xmark"></i> {% trans "Decline" %}
                       </button>
                     </div>
                   {% endif %}
@@ -238,7 +248,7 @@
                   {% if n.kind == "ACCEPT" and n.request.requester_id == request.user.id and n.request.status == "ACCEPTED_PROVIDER" %}
                     <div class="btn-row mt-3" style="grid-template-columns:1fr;">
                       <button class="btn btn-accept confirm" data-url="{% url 'collab:requester_confirm' n.request_id %}">
-                        <i class="fa-solid fa-comments"></i> Confirm & start chat
+                        <i class="fa-solid fa-comments"></i> {% trans "Confirm & start chat" %}
                       </button>
                     </div>
                   {% endif %}
@@ -251,12 +261,12 @@
         <div class="actions">
           <time datetime="{{ n.created_at|date:'c' }}">{{ n.created_at|date:"M d, H:i" }}</time>
           {% if not n.is_read %}
-            <button class="btn-ghost mark-read" data-url="{% url 'collab:notif_read' n.pk %}">Mark read</button>
+            <button class="btn-ghost mark-read" data-url="{% url 'collab:notif_read' n.pk %}">{% trans "Mark read" %}</button>
           {% endif %}
         </div>
       </div>
     {% empty %}
-      <p class="text-gray-400">No notifications.</p>
+      <p class="text-gray-400">{% trans "No notifications." %}</p>
     {% endfor %}
   </section>
 
@@ -265,75 +275,75 @@
     {% if conversations %}
       <div class="chat-list">
         {% for c in conversations %}
-  {% if request.user.id == c.user_a_id %}
-    {% with other=c.user_b %}
-      <a class="chat-row" href="{% url 'collab:chat' c.id %}">
-        {% if other.profile and other.profile.avatar %}
-          <img class="chat-ava" src="{{ other.profile.avatar.url }}" alt="{{ other.username }}">
-        {% else %}
-          <div class="chat-ava">{{ other.username|first|upper }}</div>
-        {% endif %}
+          {% if request.user.id == c.user_a_id %}
+            {% with other=c.user_b %}
+              <a class="chat-row" href="{% url 'collab:chat' c.id %}">
+                {% if other.profile and other.profile.avatar %}
+                  <img class="chat-ava" src="{{ other.profile.avatar.url }}" alt="{{ other.username }}">
+                {% else %}
+                  <div class="chat-ava">{{ other.username|first|upper }}</div>
+                {% endif %}
 
-        <div class="chat-main">
-          <div class="chat-top">
-            <div class="chat-name">@{{ other.username }}</div>
-            <div class="chat-time">{% if c.last %}{{ c.last.created_at|date:"M d, H:i" }}{% endif %}</div>
-          </div>
-          <div class="chat-sub">
-            <span class="title">{{ c.item.title }}</span>
-            <span>•</span>
-            <span class="chat-preview">
-              {% if c.last %}
-                {% if c.last.sender_id == request.user.id %}<strong>You:</strong> {% endif %}
-                {{ c.last.text|default:"(no messages yet)"|truncatechars:72 }}
-              {% else %}
-                (no messages yet)
-              {% endif %}
-            </span>
-            {% if c.last_is_other %}<span class="dot" title="New"></span>{% endif %}
-          </div>
-        </div>
-      </a>
-    {% endwith %}
-  {% else %}
-    {% with other=c.user_a %}
-      <a class="chat-row" href="{% url 'collab:chat' c.id %}">
-        {% if other.profile and other.profile.avatar %}
-          <img class="chat-ava" src="{{ other.profile.avatar.url }}" alt="{{ other.username }}">
-        {% else %}
-          <div class="chat-ava">{{ other.username|first|upper }}</div>
-        {% endif %}
+                <div class="chat-main">
+                  <div class="chat-top">
+                    <div class="chat-name">@<bdi>{{ other.username }}</bdi></div>
+                    <div class="chat-time">{% if c.last %}{{ c.last.created_at|date:"M d, H:i" }}{% endif %}</div>
+                  </div>
+                  <div class="chat-sub">
+                    <span class="title"><bdi>{{ c.item.title }}</bdi></span>
+                    <span>•</span>
+                    <span class="chat-preview">
+                      {% if c.last %}
+                        {% if c.last.sender_id == request.user.id %}<strong>{% trans "You:" %}</strong> {% endif %}
+                        {{ c.last.text|default:_("(no messages yet)")|truncatechars:72 }}
+                      {% else %}
+                        {% trans "(no messages yet)" %}
+                      {% endif %}
+                    </span>
+                    {% if c.last_is_other %}<span class="dot" title="{% trans 'New' %}"></span>{% endif %}
+                  </div>
+                </div>
+              </a>
+            {% endwith %}
+          {% else %}
+            {% with other=c.user_a %}
+              <a class="chat-row" href="{% url 'collab:chat' c.id %}">
+                {% if other.profile and other.profile.avatar %}
+                  <img class="chat-ava" src="{{ other.profile.avatar.url }}" alt="{{ other.username }}">
+                {% else %}
+                  <div class="chat-ava">{{ other.username|first|upper }}</div>
+                {% endif %}
 
-        <div class="chat-main">
-          <div class="chat-top">
-            <div class="chat-name">@{{ other.username }}</div>
-            <div class="chat-time">{% if c.last %}{{ c.last.created_at|date:"M d, H:i" }}{% endif %}</div>
-          </div>
-          <div class="chat-sub">
-            <span class="title">{{ c.item.title }}</span>
-            <span>•</span>
-            <span class="chat-preview">
-              {% if c.last %}
-                {% if c.last.sender_id == request.user.id %}<strong>You:</strong> {% endif %}
-                {{ c.last.text|default:"(no messages yet)"|truncatechars:72 }}
-              {% else %}
-                (no messages yet)
-              {% endif %}
-            </span>
-            {% if c.last_is_other %}<span class="dot" title="New"></span>{% endif %}
-          </div>
-        </div>
-      </a>
-    {% endwith %}
-  {% endif %}
-{% endfor %}
-
+                <div class="chat-main">
+                  <div class="chat-top">
+                    <div class="chat-name">@<bdi>{{ other.username }}</bdi></div>
+                    <div class="chat-time">{% if c.last %}{{ c.last.created_at|date:"M d, H:i" }}{% endif %}</div>
+                  </div>
+                  <div class="chat-sub">
+                    <span class="title"><bdi>{{ c.item.title }}</bdi></span>
+                    <span>•</span>
+                    <span class="chat-preview">
+                      {% if c.last %}
+                        {% if c.last.sender_id == request.user.id %}<strong>{% trans "You:" %}</strong> {% endif %}
+                        {{ c.last.text|default:_("(no messages yet)")|truncatechars:72 }}
+                      {% else %}
+                        {% trans "(no messages yet)" %}
+                      {% endif %}
+                    </span>
+                    {% if c.last_is_other %}<span class="dot" title="{% trans 'New' %}"></span>{% endif %}
+                  </div>
+                </div>
+              </a>
+            {% endwith %}
+          {% endif %}
+        {% endfor %}
       </div>
     {% else %}
-      <p class="text-gray-400">No chats yet.</p>
+      <p class="text-gray-400">{% trans "No chats yet." %}</p>
     {% endif %}
   </section>
 </div>
+
 
 <script>
   // Tabs (no page reload). Also supports ?tab=chats on initial load via server classes.

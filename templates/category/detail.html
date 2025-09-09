@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load i18n %}
+
 {% block content %}
 <style>
   .follow-btn{background:#7D5CFF;color:#fff;font-weight:600;padding:.35rem 1rem;border-radius:999px;font-size:.85rem;transition:.2s}
@@ -18,33 +20,37 @@
 </style>
 
 <div class="max-w-6xl mx-auto px-4 py-8">
-  <h1 class="text-xl font-extrabold mb-6 text-white">Category · {{ category.name }}</h1>
+  <h1 class="text-xl font-extrabold mb-6 text-white">
+    {% trans "Category" %} · <bdi>{{ category.display_name|default:category.name }}</bdi>
+  </h1>
 
   <!-- Filter bar -->
   <form method="get" id="cat-filter" class="mk-filters p-3 sm:p-4 mb-6 sm:mb-8">
     <input type="hidden" name="sort" id="sort-input" value="{{ sort }}">
     <div class="flex items-center gap-3">
-      <span class="text-sm text-gray-300">Sort By</span>
+      <span class="text-sm text-gray-300">{% trans "Sort By" %}</span>
 
       <!-- Custom dropdown -->
       <div class="relative" id="sort-dd">
         <button type="button"
                 class="mk-chip mk-field px-3 pr-8 text-sm text-gray-200 flex items-center gap-2"
                 aria-haspopup="listbox" aria-expanded="false" data-dd-btn>
-          <span data-dd-label>{% if sort == 'followers' %}Followers{% else %}Latest{% endif %}</span>
+          <span data-dd-label>
+            {% if sort == 'followers' %}{% trans "Followers" %}{% else %}{% trans "Latest" %}{% endif %}
+          </span>
           <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
         </button>
         <ul class="absolute mt-2 w-40 bg-[#12141A] border border-white/10 rounded-lg shadow-xl py-1 z-20 hidden"
             role="listbox" data-dd-menu>
-          <li class="px-3 py-2 text-sm text-gray-200 hover:bg-[#171A22] cursor-pointer" data-value="latest">Latest</li>
-          <li class="px-3 py-2 text-sm text-gray-200 hover:bg-[#171A22] cursor-pointer" data-value="followers">Followers</li>
+          <li class="px-3 py-2 text-sm text-gray-200 hover:bg-[#171A22] cursor-pointer" data-value="latest">{% trans "Latest" %}</li>
+          <li class="px-3 py-2 text-sm text-gray-200 hover:bg-[#171A22] cursor-pointer" data-value="followers">{% trans "Followers" %}</li>
         </ul>
       </div>
 
       <!-- Reset -->
       <a href="{{ request.path }}"
          class="ml-auto mk-chip mk-field grid place-items-center px-3 text-sm text-gray-300 hover:text-white"
-         title="Clear filters" aria-label="Clear filters">
+         title="{% trans 'Clear filters' %}" aria-label="{% trans 'Clear filters' %}">
         <i class="fa-regular fa-trash-can"></i>
       </a>
     </div>
@@ -55,8 +61,11 @@
       <div class="artist-card">
         <div class="artist-cover">
           <a href="{% url 'profile_view' username=u.username %}">
-            {% if u.profile.cover %}<img src="{{ u.profile.cover.url }}" alt="{{ u.username }}">
-            {% else %}<img src="https://placehold.co/800x450/111/EEE?text=Cover" alt="{{ u.username }}">{% endif %}
+            {% if u.profile.cover %}
+              <img src="{{ u.profile.cover.url }}" alt="{{ u.username }}">
+            {% else %}
+              <img src="https://placehold.co/800x450/111/EEE?text=Cover" alt="{{ u.username }}">
+            {% endif %}
           </a>
         </div>
 
@@ -83,27 +92,34 @@
               <form method="post" action="{% url 'network:toggle_follow' user_id=u.id %}">
                 {% csrf_token %}
                 <button type="submit" class="follow-btn">
-                  {% if u.id in following_ids %}Unfollow{% else %}Follow{% endif %}
+                  {% if u.id in following_ids %}{% trans "Unfollow" %}{% else %}{% trans "Follow" %}{% endif %}
                 </button>
               </form>
             {% endif %}
           </div>
 
-          <p class="text-gray-300 text-sm mt-3 line-clamp-3">{{ u.profile.bio|default:"No bio provided." }}</p>
+          <p class="text-gray-300 text-sm mt-3 line-clamp-3">
+            {{ u.profile.bio|default:_("No bio provided.") }}
+          </p>
 
           <div class="stats mt-2">
-            {{ u.following_count }} Following · <span class="followers-count">{{ u.followers_count }}</span> Followers
+            {{ u.following_count }} {% trans "Following" %} ·
+            <span class="followers-count">{{ u.followers_count }}</span> {% trans "Followers" %}
           </div>
 
           <div class="text-sm text-gray-400 mt-1">
-            {% if u.profile.website %}<a href="{{ u.profile.website }}" target="_blank" class="underline">Site</a>{% endif %}
+            {% if u.profile.website %}
+              <a href="{{ u.profile.website }}" target="_blank" class="underline">{% trans "Site" %}</a>
+            {% endif %}
             {% if u.profile.country %} · {{ u.profile.country }}{% endif %}
           </div>
 
           <!-- Categories chips linking to category pages -->
           <div class="flex flex-wrap gap-2 mt-3">
             {% for c in u.categories.all %}
-              <a href="{% url 'categories:detail' c.slug %}" class="chip">{{ c.name }}</a>
+              <a href="{% url 'categories:detail' c.slug %}" class="chip">
+                <bdi>{{ c.display_name|default:c.name }}</bdi>
+              </a>
             {% endfor %}
           </div>
         </div>
@@ -114,11 +130,15 @@
   <!-- Pagination -->
   <div class="mt-8 flex justify-center gap-3">
     {% if page_obj.has_previous %}
-      <a class="text-gray-400 hover:text-white" href="?page={{ page_obj.previous_page_number }}&{{ current_query|cut:'page=' }}">‹ Prev</a>
+      <a class="text-gray-400 hover:text-white" href="?page={{ page_obj.previous_page_number }}&{{ current_query|cut:'page=' }}">‹ {% trans "Prev" %}</a>
     {% endif %}
-    <span class="text-gray-500">Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+    <span class="text-gray-500">
+      {% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}Page {{ n }} / {{ total }}{% endblocktrans %}
+    </span>
+
     {% if page_obj.has_next %}
-      <a class="text-gray-400 hover:text-white" href="?page={{ page_obj.next_page_number }}&{{ current_query|cut:'page=' }}">Next ›</a>
+      <a class="text-gray-400 hover:text-white" href="?page={{ page_obj.next_page_number }}&{{ current_query|cut:'page=' }}">{% trans "Next" %} ›</a>
     {% endif %}
   </div>
 </div>
@@ -147,8 +167,6 @@ document.addEventListener('DOMContentLoaded', function () {
       form.submit();    // auto-apply
     });
   });
-
-  // (No follow AJAX here — follow button posts a form for a full reload)
 });
 </script>
 {% endblock %}

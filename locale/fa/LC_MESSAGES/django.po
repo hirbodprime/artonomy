@@ -1,0 +1,1439 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-09-09 16:13+0330\n"
+"PO-Revision-Date: 2025-09-07 00:00+0330\n"
+"Last-Translator: \n"
+"Language-Team: fa <LL@li.org>\n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\accounts\models.py:12
+msgid "Username may only contain letters, numbers, and underscores."
+msgstr "نام کاربری فقط می‌تواند شامل حروف، اعداد و زیرخط (_) باشد."
+
+#: .\accounts\models.py:23 .\posts\models.py:17
+msgid "Persian name"
+msgstr "نام فارسی"
+
+#: .\accounts\models.py:25 .\posts\models.py:19
+msgid "Persian slug"
+msgstr "نامک فارسی"
+
+#: .\accounts\models.py:36
+msgid "Representative image for this category."
+msgstr "تصویر نماینده برای این دسته."
+
+#: .\accounts\models.py:104 .\templates\accounts\choose_role.html:30
+#: .\templates\network\follow_list.html:107
+msgid "Artist"
+msgstr "هنرمند"
+
+#: .\accounts\models.py:105 .\templates\accounts\choose_role.html:44
+#: .\templates\accounts\profile.html:142
+#: .\templates\network\follow_list.html:105
+msgid "Audience"
+msgstr "بیننده"
+
+#: .\accounts\models.py:108
+msgid "email address"
+msgstr "ایمیل"
+
+#: .\accounts\models.py:110 .\templates\accounts\signup.html:22
+msgid "username"
+msgstr "نام کاربری"
+
+#: .\accounts\models.py:114
+msgid "Required. Letters, numbers, and underscores only."
+msgstr "الزامی. فقط حروف، اعداد و زیرخط (_)."
+
+#: .\accounts\models.py:151
+msgid "Work"
+msgstr "حرفه"
+
+#: .\accounts\models.py:152
+msgid "Favorite"
+msgstr "علاقه"
+
+#: .\accounts\models.py:189
+msgid "Website"
+msgstr "سایت"
+
+#: .\accounts\models.py:190
+msgid "GitHub"
+msgstr "گیتهاب"
+
+#: .\accounts\models.py:191
+msgid "Twitter/X"
+msgstr "توییتر"
+
+#: .\accounts\models.py:192
+msgid "Instagram"
+msgstr "اینستاگرام"
+
+#: .\accounts\models.py:193
+msgid "LinkedIn"
+msgstr "لینکدین"
+
+#: .\accounts\models.py:194
+msgid "Other"
+msgstr "دیگر"
+
+#: .\accounts\views.py:138
+msgid "Preferences saved."
+msgstr "ترجیحات ذخیره شد."
+
+#: .\accounts\views.py:153
+msgid "Your Favorite Categories"
+msgstr "دسته‌های مورد علاقهٔ شما"
+
+#: .\accounts\views.py:153
+msgid "Your Work Categories"
+msgstr "دسته‌های کاری شما"
+
+#: .\accounts\views.py:245
+msgid "Working categories"
+msgstr "دسته‌های کاری"
+
+#: .\accounts\views.py:248
+msgid "Favorite categories"
+msgstr "دسته‌های مورد علاقه"
+
+#: .\templates\accounts\after-signup.html:14
+msgid "You’re an"
+msgstr "شما یک"
+
+#: .\templates\accounts\after-signup.html:14
+msgid "Artonomist"
+msgstr "آرتونومیست"
+
+#: .\templates\accounts\after-signup.html:20
+msgid "Complete Your Profile"
+msgstr "پروفایل خود را کامل کنید"
+
+#: .\templates\accounts\after-signup.html:26
+msgid "Go to Artonomy"
+msgstr "رفتن به آرتونومی"
+
+#: .\templates\accounts\categories.html:6
+#: .\templates\accounts\categories.html:71 .\templates\category\detail.html:24
+#: .\templates\category\index.html:84
+msgid "Category"
+msgstr "دسته"
+
+#: .\templates\accounts\categories.html:7
+msgid ""
+"If your artwork category is not in these, don't worry we will add more "
+"artwork categories soon."
+msgstr "اگر دستهٔ اثر شما در این فهرست نیست، نگران نباشید؛ به‌زودی دسته‌های بیشتری اضافه می‌کنیم."
+
+#: .\templates\accounts\categories.html:8
+#: .\templates\accounts\profile_suggested.html:80
+#: .\templates\accounts\signup.html:65 .\templates\category\detail.html:141
+#: .\templates\network\follow_list.html:139
+msgid "Next"
+msgstr "بعدی"
+
+#: .\templates\accounts\categories.html:89
+msgid "Tap to unselect"
+msgstr "برای لغو انتخاب ضربه بزنید"
+
+#: .\templates\accounts\categories.html:91
+msgid "Tap to select"
+msgstr "برای انتخاب ضربه بزنید"
+
+#: .\templates\accounts\categories.html:101
+#: .\templates\category\index.html:101
+msgid "No categories available."
+msgstr "هیچ دسته‌ای موجود نیست."
+
+#: .\templates\accounts\choose_role.html:4
+msgid "Artonomy — Choose Role"
+msgstr "آرتونومی — انتخاب نقش"
+
+#: .\templates\accounts\choose_role.html:16
+msgid "Which one are you?"
+msgstr "کدام یک هستید؟"
+
+#: .\templates\accounts\hero_base.html:108 .\templates\landing_page.html:58
+#: .\templates\posts\single_post.html:358
+msgid "Menu"
+msgstr "منو"
+
+#: .\templates\accounts\hero_base.html:113 .\templates\accounts\signup.html:11
+#: .\templates\base.html:235 .\templates\base.html:430
+msgid "Artonomy"
+msgstr "آرتونومی"
+
+#: .\templates\accounts\profile.html:124
+msgid "Suggested by"
+msgstr "پیشنهاد شده توسط"
+
+#: .\templates\accounts\profile.html:134
+msgid "Suggestions"
+msgstr "پیشنهادات"
+
+#: .\templates\accounts\profile.html:150
+#, python-format
+msgid "· +%(remaining)s more"
+msgstr "· +%(remaining)s مورد دیگر"
+
+#: .\templates\accounts\profile.html:164
+#, python-format
+msgid "See who %(u)s follows"
+msgstr "ببینید %(u)s چه کسانی را دنبال می‌کند"
+
+#: .\templates\accounts\profile.html:165 .\templates\accounts\profile.html:181
+#: .\templates\category\detail.html:106
+#: .\templates\network\follow_list.html:70
+#: .\templates\network\follow_list.html:122
+#: .\templates\posts\single_post.html:479
+#: .\templates\posts\single_post.html:759
+#: .\templates\posts\single_post.html:907
+#: .\templates\posts\single_post.html:1168
+msgid "Following"
+msgstr "دنبال می‌کند"
+
+#: .\templates\accounts\profile.html:169
+#, python-format
+msgid "See %(u)s’s followers"
+msgstr "ببینید دنبال‌کنندگان %(u)s"
+
+#: .\templates\accounts\profile.html:170 .\templates\category\detail.html:39
+#: .\templates\category\detail.html:46 .\templates\category\detail.html:107
+#: .\templates\network\follow_list.html:66
+msgid "Followers"
+msgstr "دنبال‌کنندگان"
+
+#: .\templates\accounts\profile.html:181 .\templates\category\detail.html:95
+#: .\templates\network\follow_list.html:122
+#: .\templates\posts\single_post.html:479
+#: .\templates\posts\single_post.html:714
+#: .\templates\posts\single_post.html:759
+#: .\templates\posts\single_post.html:907
+#: .\templates\posts\single_post.html:1093
+#: .\templates\posts\single_post.html:1169
+msgid "Follow"
+msgstr "دنبال کردن"
+
+#: .\templates\accounts\profile.html:184
+msgid "Edit Profile"
+msgstr "ویرایش پروفایل"
+
+#: .\templates\accounts\profile.html:196
+msgid "Timeline"
+msgstr "تایم‌لاین"
+
+#: .\templates\accounts\profile.html:197
+#: .\templates\accounts\settings_hub.html:79
+msgid "Portfolio"
+msgstr "نمونه‌کارها"
+
+#: .\templates\accounts\profile.html:198
+msgid "Personal Info"
+msgstr "اطلاعات شخصی"
+
+#: .\templates\accounts\profile.html:200 .\templates\base.html:269
+#: .\templates\base.html:554 .\templates\base.html:563
+msgid "Marketplace"
+msgstr "فروشگاه"
+
+#: .\templates\accounts\profile.html:207 .\templates\base.html:358
+#: .\templates\explore.html:16 .\templates\explore.html:38
+#: .\templates\home.html:12 .\templates\home.html:137
+msgid "All"
+msgstr "همه"
+
+#: .\templates\accounts\profile.html:208
+#: .\templates\posts\upload_select_post_type1.html:20
+msgid "Photo"
+msgstr "عکس"
+
+#: .\templates\accounts\profile.html:209
+#: .\templates\posts\upload_select_post_type1.html:26
+msgid "Video"
+msgstr "ویدیو"
+
+#: .\templates\accounts\profile.html:210
+#: .\templates\posts\upload_select_post_type1.html:39
+msgid "Text"
+msgstr "متن"
+
+#: .\templates\accounts\profile.html:230
+msgid "Image"
+msgstr "تصویر"
+
+#: .\templates\accounts\profile.html:279
+#, python-format
+msgid "by %(u)s"
+msgstr "توسط %(u)s"
+
+#: .\templates\accounts\profile.html:284
+msgid "This artist hasn't posted anything on their timeline yet."
+msgstr "این هنرمند هنوز چیزی در تایم‌لاین خود منتشر نکرده است."
+
+#: .\templates\accounts\profile.html:293
+#: .\templates\accounts\settings_portfolio.html:74
+#: .\templates\accounts\settings_portfolio.html:297
+msgid "Education"
+msgstr "تحصیلات"
+
+#: .\templates\accounts\profile.html:295 .\templates\accounts\profile.html:301
+msgid "at"
+msgstr "در"
+
+#: .\templates\accounts\profile.html:299
+msgid "Work Experience"
+msgstr "سوابق کاری"
+
+#: .\templates\accounts\profile.html:305
+#: .\templates\accounts\settings_personal.html:176
+#: .\templates\accounts\settings_personal.html:279
+msgid "Skills"
+msgstr "مهارت‌ها"
+
+#: .\templates\accounts\profile.html:311
+#: .\templates\accounts\settings_portfolio.html:229
+msgid "Awards"
+msgstr "جوایز"
+
+#: .\templates\accounts\profile.html:313 .\templates\accounts\profile.html:319
+msgid "from"
+msgstr "از"
+
+#: .\templates\accounts\profile.html:317
+#: .\templates\accounts\settings_portfolio.html:148
+msgid "Certifications"
+msgstr "گواهی‌ها"
+
+#: .\templates\accounts\profile.html:323
+#: .\templates\accounts\settings_portfolio.html:257
+msgid "Books"
+msgstr "کتاب‌ها"
+
+#: .\templates\accounts\profile.html:325
+msgid "by"
+msgstr "توسط"
+
+#: .\templates\accounts\profile.html:335
+msgid "About Me"
+msgstr "درباره من"
+
+#: .\templates\accounts\profile.html:336 .\templates\category\detail.html:102
+msgid "No bio provided."
+msgstr "بیوگرافی ثبت نشده است."
+
+#: .\templates\accounts\profile.html:339
+msgid "Contact"
+msgstr "تماس"
+
+#: .\templates\accounts\profile.html:343
+msgid "Hobbies"
+msgstr "علایق"
+
+#: .\templates\accounts\profile.html:369 .\templates\accounts\profile.html:379
+#: .\templates\marketplace\add.html:39
+msgid "Add Service"
+msgstr "افزودن سرویس"
+
+#: .\templates\accounts\profile.html:380
+msgid "Create a new marketplace listing"
+msgstr "یک آگهی جدید در فروشگاه ایجاد کنید"
+
+#: .\templates\accounts\profile.html:407
+#: .\templates\accounts\profile_suggested.html:78
+#: .\templates\marketplace\list.html:240
+msgid "View"
+msgstr "مشاهده"
+
+#: .\templates\accounts\profile.html:414
+msgid "No marketplace listings yet."
+msgstr "هنوز هیچ آگهی‌ای در فروشگاه ثبت نشده است."
+
+#: .\templates\accounts\profile_suggested.html:74
+msgid "Post"
+msgstr "پست"
+
+#: .\templates\accounts\profile_suggested.html:75
+msgid "Untitled post"
+msgstr "پست بدون عنوان"
+
+#: .\templates\accounts\profile_suggested.html:76
+#: .\templates\network\follow_list.html:77
+msgid "Back to profile"
+msgstr "بازگشت به پروفایل"
+
+#: .\templates\accounts\profile_suggested.html:77
+#: .\templates\posts\single_post.html:348
+#: .\templates\posts\single_post.html:538
+#: .\templates\posts\single_post.html:750
+#: .\templates\posts\single_post.html:898
+#: .\templates\posts\single_post.html:1166
+msgid "Suggested"
+msgstr "پیشنهاد شده"
+
+#: .\templates\accounts\profile_suggested.html:79
+#: .\templates\category\detail.html:133
+#: .\templates\network\follow_list.html:135
+msgid "Prev"
+msgstr "قبلی"
+
+#: .\templates\accounts\profile_suggested.html:94
+#, python-format
+msgid "Suggested by @%(u)s"
+msgstr "پیشنهاد شده توسط @%(u)s"
+
+#: .\templates\accounts\profile_suggested.html:97
+#, python-format
+msgid "Hand-picked posts that %(u)s shared"
+msgstr "پست‌های گلچین‌شده‌ای که %(u)s به اشتراک گذاشته است"
+
+#: .\templates\accounts\profile_suggested.html:176
+msgid ""
+"\n"
+"                img\n"
+"              "
+msgid_plural ""
+"\n"
+"                imgs\n"
+"              "
+msgstr[0] ""
+"\n"
+"                تصویر\n"
+"              "
+msgstr[1] ""
+"\n"
+"                تصویر\n"
+"              "
+
+#: .\templates\accounts\profile_suggested.html:183
+msgid ""
+"\n"
+"                vid\n"
+"              "
+msgid_plural ""
+"\n"
+"                vids\n"
+"              "
+msgstr[0] ""
+"\n"
+"                ویدیو\n"
+"              "
+msgstr[1] ""
+"\n"
+"                ویدیو\n"
+"              "
+
+#: .\templates\accounts\profile_suggested.html:226
+msgid "No suggestions yet."
+msgstr "هنوز پیشنهادی وجود ندارد."
+
+#: .\templates\accounts\settings_hub.html:41
+msgid "Edit your profile"
+msgstr "پروفایل خود را ویرایش کنید"
+
+#: .\templates\accounts\settings_hub.html:42
+msgid "Choose what you want to update."
+msgstr "انتخاب کنید چه چیزی را می‌خواهید به‌روزرسانی کنید."
+
+#: .\templates\accounts\settings_hub.html:54
+msgid "Personal info"
+msgstr "اطلاعات شخصی"
+
+#: .\templates\accounts\settings_hub.html:56
+msgid "Name, title, avatar & cover, socials, values and more."
+msgstr "نام، عنوان، آواتار و کاور، شبکه‌های اجتماعی، ارزش‌ها و بیشتر."
+
+#: .\templates\accounts\settings_hub.html:62
+#: .\templates\accounts\settings_hub.html:87
+msgid "Open"
+msgstr "باز کردن"
+
+#: .\templates\accounts\settings_hub.html:66
+#: .\templates\accounts\settings_hub.html:91
+#, python-format
+msgid "%(steps)s step"
+msgid_plural "%(steps)s steps"
+msgstr[0] "%(steps)s مرحله"
+msgstr[1] "%(steps)s مرحله"
+
+#: .\templates\accounts\settings_hub.html:81
+msgid "Education, experience, projects, skills, awards, books…"
+msgstr "تحصیلات، تجربه، پروژه‌ها، مهارت‌ها، جوایز، کتاب‌ها…"
+
+#: .\templates\accounts\settings_personal.html:120
+msgid "Personal settings"
+msgstr "تنظیمات شخصی"
+
+#: .\templates\accounts\settings_personal.html:122
+msgid "Tune your profile so it looks and feels uniquely you."
+msgstr "پروفایل خود را طوری تنظیم کنید که بازتاب منحصربه‌فردِ شما باشد."
+
+#: .\templates\accounts\settings_personal.html:131
+#: .\templates\accounts\settings_personal.html:278
+msgid "Basics"
+msgstr "موارد پایه"
+
+#: .\templates\accounts\settings_personal.html:142
+#, python-format
+msgid "Choose %(lbl)s"
+msgstr "%(lbl)s را انتخاب کنید"
+
+#: .\templates\accounts\settings_personal.html:169
+#: .\templates\accounts\settings_personal.html:191
+#: .\templates\accounts\settings_personal.html:214
+#: .\templates\accounts\settings_personal.html:227
+#: .\templates\accounts\settings_personal.html:266
+#: .\templates\accounts\settings_portfolio.html:130
+#: .\templates\accounts\settings_portfolio.html:215
+#: .\templates\accounts\settings_portfolio.html:288
+msgid "Save & Continue"
+msgstr "ذخیره و ادامه"
+
+#: .\templates\accounts\settings_personal.html:182
+msgid "Add or remove your skills"
+msgstr "مهارت‌های خود را اضافه یا حذف کنید"
+
+#: .\templates\accounts\settings_personal.html:185
+msgid ""
+"Type to add a skill. Press Enter to create or click a suggestion. Click × to "
+"remove."
+msgstr "برای افزودن مهارت تایپ کنید. برای ایجاد Enter را بزنید یا روی پیشنهاد کلیک کنید. برای حذف روی × بزنید."
+
+#: .\templates\accounts\settings_personal.html:190
+#: .\templates\accounts\settings_personal.html:213
+#: .\templates\accounts\settings_personal.html:226
+#: .\templates\accounts\settings_personal.html:263
+#: .\templates\accounts\settings_portfolio.html:126
+#: .\templates\accounts\settings_portfolio.html:212
+#: .\templates\accounts\settings_portfolio.html:285
+#: .\templates\collab\chat.html:79 .\templates\marketplace\add.html:68
+#: .\templates\marketplace\add.html:89 .\templates\marketplace\add.html:110
+#: .\templates\marketplace\add.html:146
+msgid "Back"
+msgstr "بازگشت"
+
+#: .\templates\accounts\settings_personal.html:198
+#: .\templates\accounts\settings_personal.html:280
+msgid "Values & Hobbies"
+msgstr "ارزش‌ها و علایق"
+
+#: .\templates\accounts\settings_personal.html:204
+msgid "Personal values"
+msgstr "ارزش‌های شخصی"
+
+#: .\templates\accounts\settings_personal.html:208
+msgid "Hobbies / Interests"
+msgstr "علایق / سرگرمی‌ها"
+
+#: .\templates\accounts\settings_personal.html:221
+#: .\templates\accounts\settings_personal.html:281
+msgid "Fun facts"
+msgstr "حقایق جالب"
+
+#: .\templates\accounts\settings_personal.html:234
+#: .\templates\accounts\settings_personal.html:282
+msgid "Social links"
+msgstr "لینک‌های اجتماعی"
+
+#: .\templates\accounts\settings_personal.html:256
+#: .\templates\accounts\settings_portfolio.html:88
+#: .\templates\accounts\settings_portfolio.html:157
+#: .\templates\accounts\settings_portfolio.html:187
+#: .\templates\accounts\settings_portfolio.html:238
+#: .\templates\accounts\settings_portfolio.html:266
+msgid "Delete"
+msgstr "حذف"
+
+#: .\templates\accounts\settings_personal.html:265
+msgid "Skip for now"
+msgstr "فعلاً رد کن"
+
+#: .\templates\accounts\settings_personal.html:275
+#: .\templates\accounts\settings_portfolio.html:294
+msgid "Review"
+msgstr "مرور"
+
+#: .\templates\accounts\settings_personal.html:276
+msgid "You’re all set. You can revisit any step anytime."
+msgstr "همه‌چیز آماده است. هر زمان می‌توانید به هر مرحله برگردید."
+
+#: .\templates\accounts\settings_personal.html:283
+#: .\templates\accounts\settings_portfolio.html:302
+msgid "Done"
+msgstr "تمام"
+
+#: .\templates\accounts\settings_personal.html:306
+msgid "Type and press Enter…"
+msgstr "بنویسید و Enter را بزنید…"
+
+#: .\templates\accounts\settings_portfolio.html:56
+msgid "Portfolio settings"
+msgstr "تنظیمات نمونه‌کار"
+
+#: .\templates\accounts\settings_portfolio.html:57
+msgid ""
+"Your education, experience, projects, and achievements — beautifully "
+"organized."
+msgstr "تحصیلات، تجربه، پروژه‌ها و دستاوردهای شما — به‌شکلی زیبا و منظم."
+
+#: .\templates\accounts\settings_portfolio.html:75
+msgid "Work experience"
+msgstr "سوابق کاری"
+
+#: .\templates\accounts\settings_portfolio.html:76
+#: .\templates\accounts\settings_portfolio.html:299
+msgid "Projects"
+msgstr "پروژه‌ها"
+
+#: .\templates\accounts\settings_portfolio.html:78
+msgid "Add row"
+msgstr "افزودن ردیف"
+
+#: .\templates\accounts\settings_portfolio.html:85
+#: .\templates\accounts\settings_portfolio.html:156
+#: .\templates\accounts\settings_portfolio.html:186
+#: .\templates\accounts\settings_portfolio.html:237
+#: .\templates\accounts\settings_portfolio.html:265
+#, python-format
+msgid "Item %(n)s"
+msgstr "آیتم %(n)s"
+
+#: .\templates\accounts\settings_portfolio.html:109
+msgid "No items yet. Click <strong>Add row</strong> to create your first one."
+msgstr "هنوز آیتمی ندارید. برای ساخت اولین مورد روی <strong>افزودن ردیف</strong> کلیک کنید."
+
+#: .\templates\accounts\settings_portfolio.html:117
+#: .\templates\accounts\settings_portfolio.html:310
+msgid "New item"
+msgstr "آیتم جدید"
+
+#: .\templates\accounts\settings_portfolio.html:118
+#: .\templates\accounts\settings_portfolio.html:311
+msgid "Remove"
+msgstr "حذف"
+
+#: .\templates\accounts\settings_portfolio.html:129
+#: .\templates\accounts\settings_portfolio.html:214
+#: .\templates\accounts\settings_portfolio.html:287
+msgid "Skip"
+msgstr "رد کردن"
+
+#: .\templates\accounts\settings_portfolio.html:144
+msgid "Certifications & Courses"
+msgstr "گواهی‌ها و دوره‌ها"
+
+#: .\templates\accounts\settings_portfolio.html:149
+msgid "Add certification"
+msgstr "افزودن گواهی"
+
+#: .\templates\accounts\settings_portfolio.html:170
+msgid "Add your first certification."
+msgstr "اولین گواهی خود را اضافه کنید."
+
+#: .\templates\accounts\settings_portfolio.html:178
+msgid "Courses"
+msgstr "دوره‌ها"
+
+#: .\templates\accounts\settings_portfolio.html:179
+msgid "Add course"
+msgstr "افزودن دوره"
+
+#: .\templates\accounts\settings_portfolio.html:204
+msgid "Add your first course."
+msgstr "اولین دورهٔ خود را اضافه کنید."
+
+#: .\templates\accounts\settings_portfolio.html:224
+#: .\templates\accounts\settings_portfolio.html:301
+msgid "Awards & Books"
+msgstr "جوایز و کتاب‌ها"
+
+#: .\templates\accounts\settings_portfolio.html:230
+msgid "Add award"
+msgstr "افزودن جایزه"
+
+#: .\templates\accounts\settings_portfolio.html:250
+msgid "Add your first award."
+msgstr "اولین جایزهٔ خود را اضافه کنید."
+
+#: .\templates\accounts\settings_portfolio.html:258
+msgid "Add book"
+msgstr "افزودن کتاب"
+
+#: .\templates\accounts\settings_portfolio.html:278
+msgid "Add your first book."
+msgstr "اولین کتاب خود را اضافه کنید."
+
+#: .\templates\accounts\settings_portfolio.html:295
+msgid "Looks great. Jump to any section to tweak, or finish up."
+msgstr "عالی است. برای ویرایش به هر بخش بروید یا کار را تمام کنید."
+
+#: .\templates\accounts\settings_portfolio.html:298
+msgid "Experience"
+msgstr "تجربه"
+
+#: .\templates\accounts\settings_portfolio.html:300
+msgid "Certs & Courses"
+msgstr "گواهی‌ها و دوره‌ها"
+
+#: .\templates\accounts\signup.html:3
+msgid "Artonomy — Sign up"
+msgstr "آرتونومی — ثبت‌نام"
+
+#: .\templates\accounts\signup.html:11
+msgid "Sign up to"
+msgstr "ثبت‌نام در"
+
+#: .\templates\accounts\signup.html:18
+msgid "Username"
+msgstr "نام کاربری"
+
+#: .\templates\accounts\signup.html:24
+msgid "Only letters, numbers, and underscores"
+msgstr "فقط حروف، اعداد و زیرخط"
+
+#: .\templates\accounts\signup.html:31 .\templates\landing_page.html:108
+msgid "Email"
+msgstr "ایمیل"
+
+#: .\templates\accounts\signup.html:35 .\templates\landing_page.html:109
+msgid "you@example.com"
+msgstr "you@example.com"
+
+#: .\templates\accounts\signup.html:41 .\templates\landing_page.html:114
+msgid "Password"
+msgstr "رمز عبور"
+
+#: .\templates\accounts\signup.html:47 .\templates\landing_page.html:116
+msgid "password"
+msgstr "رمز عبور"
+
+#: .\templates\accounts\signup.html:53 .\templates\accounts\signup.html:89
+#: .\templates\landing_page.html:120 .\templates\landing_page.html:177
+msgid "Show password"
+msgstr "نمایش رمز عبور"
+
+#: .\templates\accounts\signup.html:77
+msgid "Already have an account?"
+msgstr "از قبل حساب دارید؟"
+
+#: .\templates\accounts\signup.html:79 .\templates\base.html:418
+#: .\templates\landing_page.html:131
+msgid "Log in"
+msgstr "ورود"
+
+#: .\templates\accounts\signup.html:88 .\templates\landing_page.html:177
+msgid "Hide password"
+msgstr "پنهان کردن رمز عبور"
+
+#: .\templates\base.html:249 .\templates\base.html:550
+#: .\templates\base.html:560 .\templates\home.html:6
+msgid "Home"
+msgstr "خانه"
+
+#: .\templates\base.html:259 .\templates\base.html:551
+#: .\templates\base.html:561 .\templates\explore.html:6
+#: .\templates\explore.html:154 .\templates\explore.html:255
+#: .\templates\explore.html:347 .\templates\explore.html:417
+msgid "Explore"
+msgstr "اکسپلور"
+
+#: .\templates\base.html:278 .\templates\base.html:359
+#: .\templates\base.html:553 .\templates\base.html:562
+#: .\templates\posts\single_post.html:553
+#: .\templates\posts\single_post.html:920
+msgid "Artists"
+msgstr "هنرمندها"
+
+#: .\templates\base.html:284
+msgid "Art Exchange"
+msgstr "مبادلهٔ هنر"
+
+#: .\templates\base.html:288
+msgid "Blog"
+msgstr "وبلاگ"
+
+#: .\templates\base.html:292
+msgid "Jobs"
+msgstr "فرصت‌های شغلی"
+
+#: .\templates\base.html:305 .\templates\base.html:368
+#: .\templates\base.html:490
+msgid "New Post"
+msgstr "پست جدید"
+
+#: .\templates\base.html:318 .\templates\base.html:441
+msgid "Language"
+msgstr "زبان"
+
+#: .\templates\base.html:346 .\templates\base.html:407
+#: .\templates\base.html:527
+msgid "Settings"
+msgstr "تنظیمات"
+
+#: .\templates\base.html:360
+msgid "Posts"
+msgstr "پست‌ها"
+
+#: .\templates\base.html:362
+msgid "Search Artonomy..."
+msgstr "جستجوی آرتونومی..."
+
+#: .\templates\base.html:375 .\templates\base.html:497
+#: .\templates\collab\notifications.html:169
+msgid "Notifications"
+msgstr "اعلان‌ها"
+
+#: .\templates\base.html:385 .\templates\base.html:507
+msgid "Login"
+msgstr "ورود"
+
+#: .\templates\base.html:401 .\templates\base.html:521
+msgid "Signed in as"
+msgstr "وارد شده به عنوان"
+
+#: .\templates\base.html:404 .\templates\base.html:524
+msgid "Profile"
+msgstr "پروفایل"
+
+#: .\templates\base.html:411 .\templates\base.html:531
+msgid "Logout"
+msgstr "خروج"
+
+#: .\templates\base.html:419 .\templates\landing_page.html:139
+msgid "Sign up"
+msgstr "ثبت‌نام"
+
+#: .\templates\base.html:545
+msgid "New post"
+msgstr "پست جدید"
+
+#: .\templates\category\detail.html:31
+msgid "Sort By"
+msgstr "مرتب‌سازی بر اساس"
+
+#: .\templates\category\detail.html:39 .\templates\category\detail.html:45
+#: .\templates\marketplace\list.html:150
+msgid "Latest"
+msgstr "جدیدترین"
+
+#: .\templates\category\detail.html:53 .\templates\marketplace\list.html:173
+msgid "Clear filters"
+msgstr "پاک‌کردن فیلترها"
+
+#: .\templates\category\detail.html:95
+msgid "Unfollow"
+msgstr "لغو دنبال‌کردن"
+
+#: .\templates\category\detail.html:112
+msgid "Site"
+msgstr "سایت"
+
+#: .\templates\category\detail.html:137
+#, python-format
+msgid "Page %(n)s / %(total)s"
+msgstr "صفحه %(n)s / %(total)s"
+
+#: .\templates\collab\chat.html:87
+#, python-format
+msgid "Chat · %(t)s"
+msgstr "گفتگو · %(t)s"
+
+#: .\templates\collab\chat.html:90
+msgid "with"
+msgstr "با"
+
+#: .\templates\collab\chat.html:98
+msgid "Secure"
+msgstr "امن"
+
+#: .\templates\collab\chat.html:102 .\templates\collab\chat.html:103
+msgid "Refresh"
+msgstr "به‌روزرسانی"
+
+#: .\templates\collab\chat.html:126
+msgid "Write a message…"
+msgstr "پیامی بنویسید…"
+
+#: .\templates\collab\chat.html:127
+msgid "Send"
+msgstr "ارسال"
+
+#: .\templates\collab\notifications.html:164
+msgid "Inbox"
+msgstr "صندوق"
+
+#: .\templates\collab\notifications.html:173
+msgid "Chats"
+msgstr "چت‌ها"
+
+#: .\templates\collab\notifications.html:215
+msgid "Requested:"
+msgstr "درخواست شده:"
+
+#: .\templates\collab\notifications.html:227
+#, python-format
+msgid "Status: %(s)s"
+msgstr "وضعیت: %(s)s"
+
+#: .\templates\collab\notifications.html:230
+#, python-format
+msgid "Category: %(c)s"
+msgstr "دسته: %(c)s"
+
+#: .\templates\collab\notifications.html:233
+#, python-format
+msgid "Price: %(p)s %(cur)s"
+msgstr "قیمت: %(p)s %(cur)s"
+
+#: .\templates\collab\notifications.html:240
+msgid "Accept"
+msgstr "پذیرفتن"
+
+#: .\templates\collab\notifications.html:243
+msgid "Decline"
+msgstr "رد کردن"
+
+#: .\templates\collab\notifications.html:251
+msgid "Confirm & start chat"
+msgstr "تأیید و شروع چت"
+
+#: .\templates\collab\notifications.html:264
+msgid "Mark read"
+msgstr "علامت‌گذاری به‌عنوان خوانده‌شده"
+
+#: .\templates\collab\notifications.html:269
+msgid "No notifications."
+msgstr "هیچ اعلانی وجود ندارد."
+
+#: .\templates\collab\notifications.html:297
+#: .\templates\collab\notifications.html:327
+msgid "You:"
+msgstr "شما:"
+
+#: .\templates\collab\notifications.html:298
+#: .\templates\collab\notifications.html:300
+#: .\templates\collab\notifications.html:328
+#: .\templates\collab\notifications.html:330
+msgid "(no messages yet)"
+msgstr "(هنوز پیامی نیست)"
+
+#: .\templates\collab\notifications.html:303
+#: .\templates\collab\notifications.html:333
+msgid "New"
+msgstr "جدید"
+
+#: .\templates\collab\notifications.html:342
+msgid "No chats yet."
+msgstr "هنوز چتی وجود ندارد."
+
+#: .\templates\explore.html:59
+msgid "Trending Picks"
+msgstr "گزیده‌های داغ"
+
+#: .\templates\explore.html:491
+msgid "Artonomy Bests"
+msgstr "برگزیده‌های آرتونومی"
+
+#: .\templates\explore.html:492
+msgid "For You"
+msgstr "برای شما"
+
+#: .\templates\landing_page.html:8
+msgid "Artonomy — Log in"
+msgstr "آرتونومی — ورود"
+
+#: .\templates\landing_page.html:89
+msgid "Artonomy — Where"
+msgstr ""
+
+#: .\templates\landing_page.html:89
+msgid "The Art Connects"
+msgstr ""
+
+#: .\templates\landing_page.html:103
+msgid "Login form"
+msgstr "فرم ورود"
+
+#: .\templates\landing_page.html:137
+msgid "Not on Artonomy yet?"
+msgstr "هنوز عضو آرتونومی نیستید؟"
+
+#: .\templates\landing_page.html:147
+msgid "Continue as guest"
+msgstr "ادامه به‌صورت مهمان"
+
+#: .\templates\landing_page.html:151
+msgid ""
+"Browse artists, marketplace & explore. Actions like follow/like/comment "
+"require login."
+msgstr ""
+"هنرمندان، فروشگاه و اکسپلور را مرور کنید. اقداماتی مثل دنبال‌کردن/پسندیدن/نظر "
+"دادن نیاز به ورود دارد."
+
+#: .\templates\marketplace\add.html:48
+#, python-format
+msgid "Step %(n)s"
+msgstr "مرحله %(n)s"
+
+#: .\templates\marketplace\add.html:62
+msgid "Choose a category"
+msgstr "یک دسته انتخاب کنید"
+
+#: .\templates\marketplace\add.html:64
+msgid "Pick the main category for this service."
+msgstr "دستهٔ اصلی این سرویس را انتخاب کنید."
+
+#: .\templates\marketplace\add.html:69 .\templates\marketplace\add.html:90
+#: .\templates\marketplace\add.html:111
+#: .\templates\posts\upload_detail_media2.html:112
+#: .\templates\posts\upload_detail_text2.html:56
+#: .\templates\posts\upload_select_category3.html:43
+msgid "Continue"
+msgstr "ادامه"
+
+#: .\templates\marketplace\add.html:80
+msgid "Title"
+msgstr "عنوان"
+
+#: .\templates\marketplace\add.html:84
+msgid "Description"
+msgstr "توضیحات"
+
+#: .\templates\marketplace\add.html:101
+msgid "Price"
+msgstr "قیمت"
+
+#: .\templates\marketplace\add.html:105
+msgid "Currency"
+msgstr "ارز"
+
+#: .\templates\marketplace\add.html:122
+msgid "Summary"
+msgstr "خلاصه"
+
+#: .\templates\marketplace\add.html:124
+msgid "Category:"
+msgstr "دسته:"
+
+#: .\templates\marketplace\add.html:125
+msgid "Title:"
+msgstr "عنوان:"
+
+#: .\templates\marketplace\add.html:126
+msgid "Description:"
+msgstr "توضیحات:"
+
+#: .\templates\marketplace\add.html:130
+#, python-format
+msgid "<b>Price:</b> %(p)s %(cur)s"
+msgstr "<b>قیمت:</b> %(p)s %(cur)s"
+
+#: .\templates\marketplace\add.html:136
+msgid "Upload your cover image"
+msgstr "تصویر کاور خود را بارگذاری کنید"
+
+#: .\templates\marketplace\add.html:139 .\templates\marketplace\add.html:167
+msgid "Preview will appear here"
+msgstr "پیش‌نمایش اینجا نمایش داده می‌شود"
+
+#: .\templates\marketplace\add.html:141
+msgid "This will be used as the cover image."
+msgstr "این به‌عنوان تصویر کاور استفاده می‌شود."
+
+#: .\templates\marketplace\add.html:147
+#: .\templates\posts\upload_review_publish4.html:42
+msgid "Publish"
+msgstr "انتشار"
+
+#: .\templates\marketplace\item.html:68
+#, python-format
+msgid "%(v)s view"
+msgid_plural "%(v)s views"
+msgstr[0] "%(v)s بازدید"
+msgstr[1] "%(v)s بازدید"
+
+#: .\templates\marketplace\item.html:84
+msgid "Base price · taxes or extras may apply"
+msgstr "قیمت پایه · ممکن است مالیات یا هزینه‌های اضافه اعمال شود"
+
+#: .\templates\marketplace\item.html:91
+msgid "Request Service"
+msgstr "درخواست سرویس"
+
+#: .\templates\marketplace\item.html:94
+msgid "This is your service"
+msgstr "این سرویس متعلق به شماست"
+
+#: .\templates\marketplace\item.html:98
+msgid "Log in to request"
+msgstr "برای درخواست وارد شوید"
+
+#: .\templates\marketplace\item.html:113
+msgid "Direct chat with the artist"
+msgstr "چت مستقیم با هنرمند"
+
+#: .\templates\marketplace\item.html:116
+msgid "Clear scope & milestones"
+msgstr "حوزه و نقاط عطف مشخص"
+
+#: .\templates\marketplace\item.html:119
+msgid "Secure deal via requests"
+msgstr "معاملهٔ امن از طریق درخواست‌ها"
+
+#: .\templates\marketplace\item.html:122
+msgid "Revisions per agreement"
+msgstr "بازبینی‌ها طبق توافق"
+
+#: .\templates\marketplace\item.html:137
+msgid "Request this service"
+msgstr "درخواست این سرویس"
+
+#: .\templates\marketplace\item.html:143
+msgid "Describe your project"
+msgstr "پروژهٔ خود را توضیح دهید"
+
+#: .\templates\marketplace\item.html:144
+msgid "Share the scope, references/links, style, deadline, deliverables…"
+msgstr "حوزه، منابع/لینک‌ها، سبک، مهلت، خروجی‌ها و… را به‌اشتراک بگذارید"
+
+#: .\templates\marketplace\item.html:151
+msgid "Cancel"
+msgstr "انصراف"
+
+#: .\templates\marketplace\item.html:154
+msgid "Send request"
+msgstr "ارسال درخواست"
+
+#: .\templates\marketplace\item.html:187
+msgid "Failed"
+msgstr "ناموفق"
+
+#: .\templates\marketplace\item.html:193
+msgid "Request sent!"
+msgstr "درخواست ارسال شد!"
+
+#: .\templates\marketplace\list.html:126
+msgid "All categories"
+msgstr "همهٔ دسته‌ها"
+
+#: .\templates\marketplace\list.html:141
+msgid "search..."
+msgstr "جستجو..."
+
+#: .\templates\marketplace\list.html:151
+msgid "Price: High → Low"
+msgstr "قیمت: زیاد → کم"
+
+#: .\templates\marketplace\list.html:152
+msgid "Price: Low → High"
+msgstr "قیمت: کم → زیاد"
+
+#: .\templates\marketplace\list.html:153
+msgid "Popular"
+msgstr "محبوب"
+
+#: .\templates\marketplace\list.html:161
+msgid "Min"
+msgstr "حداقل"
+
+#: .\templates\marketplace\list.html:165
+msgid "Max"
+msgstr "حداکثر"
+
+#: .\templates\marketplace\list.html:177
+msgid "Apply"
+msgstr "اعمال"
+
+#: .\templates\marketplace\list.html:195
+msgid "Draft"
+msgstr "پیش‌نویس"
+
+#: .\templates\marketplace\list.html:197
+msgid "Sold"
+msgstr "فروخته شد"
+
+#: .\templates\marketplace\list.html:250
+msgid "No items found."
+msgstr "هیچ آیتمی یافت نشد."
+
+#: .\templates\network\follow_list.html:61
+#: .\templates\posts\single_post.html:705
+#: .\templates\posts\single_post.html:889
+#: .\templates\posts\single_post.html:1084
+msgid "Creator"
+msgstr "خالق"
+
+#: .\templates\network\follow_list.html:83
+msgid "Search users…"
+msgstr "جستجوی کاربران…"
+
+#: .\templates\network\follow_list.html:84
+msgid "Search"
+msgstr "جستجو"
+
+#: .\templates\network\follow_list.html:128
+msgid "No users found."
+msgstr "هیچ کاربری پیدا نشد."
+
+#: .\templates\posts\single_post.html:348
+#: .\templates\posts\single_post.html:538
+#: .\templates\posts\single_post.html:750
+#: .\templates\posts\single_post.html:898
+#: .\templates\posts\single_post.html:1167
+msgid "Suggest"
+msgstr "پیشنهاد"
+
+#: .\templates\posts\single_post.html:387
+#: .\templates\posts\single_post.html:394
+#: .\templates\posts\single_post.html:859
+#: .\templates\posts\single_post.html:867
+msgid "Your browser doesn’t support HTML5 video."
+msgstr "مرورگر شما از ویدئوی HTML5 پشتیبانی نمی‌کند."
+
+#: .\templates\posts\single_post.html:406
+#, python-format
+msgid "Ch %(order)s: %(title)s"
+msgstr "فصل %(order)s: %(title)s"
+
+#: .\templates\posts\single_post.html:408
+#, python-format
+msgid "Ch %(order)s"
+msgstr "فصل %(order)s"
+
+#: .\templates\posts\single_post.html:413
+#: .\templates\posts\single_post.html:436
+#: .\templates\posts\single_post.html:821
+msgid "Chapter 1"
+msgstr "فصل ۱"
+
+#: .\templates\posts\single_post.html:426
+#: .\templates\posts\single_post.html:806
+#, python-format
+msgid "Chapter %(order)s: %(title)s"
+msgstr "فصل %(order)s: %(title)s"
+
+#: .\templates\posts\single_post.html:428
+#: .\templates\posts\single_post.html:784
+#: .\templates\posts\single_post.html:786
+#: .\templates\posts\single_post.html:808
+#, python-format
+msgid "Chapter %(order)s"
+msgstr "فصل %(order)s"
+
+#: .\templates\posts\single_post.html:540
+#: .\templates\posts\single_post.html:1170
+msgid "Details"
+msgstr "جزئیات"
+
+#: .\templates\posts\single_post.html:541
+#: .\templates\posts\single_post.html:551
+#: .\templates\posts\single_post.html:916
+#: .\templates\posts\single_post.html:1171
+msgid "Comments"
+msgstr "دیدگاه‌ها"
+
+#: .\templates\posts\single_post.html:550
+#: .\templates\posts\single_post.html:915
+msgid "Caption"
+msgstr "کپشن"
+
+#: .\templates\posts\single_post.html:552
+#: .\templates\posts\single_post.html:919
+msgid "Artworks"
+msgstr "آثار"
+
+#: .\templates\posts\single_post.html:566
+#: .\templates\posts\single_post.html:931
+msgid "Artwork length"
+msgstr "مدت زمان ساخت اثر"
+
+#: .\templates\posts\single_post.html:575
+#: .\templates\posts\single_post.html:938
+msgid "Categories"
+msgstr "دسته‌ها"
+
+#: .\templates\posts\single_post.html:586
+#: .\templates\posts\single_post.html:957
+msgid "Tools used"
+msgstr "ابزارهای استفاده‌شده"
+
+#: .\templates\posts\single_post.html:612
+#: .\templates\posts\single_post.html:983
+msgid "Inspirations"
+msgstr "الهام‌ها"
+
+#: .\templates\posts\single_post.html:623
+#: .\templates\posts\single_post.html:994
+msgid "Tags"
+msgstr "برچسب‌ها"
+
+#: .\templates\posts\single_post.html:640
+#: .\templates\posts\single_post.html:1012
+msgid "Add a comment…"
+msgstr "دیدگاه بنویسید…"
+
+#: .\templates\posts\single_post.html:642
+#: .\templates\posts\single_post.html:1014
+msgid "Post Comment"
+msgstr "ارسال دیدگاه"
+
+#: .\templates\posts\single_post.html:655
+#: .\templates\posts\single_post.html:1038
+#, python-format
+msgid "%(t)s ago"
+msgstr "%(t)s پیش"
+
+#: .\templates\posts\single_post.html:661
+#: .\templates\posts\single_post.html:1039
+msgid "Replies"
+msgstr "پاسخ"
+
+#: .\templates\posts\single_post.html:669
+#: .\templates\posts\single_post.html:1047
+msgid "No comments yet."
+msgstr "هنوز دیدگاهی ثبت نشده است."
+
+#: .\templates\posts\single_post.html:691
+#: .\templates\posts\single_post.html:1071
+msgid "No similar artworks found."
+msgstr "اثر مشابهی یافت نشد."
+
+#: .\templates\posts\single_post.html:719
+#: .\templates\posts\single_post.html:1098
+msgid "No similar artists found."
+msgstr "هنرمند مشابهی یافت نشد."
+
+#: .\templates\posts\single_post.html:774
+msgid "Chapters"
+msgstr "فصل‌ها"
+
+#: .\templates\posts\single_post.html:793
+msgid "No chapters yet."
+msgstr "هنوز فصلی وجود ندارد."
+
+#: .\templates\posts\single_post.html:1027
+msgid "Author"
+msgstr "نویسنده"
+
+#: .\templates\posts\single_post.html:1029
+msgid "Editor"
+msgstr "ویرایشگر"
+
+#: .\templates\posts\single_post.html:1050
+msgid "more comments..."
+msgstr "دیدگاه‌های بیشتر..."
+
+#: .\templates\posts\single_post.html:1151
+msgid "Fit to screen"
+msgstr "تناسب با صفحه"
+
+#: .\templates\posts\single_post.html:1151
+msgid "Fit"
+msgstr "تناسب"
+
+#: .\templates\posts\single_post.html:1152
+msgid "Original size"
+msgstr "اندازهٔ اصلی"
+
+#: .\templates\posts\single_post.html:1153
+msgid "Zoom in"
+msgstr "بزرگ‌نمایی"
+
+#: .\templates\posts\single_post.html:1154
+msgid "Zoom out"
+msgstr "کوچک‌نمایی"
+
+#: .\templates\posts\single_post.html:1155
+msgid "Close"
+msgstr "بستن"
+
+#: .\templates\posts\upload_detail_media2.html:67
+msgid "Selected file"
+msgstr "فایل انتخاب‌شده"
+
+#: .\templates\posts\upload_detail_media2.html:69
+msgid "Change"
+msgstr "تغییر"
+
+#: .\templates\posts\upload_detail_media2.html:81
+msgid "Click to upload"
+msgstr "برای بارگذاری کلیک کنید"
+
+#: .\templates\posts\upload_detail_media2.html:81
+msgid "or drag and drop"
+msgstr "یا بکشید و رها کنید"
+
+#: .\templates\posts\upload_detail_media2.html:84
+msgid "JPG, JPEG, PNG"
+msgstr "JPG, JPEG, PNG"
+
+#: .\templates\posts\upload_detail_media2.html:84
+msgid "MP4, MOV"
+msgstr "MP4, MOV"
+
+#: .\templates\posts\upload_detail_media2.html:84
+msgid "max 100MB"
+msgstr "حداکثر ۱۰۰ مگابایت"
+
+#: .\templates\posts\upload_detail_media2.html:101
+#: .\templates\posts\upload_detail_text2.html:48
+msgid "Post title..."
+msgstr "عنوان پست..."
+
+#: .\templates\posts\upload_detail_media2.html:102
+msgid "How long did it take?"
+msgstr "چقدر زمان برد؟"
+
+#: .\templates\posts\upload_detail_media2.html:103
+msgid "Tools Used..."
+msgstr "ابزارهای استفاده‌شده..."
+
+#: .\templates\posts\upload_detail_media2.html:104
+msgid "Tags..."
+msgstr "برچسب‌ها..."
+
+#: .\templates\posts\upload_detail_media2.html:105
+msgid "Inspirations..."
+msgstr "الهام‌ها..."
+
+#: .\templates\posts\upload_detail_media2.html:108
+msgid "Caption..."
+msgstr "کپشن..."
+
+#: .\templates\posts\upload_detail_text2.html:28
+msgid "Add Cover"
+msgstr "افزودن کاور"
+
+#: .\templates\posts\upload_detail_text2.html:35
+msgid "Add Chapter"
+msgstr "افزودن فصل"
+
+#: .\templates\posts\upload_select_category3.html:19
+msgid "Choose the artwork Category"
+msgstr "دستهٔ اثر هنری را انتخاب کنید"
+
+#: .\templates\posts\upload_select_category3.html:32
+msgid "No categories yet."
+msgstr "هنوز دسته‌ای وجود ندارد."
+
+#: .\templates\posts\upload_select_post_type1.html:14
+msgid "Start building your project:"
+msgstr "شروع ساخت پروژهٔ شما:"
+
+#: .\templates\posts\upload_select_post_type1.html:30
+msgid "Coming Soon!"
+msgstr "به‌زودی!"
+
+#: .\templates\posts\upload_select_post_type1.html:33
+msgid "Music"
+msgstr "موسیقی"

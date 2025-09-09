@@ -3,14 +3,48 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.db.models import F
 User = get_user_model()
+from .utils import compress_image_file
+from django.conf import settings
+from django.utils.text import slugify
+from django.utils.translation import get_language, gettext_lazy as _
 
 class Category(models.Model):
+    # English (existing)
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(unique=True)
-    icon = models.CharField(max_length=50, blank=True, null=True)
-    image = models.ImageField(upload_to="categories/", blank=True, null=True)  # NEW
-    def __str__(self): return self.name
 
+    # Persian (new)
+    name_fa = models.CharField(_("Persian name"), max_length=100, blank=True, null=True)
+    slug_fa = models.SlugField(
+        _("Persian slug"),
+        unique=True, blank=True, null=True, allow_unicode=True
+    )
+
+    icon = models.CharField(max_length=50, blank=True, null=True)
+    image = models.ImageField(upload_to="categories/", blank=True, null=True)
+
+    def __str__(self):  # keep admin nice
+        lang = (get_language() or "").lower()
+        if lang.startswith("fa") and self.name_fa:
+            return self.name_fa
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name)
+        if self.name_fa and not self.slug_fa:
+            self.slug_fa = slugify(self.name_fa, allow_unicode=True)
+        super().save(*args, **kwargs)
+
+    @property
+    def display_name(self):
+        lang = (get_language() or "").lower()
+        return self.name_fa or self.name if lang.startswith("fa") else self.name
+
+    @property
+    def display_slug(self):
+        lang = (get_language() or "").lower()
+        return (self.slug_fa or self.slug) if lang.startswith("fa") else self.slug
 class Post(models.Model):
     class PostType(models.TextChoices):
         TEXT = "TEXT", "Text"
@@ -43,7 +77,17 @@ class Post(models.Model):
     bookmarks = models.PositiveIntegerField(default=0)
     artwork_length = models.CharField(max_length=50, blank=True)
     is_draft = models.BooleanField(default=False)
-    
+    def save(self, *args, **kwargs):
+        # If new/changed image fields exist, compress them
+        # Use getattr to avoid running on partial updates without files
+        if self.image and hasattr(self.image, "file"):
+            self.image = compress_image_file(self.image)
+
+        if self.cover and hasattr(self.cover, "file"):
+            self.cover = compress_image_file(self.cover)
+
+        super().save(*args, **kwargs)
+
     def __str__(self): return f"{self.title} ({self.post_type})"
 
 
@@ -68,7 +112,13 @@ class PostImage(models.Model):
     image = models.ImageField(upload_to="posts/images/")
     caption = models.CharField(max_length=200, blank=True)
     order = models.PositiveIntegerField(default=1, db_index=True)
+
     class Meta: ordering = ["order", "id"]
+
+    def save(self, *args, **kwargs):
+        if self.image and hasattr(self.image, "file"):
+            self.image = compress_image_file(self.image)
+        super().save(*args, **kwargs)
 
 class PostVideo(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="videos")
@@ -76,7 +126,13 @@ class PostVideo(models.Model):
     poster = models.ImageField(upload_to="posts/video_posters/", blank=True, null=True)
     duration = models.DurationField(blank=True, null=True)
     order = models.PositiveIntegerField(default=1, db_index=True)
+
     class Meta: ordering = ["order", "id"]
+
+    def save(self, *args, **kwargs):
+        if self.poster and hasattr(self.poster, "file"):
+            self.poster = compress_image_file(self.poster)
+        super().save(*args, **kwargs)
 
 
 # Tools / Inspirations / Tags / Comments (unchanged)

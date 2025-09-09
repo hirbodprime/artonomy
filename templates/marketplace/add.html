@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load i18n %}
 {% load add_class_market %}
 {% block content %}
 <style>
@@ -35,19 +36,21 @@
 </style>
 
 <div class="wrap">
-  <h1 class="text-xl font-extrabold mb-4 text-[var(--text)]">Add Service</h1>
+  <h1 class="text-xl font-extrabold mb-4 text-[var(--text)]">{% trans "Add Service" %}</h1>
 
   {# Optional progress UI (kept commented) #}
-
-  <!-- <div class="progress">
+  <!--
+  <div class="progress">
     {% for s in progress %}
       <div class="step {% if step == s.num %}step--active{% endif %}">
-        <span>{{ s.label }}</span>
-        <span class="badge">Step {{ s.num }}</span>
+        <span><bdi>{{ s.label }}</bdi></span>
+        <span class="badge">
+          {% blocktrans with n=s.num %}Step {{ n }}{% endblocktrans %}
+        </span>
       </div>
     {% endfor %}
-  </div> -->
-
+  </div>
+  -->
 
   <div class="card">
     {# STEP 1 #}
@@ -56,14 +59,14 @@
         {% csrf_token %}<input type="hidden" name="step" value="1">
         <div class="row">
           <div class="field">
-            <label class="label">Choose a category</label>
+            <label class="label">{% trans "Choose a category" %}</label>
             {{ form.category|add_class:"select" }}
-            <p class="hint">Pick the main category for this service.</p>
+            <p class="hint">{% trans "Pick the main category for this service." %}</p>
           </div>
         </div>
         <div class="actions">
-          <button class="btn btn--ghost" name="nav" value="back" disabled>Back</button>
-          <button class="btn btn--next"  name="nav" value="next">Continue</button>
+          <button class="btn btn--ghost" name="nav" value="back" disabled>{% trans "Back" %}</button>
+          <button class="btn btn--next"  name="nav" value="next">{% trans "Continue" %}</button>
         </div>
       </form>
     {% endif %}
@@ -74,17 +77,17 @@
         {% csrf_token %}<input type="hidden" name="step" value="2">
         <div class="row">
           <div class="field">
-            <label class="label">Title</label>
+            <label class="label">{% trans "Title" %}</label>
             {{ form.title|add_class:"input" }}
           </div>
           <div class="field">
-            <label class="label">Description</label>
+            <label class="label">{% trans "Description" %}</label>
             {{ form.description|add_class:"textarea" }}
           </div>
         </div>
         <div class="actions">
-          <button class="btn btn--ghost" name="nav" value="back">Back</button>
-          <button class="btn btn--next"  name="nav" value="next">Continue</button>
+          <button class="btn btn--ghost" name="nav" value="back">{% trans "Back" %}</button>
+          <button class="btn btn--next"  name="nav" value="next">{% trans "Continue" %}</button>
         </div>
       </form>
     {% endif %}
@@ -95,17 +98,17 @@
         {% csrf_token %}<input type="hidden" name="step" value="3">
         <div class="row row--split">
           <div class="field">
-            <label class="label">Price</label>
+            <label class="label">{% trans "Price" %}</label>
             {{ form.price|add_class:"input" }}
           </div>
           <div class="field">
-            <label class="label">Currency</label>
+            <label class="label">{% trans "Currency" %}</label>
             {{ form.currency|add_class:"select" }}
           </div>
         </div>
         <div class="actions">
-          <button class="btn btn--ghost" name="nav" value="back">Back</button>
-          <button class="btn btn--next"  name="nav" value="next">Continue</button>
+          <button class="btn btn--ghost" name="nav" value="back">{% trans "Back" %}</button>
+          <button class="btn btn--next"  name="nav" value="next">{% trans "Continue" %}</button>
         </div>
       </form>
     {% endif %}
@@ -116,30 +119,32 @@
         {% csrf_token %}<input type="hidden" name="step" value="4">
         <div class="row">
           <div class="field">
-            <div class="label">Summary</div>
+            <div class="label">{% trans "Summary" %}</div>
             <div class="preview" style="padding:16px;display:block">
-              <div><b>Category:</b> {{ review_category.name }}</div>
-              <div><b>Title:</b> {{ data.s2.title }}</div>
-              <div><b>Description:</b>
-                <div class="hint" style="margin-top:6px;white-space:pre-wrap">{{ data.s2.description }}</div>
+              <div><b>{% trans "Category:" %}</b> <bdi>{{ review_category.display_name|default:review_category.name }}</bdi></div>
+              <div><b>{% trans "Title:" %}</b> <bdi>{{ data.s2.title }}</bdi></div>
+              <div><b>{% trans "Description:" %}</b>
+                <div class="hint" style="margin-top:6px;white-space:pre-wrap"><bdi>{{ data.s2.description }}</bdi></div>
               </div>
-              <div style="margin-top:8px"><b>Price:</b> {{ data.s3.price }} {{ data.s3.currency }}</div>
+              <div style="margin-top:8px">
+                {% blocktrans with p=data.s3.price cur=data.s3.currency %}<b>Price:</b> {{ p }} {{ cur }}{% endblocktrans %}
+              </div>
             </div>
           </div>
 
           <div class="field">
-            <label class="label">Upload your cover image</label>
+            <label class="label">{% trans "Upload your cover image" %}</label>
             <input type="file" name="image" class="input" accept="image/*" id="finalImageInput">
             <div class="preview mt-2" id="imgPreviewFinal">
-              <span class="hint">Preview will appear here</span>
+              <span class="hint">{% trans "Preview will appear here" %}</span>
             </div>
-            <p class="hint">This will be used as the cover image.</p>
+            <p class="hint">{% trans "This will be used as the cover image." %}</p>
           </div>
         </div>
 
         <div class="actions">
-          <button class="btn btn--ghost" name="nav" value="back">Back</button>
-          <button class="btn btn--finish" name="nav" value="finish">Publish</button>
+          <button class="btn btn--ghost" name="nav" value="back">{% trans "Back" %}</button>
+          <button class="btn btn--finish" name="nav" value="finish">{% trans "Publish" %}</button>
         </div>
       </form>
     {% endif %}
@@ -159,7 +164,7 @@ document.addEventListener("change", (e) => {
       img.alt = "Cover preview";
       box.appendChild(img);
     } else {
-      box.innerHTML = '<span class="hint">Preview will appear here</span>';
+      box.innerHTML = '<span class="hint">{{ _("Preview will appear here") }}</span>';
     }
   }
 });
