@@ -144,12 +144,19 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-USE_I18N = True
-USE_TZ = True
-TIME_ZONE = "UTC"
 
-# Default language = Persian (unprefixed URLs)
-LANGUAGE_CODE = "fa"
+LANGUAGE_CODE = "en"
+
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+# USE_I18N = True
+# USE_TZ = True
+# TIME_ZONE = "UTC"
+
+# # Default language = Persian (unprefixed URLs)
+# LANGUAGE_CODE = "fa"
 
 LANGUAGES = (
     ("fa", "Persian"),
