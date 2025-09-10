@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-09 16:13+0330\n"
+"POT-Creation-Date: 2025-09-10 12:51+0330\n"
 "PO-Revision-Date: 2025-09-07 00:00+0330\n"
 "Last-Translator: \n"
 "Language-Team: fa <LL@li.org>\n"
@@ -108,6 +108,21 @@ msgstr "دسته‌های کاری"
 msgid "Favorite categories"
 msgstr "دسته‌های مورد علاقه"
 
+#: .\marketplace\forms.py:12 .\marketplace\models.py:18
+#: .\templates\marketplace\add.html:157
+msgid "Negotiable"
+msgstr "توافقی"
+
+#: .\marketplace\forms.py:13 .\marketplace\models.py:19
+msgid "Fixed"
+msgstr "قیمت ثابت"
+
+#: .\marketplace\forms.py:14 .\marketplace\models.py:20
+#, fuzzy
+#| msgid "Change"
+msgid "Range"
+msgstr "بازه"
+
 #: .\templates\accounts\after-signup.html:14
 msgid "You’re an"
 msgstr "شما یک"
@@ -134,7 +149,9 @@ msgstr "دسته"
 msgid ""
 "If your artwork category is not in these, don't worry we will add more "
 "artwork categories soon."
-msgstr "اگر دستهٔ اثر شما در این فهرست نیست، نگران نباشید؛ به‌زودی دسته‌های بیشتری اضافه می‌کنیم."
+msgstr ""
+"اگر دستهٔ اثر شما در این فهرست نیست، نگران نباشید؛ به‌زودی دسته‌های بیشتری "
+"اضافه می‌کنیم."
 
 #: .\templates\accounts\categories.html:8
 #: .\templates\accounts\profile_suggested.html:80
@@ -341,7 +358,8 @@ msgid "Hobbies"
 msgstr "علایق"
 
 #: .\templates\accounts\profile.html:369 .\templates\accounts\profile.html:379
-#: .\templates\marketplace\add.html:39
+#: .\templates\marketplace\add.html:35 .\templates\marketplace\list.html:163
+#: .\templates\marketplace\list.html:170
 msgid "Add Service"
 msgstr "افزودن سرویس"
 
@@ -351,7 +369,7 @@ msgstr "یک آگهی جدید در فروشگاه ایجاد کنید"
 
 #: .\templates\accounts\profile.html:407
 #: .\templates\accounts\profile_suggested.html:78
-#: .\templates\marketplace\list.html:240
+#: .\templates\marketplace\list.html:263
 msgid "View"
 msgstr "مشاهده"
 
@@ -507,7 +525,9 @@ msgstr "مهارت‌های خود را اضافه یا حذف کنید"
 msgid ""
 "Type to add a skill. Press Enter to create or click a suggestion. Click × to "
 "remove."
-msgstr "برای افزودن مهارت تایپ کنید. برای ایجاد Enter را بزنید یا روی پیشنهاد کلیک کنید. برای حذف روی × بزنید."
+msgstr ""
+"برای افزودن مهارت تایپ کنید. برای ایجاد Enter را بزنید یا روی پیشنهاد کلیک "
+"کنید. برای حذف روی × بزنید."
 
 #: .\templates\accounts\settings_personal.html:190
 #: .\templates\accounts\settings_personal.html:213
@@ -516,9 +536,9 @@ msgstr "برای افزودن مهارت تایپ کنید. برای ایجاد 
 #: .\templates\accounts\settings_portfolio.html:126
 #: .\templates\accounts\settings_portfolio.html:212
 #: .\templates\accounts\settings_portfolio.html:285
-#: .\templates\collab\chat.html:79 .\templates\marketplace\add.html:68
-#: .\templates\marketplace\add.html:89 .\templates\marketplace\add.html:110
-#: .\templates\marketplace\add.html:146
+#: .\templates\collab\chat.html:79 .\templates\marketplace\add.html:50
+#: .\templates\marketplace\add.html:71 .\templates\marketplace\add.html:115
+#: .\templates\marketplace\add.html:182
 msgid "Back"
 msgstr "بازگشت"
 
@@ -610,7 +630,9 @@ msgstr "آیتم %(n)s"
 
 #: .\templates\accounts\settings_portfolio.html:109
 msgid "No items yet. Click <strong>Add row</strong> to create your first one."
-msgstr "هنوز آیتمی ندارید. برای ساخت اولین مورد روی <strong>افزودن ردیف</strong> کلیک کنید."
+msgstr ""
+"هنوز آیتمی ندارید. برای ساخت اولین مورد روی <strong>افزودن ردیف</strong> "
+"کلیک کنید."
 
 #: .\templates\accounts\settings_portfolio.html:117
 #: .\templates\accounts\settings_portfolio.html:310
@@ -822,11 +844,11 @@ msgid "Sort By"
 msgstr "مرتب‌سازی بر اساس"
 
 #: .\templates\category\detail.html:39 .\templates\category\detail.html:45
-#: .\templates\marketplace\list.html:150
+#: .\templates\marketplace\list.html:125
 msgid "Latest"
 msgstr "جدیدترین"
 
-#: .\templates\category\detail.html:53 .\templates\marketplace\list.html:173
+#: .\templates\category\detail.html:53 .\templates\marketplace\list.html:148
 msgid "Clear filters"
 msgstr "پاک‌کردن فیلترها"
 
@@ -980,191 +1002,224 @@ msgstr ""
 "هنرمندان، فروشگاه و اکسپلور را مرور کنید. اقداماتی مثل دنبال‌کردن/پسندیدن/نظر "
 "دادن نیاز به ورود دارد."
 
-#: .\templates\marketplace\add.html:48
-#, python-format
-msgid "Step %(n)s"
-msgstr "مرحله %(n)s"
-
-#: .\templates\marketplace\add.html:62
+#: .\templates\marketplace\add.html:44
 msgid "Choose a category"
 msgstr "یک دسته انتخاب کنید"
 
-#: .\templates\marketplace\add.html:64
+#: .\templates\marketplace\add.html:46
 msgid "Pick the main category for this service."
 msgstr "دستهٔ اصلی این سرویس را انتخاب کنید."
 
-#: .\templates\marketplace\add.html:69 .\templates\marketplace\add.html:90
-#: .\templates\marketplace\add.html:111
+#: .\templates\marketplace\add.html:51 .\templates\marketplace\add.html:72
+#: .\templates\marketplace\add.html:116
 #: .\templates\posts\upload_detail_media2.html:112
 #: .\templates\posts\upload_detail_text2.html:56
 #: .\templates\posts\upload_select_category3.html:43
 msgid "Continue"
 msgstr "ادامه"
 
-#: .\templates\marketplace\add.html:80
+#: .\templates\marketplace\add.html:62
 msgid "Title"
 msgstr "عنوان"
 
-#: .\templates\marketplace\add.html:84
+#: .\templates\marketplace\add.html:66
 msgid "Description"
 msgstr "توضیحات"
 
-#: .\templates\marketplace\add.html:101
+#: .\templates\marketplace\add.html:83
+msgid "Pricing type"
+msgstr "نوع قیمت"
+
+#: .\templates\marketplace\add.html:89
+#, fuzzy
+#| msgid "Choose what you want to update."
+msgid "Choose how you want to price this service."
+msgstr "روش قیمت دهی برای این خدمات رو انتخاب کنید."
+
+#: .\templates\marketplace\add.html:93
 msgid "Price"
 msgstr "قیمت"
 
-#: .\templates\marketplace\add.html:105
+#: .\templates\marketplace\add.html:99
+msgid "Min price"
+msgstr "حداقل قیمت"
+
+#: .\templates\marketplace\add.html:103
+msgid "Max price"
+msgstr "حداکثر قیمت"
+
+#: .\templates\marketplace\add.html:109
 msgid "Currency"
 msgstr "ارز"
 
-#: .\templates\marketplace\add.html:122
+#: .\templates\marketplace\add.html:147
 msgid "Summary"
 msgstr "خلاصه"
 
-#: .\templates\marketplace\add.html:124
+#: .\templates\marketplace\add.html:149
 msgid "Category:"
 msgstr "دسته:"
 
-#: .\templates\marketplace\add.html:125
+#: .\templates\marketplace\add.html:150
 msgid "Title:"
 msgstr "عنوان:"
 
-#: .\templates\marketplace\add.html:126
+#: .\templates\marketplace\add.html:151
 msgid "Description:"
 msgstr "توضیحات:"
 
-#: .\templates\marketplace\add.html:130
-#, python-format
-msgid "<b>Price:</b> %(p)s %(cur)s"
-msgstr "<b>قیمت:</b> %(p)s %(cur)s"
+#: .\templates\marketplace\add.html:157 .\templates\marketplace\add.html:159
+#: .\templates\marketplace\add.html:163
+#, fuzzy
+#| msgid "Price"
+msgid "Price:"
+msgstr "قیمت"
 
-#: .\templates\marketplace\add.html:136
+#: .\templates\marketplace\add.html:172
 msgid "Upload your cover image"
 msgstr "تصویر کاور خود را بارگذاری کنید"
 
-#: .\templates\marketplace\add.html:139 .\templates\marketplace\add.html:167
+#: .\templates\marketplace\add.html:175 .\templates\marketplace\add.html:203
 msgid "Preview will appear here"
 msgstr "پیش‌نمایش اینجا نمایش داده می‌شود"
 
-#: .\templates\marketplace\add.html:141
+#: .\templates\marketplace\add.html:177
 msgid "This will be used as the cover image."
 msgstr "این به‌عنوان تصویر کاور استفاده می‌شود."
 
-#: .\templates\marketplace\add.html:147
+#: .\templates\marketplace\add.html:183
 #: .\templates\posts\upload_review_publish4.html:42
 msgid "Publish"
 msgstr "انتشار"
 
-#: .\templates\marketplace\item.html:68
+#: .\templates\marketplace\item.html:60
 #, python-format
 msgid "%(v)s view"
 msgid_plural "%(v)s views"
 msgstr[0] "%(v)s بازدید"
 msgstr[1] "%(v)s بازدید"
 
-#: .\templates\marketplace\item.html:84
+#: .\templates\marketplace\item.html:89
 msgid "Base price · taxes or extras may apply"
 msgstr "قیمت پایه · ممکن است مالیات یا هزینه‌های اضافه اعمال شود"
 
-#: .\templates\marketplace\item.html:91
+#: .\templates\marketplace\item.html:96
 msgid "Request Service"
 msgstr "درخواست سرویس"
 
-#: .\templates\marketplace\item.html:94
+#: .\templates\marketplace\item.html:99
 msgid "This is your service"
 msgstr "این سرویس متعلق به شماست"
 
-#: .\templates\marketplace\item.html:98
+#: .\templates\marketplace\item.html:103
 msgid "Log in to request"
 msgstr "برای درخواست وارد شوید"
 
-#: .\templates\marketplace\item.html:113
+#: .\templates\marketplace\item.html:116
 msgid "Direct chat with the artist"
 msgstr "چت مستقیم با هنرمند"
 
-#: .\templates\marketplace\item.html:116
+#: .\templates\marketplace\item.html:119
 msgid "Clear scope & milestones"
 msgstr "حوزه و نقاط عطف مشخص"
 
-#: .\templates\marketplace\item.html:119
+#: .\templates\marketplace\item.html:122
 msgid "Secure deal via requests"
 msgstr "معاملهٔ امن از طریق درخواست‌ها"
 
-#: .\templates\marketplace\item.html:122
+#: .\templates\marketplace\item.html:125
 msgid "Revisions per agreement"
 msgstr "بازبینی‌ها طبق توافق"
 
-#: .\templates\marketplace\item.html:137
+#: .\templates\marketplace\item.html:140
 msgid "Request this service"
 msgstr "درخواست این سرویس"
 
-#: .\templates\marketplace\item.html:143
+#: .\templates\marketplace\item.html:146
 msgid "Describe your project"
 msgstr "پروژهٔ خود را توضیح دهید"
 
-#: .\templates\marketplace\item.html:144
+#: .\templates\marketplace\item.html:147
 msgid "Share the scope, references/links, style, deadline, deliverables…"
 msgstr "حوزه، منابع/لینک‌ها، سبک، مهلت، خروجی‌ها و… را به‌اشتراک بگذارید"
 
-#: .\templates\marketplace\item.html:151
+#: .\templates\marketplace\item.html:154
 msgid "Cancel"
 msgstr "انصراف"
 
-#: .\templates\marketplace\item.html:154
+#: .\templates\marketplace\item.html:157
 msgid "Send request"
 msgstr "ارسال درخواست"
 
-#: .\templates\marketplace\item.html:187
+#: .\templates\marketplace\item.html:190
 msgid "Failed"
 msgstr "ناموفق"
 
-#: .\templates\marketplace\item.html:193
+#: .\templates\marketplace\item.html:196
 msgid "Request sent!"
 msgstr "درخواست ارسال شد!"
 
-#: .\templates\marketplace\list.html:126
+#: .\templates\marketplace\list.html:101
 msgid "All categories"
 msgstr "همهٔ دسته‌ها"
 
-#: .\templates\marketplace\list.html:141
+#: .\templates\marketplace\list.html:116
 msgid "search..."
 msgstr "جستجو..."
 
-#: .\templates\marketplace\list.html:151
+#: .\templates\marketplace\list.html:126
 msgid "Price: High → Low"
 msgstr "قیمت: زیاد → کم"
 
-#: .\templates\marketplace\list.html:152
+#: .\templates\marketplace\list.html:127
 msgid "Price: Low → High"
 msgstr "قیمت: کم → زیاد"
 
-#: .\templates\marketplace\list.html:153
+#: .\templates\marketplace\list.html:128
 msgid "Popular"
 msgstr "محبوب"
 
-#: .\templates\marketplace\list.html:161
+#: .\templates\marketplace\list.html:136
 msgid "Min"
 msgstr "حداقل"
 
-#: .\templates\marketplace\list.html:165
+#: .\templates\marketplace\list.html:140
 msgid "Max"
 msgstr "حداکثر"
 
-#: .\templates\marketplace\list.html:177
+#: .\templates\marketplace\list.html:152
 msgid "Apply"
 msgstr "اعمال"
 
-#: .\templates\marketplace\list.html:195
+#: .\templates\marketplace\list.html:173
+msgid "Create a new listing for your service"
+msgstr ""
+
+#: .\templates\marketplace\list.html:179
+#, fuzzy
+#| msgid "Log in to request"
+msgid "Log in to add a service"
+msgstr "برای درخواست وارد شوید"
+
+#: .\templates\marketplace\list.html:186
+#, fuzzy
+#| msgid "Log in to request"
+msgid "Log in to add"
+msgstr "برای درخواست وارد شوید"
+
+#: .\templates\marketplace\list.html:189
+#, fuzzy
+#| msgid "Pick the main category for this service."
+msgid "Sign in to create your first service"
+msgstr "دستهٔ اصلی این سرویس را انتخاب کنید."
+
+#: .\templates\marketplace\list.html:207
 msgid "Draft"
 msgstr "پیش‌نویس"
 
-#: .\templates\marketplace\list.html:197
+#: .\templates\marketplace\list.html:209
 msgid "Sold"
 msgstr "فروخته شد"
-
-#: .\templates\marketplace\list.html:250
-msgid "No items found."
-msgstr "هیچ آیتمی یافت نشد."
 
 #: .\templates\network\follow_list.html:61
 #: .\templates\posts\single_post.html:705
@@ -1437,3 +1492,12 @@ msgstr "به‌زودی!"
 #: .\templates\posts\upload_select_post_type1.html:33
 msgid "Music"
 msgstr "موسیقی"
+
+#~ msgid "Step %(n)s"
+#~ msgstr "مرحله %(n)s"
+
+#~ msgid "<b>Price:</b> %(p)s %(cur)s"
+#~ msgstr "<b>قیمت:</b> %(p)s %(cur)s"
+
+#~ msgid "No items found."
+#~ msgstr "هیچ آیتمی یافت نشد."

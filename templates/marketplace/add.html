@@ -10,12 +10,6 @@
   }
   .wrap{max-width:960px;margin:0 auto;padding:24px clamp(12px,4vw,24px);}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
-  .progress{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:18px}
-  @media (max-width:640px){
-    .progress{grid-template-columns:repeat(2,1fr);}
-  }
-  .step{background:#14161d;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:.6rem .75rem;color:#cbd1de;display:flex;align-items:center;justify-content:space-between}
-  .step--active{border-color:rgba(124,58,237,.5);box-shadow:0 0 0 3px rgba(124,58,237,.2) inset;color:#fff}
   .form{padding:18px}
   .row{display:grid;grid-template-columns:1fr;gap:12px}
   @media (min-width:780px){ .row--split{grid-template-columns:1fr 1fr; } }
@@ -33,24 +27,12 @@
   .btn--finish{background:linear-gradient(135deg,var(--accent),#25efa1);color:#06130c;box-shadow:0 8px 26px rgba(17,200,101,.32)}
   .preview{border:1px dashed rgba(255,255,255,.15);border-radius:14px;min-height:160px;display:grid;place-items:center;padding:10px;background:#12141a}
   .preview img{max-width:100%;max-height:260px;border-radius:12px}
+  .radio-row{display:flex;flex-direction:column;gap:.5rem}
+  .radio-row label{display:flex;gap:.6rem;align-items:center}
 </style>
 
 <div class="wrap">
   <h1 class="text-xl font-extrabold mb-4 text-[var(--text)]">{% trans "Add Service" %}</h1>
-
-  {# Optional progress UI (kept commented) #}
-  <!--
-  <div class="progress">
-    {% for s in progress %}
-      <div class="step {% if step == s.num %}step--active{% endif %}">
-        <span><bdi>{{ s.label }}</bdi></span>
-        <span class="badge">
-          {% blocktrans with n=s.num %}Step {{ n }}{% endblocktrans %}
-        </span>
-      </div>
-    {% endfor %}
-  </div>
-  -->
 
   <div class="card">
     {# STEP 1 #}
@@ -92,28 +74,71 @@
       </form>
     {% endif %}
 
-    {# STEP 3 #}
+    {# STEP 3 — Pricing #}
     {% if step == 3 %}
       <form method="post" class="form" id="step3">
         {% csrf_token %}<input type="hidden" name="step" value="3">
-        <div class="row row--split">
+        <div class="row">
           <div class="field">
+            <label class="label">{% trans "Pricing type" %}</label>
+            <div class="radio-row">
+              {% for choice in form.pricing_type %}
+                <label>{{ choice.tag }} <span><bdi>{{ choice.choice_label }}</bdi></span></label>
+              {% endfor %}
+            </div>
+            <p class="hint">{% trans "Choose how you want to price this service." %}</p>
+          </div>
+
+          <div class="field js-fixed" style="display:none">
             <label class="label">{% trans "Price" %}</label>
             {{ form.price|add_class:"input" }}
           </div>
-          <div class="field">
+
+          <div class="row row--split js-range" style="display:none">
+            <div class="field">
+              <label class="label">{% trans "Min price" %}</label>
+              {{ form.price_min|add_class:"input" }}
+            </div>
+            <div class="field">
+              <label class="label">{% trans "Max price" %}</label>
+              {{ form.price_max|add_class:"input" }}
+            </div>
+          </div>
+
+          <div class="field js-currency" style="display:none">
             <label class="label">{% trans "Currency" %}</label>
             {{ form.currency|add_class:"select" }}
           </div>
         </div>
+
         <div class="actions">
           <button class="btn btn--ghost" name="nav" value="back">{% trans "Back" %}</button>
           <button class="btn btn--next"  name="nav" value="next">{% trans "Continue" %}</button>
         </div>
       </form>
+
+      <script>
+      (function(){
+        const form = document.getElementById('step3');
+        if(!form) return;
+        const radios = form.querySelectorAll('input[name="pricing_type"]');
+        const fixed  = form.querySelector('.js-fixed');
+        const range  = form.querySelector('.js-range');
+        const curr   = form.querySelector('.js-currency');
+
+        function update(){
+          const val = form.querySelector('input[name="pricing_type"]:checked')?.value;
+          fixed.style.display = (val === 'FIXED') ? '' : 'none';
+          range.style.display = (val === 'RANGE') ? '' : 'none';
+          curr.style.display  = (val === 'FIXED' || val === 'RANGE') ? '' : 'none';
+        }
+        radios.forEach(r => r.addEventListener('change', update));
+        update();
+      })();
+      </script>
     {% endif %}
 
-    {# STEP 4 #}
+    {# STEP 4 — Review & Publish (includes image upload) #}
     {% if step == 4 %}
       <form method="post" enctype="multipart/form-data" class="form" id="final">
         {% csrf_token %}<input type="hidden" name="step" value="4">
@@ -126,8 +151,19 @@
               <div><b>{% trans "Description:" %}</b>
                 <div class="hint" style="margin-top:6px;white-space:pre-wrap"><bdi>{{ data.s2.description }}</bdi></div>
               </div>
+
               <div style="margin-top:8px">
-                {% blocktrans with p=data.s3.price cur=data.s3.currency %}<b>Price:</b> {{ p }} {{ cur }}{% endblocktrans %}
+                {% if data.s3.pricing_type == 'NEGOTIABLE' %}
+                  <b>{% trans "Price:" %}</b> {% trans "Negotiable" %}
+                {% elif data.s3.pricing_type == 'FIXED' %}
+                  <b>{% trans "Price:" %}</b>
+                  <bdi>{{ data.s3.price }}</bdi>
+                  <bdi>{% if LANGUAGE_CODE|slice:":2" == "fa" %}تومان{% else %}Toman{% endif %}</bdi>
+                {% else %}
+                  <b>{% trans "Price:" %}</b>
+                  <bdi>{{ data.s3.price_min }}</bdi> – <bdi>{{ data.s3.price_max }}</bdi>
+                  <bdi>{% if LANGUAGE_CODE|slice:":2" == "fa" %}تومان{% else %}Toman{% endif %}</bdi>
+                {% endif %}
               </div>
             </div>
           </div>
