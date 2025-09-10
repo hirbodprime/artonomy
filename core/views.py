@@ -162,7 +162,17 @@ def _explore_id_lists(request, active_category):
 
     # Fallback (anon / no prefs) → use bests ordering
     if not for_you_ids:
-        for_you_ids = list(best_ids)
+        recent_qs = _apply_category(_light_base(), active_category) \
+                    .order_by("-created_at", "-id")
+        recent_ids = list(recent_qs.values_list("id", flat=True)[:BUFFER])
+        recent_ids = _dedup_ordered(recent_ids)
+
+        # Prefer recent posts that are NOT already in best_ids (visual difference)
+        best_set = set(best_ids)
+        fy_nonbest = [pid for pid in recent_ids if pid not in best_set]
+
+        # If removing overlap makes it too thin, fall back to recent_ids
+        for_you_ids = fy_nonbest or recent_ids
 
     return best_ids, for_you_ids
 
@@ -179,13 +189,18 @@ def explore_view(request):
     best_ids, for_you_ids = _explore_id_lists(request, active_category)
 
     # fetch first PAGE_SIZE for each feed (sort in Python for stability)
-    def fetch_first(ids):
+    def fetch_first(ids, feed):
         items = list(_light_base().filter(id__in=ids))
-        items.sort(key=lambda p: (p.created_at, p.likes, p.id), reverse=True)
+        if feed == "bests":
+            # likes first, then recency
+            items.sort(key=lambda p: (p.likes, p.created_at, p.id), reverse=True)
+        else:
+            # recency first; ignore likes here so it feels different
+            items.sort(key=lambda p: (p.created_at, p.id), reverse=True)
         return items[:PAGE_SIZE], len(items) > PAGE_SIZE
 
-    best_posts, best_has_more = fetch_first(best_ids)
-    for_you_posts, fy_has_more = fetch_first(for_you_ids)
+    best_posts, best_has_more = fetch_first(best_ids, feed="bests")
+    for_you_posts, fy_has_more = fetch_first(for_you_ids, feed="for_you")
 
     # (optional) pins — keep or skip if slow
     today = timezone.localdate()
@@ -295,7 +310,11 @@ def explore_feed_api(request):
 
     # fetch all candidates, apply global order once
     items = list(_light_base().filter(id__in=ids))
-    items.sort(key=lambda p: (p.created_at, p.likes, p.id), reverse=True)
+    if feed == "for-you":
+        items.sort(key=lambda p: (p.created_at, p.id), reverse=True)
+    else:  # bests
+        items.sort(key=lambda p: (p.likes, p.created_at, p.id), reverse=True)
+
 
     # paginate FIRST, then (optionally) cap per author within the page
     start = (page - 1) * PAGE_SIZE

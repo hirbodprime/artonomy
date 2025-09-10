@@ -201,7 +201,7 @@ msgstr "ببینید %(u)s چه کسانی را دنبال می‌کند"
 #: .\templates\posts\single_post.html:907
 #: .\templates\posts\single_post.html:1168
 msgid "Following"
-msgstr "دنبال می‌کند"
+msgstr "دنبال‌شده‌ها"
 
 #: .\templates\accounts\profile.html:169
 #, python-format
@@ -212,7 +212,7 @@ msgstr "ببینید دنبال‌کنندگان %(u)s"
 #: .\templates\category\detail.html:46 .\templates\category\detail.html:107
 #: .\templates\network\follow_list.html:66
 msgid "Followers"
-msgstr "دنبال‌کنندگان"
+msgstr "دنبال‌کننده"
 
 #: .\templates\accounts\profile.html:181 .\templates\category\detail.html:95
 #: .\templates\network\follow_list.html:122
@@ -938,7 +938,7 @@ msgstr "هنوز چتی وجود ندارد."
 
 #: .\templates\explore.html:59
 msgid "Trending Picks"
-msgstr "گزیده‌های داغ"
+msgstr "برگزیده ها"
 
 #: .\templates\explore.html:491
 msgid "Artonomy Bests"
