@@ -82,9 +82,15 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
     "core.middleware.wizard_guard.WizardGuardMiddleware",
-    "core.middleware.require_login.RequireLoginMiddleware",
-    # "core.middleware.guest_readonly.GuestReadOnlyMiddleware",
 ]
+
+# Toggle between guest vs. full login requirement
+GUEST_MODE = os.getenv("GUEST_MODE", "False").strip().lower() == "true"
+
+if GUEST_MODE:
+    MIDDLEWARE.append("core.middleware.guest_readonly.GuestReadOnlyMiddleware")
+else:
+    MIDDLEWARE.append("core.middleware.require_login.RequireLoginMiddleware")
 
 ROOT_URLCONF = 'artonomy.urls'
 

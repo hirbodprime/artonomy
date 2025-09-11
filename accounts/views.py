@@ -28,6 +28,7 @@ from django.db.models import Q, F
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext as _, get_language
 
+from core.decorators import redirect_if_authenticated
 
 User = get_user_model()
 
@@ -35,14 +36,14 @@ User = get_user_model()
 
 
 GMAIL_PATTERN = re.compile(r"^[A-Za-z0-9._%+-]+@gmail\.com$", re.IGNORECASE)
-
+@login_required
 def logout_view(request):
     """Logs out the user and redirects to explore (or login)."""
     logout(request)
     return redirect(reverse("landing"))
 
 
-
+@redirect_if_authenticated(to="explore")  
 def signup_view(request):
     if request.method == "POST":
         username = (request.POST.get("username") or "").strip()
@@ -179,7 +180,7 @@ def choose_categories(request):
 
 
 
-
+@login_required
 def profile_view(request, username: str):
     UserModel = get_user_model()
     profile_user = get_object_or_404(

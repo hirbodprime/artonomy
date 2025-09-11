@@ -228,7 +228,10 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.conf import settings
+from core.decorators import redirect_if_authenticated
 
+@redirect_if_authenticated(to="explore")  
 @ensure_csrf_cookie
 def landing_page(request):
     # capture ?next=... for GET and POST
@@ -250,7 +253,7 @@ def landing_page(request):
         messages.error(request, "Invalid email or password")
 
     # ALWAYS return a response (GET or failed POST)
-    return render(request, "landing_page.html", {"next": next_url})
+    return render(request, "landing_page.html", {"next": next_url,"GUEST_MODE": getattr(settings, "GUEST_MODE", False)})
 
 def coming_soon_view(req):
     return render(req, 'coming_soon.html')
