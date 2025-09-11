@@ -210,61 +210,86 @@ FFMPEG_BIN = "ffmpeg"             # or full path if needed (e.g. "/usr/bin/ffmpe
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-import logging
 from pathlib import Path
+import logging
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# default: INFO; set DEBUG level only if needed
-LOG_LEVEL = "INFO"
-
-# always log into <project root>/logs
 LOG_DIR = BASE_DIR / "logs"
 LOG_DIR.mkdir(exist_ok=True)
 
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,
+    "disable_existing_loggers": False,  # keep 3rd-party loggers
 
     "formatters": {
-        "verbose": {
-            "format": "[{asctime}] {levelname} {name} — {message}",
-            "style": "{",
-        },
-        "simple": {
-            "format": "{levelname} {name}: {message}",
-            "style": "{",
-        },
+        "verbose": {"format": "[{asctime}] {levelname} {name} — {message}", "style": "{"},
+        "simple":  {"format": "{levelname} {name}: {message}", "style": "{"},
     },
 
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "simple",
-            "level": LOG_LEVEL,
+            "level": "INFO",
         },
         "file_info": {
             "class": "logging.handlers.RotatingFileHandler",
             "filename": LOG_DIR / "django.info.log",
-            "maxBytes": 5 * 1024 * 1024,  # 5 MB
+            "maxBytes": 5 * 1024 * 1024,
             "backupCount": 3,
             "formatter": "verbose",
-            "level": LOG_LEVEL,
+            "level": "INFO",
         },
         "file_error": {
             "class": "logging.handlers.RotatingFileHandler",
             "filename": LOG_DIR / "django.error.log",
-            "maxBytes": 10 * 1024 * 1024,  # 10 MB
+            "maxBytes": 10 * 1024 * 1024,
             "backupCount": 5,
             "formatter": "verbose",
             "level": "ERROR",
         },
     },
 
+    # Root logger: everything funnels here unless a child logger overrides
     "root": {
         "handlers": ["console", "file_info", "file_error"],
-        "level": LOG_LEVEL,
+        "level": "INFO",
+    },
+
+    # Make sure key Django loggers write errors to file_error (500s, 404s, server)
+    "loggers": {
+        # Unhandled exceptions during requests → ERROR here
+        "django.request": {
+            "handlers": ["console", "file_error"],
+            "level": "WARNING",   # WARNING logs 404s; ERROR logs 500s
+            "propagate": False,
+        },
+        # Server/WSGI/ASGI errors
+        "django.server": {
+            "handlers": ["console", "file_error"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        # Security-related issues (CSRF, disallowed host)
+        "django.security": {
+            "handlers": ["console", "file_error"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        # Optional: DB backend errors (don’t enable DEBUG here in prod)
+        "django.db.backends": {
+            "handlers": ["file_error"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        # Your apps (explicit so you can log with logger = logging.getLogger(__name__))
+        "accounts":     {"handlers": ["file_info", "file_error", "console"], "level": "INFO", "propagate": False},
+        "posts":        {"handlers": ["file_info", "file_error", "console"], "level": "INFO", "propagate": False},
+        "network":      {"handlers": ["file_info", "file_error", "console"], "level": "INFO", "propagate": False},
+        "marketplace":  {"handlers": ["file_info", "file_error", "console"], "level": "INFO", "propagate": False},
+        "suggest":      {"handlers": ["file_info", "file_error", "console"], "level": "INFO", "propagate": False},
+        "category_app": {"handlers": ["file_info", "file_error", "console"], "level": "INFO", "propagate": False},
+        "collab":       {"handlers": ["file_info", "file_error", "console"], "level": "INFO", "propagate": False},
     },
 }
