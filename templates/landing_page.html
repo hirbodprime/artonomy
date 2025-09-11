@@ -130,6 +130,13 @@
                         onmouseout="this.style.backgroundColor='#570080';">
                   {% trans "Log in" %}
                 </button>
+    <!-- Buttons -->
+<div class="mt-3 text-center sm:text-right">
+  <a href="{% url 'password_reset_start' %}"
+     class="text-sm font-medium text-[#11C865] hover:text-[#0fbf7d] transition">
+    {% trans "Forgot password?" %}
+  </a>
+</div>
 
                 <!-- Clear CTAs under the form -->
                 <div class="cta-wrap">
@@ -147,9 +154,9 @@
                     {% trans "Continue as guest" %}
                   </a> -->
 
-                  <p class="text-[11px] text-white/70 lg:text-gray-500 text-center leading-relaxed">
-                    {% trans "Browse artists, marketplace & explore. Actions like follow/like/comment require login." %}
-                  </p>
+
+
+
                 </div>
               </form>
 

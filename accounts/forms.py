@@ -171,3 +171,77 @@ CertificationFS = inlineformset_factory(Profile, Certification, form=Certificati
 CourseFS        = inlineformset_factory(Profile, Course,        form=CourseForm,        extra=1, can_delete=True)
 AwardFS         = inlineformset_factory(Profile, Award,         form=AwardForm,         extra=1, can_delete=True)
 BookFS          = inlineformset_factory(Profile, Book,          form=BookForm,          extra=1, can_delete=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from django import forms
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class EmailVerifyStartForm(forms.Form):
+    email = forms.EmailField(label=_("Email"), widget=forms.EmailInput(attrs={"class": "input", "placeholder": _("Your email")}))
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        if self.user and self.user.email:
+            self.fields["email"].initial = self.user.email
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        if self.user and email != self.user.email.lower():
+            raise forms.ValidationError(_("Use the email associated with your account."))
+        return email
+
+
+class EmailVerifyCodeForm(forms.Form):
+    code = forms.CharField(
+        label=_("Verification code"),
+        max_length=6,
+        widget=forms.TextInput(attrs={"class": "input", "inputmode": "numeric", "autocomplete": "one-time-code", "placeholder": "••••••"})
+    )
+
+
+class PasswordResetStartForm(forms.Form):
+    email = forms.EmailField(label=_("Email"), widget=forms.EmailInput(attrs={"class": "input", "placeholder": _("Your email")}))
+
+    def clean_email(self):
+        email = self.cleaned_data["email"].strip().lower()
+        if not User.objects.filter(email__iexact=email).exists():
+            # Don't leak existence; we still "pretend" it worked
+            pass
+        return email
+
+
+class PasswordResetConfirmForm(forms.Form):
+    email = forms.EmailField(widget=forms.HiddenInput())
+    code  = forms.CharField(label=_("Code"), max_length=6,
+                            widget=forms.TextInput(attrs={"class": "input", "inputmode": "numeric", "placeholder": "••••••"}))
+    new_password1 = forms.CharField(
+        label=_("New password"),
+        widget=forms.PasswordInput(attrs={"class": "input", "placeholder": _("New password")})
+    )
+    new_password2 = forms.CharField(
+        label=_("Confirm password"),
+        widget=forms.PasswordInput(attrs={"class": "input", "placeholder": _("Confirm password")})
+    )
+
+    def clean(self):
+        cleaned = super().clean()
+        p1, p2 = cleaned.get("new_password1"), cleaned.get("new_password2")
+        if p1 and p2 and p1 != p2:
+            self.add_error("new_password2", _("Passwords do not match."))
+        return cleaned

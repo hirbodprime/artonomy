@@ -104,6 +104,7 @@ class User(AbstractUser):
         ARTIST = "ARTIST", _("Artist")
         AUDIENCE = "AUDIENCE", _("Audience")
     language = models.CharField(max_length=5, choices=LANG_CHOICES, default="fa")
+    email_verified = models.BooleanField(default=False)
 
     email = models.EmailField(_("email address"), unique=True)
     username = models.CharField(
@@ -343,3 +344,55 @@ class Award(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+
+
+from django.utils import timezone
+from django.conf import settings
+import secrets
+from datetime import timedelta
+
+class EmailOTP(models.Model):
+    class Purpose(models.TextChoices):
+        VERIFY_EMAIL   = "VERIFY_EMAIL", "Verify Email"
+        RESET_PASSWORD = "RESET_PASSWORD", "Reset Password"
+
+    user     = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="email_otps")
+    email    = models.EmailField()
+    purpose  = models.CharField(max_length=20, choices=Purpose.choices)
+    code     = models.CharField(max_length=6, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    attempts   = models.PositiveSmallIntegerField(default=0)
+    is_used    = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["email", "purpose", "code"]),
+        ]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.email} [{self.purpose}] {self.code} {'(used)' if self.is_used else ''}"
+
+    @classmethod
+    def create_code(cls, user, email, purpose, ttl_minutes=15):
+        code = f"{secrets.randbelow(1000000):06d}"
+        return cls.objects.create(
+            user=user,
+            email=email,
+            purpose=purpose,
+            code=code,
+            expires_at=timezone.now() + timedelta(minutes=ttl_minutes),
+        )
+
+    def is_valid(self, submitted):
+        if self.is_used:
+            return False
+        if timezone.now() > self.expires_at:
+            return False
+        if self.code != submitted:
+            return False
+        return True

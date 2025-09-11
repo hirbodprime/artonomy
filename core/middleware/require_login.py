@@ -15,6 +15,10 @@ class RequireLoginMiddleware:
             reverse("landing"),    # your landing page
             # reverse("login"),      # login page
             reverse("signup"),     # signup page
+            reverse("password_reset_start"),     # signup page
+            reverse("password_reset_confirm"),     # signup page
+            
+
         ]
 
     def __call__(self, request):
