@@ -29,12 +29,15 @@
 
       <div>
         <label class="block text-sm font-medium mb-2 text-gray-300 lg:text-gray-700">{% trans "Email" %}</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="{% trans 'you@example.com' %}"
+<input
+  type="email"
+  name="email"
+  placeholder="{% trans 'you@gmail.com' %}"
+  pattern="^[a-zA-Z0-9._%+-]+@gmail\.com$"
+  title="{% trans 'Only Gmail addresses are allowed' %}"
+  required
           class="w-full h-12 text-base rounded-full border-none bg-[#1C1C1E] lg:border lg:border-gray-300 lg:bg-white px-5 focus:outline-none focus:ring-2 focus:ring-purple-500 text-white lg:text-gray-900"
-        />
+/>
       </div>
 
       <div>

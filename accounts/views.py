@@ -1,10 +1,7 @@
 # accounts/views.py
-from django.contrib import messages
-from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from .onboarding import next_onboarding_step, ROLE_STEP, CATEGORIES_STEP, DONE
-from django.contrib.auth import get_user_model
 from posts.models import Post
 from network.models import Follow
 from accounts.models import (
@@ -17,7 +14,6 @@ from django.contrib.auth import logout
 from django.urls import reverse
 
 # accounts/views.py  (additions)
-from django.contrib import messages
 from django.db import transaction
 from .forms import (
     ProfileBasicsForm, SkillsCSVForm, ValuesHobbiesForm, FunFactsForm,
@@ -25,6 +21,8 @@ from .forms import (
     EducationFS, ExperienceFS, ProjectFS, CertificationFS, CourseFS, AwardFS, BookFS
 )
 import re
+from django.contrib import messages
+from django.contrib.auth import login, get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import Q, F
 from django.db.models.functions import Coalesce
@@ -33,7 +31,10 @@ from django.utils.translation import gettext as _, get_language
 
 User = get_user_model()
 
+# views.py (signup, clean version)
 
+
+GMAIL_PATTERN = re.compile(r"^[A-Za-z0-9._%+-]+@gmail\.com$", re.IGNORECASE)
 
 def logout_view(request):
     """Logs out the user and redirects to explore (or login)."""
@@ -41,51 +42,67 @@ def logout_view(request):
     return redirect(reverse("landing"))
 
 
+
 def signup_view(request):
     if request.method == "POST":
         username = (request.POST.get("username") or "").strip()
-        email    = (request.POST.get("email") or "").strip()
+        email    = (request.POST.get("email") or "").strip().lower()
         password = (request.POST.get("password") or "")
+
+        # keep previous values to repopulate on error
+        ctx = {"prefill": {"username": username, "email": email}}
 
         # normalize username: only keep [a-zA-Z0-9_], force lowercase
         cleaned_username = re.sub(r'[^a-zA-Z0-9_]', '', username).lower()
 
         if not cleaned_username:
-            messages.error(request, "Please choose a valid username (letters, numbers, underscores).")
-            return render(request, "accounts/signup.html")
+            messages.error(request, _("Please choose a valid username (letters, numbers, underscores)."))
+            return render(request, "accounts/signup.html", ctx)
 
-        # run validator (gives nice Django ValidationError message if needed)
         try:
+            from accounts.models import username_validator  # or import at top
             username_validator(cleaned_username)
         except ValidationError as e:
             messages.error(request, e.message)
-            return render(request, "accounts/signup.html")
+            return render(request, "accounts/signup.html", ctx)
 
         if User.objects.filter(username__iexact=cleaned_username).exists():
-            messages.error(request, "Username already taken.")
-            return render(request, "accounts/signup.html")
+            messages.error(request, _("Username already taken."))
+            return render(request, "accounts/signup.html", ctx)
 
         if not email:
-            messages.error(request, "Email is required.")
-            return render(request, "accounts/signup.html")
+            messages.error(request, _("Email is required."))
+            return render(request, "accounts/signup.html", ctx)
+
+        # ✅ Gmail-only
+        if not GMAIL_PATTERN.match(email):
+            messages.error(request, _("Only Gmail addresses are allowed (example: you@gmail.com)."))
+            return render(request, "accounts/signup.html", ctx)
 
         if User.objects.filter(email__iexact=email).exists():
-            messages.error(request, "Email already in use.")
-            return render(request, "accounts/signup.html")
+            messages.error(request, _("Email already in use."))
+            return render(request, "accounts/signup.html", ctx)
 
         if len(password) < 8:
-            messages.error(request, "Password must be at least 8 characters.")
-            return render(request, "accounts/signup.html")
+            messages.error(request, _("Password must be at least 8 characters."))
+            return render(request, "accounts/signup.html", ctx)
 
+        # Create user
         user = User.objects.create_user(
             username=cleaned_username,
             email=email,
             password=password,
         )
+        if hasattr(user, "email_verified"):
+            user.email_verified = False
+            user.save(update_fields=["email_verified"])
+
         login(request, user)
         return redirect("choose_role")
 
+    # GET
     return render(request, "accounts/signup.html")
+
 
 
 @login_required
