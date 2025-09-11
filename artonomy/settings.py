@@ -210,3 +210,61 @@ FFMPEG_BIN = "ffmpeg"             # or full path if needed (e.g. "/usr/bin/ffmpe
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+import logging
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# default: INFO; set DEBUG level only if needed
+LOG_LEVEL = "INFO"
+
+# always log into <project root>/logs
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name} — {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {name}: {message}",
+            "style": "{",
+        },
+    },
+
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "level": LOG_LEVEL,
+        },
+        "file_info": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "django.info.log",
+            "maxBytes": 5 * 1024 * 1024,  # 5 MB
+            "backupCount": 3,
+            "formatter": "verbose",
+            "level": LOG_LEVEL,
+        },
+        "file_error": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": LOG_DIR / "django.error.log",
+            "maxBytes": 10 * 1024 * 1024,  # 10 MB
+            "backupCount": 5,
+            "formatter": "verbose",
+            "level": "ERROR",
+        },
+    },
+
+    "root": {
+        "handlers": ["console", "file_info", "file_error"],
+        "level": LOG_LEVEL,
+    },
+}
