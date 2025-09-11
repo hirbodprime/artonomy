@@ -74,8 +74,8 @@ html[dir="rtl"] .sm\:text-left { text-align: right !important; }
 </style>
 
 <div class="max-w-7xl w-full mx-auto px-3 sm:px-6 py-6">
-  <!-- ===== Profile Hero ===== -->
-{% if request.user.is_authenticated and not request.user.email_verified %}
+<!-- ===== Profile Hero ===== -->
+{% if request.user.is_authenticated and request.user == profile_user and not request.user.email_verified %}
   <div class="bg-amber-400 text-black text-sm font-semibold px-4 py-2 flex items-center justify-between">
     <div class="flex items-center gap-2">
       <i class="fa-solid fa-triangle-exclamation"></i>
@@ -87,6 +87,7 @@ html[dir="rtl"] .sm\:text-left { text-align: right !important; }
     </a>
   </div>
 {% endif %}
+
 
   <section class="relative mb-8 text-center sm:text-start fade-in">
     {% if profile_user.profile and profile_user.profile.cover %}
