@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}My Portfolios{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 mb-3">My Portfolios</h1>
+
+  {% if sites %}
+    <div class="row g-3">
+      {% for s in sites %}
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex align-items-center justify-content-between">
+              <h5 class="card-title mb-0">{{ s.title|default:s.theme.name }}</h5>
+              {% if s.is_primary %}
+                <span class="badge bg-success">Primary</span>
+              {% endif %}
+            </div>
+
+            <p class="text-muted mb-2">
+              {{ s.theme.name }}
+              •
+              {% if s.theme.is_premium %}<span class="text-warning">Premium</span>{% else %}Free{% endif %}
+            </p>
+
+            <div class="mt-auto d-flex gap-2">
+              <a class="btn btn-outline-secondary" href="{% url 'portfolio:onboarding' %}">Edit Content</a>
+
+              {# Only show Set Primary if NOT already primary #}
+              {% if not s.is_primary %}
+<form method="post" action="{% url 'portfolio:set_primary_portfolio' s.id %}" class="d-inline">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primary">Set Primary</button>
+</form>
+
+              {% endif %}
+
+              <a class="btn btn-outline-dark" href="{% url 'portfolio:public_portfolio' request.user.username %}" target="_blank">View</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">No portfolios yet. Pick a theme to get started.</p>
+  {% endif %}
+
+  <div class="mt-4">
+    <a class="btn btn-success" href="{% url 'portfolio:theme_gallery' %}">Create new portfolio</a>
+  </div>
+</div>
+{% endblock %}

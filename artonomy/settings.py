@@ -62,13 +62,14 @@ INSTALLED_APPS = [
     "widget_tweaks",
 
     # my apps
-    "accounts","posts","network",
+    "accounts","posts","network",'portfolio',
     "marketplace","suggest", 'category_app',"collab"
 ]
 AUTH_USER_MODEL = "accounts.User" 
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
 
     "django.contrib.auth.middleware.AuthenticationMiddleware",  # ← before ours
@@ -120,13 +121,24 @@ WSGI_APPLICATION = 'artonomy.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.getenv("DB_ENGINE", "sqlite") == "postgresql":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("DB_NAME", "appdb"),
+            "USER": os.getenv("DB_USER", "appuser"),
+            "PASSWORD": os.getenv("DB_PASSWORD", "apppass"),
+            "HOST": os.getenv("DB_HOST", "db"),
+            "PORT": os.getenv("DB_PORT", "5432"),
+        }
     }
-}
-
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -192,19 +204,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 HOME_DIR = Path.home()  # e.g. /home/yourcpaneluser
 
 # --- Static files ---
-if not DEBUG:
-    STATIC_URL = "/static/"
-    STATIC_ROOT = HOME_DIR / "public_html" / "static"   # /home/USER/public_html/static
-
-
-    MEDIA_URL = "/media/"
-    MEDIA_ROOT = HOME_DIR / "public_html" / "media"     # /home/USER/public_html/media
-else:
-    STATIC_URL = '/static/'
-    STATICFILES_DIRS = [BASE_DIR / "static"]  # if you have a static/ folder in root
-
-    MEDIA_URL = "/media/"
-    MEDIA_ROOT = BASE_DIR / "media"
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
     
 IMAGE_DEFAULT_QUALITY = 72        # 60-80 is a good range

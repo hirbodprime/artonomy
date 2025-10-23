@@ -1,0 +1,1097 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Setup your portfolio{% endblock %}
+
+{% block content %}
+<style>
+/* * ============================================
+ * 1. CSS Variables & Base Styles (Cyber-Glow)
+ * ============================================
+ */
+
+/* Redefine base colors for a strong dark/neon contrast */
+:root {
+    --bg-0: #1a1a2e; /* Darkest background */
+    --bg-1: #2c2c47; /* Card background */
+    --bg-2: #3e3e5c; /* Input/Hover background */
+    --text-1: #ffffff; /* Primary text */
+    --text-2: #c4c4c4; /* Secondary text/labels */
+    --border-1: rgba(255, 255, 255, 0.1);
+    --border-2: rgba(255, 255, 255, 0.2);
+    
+    /* Neon Accents (Adjusted from brand-secondary to blue-neon) */
+    --blue-neon: #00e0ff;
+    --green-neon: #21ff7c;
+    --red-neon: #ff5577;
+
+    --brand-secondary: var(--blue-neon);
+    --brand-accent: var(--green-neon);
+    --red-alert: var(--red-neon);
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+    --radius-pill: 999px;
+
+    /* Subtle glow for depth and active states */
+    --shadow-deep: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --shadow-inset: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+.image-preview-box.has-image {
+  width: 120px;
+  height: 80px;
+  background-size: cover;
+  background-position: center;
+  border-style: solid;
+}
+
+
+/* Base Body/Font (assuming Inter is loaded) */
+body {
+    background-color: var(--bg-0);
+    color: var(--text-2);
+    font-family: 'Inter', sans-serif;
+}
+
+h1, h4, h6 { color: var(--text-1) !important; }
+
+/* --- Main Layout: Side Panel + Content Area --- */
+.onb-container{
+    max-width: 1400px;
+    margin-inline: auto;
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+}
+
+.onb-nav-panel{
+    background: var(--bg-1);
+    border: 1px solid var(--border-1);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-deep);
+    padding: 1.5rem;
+    min-height: 700px;
+}
+
+/* --- Vertical Navigation Panel (Left Side) --- */
+.onb-nav-item button{
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0.8rem 1rem;
+    color: var(--text-2);
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s, color 0.2s, border 0.2s, box-shadow 0.2s;
+}
+.onb-nav-item button:hover{
+    color: var(--text-1);
+    background-color: var(--bg-2);
+}
+.onb-nav-item button.active{
+    color: var(--blue-neon);
+    font-weight: 600;
+    /* Neon glow effect for active state */
+    background: var(--bg-2); 
+    border-left: 3px solid var(--blue-neon);
+    padding-left: 0.8rem;
+    box-shadow: 0 0 10px rgba(0, 224, 255, 0.5), var(--shadow-inset);
+}
+.onb-nav-item button.active i {
+    color: var(--blue-neon);
+}
+@media (max-width: 992px) {
+    .onb-nav-panel { margin-bottom: 2rem; }
+}
+
+/* --- Content Area (Right Side) --- */
+.onb-content-area{
+    min-height: 700px;
+    background: var(--bg-1);
+    border: 1px solid var(--border-1);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-deep);
+    padding: 2.5rem;
+}
+.tab-pane{
+    animation: fadeIn 0.4s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+
+/* * ============================================
+ * 2. Form & Input Styles
+ * ============================================
+ */
+
+.onb-form input, 
+.onb-form textarea, 
+.onb-form select,
+.onb-form .form-select {
+    color: var(--text-1);
+    background: var(--bg-2) !important;
+    border-radius: var(--radius-sm) !important;
+    border: 1px solid var(--border-1) !important;
+    width: 100% !important;
+    box-sizing: border-box;
+    min-height: 48px; 
+    padding: 0.75rem 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Focus state: Subtle blue neon border/glow */
+.onb-form input:focus, 
+.onb-form textarea:focus, 
+.onb-form select:focus,
+.onb-form .form-select:focus {
+    border-color: var(--blue-neon) !important;
+    box-shadow: 0 0 5px rgba(0, 224, 255, 0.6) !important;
+    outline: none !important;
+    background: var(--bg-2) !important;
+}
+
+.onb-form textarea {
+    min-height: 150px; 
+}
+label{
+    color: var(--text-2);
+    font-weight: 500;
+    margin-bottom: .25rem;
+}
+.onb-hint{ 
+    color: var(--text-2); 
+    opacity: 0.7; 
+    font-size:.875rem; 
+    margin-top: .5rem; 
+}
+
+/* --- Formset Card/Controls --- */
+.onb-formcard{
+    border: 1px solid var(--border-1);
+    border-radius: var(--radius-md);
+    background: var(--bg-2);
+    margin-bottom: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden; /* Contains the header and body */
+}
+.onb-formcard:hover {
+    border-color: rgba(0, 224, 255, 0.3);
+}
+
+.onb-card-header {
+    background: rgba(0, 0, 0, 0.15);
+    padding: 0.75rem 1.5rem;
+    color: var(--text-1);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-1);
+}
+
+.onb-card-body {
+    padding: 1rem 1.5rem 0.5rem 1.5rem;
+}
+.onb-formcard p { margin-bottom: 1rem; }
+.onb-formcard p:last-child { margin-bottom: 0.5rem; }
+
+
+/* Delete Button Refined */
+.onb-formcard-remove{
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    height: 30px; width: 30px;
+    background: var(--red-neon); 
+    border-radius: var(--radius-pill);
+    border: 3px solid var(--bg-1);
+    color: var(--text-1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    line-height: 1;
+    z-index: 10;
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.2s, transform 0.2s, background 0.2s;
+    box-shadow: 0 0 8px var(--red-neon);
+    font-weight: 900;
+}
+.onb-formcard-remove:hover{
+    opacity: 1;
+    transform: scale(1.1);
+}
+.onb-formcard-deleted{
+    opacity: 0.6;
+    background: var(--bg-0);
+    border-color: var(--red-neon);
+    box-shadow: inset 0 0 10px rgba(255, 85, 119, 0.4);
+}
+.onb-formcard-deleted .onb-card-header {
+    background: rgba(255, 85, 119, 0.1);
+    color: var(--red-neon);
+}
+.onb-formcard-deleted .onb-formcard-remove {
+    background: var(--blue-neon); /* Blue for UNDO */
+    box-shadow: 0 0 8px var(--blue-neon);
+}
+
+/* Hide default Django checkbox/label for DELETE */
+.onb-formcard p label[for$="-DELETE"],
+.onb-formcard input[name$="-DELETE"] { 
+    display: none; 
+}
+
+
+/* * ============================================
+ * 3. Buttons & Elements
+ * ============================================
+ */
+
+.btn-success, .btn-primary {
+    border-radius: var(--radius-sm); 
+    font-weight: 600; 
+    padding: .5rem 1.2rem; 
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.btn-success{ 
+    background: var(--green-neon); 
+    color: var(--bg-0);
+    box-shadow: 0 0 10px rgba(33, 255, 124, 0.5);
+}
+.btn-success:hover{
+    background: var(--green-neon);
+    color: var(--bg-0);
+    box-shadow: 0 0 15px rgba(33, 255, 124, 0.8);
+    transform: translateY(-1px);
+}
+
+.btn-primary { 
+    background: var(--blue-neon); 
+    color: var(--bg-0);
+    box-shadow: 0 0 10px rgba(0, 224, 255, 0.5);
+}
+.btn-primary:hover {
+    background: var(--blue-neon);
+    color: var(--bg-0);
+    box-shadow: 0 0 15px rgba(0, 224, 255, 0.8);
+    transform: translateY(-1px);
+}
+
+.btn-outline-neon {
+    border: 1px solid var(--blue-neon);
+    color: var(--blue-neon);
+    background: transparent;
+}
+.btn-outline-neon:hover {
+    background: rgba(0, 224, 255, 0.1);
+    color: var(--text-1);
+    box-shadow: 0 0 10px rgba(0, 224, 255, 0.5);
+}
+.btn-danger-confirm { 
+    background: var(--red-neon); 
+    border: none;
+    color: var(--bg-0);
+    box-shadow: 0 0 10px rgba(255, 85, 119, 0.6);
+    font-weight: 600;
+}
+.btn-danger-confirm:hover {
+    box-shadow: 0 0 15px rgba(255, 85, 119, 1);
+}
+
+/* Icon list items styling */
+.icon-swatch {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.8rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: var(--radius-pill);
+    background: rgba(0, 224, 255, 0.1);
+    color: var(--blue-neon);
+    border: 1px solid rgba(0, 224, 255, 0.3);
+    font-size: 0.9rem;
+}
+.icon-swatch i { color: var(--blue-neon); }
+
+/* Custom Checkbox/Multi-select styling (for Publish tab) */
+.onb-fieldset .form-check-input {
+    background-color: var(--bg-2);
+    border: 1px solid var(--border-1);
+    margin-top: 0.35rem;
+}
+.onb-fieldset .form-check-input:checked {
+    background-color: var(--blue-neon);
+    border-color: var(--blue-neon);
+    box-shadow: 0 0 5px rgba(0, 224, 255, 0.5);
+}
+.onb-fieldset .form-check-label {
+    color: var(--text-1);
+}
+
+/* * ============================================
+ * 4. Image Upload Preview (New UX)
+ * ============================================
+ */
+.image-upload-area { 
+    display: flex; 
+    align-items: center; 
+    gap: 1rem; 
+    flex-wrap: nowrap; /* Keep input and preview next to each other */
+}
+.image-upload-area input[type="file"] { 
+    flex-grow: 1; 
+    min-width: 150px; 
+}
+.image-preview-box {
+    width: 60px; height: 60px;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-2);
+    border: 1px dashed var(--blue-neon);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 0 5px rgba(0, 224, 255, 0.1);
+}
+.image-preview-box img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+}
+.image-preview-box i {
+    font-size: 1.5rem;
+    color: var(--text-2);
+    opacity: 0.5;
+}
+.onb-current-link {
+    display: block;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+    color: var(--blue-neon);
+}
+
+/* * ============================================
+ * 5. Modal Styling
+ * ============================================
+ */
+.modal-content-custom {
+    background-color: var(--bg-1);
+    color: var(--text-1);
+    border: 1px solid var(--border-1);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+.modal-title { color: var(--red-neon) !important; }
+.btn-close-white { filter: invert(1); }
+
+</style>
+
+<div class="onb-container container-fluid">
+    <h1 class="h3 mb-5 fw-bold text-center border-bottom border-secondary pb-3" style="color: var(--blue-neon); text-shadow: 0 0 10px rgba(0, 224, 255, 0.5);">🚀 Portfolio Onboarding Matrix</h1>
+
+    <form method="post" enctype="multipart/form-data" class="onb-form" id="onb-form">
+        {% csrf_token %}
+
+        <div class="row g-4">
+            <!-- 1. NAVIGATION PANEL (LEFT) -->
+            <div class="col-lg-3">
+                <div class="onb-nav-panel">
+                    <ul class="list-unstyled mb-0" id="onb-nav-list">
+                        <li class="onb-nav-item" data-step-id="tab-profile"><button type="button" class="active"><i class="bi bi-person-circle me-3"></i> Core Identity</button></li>
+                        <li class="onb-nav-item" data-step-id="tab-links"><button type="button"><i class="bi bi-link-45deg me-3"></i> Social Presence</button></li>
+                        <li class="onb-nav-item" data-step-id="tab-stats"><button type="button"><i class="bi bi-graph-up me-3"></i> Impact Counters</button></li>
+                        <li class="onb-nav-item" data-step-id="tab-skills"><button type="button"><i class="bi bi-lightning-charge me-3"></i> Your Expertise</button></li>
+                        <li class="onb-nav-item" data-step-id="tab-resume"><button type="button"><i class="bi bi-briefcase me-3"></i> Timeline (Resume)</button></li>
+                        <li class="onb-nav-item" data-step-id="tab-portfolio"><button type="button"><i class="bi bi-image me-3"></i> Showcase (Artworks)</button></li>
+                        <li class="onb-nav-item" data-step-id="tab-services"><button type="button"><i class="bi bi-stars me-3"></i> Offerings (Services)</button></li>
+                        <li class="onb-nav-item" data-step-id="tab-testimonials"><button type="button"><i class="bi bi-chat-left-quote me-3"></i> Social Proof</button></li>
+                        <li class="onb-nav-item mt-3 pt-3 border-top border-secondary border-opacity-25" data-step-id="tab-publish"><button type="button"><i class="bi bi-check2-circle me-3"></i> Finalize & Deploy</button></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 2. CONTENT AREA (RIGHT) -->
+            <div class="col-lg-9">
+                <div class="onb-content-area">
+                    <div class="tab-content" id="onb-content">
+
+                        <!-- PROFILE -->
+                        <div class="tab-pane fade show active" id="tab-profile" role="tabpanel">
+                            <h4 class="fw-bold mb-4 text-light border-bottom border-secondary border-opacity-25 pb-2">Core Identity & Contact</h4>
+                            <div class="onb-fieldset">
+                                {{ profile_form.non_field_errors }}
+
+                                <!-- Multi-Title Input -->
+                                <div class="mb-4">
+                                    <label class="form-label">Titles (What you are)</label>
+                                    <div id="titles-list" class="mb-2"></div>
+                                    <div class="input-group mb-2">
+                                        <input type="text" class="form-control" id="titles-input" placeholder="e.g., Lead Developer, Digital Artist">
+                                        <button class="btn btn-success" type="button" id="add-title"><i class="bi bi-plus"></i> Add</button>
+                                    </div>
+                                    <!-- Hidden input that Django reads -->
+                                    {{ profile_form.title }}
+                                    <div class="onb-hint">Titles rotate on your public page (e.g., Developer | Designer | Editor).</div>
+                                </div>
+
+                                <div class="mb-4">
+                                    {{ profile_form.bio.errors }}
+                                    {{ profile_form.bio.label_tag }}
+                                    {{ profile_form.bio }}
+                                    <div class="onb-hint">Your elevator pitch. Keep it punchy and engaging.</div>
+                                </div>
+                                <div class="row g-4">
+                                    <div class="col-md-6">{{ profile_form.phone.errors }}{{ profile_form.phone.label_tag }}{{ profile_form.phone }}</div>
+                                    <div class="col-md-6">{{ profile_form.website.errors }}{{ profile_form.website.label_tag }}{{ profile_form.website }}</div>
+                                    <div class="col-md-6">{{ profile_form.location.errors }}{{ profile_form.location.label_tag }}{{ profile_form.location }}</div>
+                                    <div class="col-md-6">{{ profile_form.email_public.errors }}{{ profile_form.email_public.label_tag }}{{ profile_form.email_public }}</div>
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold mb-3 mt-5 border-bottom border-secondary border-opacity-25 pb-2 text-light">Visual Assets (Media)</h6>
+                            <div class="onb-fieldset">
+  <div class="row g-4">
+    <!-- Avatar -->
+    <div class="col-lg-4 col-md-6 col-sm-12">
+      {{ profile_form.avatar.errors }}{{ profile_form.avatar.label_tag }}
+      <div class="image-upload-area">
+        {{ profile_form.avatar }}
+        {% with img=profile_form.instance.avatar %}
+          <div
+            class="image-preview-box {% if img %}has-image{% endif %}"
+            data-preview-for="id_avatar"
+            {% if img %}data-current="{{ img.url }}"{% endif %}
+          >
+            {% if not img %}<i class="bi bi-person-fill"></i>{% endif %}
+          </div>
+        {% endwith %}
+      </div>
+    </div>
+
+    <!-- Cover -->
+    <div class="col-lg-4 col-md-6 col-sm-12">
+      {{ profile_form.cover.errors }}{{ profile_form.cover.label_tag }}
+      <div class="image-upload-area">
+        {{ profile_form.cover }}
+        {% with img=profile_form.instance.cover %}
+          <div
+            class="image-preview-box {% if img %}has-image{% endif %}"
+            data-preview-for="id_cover"
+            {% if img %}data-current="{{ img.url }}"{% endif %}
+          >
+            {% if not img %}<i class="bi bi-image"></i>{% endif %}
+          </div>
+        {% endwith %}
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="col-lg-4 col-md-6 col-sm-12">
+      {{ profile_form.hero_image.errors }}{{ profile_form.hero_image.label_tag }}
+      <div class="image-upload-area">
+        {{ profile_form.hero_image }}
+        {% with img=profile_form.instance.hero_image %}
+          <div
+            class="image-preview-box {% if img %}has-image{% endif %}"
+            data-preview-for="id_hero_image"
+            {% if img %}data-current="{{ img.url }}"{% endif %}
+          >
+            {% if not img %}<i class="bi bi-star-fill"></i>{% endif %}
+          </div>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</div>
+
+                        </div>
+
+                        <!-- LINKS -->
+                        <div class="tab-pane fade" id="tab-links" role="tabpanel">
+                            <h4 class="fw-bold mb-4 text-light border-bottom border-secondary border-opacity-25 pb-2">Social Presence & External Links</h4>
+                            <div class="formset-controls mb-4">
+                                <button type="button" class="btn btn-success" data-formset-add="#links"><i class="bi bi-plus-circle me-2"></i> Add Social/Link</button>
+                            </div>
+                            {{ link_formset.management_form }}
+                            <div id="links" data-formset-prefix="{{ link_formset.prefix }}">
+                                {% for f in link_formset.forms %}
+                                <div class="onb-formcard">
+                                    <div class="onb-card-header">Link #{{ forloop.counter }}<span class="card-title-display"></span></div>
+                                    <div class="onb-card-body">{{ f.as_p }}</div>
+                                </div>
+                                {% endfor %}
+                                <template data-empty-form>
+                                    <div class="onb-formcard">
+                                        <div class="onb-card-header">New Link<span class="card-title-display"></span></div>
+                                        <div class="onb-card-body">{{ link_formset.empty_form.as_p }}</div>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="onb-hint mt-3">Links should include a title (e.g., "GitHub") and the full URL.</div>
+                        </div>
+
+                        <!-- STATS -->
+                        <div class="tab-pane fade" id="tab-stats" role="tabpanel">
+                            <h4 class="fw-bold mb-4 text-light border-bottom border-secondary border-opacity-25 pb-2">Impact Counters (e.g., 50+ Projects)</h4>
+                            <div class="formset-controls mb-4">
+                                <button type="button" class="btn btn-success" data-formset-add="#counters"><i class="bi bi-plus-circle me-2"></i> Add Counter</button>
+                            </div>
+                            {{ counters_fs.management_form }}
+                            <div id="counters" data-formset-prefix="{{ counters_fs.prefix }}">
+                                {% for f in counters_fs.forms %}
+                                <div class="onb-formcard onb-formcard-counter">
+                                    <div class="onb-card-header">Counter #{{ forloop.counter }}<span class="card-title-display"></span></div>
+                                    <div class="onb-card-body">{{ f.as_p }}</div>
+                                </div>
+                                {% endfor %}
+                                <template data-empty-form>
+                                    <div class="onb-formcard onb-formcard-counter">
+                                        <div class="onb-card-header">New Counter<span class="card-title-display"></span></div>
+                                        <div class="onb-card-body">{{ counters_fs.empty_form.as_p }}</div>
+                                    </div>
+                                </template>
+                            </div>
+                            <div class="onb-hint">Use **Bootstrap Icons** (e.g., bi-briefcase) for the icon field. The live preview will help you choose!</div>
+                        </div>
+
+                        <!-- SKILLS -->
+                        <div class="tab-pane fade" id="tab-skills" role="tabpanel">
+                            <h4 class="fw-bold mb-4 text-light border-bottom border-secondary border-opacity-25 pb-2">Your Expertise & Proficiency</h4>
+                            <div class="formset-controls mb-4">
+                                <button type="button" class="btn btn-success" data-formset-add="#skills"><i class="bi bi-plus-circle me-2"></i> Add Skill</button>
+                            </div>
+                            {{ skills_fs.management_form }}
+                            <div id="skills" data-formset-prefix="{{ skills_fs.prefix }}">
+                                {% for f in skills_fs.forms %}
+                                <div class="onb-formcard">
+                                    <div class="onb-card-header">Skill #{{ forloop.counter }}<span class="card-title-display"></span></div>
+                                    <div class="onb-card-body">{{ f.as_p }}</div>
+                                </div>
+                                {% endfor %}
+                                <template data-empty-form>
+                                    <div class="onb-formcard">
+                                        <div class="onb-card-header">New Skill<span class="card-title-display"></span></div>
+                                        <div class="onb-card-body">{{ skills_fs.empty_form.as_p }}</div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- RESUME -->
+                        <div class="tab-pane fade" id="tab-resume" role="tabpanel">
+                            <h4 class="fw-bold mb-4 text-light border-bottom border-secondary border-opacity-25 pb-2">Timeline (Education & Work History)</h4>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3 text-light"><i class="bi bi-mortarboard-fill me-2" style="color: var(--blue-neon);"></i> Education History</h6>
+                                    <div class="formset-controls mb-4">
+                                        <button type="button" class="btn btn-success btn-sm" data-formset-add="#edus"><i class="bi bi-plus me-2"></i> Add Education</button>
+                                    </div>
+                                    {{ edus_fs.management_form }}
+                                    <div id="edus" data-formset-prefix="{{ edus_fs.prefix }}">
+                                        {% for f in edus_fs.forms %}
+                                        <div class="onb-formcard">
+                                            <div class="onb-card-header">Education #{{ forloop.counter }}<span class="card-title-display"></span></div>
+                                            <div class="onb-card-body">{{ f.as_p }}</div>
+                                        </div>
+                                        {% endfor %}
+                                        <template data-empty-form>
+                                            <div class="onb-formcard">
+                                                <div class="onb-card-header">New Education<span class="card-title-display"></span></div>
+                                                <div class="onb-card-body">{{ edus_fs.empty_form.as_p }}</div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-3 text-light"><i class="bi bi-briefcase-fill me-2" style="color: var(--blue-neon);"></i> Professional Experience</h6>
+                                    <div class="formset-controls mb-4">
+                                        <button type="button" class="btn btn-success btn-sm" data-formset-add="#exps"><i class="bi bi-plus me-2"></i> Add Experience</button>
+                                    </div>
+                                    {{ exps_fs.management_form }}
+                                    <div id="exps" data-formset-prefix="{{ exps_fs.prefix }}">
+                                        {% for f in exps_fs.forms %}
+                                        <div class="onb-formcard">
+                                            <div class="onb-card-header">Experience #{{ forloop.counter }}<span class="card-title-display"></span></div>
+                                            <div class="onb-card-body">{{ f.as_p }}</div>
+                                        </div>
+                                        {% endfor %}
+                                        <template data-empty-form>
+                                            <div class="onb-formcard">
+                                                <div class="onb-card-header">New Experience<span class="card-title-display"></span></div>
+                                                <div class="onb-card-body">{{ exps_fs.empty_form.as_p }}</div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PORTFOLIO -->
+                        <div class="tab-pane fade" id="tab-portfolio" role="tabpanel">
+                            <h4 class="fw-bold mb-4 text-light border-bottom border-secondary border-opacity-25 pb-2">Showcase (Projects/Artworks)</h4>
+                            <div class="formset-controls mb-4">
+                                <button type="button" class="btn btn-success" data-formset-add="#arts"><i class="bi bi-image me-2"></i> Add Artwork</button>
+                            </div>
+                            {{ arts_fs.management_form }}
+                            <div id="arts" data-formset-prefix="{{ arts_fs.prefix }}">
+                                {% for f in arts_fs.forms %}
+                                <div class="onb-formcard">
+                                    <div class="onb-card-header">Artwork #{{ forloop.counter }}<span class="card-title-display"></span></div>
+                                    <div class="onb-card-body">{{ f.as_p }}</div>
+                                </div>
+                                {% endfor %}
+                                <template data-empty-form>
+                                    <div class="onb-formcard">
+                                        <div class="onb-card-header">New Artwork<span class="card-title-display"></span></div>
+                                        <div class="onb-card-body">{{ arts_fs.empty_form.as_p }}</div>
+                                    </div>
+                                </template>
+                            </div>
+                            <p class="onb-hint mt-3">Upload an image and provide details for each project/artwork.</p>
+                        </div>
+
+                        <!-- SERVICES -->
+                        <div class="tab-pane fade" id="tab-services" role="tabpanel">
+                            <h4 class="fw-bold mb-4 text-light border-bottom border-secondary border-opacity-25 pb-2">Offerings (Services for Hire)</h4>
+                            <div class="formset-controls mb-4">
+                                <button type="button" class="btn btn-success" data-formset-add="#svcs"><i class="bi bi-stars me-2"></i> Add Service</button>
+                            </div>
+                            {{ svcs_fs.management_form }}
+                            <div id="svcs" data-formset-prefix="{{ svcs_fs.prefix }}">
+                                {% for f in svcs_fs.forms %}
+                                <div class="onb-formcard onb-formcard-service">
+                                    <div class="onb-card-header">Service #{{ forloop.counter }}<span class="card-title-display"></span></div>
+                                    <div class="onb-card-body">{{ f.as_p }}</div>
+                                </div>
+                                {% endfor %}
+                                <template data-empty-form>
+                                    <div class="onb-formcard onb-formcard-service">
+                                        <div class="onb-card-header">New Service<span class="card-title-display"></span></div>
+                                        <div class="onb-card-body">{{ svcs_fs.empty_form.as_p }}</div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- TESTIMONIALS -->
+                        <div class="tab-pane fade" id="tab-testimonials" role="tabpanel">
+                            <h4 class="fw-bold mb-4 text-light border-bottom border-secondary border-opacity-25 pb-2">Social Proof (Client Testimonials)</h4>
+                            <div class="formset-controls mb-4">
+                                <button type="button" class="btn btn-success" data-formset-add="#tests"><i class="bi bi-chat-left-quote me-2"></i> Add Testimonial</button>
+                            </div>
+                            {{ tests_fs.management_form }}
+                            <div id="tests" data-formset-prefix="{{ tests_fs.prefix }}">
+                                {% for f in tests_fs.forms %}
+                                <div class="onb-formcard">
+                                    <div class="onb-card-header">Testimonial #{{ forloop.counter }}<span class="card-title-display"></span></div>
+                                    <div class="onb-card-body">{{ f.as_p }}</div>
+                                </div>
+                                {% endfor %}
+                                <template data-empty-form>
+                                    <div class="onb-formcard">
+                                        <div class="onb-card-header">New Testimonial<span class="card-title-display"></span></div>
+                                        <div class="onb-card-body">{{ tests_fs.empty_form.as_p }}</div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- PUBLISH PICKS -->
+                        <div class="tab-pane fade" id="tab-publish" role="tabpanel">
+                            <h4 class="fw-bold mb-4 text-light border-bottom border-secondary border-opacity-25 pb-2">Finalize & Deploy</h4>
+                            <p class="onb-hint mb-4">Select which of your added Artworks and Services should be **featured** prominently on your public page.</p>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="onb-fieldset p-4" style="background:var(--bg-2); border-radius:var(--radius-md);">
+                                        <label class="form-label fw-semibold" style="color: var(--green-neon);">Artworks to Feature</label>
+                                        {{ publish_form.artworks.errors }}
+                                        <div class="mt-2">{{ publish_form.artworks }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="onb-fieldset p-4" style="background:var(--bg-2); border-radius:var(--radius-md);">
+                                        <label class="form-label fw-semibold" style="color: var(--green-neon);">Services to Feature</label>
+                                        {{ publish_form.services.errors }}
+                                        <div class="mt-2">{{ publish_form.services }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="mt-5 pt-3 border-top border-secondary border-opacity-25 d-flex justify-content-end gap-3">
+                        <a class="btn btn-outline-neon px-4" href="{% url 'portfolio:public_portfolio' request.user.username %}" target="_blank"><i class="bi bi-box-arrow-up-right me-2"></i> View Public Page</a>
+                        <button class="btn btn-primary px-5" type="submit"><i class="bi bi-floppy me-2"></i> Save All Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Confirmation Modal (Simplified Bootstrap 5 structure) -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content modal-content-custom p-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title text-light"><i class="bi bi-exclamation-triangle-fill me-2" style="color: var(--red-neon);"></i> Confirm Removal</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2 pb-4">
+                <p class="mb-0 text-white-50">This item will be marked for **deletion**. Are you sure? The action will be permanent once you click 'Save All Changes'.</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-neon" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger-confirm" id="confirmDeleteButton">Yes, Remove it</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons datalist (searchable) -->
+<datalist id="bi-icons">
+    {% comment %} Common Bootstrap Icons. Add more anytime. {% endcomment %}
+    <option value="bi-briefcase"></option>
+    <option value="bi-award"></option>
+    <option value="bi-graph-up"></option>
+    <option value="bi-emoji-smile"></option>
+    <option value="bi-lightning-charge"></option>
+    <option value="bi-code-slash"></option>
+    <option value="bi-camera"></option>
+    <option value="bi-brush"></option>
+    <option value="bi-heart"></option>
+    <option value="bi-people"></option>
+    <option value="bi-trophy"></option>
+    <option value="bi-star"></option>
+    <option value="bi-globe"></option>
+    <option value="bi-geo-alt"></option>
+    <option value="bi-check2-circle"></option>
+    <option value="bi-link-45deg"></option>
+    <option value="bi-cup-hot"></option>
+    <option value="bi-git"></option>
+    <option value="bi-linkedin"></option>
+    <option value="bi-twitter"></option>
+    <option value="bi-dribbble"></option>
+    <option value="bi-palette"></option>
+</datalist>
+
+<script>
+/* =============== LEFT NAV (keeps working as before) =============== */
+(function(){
+    const navItems = document.querySelectorAll('#onb-nav-list .onb-nav-item');
+    const panes = document.querySelectorAll('#onb-content .tab-pane');
+    function show(id){
+        navItems.forEach(li => li.querySelector('button').classList.toggle('active', li.dataset.stepId===id));
+        panes.forEach(p => p.classList.toggle('show', p.id===id));
+        panes.forEach(p => p.classList.toggle('active', p.id===id));
+    }
+    navItems.forEach(li => li.querySelector('button').addEventListener('click', e => { e.preventDefault(); show(li.dataset.stepId); }));
+    const first = document.querySelector('#onb-content .tab-pane.active')?.id || 'tab-profile';
+    show(first);
+})();
+
+/* =============== UTILITIES (Formset management helpers) =============== */
+function getManagement(prefix, scope){
+    const root = scope?.closest('form') || document;
+    // Django names
+    const byName = root.querySelector('input[name="'+prefix+'-TOTAL_FORMS"]');
+    const byId = root.querySelector('#id_'+prefix+'-TOTAL_FORMS');
+    const total = byName || byId;
+    return { total };
+}
+function replacePrefixAttrs(node, prefix, idx){
+    // replace __prefix__ in name/id/for
+    node.querySelectorAll('[name],[id],[for]').forEach(el=>{
+        ['name','id','for'].forEach(attr=>{
+            if(el.hasAttribute(attr)){
+                el.setAttribute(attr, el.getAttribute(attr).replace(
+                    new RegExp(prefix + '-__prefix__', 'g'),
+                    prefix + '-' + idx
+                ));
+            }
+        });
+    });
+}
+
+/* =============== IMAGE PREVIEW (New functionality) =============== */
+function setupImagePreview(input) {
+    const previewBox = document.querySelector('[data-preview-for="'+input.id+'"]');
+    if (!previewBox) return;
+
+    // Check for initial data link (Django form rendering for existing images)
+    const initialLink = input.parentNode.querySelector('a');
+    if (initialLink) {
+        // Extract the URL from the link
+        const currentUrl = initialLink.href;
+        if (currentUrl) {
+            previewBox.innerHTML = `<img src="${currentUrl}" alt="Current Image">`;
+            // Also move the link to be a visible hint below the input if needed, or remove it
+            initialLink.classList.add('onb-current-link');
+        }
+    }
+
+    input.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewBox.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            };
+            reader.readAsDataURL(this.files[0]);
+        } else if (!initialLink) {
+             // If no initial link (no image saved) and user cleared input, reset to icon
+            previewBox.innerHTML = '<i class="bi bi-person-fill"></i>'; // Fallback icon needed based on field
+            if (input.id.includes('cover')) previewBox.innerHTML = '<i class="bi bi-image"></i>';
+            if (input.id.includes('hero')) previewBox.innerHTML = '<i class="bi bi-star-fill"></i>';
+        }
+    });
+}
+document.querySelectorAll('input[type="file"]').forEach(setupImagePreview);
+
+
+/* =============== CARD HEADER DISPLAY (New UX) =============== */
+function setupCardTitleDisplay(card) {
+    const headerSpan = card.querySelector('.card-title-display');
+    if (!headerSpan) return;
+
+    // Determine the primary field to display based on formset prefix
+    const cardBody = card.querySelector('.onb-card-body');
+    let targetInput = null;
+    
+    // Priority order: Title, Name, Institution, Role
+    ['title', 'name', 'institution', 'role'].some(field => {
+        const input = cardBody.querySelector('input[name$="-'+field+'"], select[name$="-'+field+'"]');
+        if (input) {
+            targetInput = input;
+            return true;
+        }
+        return false;
+    });
+
+    if (targetInput) {
+        const updateTitle = () => {
+            let value = (targetInput.value || '').trim();
+            if (value) {
+                // Limit title length for display
+                if (value.length > 30) value = value.substring(0, 27) + '...';
+                headerSpan.textContent = `— ${value}`;
+                headerSpan.style.color = 'var(--blue-neon)';
+                headerSpan.style.marginLeft = '10px';
+            } else {
+                headerSpan.textContent = '';
+            }
+        };
+
+        targetInput.addEventListener('input', updateTitle);
+        // Initial call to populate existing data
+        updateTitle();
+    }
+}
+document.querySelectorAll('.onb-formcard').forEach(setupCardTitleDisplay);
+
+/* =============== ICON PICKER (datalist + sample) =============== */
+function enhanceIconPickers(scope){
+    (scope || document).querySelectorAll('input[name$="-icon"], input[name="icon"]').forEach(inp=>{
+        // make it searchable
+        inp.setAttribute('list', 'bi-icons');
+        inp.placeholder ||= 'Search icon… e.g., bi-briefcase';
+
+        // add preview bubble after the input
+        let preview = inp.nextElementSibling?.classList?.contains('icon-preview') ? inp.nextElementSibling : null;
+        if(!preview){
+            preview = document.createElement('span');
+            preview.className = 'icon-preview ms-2';
+            preview.style.display = 'inline-flex';
+            preview.style.alignItems = 'center';
+            preview.style.gap = '.35rem';
+            preview.style.padding = '.25rem .6rem';
+            preview.style.borderRadius = '999px';
+            preview.style.border = '1px solid rgba(0, 224, 255,.35)';
+            preview.style.background = 'rgba(0, 224, 255,.12)';
+            preview.style.color = 'var(--text-1)';
+            preview.innerHTML = '<i class="bi"></i><code style="opacity:.8"></code>';
+            inp.after(preview);
+        }
+        const iconI = preview.querySelector('i');
+        const code = preview.querySelector('code');
+
+        const apply = ()=>{
+            const cls = (inp.value || '').trim();
+            iconI.className = 'bi ' + cls;
+            code.textContent = cls || '—';
+        };
+        inp.addEventListener('input', apply);
+        apply();
+    });
+}
+enhanceIconPickers(document);
+
+
+/* =============== FORMSET ADD / DELETE with visible buttons =============== */
+(function(){
+    // Attach remove buttons to existing cards
+    document.querySelectorAll('[data-formset-prefix]').forEach(container=>{
+        const prefix = container.dataset.formsetPrefix;
+        const { total } = getManagement(prefix, container);
+        const emptyTpl = container.querySelector('template[data-empty-form]');
+
+        function addRemoveButton(card){
+            if(card.querySelector('[data-remove-card]')) return;
+            const del = card.querySelector('input[type="checkbox"][name$="-DELETE"]');
+            
+            // Check if card already has header, if not, add one for new items
+            if (!card.querySelector('.onb-card-header')) {
+                 const header = document.createElement('div');
+                 header.className = 'onb-card-header';
+                 header.innerHTML = `New Item<span class="card-title-display"></span>`;
+                 const body = document.createElement('div');
+                 body.className = 'onb-card-body';
+                 // Move all children except the new button into the body
+                 Array.from(card.children).forEach(child => body.appendChild(child));
+                 card.appendChild(header);
+                 card.appendChild(body);
+            }
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.setAttribute('data-remove-card', '1');
+            btn.className = 'onb-formcard-remove btn btn-sm';
+            btn.title = del ? 'Mark for Removal / Undo' : 'Remove Card';
+            // show X by default, ↩️ if already deleted (rare on load)
+            btn.innerHTML = del && del.checked ? '↩️' : '✖';
+
+            card.style.position = 'relative';
+            card.prepend(btn);
+
+            // reflect deleted state UI
+            if(del && del.checked){
+                card.classList.add('onb-formcard-deleted');
+                toggleInputs(card, true);
+            }
+        }
+
+        function toggleInputs(card, disabled){
+            card.querySelectorAll('input, textarea, select').forEach(i=>{
+                if(i.name.endsWith('-DELETE')) return;
+                i.disabled = disabled;
+            });
+        }
+
+        // existing forms
+        container.querySelectorAll('.onb-formcard').forEach(card => {
+            addRemoveButton(card);
+            setupCardTitleDisplay(card); // Ensure title display is set up on load
+        });
+
+        // click on plus
+        document.querySelectorAll('[data-formset-add="#'+container.id+'"]').forEach(btn=>{
+            btn.addEventListener('click', ()=>{
+                const idx = parseInt((total?.value ?? '0'), 10);
+                const frag = emptyTpl.content.cloneNode(true);
+                replacePrefixAttrs(frag, prefix, idx);
+                const card = frag.querySelector('.onb-formcard');
+                addRemoveButton(card); // adds header/body structure
+                
+                // Update header text for new entry
+                const header = card.querySelector('.onb-card-header');
+                header.firstChild.textContent = 'New Item'; 
+                
+                container.appendChild(frag);
+                if(total) total.value = idx + 1;
+                
+                // Enhance inputs on the new row
+                enhanceIconPickers(card);
+                setupCardTitleDisplay(card);
+            });
+        });
+
+        // delegate remove/undo
+        container.addEventListener('click', (e)=>{
+            const btn = e.target.closest('[data-remove-card]');
+            if(!btn) return;
+            e.stopPropagation(); // Prevent any parent clicks
+            const card = btn.closest('.onb-formcard');
+            const del = card.querySelector('input[type="checkbox"][name$="-DELETE"]');
+
+            if(del){
+                // Toggle delete flag (persisted rows)
+                del.checked = !del.checked;
+                card.classList.toggle('onb-formcard-deleted', del.checked);
+                btn.innerHTML = del.checked ? '↩️' : '✖';
+                btn.title = del.checked ? 'Undo Removal' : 'Mark for Removal';
+                toggleInputs(card, del.checked);
+                
+                // Visually update the header text
+                const header = card.querySelector('.onb-card-header');
+                if (header) {
+                    header.style.opacity = del.checked ? '0.6' : '1';
+                }
+            }else{
+                // Not yet saved row: remove the node & decrement total
+                card.remove();
+                if(total){
+                    const n = Math.max(0, parseInt(total.value ?? '1', 10) - 1);
+                    total.value = String(n);
+                }
+            }
+        });
+    });
+})();
+
+/* =============== MULTI-TITLE MANAGER (kept and slightly enhanced) =============== */
+(function(){
+    const hidden = document.getElementById('id_title');
+    const list = document.getElementById('titles-list');
+    const input = document.getElementById('titles-input');
+    const addBtn = document.getElementById('add-title');
+
+    function render(){
+        list.innerHTML = '';
+        const items = (hidden.value || '').split('|').filter(Boolean);
+        items.forEach((t,i)=>{
+            const chip = document.createElement('span');
+            chip.className = 'icon-swatch';
+            chip.innerHTML = `${t} <i class="bi bi-x-circle-fill ms-2"></i>`;
+            chip.style.cursor='pointer';
+            chip.title='Remove';
+            chip.addEventListener('click', ()=>{ items.splice(i,1); hidden.value = items.join('|'); render(); });
+            list.appendChild(chip);
+        });
+    }
+    function addTitle(){
+        const v = (input.value||'').trim();
+        if(!v) return;
+        const items = (hidden.value || '').split('|').filter(Boolean);
+        // Prevent duplicate or empty titles
+        if(v && !items.includes(v)){ 
+            items.push(v); 
+            hidden.value = items.join('|'); 
+            input.value=''; 
+            render(); 
+        }
+    }
+    addBtn.addEventListener('click', addTitle);
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addTitle(); }});
+    render();
+})();
+</script>
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Paint saved images after refresh
+  document.querySelectorAll('.image-preview-box[data-current]').forEach((box) => {
+    const url = box.getAttribute('data-current');
+    if (url) {
+      box.style.backgroundImage = `url('${url}')`;
+      box.classList.add('has-image');
+      box.innerHTML = '';
+    }
+  });
+});
+</script>
+
+{% endblock %}

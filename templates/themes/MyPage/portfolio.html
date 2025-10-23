@@ -1,0 +1,511 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>{{ U.get_full_name|default:U.username }} — Portfolio</title>
+
+  <!-- Favicons (fixed path typos) -->
+  <link href="{% static 'themes/MyPage/assets/img/favicon.png' %}" rel="icon">
+  <link href="{% static 'themes/MyPage/assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Raleway:wght@300;400;500;600;700;800;900&family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS -->
+  <link href="{% static 'themes/MyPage/assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'themes/MyPage/assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'themes/MyPage/assets/vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'themes/MyPage/assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'themes/MyPage/assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link href="{% static 'themes/MyPage/assets/css/main.css' %}" rel="stylesheet">
+</head>
+
+<body class="index-page">
+
+  <!-- ===== Header ===== -->
+  <header id="header" class="header dark-background d-flex flex-column justify-content-between">
+    <i class="header-toggle d-xl-none bi bi-list"></i>
+
+    <div class="header-top">
+      <div class="profile-img">
+        {% if avatar_url %}
+          <img src="{{ avatar_url }}" alt="{{ U.username }}" class="img-fluid">
+        {% else %}
+          <img src="{% static 'themes/MyPage/assets/img/profile/profile-square-14.webp' %}" alt="" class="img-fluid">
+        {% endif %}
+      </div>
+
+      <a href="#hero" class="logo d-flex align-items-center justify-content-center">
+        <h1 class="sitename">{{ U.get_full_name|default:U.username }}</h1>
+      </a>
+    </div>
+
+    <nav id="navmenu" class="navmenu">
+      <ul>
+        <li><a href="#hero" class="active"><i class="bi bi-house navicon"></i>Home</a></li>
+        <li><a href="#about"><i class="bi bi-person navicon"></i> About</a></li>
+        <li><a href="#resume"><i class="bi bi-file-earmark-text navicon"></i> Resume</a></li>
+        <li><a href="#portfolio"><i class="bi bi-images navicon"></i> Portfolio</a></li>
+        <li><a href="#services"><i class="bi bi-hdd-stack navicon"></i> Services</a></li>
+        <li><a href="#testimonials"><i class="bi bi-chat-quote navicon"></i> Testimonials</a></li>
+        <li><a href="#contact"><i class="bi bi-envelope navicon"></i> Contact</a></li>
+      </ul>
+    </nav>
+
+    {% if L %}
+    <div class="social-links text-center">
+      {% for s in L %}
+        {% with s.kind|upper as K %}
+          {% if K == "GITHUB" %}<a href="{{ s.url }}" class="github" target="_blank"><i class="bi bi-github"></i></a>
+          {% elif K == "INSTAGRAM" %}<a href="{{ s.url }}" class="instagram" target="_blank"><i class="bi bi-instagram"></i></a>
+          {% elif K == "LINKEDIN" %}<a href="{{ s.url }}" class="linkedin" target="_blank"><i class="bi bi-linkedin"></i></a>
+          {% elif K == "X" %}<a href="{{ s.url }}" class="twitter"><i class="bi bi-twitter-x"></i></a>
+          {% elif K == "WEBSITE" %}<a href="{{ s.url }}" class="globe" target="_blank"><i class="bi bi-globe"></i></a>
+          {% else %}<a href="{{ s.url }}" target="_blank"><i class="bi bi-link-45deg"></i></a>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </header>
+
+  <main class="main">
+
+    <!-- ===== Hero ===== -->
+    <section id="hero" class="hero section" style="{% if cover_url %}background-image:url('{{ cover_url }}'); background-size:cover; background-position:center;{% endif %}">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row align-items-center">
+          <div class="col-lg-6 order-2 order-lg-1">
+            <div class="hero-content">
+              <h1 data-aos="fade-up" data-aos-delay="200">
+                {{ U.get_full_name|default:U.username }}
+              </h1>
+
+              <!-- Rotating titles using Typed.js -->
+              <p class="hero-description h3" data-aos="fade-up" data-aos-delay="280">
+                <span>I'm </span><span id="typed-roles" class="accent-text"></span>
+              </p>
+
+              {% if P and P.bio %}
+                <p class="mt-3" data-aos="fade-up" data-aos-delay="320">{{ P.bio }}</p>
+              {% endif %}
+
+              <div class="hero-actions mt-3" data-aos="fade-up" data-aos-delay="360">
+                <a href="#portfolio" class="btn-primary">View My Work</a>
+                <a href="#contact" class="btn-secondary">Get In Touch</a>
+              </div>
+
+              {% if Counters %}
+              <div class="hero-stats" data-aos="fade-up" data-aos-delay="420">
+                {% for c in Counters %}
+                  <div class="stat-item">
+                    <span class="stat-number">{{ c.value }}</span>
+                    <span class="stat-label">{{ c.label }}</span>
+                  </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-lg-6 order-1 order-lg-2">
+            <div class="hero-image" data-aos="fade-up" data-aos-delay="300">
+              <div class="image-wrapper">
+                {% if hero_url %}
+                  <img src="{{ hero_url }}" alt="" class="img-fluid main-image">
+                {% else %}
+                  <img src="{% static 'themes/MyPage/assets/img/profile/profile-square-13.webp' %}" alt="" class="img-fluid main-image">
+                {% endif %}
+                <!-- fun floats -->
+                <div class="floating-card card-1" data-aos="fade-up" data-aos-delay="600">
+                  <i class="bi bi-palette"></i><span>Design</span>
+                </div>
+                <div class="floating-card card-2" data-aos="fade-up" data-aos-delay="700">
+                  <i class="bi bi-code-square"></i><span>Build</span>
+                </div>
+                <div class="floating-card card-3" data-aos="fade-up" data-aos-delay="800">
+                  <i class="bi bi-camera"></i><span>Create</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+{% if Titles %}
+  {{ Titles|json_script:"titles_json" }}
+{% else %}
+  <script id="titles_json" type="application/json">["Creator"]</script>
+{% endif %}
+    <!-- ===== About ===== -->
+    <section id="about" class="about section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="intro-header text-center" data-aos="fade-up" data-aos-delay="150">
+              <h1>Hi, I'm {{ U.get_full_name|default:U.username }}</h1>
+              {% if Titles|length > 1 %}
+                <p class="subtitle">{{ Titles|join:" • " }}</p>
+              {% endif %}
+            </div>
+
+            <div class="main-content-wrapper">
+              <div class="row align-items-start">
+                <div class="col-lg-4" data-aos="fade-right" data-aos-delay="200">
+                  <div class="profile-section">
+                    <div class="profile-image-container">
+                      {% if avatar_url %}
+                        <img src="{{ avatar_url }}" class="img-fluid" alt="{{ U.username }}">
+                      {% else %}
+                        <img src="{% static 'themes/MyPage/assets/img/profile/profile-square-15.webp' %}" class="img-fluid" alt="">
+                      {% endif %}
+                    </div>
+                    <div class="profile-meta">
+                      {% if P and P.location %}
+                      <div class="location"><i class="bi bi-geo-alt"></i><span>{{ P.location }}</span></div>
+                      {% endif %}
+                      <div class="status"><div class="status-indicator"></div><span>Available for projects</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-8" data-aos="fade-left" data-aos-delay="250">
+                  <div class="content-area">
+                    {% if P and P.bio %}
+                      <div class="story-block"><p class="lead-text">{{ P.bio }}</p></div>
+                    {% endif %}
+
+                    <!-- quick expertise from first 3 skills -->
+                    {% if Skills %}
+                    <div class="expertise-grid">
+                      {% for s in Skills|slice:":3" %}
+                      <div class="expertise-item" data-aos="zoom-in" data-aos-delay="{{ 300|add:forloop.counter|add:forloop.counter0 }}">
+                        <div class="expertise-icon"><i class="bi bi-lightning-charge"></i></div>
+                        <div class="expertise-content"><h4>{{ s.name }}</h4><p>Proficiency: {{ s.percent }}%</p></div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Skills ===== -->
+    <section id="skills" class="skills section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Skills</h2>
+        <p>Highlights of my current strengths.</p>
+      </div>
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="skills-container">
+              {% for s in Skills %}
+              <div class="skill-category skills-animation" data-aos="fade-up" data-aos-delay="{{ 180|add:forloop.counter0|add:forloop.counter0 }}">
+                <div class="skills-list">
+                  <div class="skill-row">
+                    <div class="skill-info"><span class="skill-name">{{ s.name }}</span><span class="skill-percentage">{{ s.percent }}%</span></div>
+                    <div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="{{ s.percent }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ s.percent }}%"></div></div>
+                  </div>
+                </div>
+              </div>
+              {% empty %}
+                <p>No skills added yet.</p>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="skills-sidebar">
+              <div class="expertise-highlight" data-aos="fade-up" data-aos-delay="350">
+                <div class="highlight-icon"><i class="bi bi-trophy"></i></div>
+                <h4 class="highlight-title">Experience</h4>
+                <div class="experience-number"><span>{{ Exps|length }}</span><span class="experience-label">Roles</span></div>
+                {% if P and P.website %}<p class="highlight-description"><a href="{{ P.website }}" target="_blank">{{ P.website }}</a></p>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Resume ===== -->
+    <section id="resume" class="resume section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Resume</h2>
+        <p>Education & experience timeline.</p>
+      </div>
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row align-items-start">
+          <div class="col-lg-5" data-aos="fade-right" data-aos-delay="200">
+            <div class="professional-journey">
+              <div class="experience-timeline">
+                {% for e in Exps %}
+                <div class="timeline-item" data-aos="fade-up" data-aos-delay="{{ 260|add:forloop.counter0|add:forloop.counter0 }}">
+                  <div class="timeline-dot"></div>
+                  <div class="timeline-content">
+                    <div class="position-meta"><span class="timeline-year">{{ e.start_year }}{% if e.end_year %} - {{ e.end_year }}{% endif %}</span></div>
+                    <h3>{{ e.title }}</h3><h4>{{ e.company }}</h4>
+                    {% if e.location %}<small class="text-muted">{{ e.location }}</small>{% endif %}
+                    {% if e.summary %}<p>{{ e.summary }}</p>{% endif %}
+                  </div>
+                </div>
+                {% empty %}
+                  <p>No experience yet.</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7" data-aos="fade-left" data-aos-delay="200">
+            <div class="education-skills">
+              <div class="education-grid">
+                {% for ed in Edus %}
+                <div class="education-card {% if forloop.first %}primary{% endif %}" data-aos="zoom-in" data-aos-delay="{{ 260|add:forloop.counter0|add:forloop.counter0 }}">
+                  <div class="education-header">
+                    <div class="degree-icon"><i class="bi bi-award"></i></div>
+                    <div class="degree-info">
+                      <h3>{{ ed.degree|default:"Education" }}</h3>
+                      <p class="institution">{{ ed.school }}</p>
+                      <span class="graduation-year">{{ ed.start_year }}{% if ed.end_year %} - {{ ed.end_year }}{% endif %}</span>
+                    </div>
+                  </div>
+                  {% if ed.summary %}<div class="education-details"><p>{{ ed.summary }}</p></div>{% endif %}
+                </div>
+                {% empty %}
+                  <p>No education added yet.</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Portfolio ===== -->
+    <section id="portfolio" class="portfolio section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Portfolio</h2>
+        <p>Selected work.</p>
+      </div>
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-5 portfolio-container">
+          {% for art in A %}
+          <div class="col-lg-6 portfolio-item">
+            <div class="portfolio-card">
+              <div class="portfolio-image">
+                {% if art.image %}
+                  <img src="{{ art.image.url }}" class="img-fluid" alt="{{ art.title|default:'Artwork' }}" loading="lazy">
+                  <div class="portfolio-overlay">
+                    <div class="portfolio-actions">
+                      <a href="{{ art.image.url }}" class="glightbox action-btn preview-btn" title="{{ art.title }}"><i class="bi bi-eye"></i></a>
+                    </div>
+                  </div>
+                {% else %}
+                  <img src="{% static 'themes/MyPage/assets/img/portfolio/portfolio-12.webp' %}" class="img-fluid" alt="">
+                {% endif %}
+              </div>
+              <div class="portfolio-content">
+                <h3 class="portfolio-title">{{ art.title }}</h3>
+                {% if art.caption %}<p class="portfolio-description">{{ art.caption }}</p>{% endif %}
+                <div class="portfolio-meta"><span class="portfolio-year">{{ art.created_at|date:"Y" }}</span></div>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+            <p>No artworks yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Services ===== -->
+    <section id="services" class="services section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Services</h2>
+        <p>How I can help.</p>
+      </div>
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row g-5">
+          {% for svc in S %}
+          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="{{ 200|add:forloop.counter0|add:forloop.counter0 }}">
+            <div class="service-item">
+              <div class="service-icon"><i class="bi {{ svc.icon|default:'bi-stars' }}"></i></div>
+              <div class="service-content">
+                <h3>{{ svc.title }}</h3>
+                {% if svc.description %}<p>{{ svc.description }}</p>{% endif %}
+              </div>
+            </div>
+          </div>
+          {% empty %}
+            <p>No services listed yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Testimonials ===== -->
+    <section id="testimonials" class="testimonials section light-background">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Testimonials</h2>
+      </div>
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        {% if T %}
+        <div class="testimonials-slider swiper init-swiper">
+          <script type="application/json" class="swiper-config">
+            { "loop": true, "speed": 600, "autoplay": { "delay": 5000 }, "slidesPerView": 1,
+              "spaceBetween": 30, "pagination": { "el": ".swiper-pagination", "type": "bullets", "clickable": true },
+              "navigation": { "nextEl": ".swiper-button-next", "prevEl": ".swiper-button-prev" } }
+          </script>
+          <div class="swiper-wrapper">
+            {% for tt in T %}
+            <div class="swiper-slide">
+              <div class="testimonial-slide">
+                <div class="testimonial-header">
+                  <div class="stars-rating">
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+                  </div>
+                  <div class="quote-icon"><i class="bi bi-quote"></i></div>
+                </div>
+                <div class="testimonial-body"><p>"{{ tt.text }}"</p></div>
+                <div class="testimonial-footer">
+                  <div class="author-info">
+                    {% if tt.photo %}<img src="{{ tt.photo.url }}" alt="Author" class="author-avatar">{% endif %}
+                    <div class="author-details">
+                      <h4>{{ tt.author_name }}</h4>
+                      <span class="role">{{ tt.role }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="swiper-navigation-wrapper">
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+          </div>
+        </div>
+        {% else %}
+          <p>No testimonials yet.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- ===== Contact ===== -->
+    <section id="contact" class="contact section">
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Contact</h2>
+      </div>
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-5">
+            <div class="info-item"><div class="info-icon"><i class="bi bi-chat-dots"></i></div>
+              <div class="info-content">
+                <h4>Let's Connect</h4>
+                {% if P and P.email_public %}<p>Email: <strong>{{ P.email_public }}</strong></p>{% endif %}
+                {% if P and P.phone %}<p>Phone: <strong>{{ P.phone }}</strong></p>{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="form-wrapper">
+              <div class="form-header"><h3>Send a message</h3></div>
+              <form action="{% url 'portfolio:contact_owner' U.username %}" method="post" class="php-email-form">
+                {% csrf_token %}
+                <div class="row">
+                  <div class="col-md-6"><div class="form-group"><label>Full Name</label><input type="text" name="name" required></div></div>
+                  <div class="col-md-6"><div class="form-group"><label>Email Address</label><input type="email" name="email" required></div></div>
+                </div>
+                <div class="form-group"><label>Subject</label><input type="text" name="subject" required></div>
+                <div class="form-group"><label for="projectMessage">Message</label><textarea name="message" id="projectMessage" rows="5" required></textarea></div>
+                <button type="submit" class="submit-btn"><span>Send Message</span><i class="bi bi-arrow-right"></i></button>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="footer" class="footer light-background">
+    <div class="container">
+      <h3 class="sitename">{{ U.get_full_name|default:U.username }}</h3>
+      {% if P and P.website %}<p><a href="{{ P.website }}" target="_blank">{{ P.website }}</a></p>{% endif %}
+      <div class="social-links d-flex justify-content-center">
+        {% for s in L %}
+          {% with s.kind|upper as K %}
+            {% if K == "GITHUB" %}<a href="{{ s.url }}" target="_blank"><i class="bi bi-github"></i></a>
+            {% elif K == "INSTAGRAM" %}<a href="{{ s.url }}" target="_blank"><i class="bi bi-instagram"></i></a>
+            {% elif K == "LINKEDIN" %}<a href="{{ s.url }}" target="_blank"><i class="bi bi-linkedin"></i></a>
+            {% elif K == "X" %}<a href="{{ s.url }}" target="_blank"><i class="bi bi-twitter-x"></i></a>
+            {% elif K == "WEBSITE" %}<a href="{{ s.url }}" target="_blank"><i class="bi bi-globe"></i></a>
+            {% else %}<a href="{{ s.url }}" target="_blank"><i class="bi bi-link-45deg"></i></a>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+      <div class="copyright">
+        <span>©</span> <strong class="px-1 sitename">{{ U.get_full_name|default:U.username }}</strong> <span>All Rights Reserved</span>
+      </div>
+    </div>
+  </footer>
+
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <div id="preloader"></div>
+
+  <!-- Vendor JS -->
+  <script src="{% static 'themes/MyPage/assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'themes/MyPage/assets/vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'themes/MyPage/assets/vendor/purecounter/purecounter_vanilla.js' %}"></script>
+  <script src="{% static 'themes/MyPage/assets/vendor/typed.js/typed.umd.js' %}"></script>
+  <script src="{% static 'themes/MyPage/assets/vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
+  <script src="{% static 'themes/MyPage/assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'themes/MyPage/assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'themes/MyPage/assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+
+  <!-- Main JS -->
+  <script src="{% static 'themes/MyPage/assets/js/main.js' %}"></script>
+
+  <!-- Typed.js init (titles) -->
+<script>
+  const node = document.getElementById('titles_json');
+  let titles = [];
+  try {
+    titles = node ? JSON.parse(node.textContent) : [];
+  } catch (e) { titles = []; }
+
+  if (window.Typed && Array.isArray(titles) && titles.length) {
+    new Typed('#typed-roles', {
+      strings: titles,
+      typeSpeed: 60,
+      backSpeed: 40,
+      backDelay: 1400,
+      smartBackspace: true,
+      loop: true
+    });
+  } else {
+    const el = document.getElementById('typed-roles');
+    if (el) el.textContent = titles[0] || 'Creator';
+  }
+</script>
+
+</body>
+</html>

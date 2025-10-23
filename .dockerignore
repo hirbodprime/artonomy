@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.pytest_cache/
+
+# Virtual envs
+venv/
+.venv/
+env/
+.myvenv/
+
+# Node / front-end
+node_modules/
+.npm/
+.yarn/
+.pnpm-store/
+
+# VCS & editor
+.git/
+.gitignore
+.gitattributes
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Django artifacts
+db.sqlite3
+static/
+staticfiles/
+media/
+*.log
+
+# Docker
+Dockerfile*
+docker-compose*.yml

@@ -1,0 +1,103 @@
+:root{
+  --brand-primary: #570080;  /* purple */
+  --brand-secondary: #216CFF;/* blue   */
+  --brand-accent: #11C865;   /* green  */
+
+  --bg: #0c0f17;
+  --panel: #101525;
+  --ink: #e9ecf2;
+  --muted: #a7b0c2;
+}
+
+/* Background gradient + subtle noise */
+body.neon {
+  background:
+    radial-gradient(1200px 600px at -10% -20%, color-mix(in oklab, var(--brand-primary) 22%, transparent) 0%, transparent 60%),
+    radial-gradient(1200px 600px at 110% 120%, color-mix(in oklab, var(--brand-secondary) 22%, transparent) 0%, transparent 60%),
+    linear-gradient(180deg, #0b0f19 0%, #0a0d16 100%);
+  color: var(--ink);
+}
+
+/* Big neon heading */
+.neon-heading{
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 6px 24px color-mix(in oklab, var(--brand-secondary) 35%, transparent));
+}
+
+/* Card: glass + neon rims */
+.theme-card{
+  background: color-mix(in oklab, var(--panel) 92%, transparent);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.03) inset,
+    0 10px 30px rgba(0,0,0,.45);
+}
+.theme-card:hover{
+  transform: translateY(-4px);
+  border-color: color-mix(in oklab, var(--brand-secondary) 40%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--brand-secondary) 35%, transparent),
+    0 10px 40px color-mix(in oklab, var(--brand-secondary) 22%, transparent),
+    0 4px 12px rgba(0,0,0,.5);
+}
+.theme-thumb{
+  aspect-ratio: 16/10;
+  object-fit: cover;
+  filter: saturate(1.1) contrast(1.02);
+}
+
+/* Buttons (neon glow) */
+.btn-neon-primary{
+  --c: var(--brand-secondary);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--c) 95%, white 5%), var(--c));
+  border: 1px solid color-mix(in oklab, var(--c) 70%, black 30%);
+  color: white;
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 0 rgba(33,108,255,.0),
+    0 10px 24px -6px color-mix(in oklab, var(--c) 55%, transparent);
+  transition: box-shadow .2s ease, transform .15s ease, filter .2s ease;
+}
+.btn-neon-primary:hover{
+  transform: translateY(-1px);
+  box-shadow:
+    0 0 0 2px color-mix(in oklab, var(--c) 35%, transparent),
+    0 16px 40px -10px color-mix(in oklab, var(--c) 60%, transparent);
+}
+
+.btn-ghost{
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+  color: var(--ink);
+  border-radius: 12px;
+}
+.btn-ghost:hover{
+  border-color: color-mix(in oklab, var(--brand-primary) 40%, white 0%);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--brand-primary) 30%, transparent);
+}
+
+/* Tiny badge chip for “New”/“Featured” (optional) */
+.chip{
+  font-size:.75rem; font-weight:700;
+  padding:.25rem .5rem; border-radius:999px;
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-accent));
+  color:white; box-shadow: 0 0 20px color-mix(in oklab, var(--brand-accent) 35%, transparent);
+}
+
+/* Card footer spacing */
+.theme-actions{ gap:.5rem; }
+
+.navbar-brand{
+  font-weight:800; letter-spacing:.5px;
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+  -webkit-background-clip:text; background-clip:text; color:transparent !important;
+  filter: drop-shadow(0 6px 18px color-mix(in oklab, var(--brand-secondary) 40%, transparent));
+}
