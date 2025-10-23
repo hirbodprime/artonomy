@@ -115,3 +115,4 @@ __pycache__/
 *.log
 
 backup_2025-10-23.sql
+docker-compose.yml
