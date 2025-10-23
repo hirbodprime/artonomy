@@ -25,7 +25,8 @@ myvenv/
 # Django
 # =========================
 db.sqlite3
-media/           # user uploads
+
+
 staticfiles/     # collected static files
 static/CACHE/    # cached files
 *.sqlite3-journal
@@ -100,7 +101,8 @@ Thumbs.db
 # Static & media (user uploads)
 staticfiles/
 static_root/
-media/
+
+# media/
 # Ignore database backups and SQLite files
 *.sql
 *.sqlite3
