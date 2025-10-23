@@ -101,3 +101,17 @@ Thumbs.db
 staticfiles/
 static_root/
 media/
+# Ignore database backups and SQLite files
+*.sql
+*.sqlite3
+db.sqlite3
+
+# Ignore environment files
+.env
+
+# Ignore Python bytecode files and logs
+__pycache__/
+*.pyc
+*.log
+
+backup_2025-10-23.sql
