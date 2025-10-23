@@ -8,6 +8,8 @@ if [ "$DB_ENGINE" = "postgresql" ]; then
     sleep 1
   done
 fi
+mkdir -p /app/staticfiles /app/media || true
+chown -R "$(id -u)":"$(id -g)" /app/staticfiles /app/media || true
 
 python manage.py collectstatic --noinput
 python manage.py migrate --noinput
