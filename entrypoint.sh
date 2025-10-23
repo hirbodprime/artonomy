@@ -18,5 +18,5 @@ python manage.py migrate --noinput
 if [ "${DJANGO_DEBUG,,}" = "true" ]; then
   python manage.py runserver 0.0.0.0:$PORT
 else
-  exec gunicorn your_project.wsgi:application --bind 0.0.0.0:$PORT --workers 3
+  exec gunicorn artonomy.wsgi:application --bind 0.0.0.0:$PORT --workers 3
 fi
