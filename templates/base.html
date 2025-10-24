@@ -239,26 +239,43 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
 
       <!-- Nav -->
       <nav class="flex flex-col p-2 xl:p-4 space-y-1 xl:space-y-2">
+        <!-- portfolio -->
+
+        <a href="{% url 'portfolio:theme_gallery' %}"
+           class="group flex items-center justify-center xl:justify-start
+                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
+                  {% if nav_active == 'portfolio' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
+          <i class="fa-solid fa-user-tie text-lg md:text-xl w-6 text-center
+                    {% if nav_active == 'portfolio' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Portfolio" %}</span>
+        </a>
         <!-- Home -->
-        <a href="{% url 'home' %}"
+                 
+        <!-- <a href="{% url 'home' %}"
            class="group flex items-center justify-center xl:justify-start
                   gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
                   {% if nav_active == 'home' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
           <i class="fa-solid fa-house text-lg md:text-xl w-6 text-center
                     {% if nav_active == 'home' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
           <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Home" %}</span>
+        </a> -->
+<a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+          <i class="fa-solid fa-house text-lg md:text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Home" %}</span>
         </a>
-
         <!-- Explore -->
-        <a href="{% url 'explore' %}"
+        <!-- <a href="{% url 'explore' %}"
            class="group flex items-center justify-center xl:justify-start
                   gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
                   {% if nav_active == 'explore' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
           <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center
                     {% if nav_active == 'explore' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
           <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Explore" %}</span>
+        </a> -->
+<a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+          <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Explore" %}</span>
         </a>
-
         <!-- Marketplace -->
         <a href="{% url 'marketplace:list' %}"
            class="group flex items-center justify-center xl:justify-start
@@ -302,7 +319,7 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
                     bg-[#570080] shadow-lg shadow-purple-700/40 hover:shadow-xl hover:shadow-purple-700/50
                     hover:scale-[1.02] transform transition-all duration-300 ease-in-out">
             <i class="fa-solid fa-square-plus w-6 text-center text-xl"></i>
-            <span class="hidden xl:inline font-bold tracking-wide">{% trans "New Post" %}</span>
+            <span class="hidden text-gray-500 opacity-60 cursor-not-allowed pointer-events-none xl:inline font-bold tracking-wide">{% trans "New Post" %}</span>
           </a>
         {% endif %}
       </nav>
@@ -365,7 +382,7 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
 
       <div class="flex items-center gap-4">
         {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-          <a href="{% url 'post_new_start' %}" class="text-xl text-gray-400 hover:text-white" title="{% trans 'New Post' %}">
+          <a href="{% url 'post_new_start' %}" class="text-gray-500 opacity-60 cursor-not-allowed pointer-events-none text-xl text-gray-400 hover:text-white" title="{% trans 'New Post' %}">
             <i class="fa-solid fa-square-plus"></i>
           </a>
         {% endif %}
@@ -487,7 +504,7 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
 {% endif %}
 
         {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-          <a href="{% url 'post_new_start' %}" class="text-xl" title="{% trans 'New Post' %}">
+          <a href="{% url 'post_new_start' %}" class="text-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none" title="{% trans 'New Post' %}">
             <i class="fa-solid fa-square-plus"></i>
           </a>
         {% endif %}
@@ -542,13 +559,14 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
     <!-- Mobile Bottom Dock -->
     <nav class="sm:hidden fixed inset-x-0 bottom-0 z-40 m-fab-wrap px-4 pb-3">
       {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-        <a href="{% url 'post_new_start' %}" aria-label="{% trans 'New post' %}" class="m-fab">
+        <a href="{% url 'post_new_start' %}" aria-label="{% trans 'New post' %}" class="m-fab text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
           <i class="fa-solid fa-plus text-2xl"></i>
         </a>
         <div class="m-dock max-w-screen-md mx-auto">
           <ul class="m-dock-list">
-            <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li>
-            <li><a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
+            <!-- <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li> -->
+            <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
+            <li><a href="{% url 'explore' %}" class="m-dock-item text-gray-500 opacity-60 cursor-not-allowed pointer-events-none {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
             <li aria-hidden="true"></li>
             <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
             <li><a href="{% url 'marketplace:list' %}" class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
@@ -557,8 +575,9 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
       {% else %}
         <div class="m-dock max-w-screen-md mx-auto">
           <ul class="m-dock-list" style="grid-template-columns: repeat(4, minmax(0,1fr));">
-            <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li>
-            <li><a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
+            <!-- <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li> -->
+            <li><a href="{% url 'portfolio' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
+            <li><a href="{% url 'explore' %}" class="m-dock-item text-gray-500 opacity-60 cursor-not-allowed pointer-events-none {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
             <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
             <li><a href="{% url 'marketplace:list' %}" class="m-dock-item" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
           </ul>

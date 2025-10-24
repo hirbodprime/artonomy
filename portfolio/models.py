@@ -1,20 +1,20 @@
 from django.db import models
 from django.conf import settings
-
-User = settings.AUTH_USER_MODEL
-
-# portfolio/models.py
-from django.db import models
-from django.conf import settings
 from django.utils import timezone
 from django.db import transaction
 
+
 User = settings.AUTH_USER_MODEL
+
+from portfolio.utils.images import categorized_upload_to
 
 class PortfolioTheme(models.Model):
     slug = models.SlugField(unique=True)
     name = models.CharField(max_length=120)
-    preview_image = models.ImageField(upload_to="themes/", blank=True, null=True)
+    preview_image = models.ImageField(
+        upload_to=categorized_upload_to("portfolio", "theme", "preview"),
+        blank=True, null=True
+    )
     is_active = models.BooleanField(default=True)
     demo_url = models.URLField(blank=True, null=True)  # 👈 new field
 
@@ -117,9 +117,9 @@ class Profile(models.Model):
         related_query_name="portfolio_profile",  # add this to avoid E305
     )
     title = models.CharField(max_length=120, blank=True)
-    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
-    cover = models.ImageField(upload_to="covers/", blank=True, null=True)
-    hero_image = models.ImageField(upload_to="heroes/", blank=True, null=True)
+    avatar = models.ImageField(upload_to=categorized_upload_to("portfolio", "profile", "avatar"), blank=True, null=True)
+    cover = models.ImageField(upload_to=categorized_upload_to("portfolio", "profile", "cover"), blank=True, null=True)
+    hero_image = models.ImageField(upload_to=categorized_upload_to("portfolio", "profile", "hero"), blank=True, null=True)
     phone = models.CharField(max_length=32, blank=True)
     website = models.URLField(blank=True)
     bio = models.TextField(blank=True)
@@ -192,7 +192,7 @@ class Artwork(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="artworks")
     title = models.CharField(max_length=160)
     caption = models.TextField(blank=True)
-    image = models.ImageField(upload_to="artworks/", blank=True, null=True)
+    image = models.ImageField(upload_to=categorized_upload_to("portfolio", "artwork", "image"), blank=True, null=True)
     is_published = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -219,7 +219,7 @@ class Testimonial(models.Model):
     author_name = models.CharField(max_length=120)
     role = models.CharField(max_length=120, blank=True)
     text = models.TextField()
-    photo = models.ImageField(upload_to="testimonials/", blank=True, null=True)
+    photo = models.ImageField(upload_to=categorized_upload_to("portfolio", "testimonial", "photo"), blank=True, null=True)
 
     class Meta:
         ordering = ["id"]

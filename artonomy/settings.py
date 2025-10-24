@@ -207,6 +207,8 @@ HOME_DIR = Path.home()  # e.g. /home/yourcpaneluser
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+MEDIA_URL  = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
     
 IMAGE_DEFAULT_QUALITY = 72        # 60-80 is a good range

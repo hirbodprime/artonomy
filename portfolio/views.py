@@ -53,6 +53,7 @@ def theme_gallery(request):
 
     ctx = {
         "themes": themes,
+        "nav_active": "portfolio",
         "owned_theme_ids": owned,
         "theme_site_map": theme_site_map,  # optional, kept for other UI conditions
     }
@@ -61,7 +62,7 @@ def theme_gallery(request):
 
 def theme_demo(request, slug):
     theme = get_object_or_404(PortfolioTheme, slug=slug, is_active=True)
-    return render(request, f"themes/{theme.slug}/demo.html")
+    return render(request, f"themes/{theme.slug}/demo.html",{"nav_active":"portfolio"})
 
 from django.db import transaction
 
@@ -123,13 +124,15 @@ def upgrade_theme(request, slug):
         messages.success(request, f"You now own “{theme.name}”. Create a portfolio with it!")
         return redirect("portfolio:theme_select", slug=theme.slug)
 
-    return render(request, "portfolio/upgrade_theme.html", {"theme": theme})
+    return render(request, "portfolio/upgrade_theme.html", {"theme": theme,"nav_active":"portfolio"})
 
 @login_required
 def my_portfolios(request):
     sites = UserPortfolio.objects.filter(user=request.user).select_related("theme")
     ctx = {
         "sites": sites,
+        "nav_active": "portfolio",
+
         "free_max": getattr(settings, "PORTFOLIO_FREE_MAX", None),  # optional
     }
     return render(request, "portfolio/my_portfolios.html", ctx)
@@ -209,7 +212,7 @@ def onboarding(request):
             messages.success(request, "Portfolio content saved.")
             return redirect("portfolio:public_portfolio", username=user.username)
 
-    ctx = {"profile_form": profile_form, "publish_form": publish_form, **formsets}
+    ctx = {"profile_form": profile_form, "publish_form": publish_form, **formsets,"nav_active": "portfolio"}
     return render(request, "portfolio/onboarding.html", ctx)
 
 def public_portfolio(request, username):
