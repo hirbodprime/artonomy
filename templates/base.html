@@ -264,18 +264,25 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
           <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Home" %}</span>
         </a>
         <!-- Explore -->
-        <a href="{% url 'explore' %}"
+        <!-- <a href="{% url 'explore' %}"
            class="group flex items-center justify-center xl:justify-start
                   gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
                   {% if nav_active == 'explore' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
           <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center
                     {% if nav_active == 'explore' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
           <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Explore" %}</span>
+        </a> -->
+<a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+          <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center"></i>
+          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Explore" %}</span>
         </a>
+<<<<<<< HEAD
 <!-- <a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
           <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center"></i>
           <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Explore" %}</span>
         </a> -->
+=======
+>>>>>>> 4950df7749a245860b57585dad0e5200c2e25245
         <!-- Marketplace -->
         <a href="{% url 'marketplace:list' %}"
            class="group flex items-center justify-center xl:justify-start
@@ -566,7 +573,11 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
           <ul class="m-dock-list">
             <!-- <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li> -->
             <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
+<<<<<<< HEAD
             <li><a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
+=======
+            <li><a href="{% url 'explore' %}" class="m-dock-item text-gray-500 opacity-60 cursor-not-allowed pointer-events-none {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
+>>>>>>> 4950df7749a245860b57585dad0e5200c2e25245
             <li aria-hidden="true"></li>
             <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
             <li><a href="{% url 'marketplace:list' %}" class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
@@ -577,7 +588,11 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
           <ul class="m-dock-list" style="grid-template-columns: repeat(4, minmax(0,1fr));">
             <!-- <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li> -->
             <li><a href="{% url 'portfolio' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
+<<<<<<< HEAD
             <li><a href="{% url 'explore' %}" class="m-dock-item  {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
+=======
+            <li><a href="{% url 'explore' %}" class="m-dock-item text-gray-500 opacity-60 cursor-not-allowed pointer-events-none {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
+>>>>>>> 4950df7749a245860b57585dad0e5200c2e25245
             <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
             <li><a href="{% url 'marketplace:list' %}" class="m-dock-item" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
           </ul>
