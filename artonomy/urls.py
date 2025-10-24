@@ -22,7 +22,7 @@ urlpatterns += i18n_patterns(
     path("category/", include("category_app.urls", namespace="categories")),
     path("collab/", include("collab.urls", namespace="collab")),
     path("dashboard/", include("dashboard.urls", namespace="dashboard")),
-    path("portfolio/", include("portfolio.urls")),
+    path("portfolio/", include("portfolio.urls", namespace="portfolio")),
 
     prefix_default_language=False,   
 )+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
