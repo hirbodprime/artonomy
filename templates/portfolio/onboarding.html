@@ -3,12 +3,83 @@
 {% block title %}Setup your portfolio{% endblock %}
 
 {% block content %}
+  
+  <!-- Add Bootstrap 5.3.2 CSS and Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
 <style>
 /* * ============================================
  * 1. CSS Variables & Base Styles (Cyber-Glow)
  * ============================================
  */
+ /* Global Neon Variables */
+    :root{
+      --brand-primary: #570080;
+      --brand-secondary: #216CFF;
+      --brand-accent: #11C865;
+      --bg-0: #0c0d12; /* Darkest Background */
+      --bg-1: #121420; /* Card/Panel Background */
+      --bg-2: #181b2a; /* Input/Hover Background */
+      --text-1: #eef1ff;
+      --text-2: #b7bdd3;
+      --border-1: rgba(255,255,255,.08);
+      --red-alert: #ff4d4d;
+      --shadow-soft: 0 4px 15px rgba(0,0,0,.15);
+      --shadow-deep: 0 10px 30px rgba(0,0,0,.45);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+    
+    body{
+      /* Subtle dark background with gradient noise */
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(33,108,255,.1), transparent 60%),
+                  radial-gradient(900px 450px at 110% 10%, rgba(87,0,128,.12), transparent 60%),
+                  var(--bg-0) !important;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-1) !important;
+      min-height: 100vh;
+    }
 
+    /* Navbar Styling */
+    .navbar {
+      background-color: var(--bg-0) !important;
+      border-bottom: 1px solid var(--border-1);
+      box-shadow: var(--shadow-deep);
+      z-index: 1000;
+    }
+    .navbar-brand {
+      color: var(--brand-accent) !important;
+      font-weight: 700;
+      text-shadow: 0 0 5px var(--brand-accent), 0 0 10px var(--brand-accent);
+      transition: text-shadow 0.3s ease;
+    }
+    .btn-outline-neon {
+      color: var(--text-1);
+      border: 1px solid var(--border-1);
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+    }
+    .btn-outline-neon:hover {
+      color: var(--brand-secondary) !important;
+      border-color: var(--brand-secondary);
+      box-shadow: 0 0 10px rgba(33,108,255, 0.4);
+    }
+    .btn-neon-primary {
+      background-color: var(--brand-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 0 8px rgba(87,0,128, 0.7);
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+    .btn-neon-primary:hover {
+      background-color: var(--brand-secondary);
+      box-shadow: 0 0 15px rgba(33,108,255, 0.7);
+    }
 /* Redefine base colors for a strong dark/neon contrast */
 :root {
     --bg-0: #1a1a2e; /* Darkest background */
