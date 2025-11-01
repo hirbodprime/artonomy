@@ -577,7 +577,7 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
         <div class="m-dock max-w-screen-md mx-auto">
           <ul class="m-dock-list" style="grid-template-columns: repeat(4, minmax(0,1fr));">
             <!-- <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li> -->
-            <li><a href="{% url 'portfolio' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
+            <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
             <li><a href="{% url 'explore' %}" class="m-dock-item  {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
             <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
             <li><a href="{% url 'marketplace:list' %}" class="m-dock-item" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
