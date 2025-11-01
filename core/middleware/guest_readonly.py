@@ -45,6 +45,9 @@ class GuestReadOnlyMiddleware:
             "/account/settings/",
             "/account/logout/",
             "/dashboard/",
+            "/portfolio/themes/",
+            "/portfolio/onboarding/",
+            "/portfolio/me/",
         )
 
         self.DENY_CONTAINS = (
@@ -53,6 +56,7 @@ class GuestReadOnlyMiddleware:
             "/review/",
             "/media/",
             "/category/",
+            "/portfolio/@",
         )
 
     def _redirect_to_landing(self, request):
