@@ -34,11 +34,15 @@ class JoinPickKindForm(forms.Form):
         ],
         widget=forms.RadioSelect
     )
-
+# marketplace/forms.py
+from django import forms
+from django.utils.translation import gettext_lazy as _
+from .models import BusinessProfile
+from .utils.images import compress_image  # <- uses the helper we wrote
 
 class ProfileSetupForm(forms.ModelForm):
     """
-    Step 2: we are building the dramatic public profile.
+    Step 2: dramatic public profile (with server-side image compression).
     """
     class Meta:
         model = BusinessProfile
@@ -68,6 +72,22 @@ class ProfileSetupForm(forms.ModelForm):
                 "placeholder": _("City, Country")
             }),
         }
+
+    # --- image compression hooks ---
+    def clean_avatar(self):
+        f = self.cleaned_data.get("avatar")
+        if not f:
+            return f
+        # smaller cap for avatars
+        return compress_image(f, max_side=800, webp=True, quality=82)
+
+    def clean_cover(self):
+        f = self.cleaned_data.get("cover")
+        if not f:
+            return f
+        # larger cap for cover/header images
+        return compress_image(f, max_side=2560, webp=True, quality=80)
+
 
 
 class PaymentUploadForm(forms.ModelForm):
