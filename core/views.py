@@ -248,7 +248,7 @@ def landing_page(request):
             # honor next if safe, else go to localized 'explore'
             if next_url and url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
                 return redirect(next_url)
-            return redirect(resolve_url("explore"))
+            return redirect(resolve_url("marketplace:home"))
 
         messages.error(request, "Invalid email or password")
 
