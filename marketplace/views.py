@@ -60,6 +60,8 @@ def studio_dashboard(request):
 
     products = approved_profile.products.order_by("-created_at")
     return render(request, "marketplace/dashboard.html", {
+        "nav_active": "marketplace",
+
         "profile": approved_profile,
         "products": products,
     })
@@ -83,7 +85,9 @@ def product_create(request):
         form = ProductForm(initial={"status": Product.Status.ACTIVE})
 
     return render(request, "marketplace/product_form.html", {
-        "form": form, "is_edit": False
+        "form": form, "is_edit": False,
+        "nav_active": "marketplace",
+
     })
 
 @login_required
@@ -103,6 +107,7 @@ def product_edit(request, pk):
         form = ProductForm(instance=product)
 
     return render(request, "marketplace/product_form.html", {
+        "nav_active": "marketplace",
         "form": form, "is_edit": True, "product": product
     })
 
@@ -346,6 +351,7 @@ def join_marketplace_steps(request):
             form = ProfileSetupForm(initial=initial)
 
         return render(request, "marketplace/join_step2_profile.html", {
+        "nav_active": "marketplace",
             "step": 2,
             "form": form,
             "kind_choice": data["kind"],
@@ -416,6 +422,7 @@ def profile_public(request, slug):
 
     products = profile.products.filter(status=Product.Status.ACTIVE).order_by("-views", "-id")
     return render(request, "marketplace/profile_public.html", {
+        "nav_active": "marketplace",
         "profile": profile,
         "products": products,
     })
@@ -442,6 +449,7 @@ def product_detail(request, pk):
     Product.objects.filter(pk=product.pk).update(views=F("views") + 1)
 
     return render(request, "marketplace/product_detail.html", {
+        "nav_active": "marketplace",
         "product": product,
     })
 

@@ -1,226 +1,277 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% load l10n humanize %}
+{% load i18n l10n humanize %}
 
 {% block content %}
 <style>
-    /* 🎨 NEW: Gallery-Inspired Marketplace Styles */
+    /* 🎨 FINAL: Urbane Gallery Marketplace Styles (V3 - Full Width) */
     :root {
-        --color-bg: #0F172A; /* Slate 900 */
-        --color-card-bg: #1E293B; /* Slate 800 */
-        --color-border: #334155; /* Slate 700 */
-        --color-text-primary: #F8FAFC; /* Slate 50 */
-        --color-text-muted: #94A3B8; /* Slate 400 */
-        --color-accent-violet: #8B5CF6; /* Violet 500 */
-        --color-accent-emerald: #10B981; /* Emerald 500 */
+        --color-bg: #0C111E; /* Darker Space Blue/Navy for depth */
+        --color-card-bg: #1A2233; /* Slightly Lighter card background */
+        --color-border: #2B354D; /* Cooler, subtle border */
+        --color-text-primary: #E2E8F0; /* Off-White */
+        --color-text-muted: #94A3B8;
+        --color-accent-violet: #8B5CF6; /* Violet (Interaction/Highlight) */
+        --color-accent-emerald: #10B981; /* Emerald (Success/Commerce) */
+        --color-shadow-light: rgba(139, 92, 246, 0.15); 
+        --color-shadow-dark: rgba(0, 0, 0, 0.4);
     }
 
     /* --- General Layout & Background --- */
     .page-bg { background-color: var(--color-bg); }
     .content-wrap { max-width: 1400px; margin: 0 auto; }
     
-    /* --- CTA / User Status Banners --- */
+    .content-header { 
+        font-size: 1.5rem; 
+        border-left-width: 6px; 
+        padding-left: 0.8rem; 
+        text-shadow: 0 0 8px rgba(0, 0, 0, 0.4); 
+    }
+
+    /* --- Status Banner --- */
     .status-banner {
         background-color: var(--color-card-bg);
         border-radius: 1rem;
-        padding: 1.25rem 1.5rem;
+        padding: 1.5rem 2rem; 
         border: 1px solid var(--color-border);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2), 0 4px 12px var(--color-shadow-dark);
     }
-    .status-banner.approved { border-color: var(--color-accent-emerald); background-color: rgba(16, 185, 129, 0.1); }
-    .status-banner.pending { border-color: #A3A9B6; background-color: rgba(148, 163, 184, 0.1); }
+    .status-banner.approved { border-color: var(--color-accent-emerald); background-color: rgba(16, 185, 129, 0.15); }
+    .status-banner.pending { border-color: #5B749A; background-color: rgba(91, 116, 154, 0.1); }
     .status-banner.rejected { border-color: #F87171; background-color: rgba(248, 113, 113, 0.1); }
-    
-    /* --- Filter Bar Redesign --- */
+    .status-banner .btn-cta { transition: all 0.2s; }
+    .status-banner .btn-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* --- Filter Bar --- */
     .mk-filters {
         background: var(--color-card-bg);
         border: 1px solid var(--color-border);
-        border-radius: 1.5rem; /* Smoother radius */
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-        padding: 1.25rem 1.5rem;
+        border-radius: 2rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        padding: 1rem 1.5rem;
     }
     .mk-chip-field {
-        background: var(--color-bg); /* Darker input background */
+        background: var(--color-bg); 
         border: 1px solid var(--color-border);
-        border-radius: 0.75rem;
-        height: 3rem; /* Taller fields for easier clicking */
+        border-radius: 0.5rem;
+        height: 2.75rem;
         padding: 0 1rem;
         display: flex;
         align-items: center;
-        transition: border-color 0.2s;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .mk-chip-field:focus-within { border-color: var(--color-accent-violet); }
+    .mk-chip-field:focus-within { 
+        border-color: var(--color-accent-violet); 
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+    }
 
     .mk-select {
         appearance: none; -webkit-appearance: none; -moz-appearance: none;
         background: transparent; border: 0; color: var(--color-text-primary);
-        width: 100%; padding-right: 1.5rem; font-size: 0.95rem;
+        width: 100%; padding-right: 1.5rem; font-size: 0.9rem;
         outline: none;
     }
-    .mk-select option { color: #111; background: #fff } /* Ensure options are readable */
+    .mk-select option { color: #111; background: #fff } 
     @media (prefers-color-scheme: dark) { .mk-select option { color: var(--color-text-primary); background: #111827; } }
 
     .mk-apply-btn {
         background: linear-gradient(90deg, #7D5CFF, #9F7DFF);
         color: var(--color-bg);
         font-weight: 700;
-        border-radius: 0.75rem;
+        border-radius: 0.5rem;
         padding: 0 1.5rem;
-        height: 3rem;
+        height: 2.75rem;
         box-shadow: 0 5px 15px rgba(125, 92, 255, 0.3);
-        transition: opacity 0.2s;
+        transition: opacity 0.2s, transform 0.2s;
     }
-    .mk-apply-btn:hover { opacity: 0.9; }
+    .mk-apply-btn:hover { opacity: 0.95; transform: translateY(-1px); }
 
-    /* --- Content Grid --- */
-    .blocks-grid {
-        display: grid;
-        gap: 3rem; /* More space between columns */
-        grid-template-columns: 1fr;
+    /* --- Creator Slider Section --- */
+    .creator-slider-wrap {
+        padding-top: 2rem; 
+        padding-bottom: 2rem;
+        background-color: var(--color-bg); 
     }
-    @media(min-width:1024px){ /* Use lg breakpoint for grid switch */
-        .blocks-grid{ grid-template-columns: 1fr 1.5fr; align-items: start; }
+    .creator-slider {
+        display: flex;
+        gap: 1.5rem;
+        overflow-x: auto; 
+        padding-bottom: 1rem; 
+        -ms-overflow-style: none; 
+        scrollbar-width: none; 
+    }
+    .creator-slider::-webkit-scrollbar {
+        display: none; 
     }
 
-    /* --- Profile Card (Left Column) --- */
-    .profile-card {
+    .creator-card {
+        flex-shrink: 0;
+        width: 250px; 
         background: var(--color-card-bg);
         border: 1px solid var(--color-border);
-        border-radius: 1.5rem;
+        border-radius: 1rem;
         padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        transition: transform 0.2s, box-shadow 0.2s;
+        text-align: center;
+        transition: transform 0.2s, box-shadow 0.3s;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
-    .profile-card:hover { 
-        transform: translateY(-3px); 
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    .creator-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        border-color: var(--color-accent-violet);
     }
-    .profile-avatar {
-        width: 64px; height: 64px; border-radius: 1rem; /* Softer corners */
-        background: var(--color-bg); border: 2px solid var(--color-accent-violet);
+    .creator-avatar-lg {
+        width: 80px; height: 80px; margin: 0 auto 0.75rem;
+        border-radius: 50%;
+        background: var(--color-bg); border: 3px solid var(--color-accent-violet);
+        overflow: hidden;
+        display: grid; place-items: center;
     }
-    .profile-meta h2 { font-size: 1.15rem; font-weight: 700; }
-    .profile-meta .kind {
+    .creator-name { font-size: 1.1rem; font-weight: 700; color: var(--color-text-primary); margin-bottom: 0.25rem; }
+    .creator-kind {
         background: rgba(139, 92, 246, 0.15);
-        border: 1px solid rgba(139, 92, 246, 0.4);
-        color: #D8B4FE; /* Lavender text */
-        border-radius: 0.75rem;
-        font-size: 0.65rem; padding: 0.2rem 0.6rem;
+        color: #D8B4FE; 
+        border-radius: 0.5rem;
+        font-size: 0.75rem; padding: 0.2rem 0.6rem;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 0.25rem;
     }
-    .profile-footer a { color: var(--color-accent-violet); font-weight: 600; }
+    .creator-location { color: var(--color-text-muted); font-size: 0.85rem; margin-top: 0.5rem; }
 
-    /* --- Product Card (Right Column) --- */
+
+    /* --- Product Card (Full Width Grid) --- */
+    .product-grid { 
+        display: grid; 
+        gap: 2rem; 
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    }
     .product-card {
         background: var(--color-card-bg);
         border: 1px solid var(--color-border);
-        border-radius: 1.5rem;
+        border-radius: 0.75rem; 
         overflow: hidden;
-        transition: box-shadow 0.3s;
+        transition: box-shadow 0.3s, border-color 0.3s, transform 0.2s;
     }
     .product-card:hover {
-        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        border-color: var(--color-accent-emerald);
     }
-    .product-media { aspect-ratio: 16/9; background: #000; } /* Tighter aspect ratio for better display */
-    .product-body { padding: 1.5rem; }
-    .p-title { font-size: 1.1rem; font-weight: 800; }
+    .product-media { aspect-ratio: 16/11; background: #000; } 
+    .product-info { padding: 1.25rem 1.25rem 0.75rem; } 
+    .product-action { 
+        padding: 0.75rem 1.25rem 1.25rem; 
+        border-top: 1px solid var(--color-border); 
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .p-title { font-size: 1.1rem; font-weight: 700; line-height: 1.3; } 
     .p-price {
-        background: rgba(16, 185, 129, 0.15);
-        color: var(--color-accent-emerald);
-        border: 1px solid rgba(16, 185, 129, 0.4);
-        padding: 0.4rem 0.75rem;
-        border-radius: 12px;
+        background: var(--color-accent-emerald); 
+        color: var(--color-bg); 
+        padding: 0.3rem 0.6rem;
+        border-radius: 6px;
         font-weight: 800;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
     }
-    .p-desc { color: var(--color-text-muted); font-size: 0.9rem; }
-    .p-meta { font-size: 0.8rem; }
+    .p-desc { color: var(--color-text-muted); font-size: 0.8rem; margin-top: 0.5rem; line-height: 1.4; } 
+    .p-meta-creator { 
+        font-size: 0.75rem; 
+        color: var(--color-accent-violet); 
+        font-weight: 600; 
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
     .buy-btn {
-        background: var(--color-accent-emerald);
+        background: var(--color-accent-violet); 
         color: var(--color-bg);
         font-weight: 700;
         border-radius: 0.5rem;
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        transition: opacity 0.2s;
+        box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
     }
+    .buy-btn:hover { opacity: 0.9; }
 </style>
 
-<div class="page-bg min-h-screen pb-12">
-<div class="content-wrap w-full px-4 sm:px-6 py-8 space-y-10">
+<div class="page-bg min-h-screen pb-20">
+<div class="content-wrap w-full px-4 sm:px-6 py-12 space-y-10">
 
+    {# --- User Status / Join CTA Banner --- #}
     {% if request.user.is_authenticated %}
+        {# --- Start Status Logic --- #}
         {% if user_approved_profile %}
             <div class="status-banner approved">
-                <div class="flex items-center justify-between gap-3">
-                    <div class="text-sm text-emerald-100">
-                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-check-circle"></i> {% trans "Profile Approved!" %}</span>
-                        <p class="text-emerald-300 mt-1">{% trans "Go to your studio to manage your listings and profile." %}</p>
+                <div class="flex items-center justify-between gap-4">
+                    <div class="text-base text-emerald-100">
+                        <span class="font-bold flex items-center gap-2 text-lg"><i class="fa-solid fa-medal"></i> {% trans "Creator Profile Approved!" %}</span>
+                        <p class="text-emerald-300 mt-1">{% trans "Your studio is live. Manage your listings and profile from the dashboard." %}</p>
                     </div>
                     <div class="flex gap-3 flex-shrink-0">
-                        <a class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-sm"
-                            href="{% url 'marketplace:dashboard' %}">{% trans "Open Studio" %}</a>
-                        <a class="px-4 py-2 rounded-lg border border-white/20 text-white text-sm hover:bg-white/10"
+                        <a class="btn-cta px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-sm"
+                            href="{% url 'marketplace:dashboard' %}">{% trans "Open Dashboard" %}</a>
+                        <a class="btn-cta px-5 py-2.5 rounded-lg border border-white/30 text-white text-sm hover:bg-white/10"
                             href="{% url 'marketplace:profile' user_approved_profile.slug %}">{% trans "View Public Page" %}</a>
                     </div>
                 </div>
             </div>
-
         {% elif user_join_status == 'PENDING' %}
             <div class="status-banner pending">
-                <div class="flex items-center justify-between gap-3">
-                    <div class="text-sm text-gray-200">
-                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-clock"></i> {% trans "Request Under Review" %}</span>
-                        <p class="text-gray-400 mt-1">{% trans "We are manually reviewing your application. Thank you for your patience." %}</p>
+                <div class="flex items-center justify-between gap-4">
+                    <div class="text-base text-gray-200">
+                        <span class="font-bold flex items-center gap-2 text-lg"><i class="fa-solid fa-hourglass-half"></i> {% trans "Application Under Review" %}</span>
+                        <p class="text-gray-400 mt-1">{% trans "Your profile application is being manually assessed. We appreciate your patience." %}</p>
                     </div>
-                    <span class="px-4 py-2 rounded-lg border border-white/20 text-gray-300 text-sm flex-shrink-0">{% trans "Pending" %}</span>
+                    <span class="px-5 py-2.5 rounded-lg border border-gray-500 text-gray-400 text-sm flex-shrink-0">{% trans "Pending" %}</span>
                 </div>
             </div>
-
         {% elif user_join_status == 'REJECTED' %}
             <div class="status-banner rejected">
-                <div class="flex items-center justify-between gap-3">
-                    <div class="text-sm text-red-100">
-                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-times-circle"></i> {% trans "Application Rejected" %}</span>
-                        <p class="text-red-300 mt-1">{% trans "Please check your email for feedback or try again with updated info." %}</p>
+                <div class="flex items-center justify-between gap-4">
+                    <div class="text-base text-red-100">
+                        <span class="font-bold flex items-center gap-2 text-lg"><i class="fa-solid fa-circle-xmark"></i> {% trans "Application Rejected" %}</span>
+                        <p class="text-red-300 mt-1">{% trans "Review the feedback sent to your email and update your information." %}</p>
                     </div>
-                    <a class="px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm hover:bg-white/20 flex-shrink-0"
+                    <a class="btn-cta px-5 py-2.5 rounded-lg bg-white/10 border border-white/30 text-white text-sm hover:bg-white/20 flex-shrink-0"
                         href="{% url 'marketplace:join_entry' %}">{% trans "Try Again" %}</a>
                 </div>
             </div>
-
         {% else %}
-            {# default: show normal join CTA with counter #}
-            <div class="status-banner border-violet-500/30 bg-violet-500/10">
-                <div class="flex items-center justify-between gap-3">
-                    <div class="text-sm text-violet-100">
-                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> {% trans "Become a Creator" %}</span>
-                        <p class="text-violet-300 mt-1">{% trans "Create a dramatic public profile and start selling your works." %}</p>
+            <div class="status-banner border-violet-500/50 bg-violet-500/10">
+                <div class="flex items-center justify-between gap-4">
+                    <div class="text-base text-violet-100">
+                        <span class="font-bold flex items-center gap-2 text-lg"><i class="fa-solid fa-sparkles"></i> {% trans "Join the Creative Marketplace" %}</span>
+                        <p class="text-violet-300 mt-1">{% trans "Create a public profile to share and sell your unique works and services." %}</p>
                     </div>
-                    <a class="px-4 py-2 rounded-lg bg-gradient-to-tr from-[#7D5CFF] to-[#9F7DFF] text-black font-bold text-sm flex-shrink-0"
+                    <a class="btn-cta px-5 py-2.5 rounded-lg bg-gradient-to-tr from-[#7D5CFF] to-[#9F7DFF] text-black font-bold text-sm flex-shrink-0"
                         href="{% url 'marketplace:join_entry' %}">
-                        {% trans "Join Now" %} · {{ join_clicks|default:0 }}
+                        {% trans "Join Now" %} <span class="ml-1 text-xs">({{ join_clicks|default:0 }})</span>
                     </a>
                 </div>
             </div>
         {% endif %}
+        {# --- End Status Logic --- #}
     {% else %}
-        {# Guests: show join button leading to login/landing #}
         <div class="status-banner">
-            <div class="flex items-center justify-between gap-3">
-                <div class="text-sm text-gray-200">
-                    <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-user-lock"></i> {% trans "Join the Marketplace" %}</span>
-                    <p class="text-gray-400 mt-1">{% trans "Sign in or register to create your profile and list your works." %}</p>
+            <div class="flex items-center justify-between gap-4">
+                <div class="text-base text-gray-200">
+                    <span class="font-bold flex items-center gap-2 text-lg"><i class="fa-solid fa-lock"></i> {% trans "Unlock Your Potential" %}</span>
+                    <p class="text-gray-400 mt-1">{% trans "Sign in or register to begin your application as a marketplace creator." %}</p>
                 </div>
-                <a class="px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm hover:bg-white/20 flex-shrink-0"
-                    href="{% url 'landing' %}">{% trans "Sign in" %}</a>
+                <a class="btn-cta px-5 py-2.5 rounded-lg bg-white/10 border border-white/30 text-white text-sm hover:bg-white/20 flex-shrink-0"
+                    href="{% url 'landing' %}">{% trans "Sign in / Register" %}</a>
             </div>
         </div>
     {% endif %}
 
 
+
+    {# --- Filter Bar --- #}
     <form method="get" class="mk-filters">
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-[200px_minmax(150px,1fr)_160px_160px_120px_auto] gap-4 items-center">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-[220px_minmax(150px,1fr)_160px_160px_120px_auto] gap-4 items-center">
             
             <div class="col-span-1 relative">
                 <div class="mk-chip-field w-full">
@@ -238,7 +289,7 @@
 
             <div class="col-span-2 sm:col-span-1">
                 <div class="mk-chip-field w-full">
-                    <i class="fa-solid fa-magnifying-glass text-gray-400 mr-3 text-base"></i>
+                    <i class="fa-solid fa-magnifying-glass text-gray-400 mr-3 text-sm"></i>
                     <input type="text"
                             name="q"
                             value="{{ search_q }}"
@@ -250,7 +301,7 @@
             <div class="col-span-1 relative hidden lg:block">
                 <div class="mk-chip-field w-full">
                     <select name="kind" class="mk-select">
-                        <option value="">{% trans "All Types" %}</option>
+                        <option value="">{% trans "All Creator Types" %}</option>
                         <option value="SOLO_ARTIST" {% if kind_filter == "SOLO_ARTIST" %}selected{% endif %}>{% trans "Solo Artist" %}</option>
                         <option value="GALLERY" {% if kind_filter == "GALLERY" %}selected{% endif %}>{% trans "Gallery" %}</option>
                         <option value="STUDIO" {% if kind_filter == "STUDIO" %}selected{% endif %}>{% trans "Studio" %}</option>
@@ -274,153 +325,133 @@
 
             <div class="col-span-2 sm:col-span-1 lg:col-span-2 flex items-center justify-end gap-3">
                 <a href="{{ request.path }}"
-                    class="mk-chip-field text-gray-300 hover:text-white text-sm w-12 h-12 justify-center flex-shrink-0"
+                    class="mk-chip-field text-gray-300 hover:text-white text-sm w-11 h-11 justify-center flex-shrink-0"
                     title="{% trans 'Clear filters' %}" aria-label="{% trans 'Clear filters' %}">
-                    <i class="fa-regular fa-trash-can text-base"></i>
+                    <i class="fa-solid fa-xmark text-base"></i>
                 </a>
                 <button class="mk-apply-btn flex-grow">
-                    <i class="fa-solid fa-filter mr-2"></i> {% trans "Apply Filters" %}
+                    <i class="fa-solid fa-sliders mr-2"></i> {% trans "Refine Search" %}
                 </button>
             </div>
         </div>
     </form>
 
-    <section class="blocks-grid">
 
-        <div class="space-y-6">
-            <h2 class="text-white font-extrabold text-xl border-l-4 border-violet-500 pl-3">{% trans "Featured Creators & Spaces" %}</h2>
 
-            {% if profiles %}
-                <div class="space-y-4">
-                    {% for p in profiles %}
-                        <article class="profile-card">
-                            <div class="profile-head">
-                                <div class="profile-avatar">
-                                    {% if p.avatar %}
-                                        <img src="{{ p.avatar.url }}" class="w-full h-full object-cover" alt="{{ p.display_name }}">
-                                    {% else %}
-                                        <span class="text-xl text-violet-300">{{ p.display_name|slice:":2"|upper }}</span>
-                                    {% endif %}
+    {# --- 1. Featured Profiles (Horizontal Slider) --- #}
+    <div class="creator-slider-wrap">
+        <h2 class="content-header text-white font-extrabold border-violet-500 mb-6">
+            <i class="fa-solid fa-palette text-violet-400 mr-2"></i> {% trans "Featured Creators & Spaces" %}
+        </h2>
+
+        {% if profiles %}
+            <div class="creator-slider">
+                {% for p in profiles|slice:":8" %}
+                    <a href="{% url 'marketplace:profile' p.slug %}" class="creator-card">
+                        <div class="creator-avatar-lg">
+                            {% if p.avatar %}
+                                <img src="{{ p.avatar.url }}" class="w-full h-full object-cover" alt="{{ p.display_name }}">
+                            {% else %}
+                                <span class="text-2xl text-violet-300">{{ p.display_name|slice:":2"|upper }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="truncate">
+                            <h3 class="creator-name truncate"><bdi>{{ p.display_name }}</bdi></h3>
+                            <span class="creator-kind flex-shrink-0">{{ p.get_kind_display }}</span>
+                        </div>
+                        {% if p.location %}
+                            <div class="creator-location flex items-center justify-center gap-1 truncate">
+                                <i class="fa-solid fa-location-dot"></i> {{ p.location|truncatechars:18 }}
+                            </div>
+                        {% else %}
+                            <div class="creator-location italic">{% trans "Global / Online" %}</div>
+                        {% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-base text-gray-500 p-6 rounded-lg border border-white/10 bg-black/10">
+                <i class="fa-solid fa-user-tag mr-2 text-xl"></i> {% trans "No featured creators available." %}
+            </p>
+        {% endif %}
+    </div>
+
+    {# --- 2. Products/Works (Full Width Grid) --- #}
+    <div class="space-y-8 pt-4">
+        <h2 class="content-header text-white font-extrabold border-emerald-500">
+            <i class="fa-solid fa-store text-emerald-400 mr-2"></i> {% trans "Top Works & Services" %}
+        </h2>
+
+        {% if products %}
+            <div class="product-grid">
+                {% for pr in products %}
+                    <article class="product-card">
+                        <a href="{% url 'marketplace:product_detail' pr.pk %}" class="product-media block">
+                            {% if pr.image %}
+                                <img src="{{ pr.image.url }}" alt="{{ pr.title }}" class="w-full h-full object-cover transition duration-300 hover:scale-[1.05]">
+                            {% else %}
+                                <div class="w-full h-full bg-slate-900 grid place-items-center text-gray-500 text-base">
+                                    <i class="fa-solid fa-image-slash text-4xl mb-2"></i> <span>{% trans "Image Unavailable" %}</span>
                                 </div>
-                                <div class="profile-meta">
-                                    <h2>
-                                        <a href="{% url 'marketplace:profile' p.slug %}" class="hover:text-violet-400 text-white transition">
-                                            <bdi>{{ p.display_name }}</bdi>
-                                        </a>
-                                        <span class="kind">{{ p.get_kind_display }}</span>
-                                    </h2>
-                                    {% if p.tagline %}
-                                        <div class="tagline text-gray-400 mt-1"><bdi>{{ p.tagline }}</bdi></div>
-                                    {% endif %}
-                                    {% if p.location %}
-                                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                                            <i class="fa-solid fa-location-dot"></i> {{ p.location }}
-                                        </div>
-                                    {% endif %}
+                            {% endif %}
+                        </a>
+                        <div class="product-info">
+                            <div class="flex items-start justify-between mb-2">
+                                <h2 class="p-title line-clamp-2">
+                                    <a href="{% url 'marketplace:product_detail' pr.pk %}" class="hover:text-emerald-400 transition text-white">
+                                        <bdi>{{ pr.title }}</bdi>
+                                    </a>
+                                </h2>
+                                <div class="p-price flex-shrink-0 ml-4 flex items-center">
+                                    <i class="fa-solid fa-coins mr-1 text-sm"></i>
+                                    <span>{{ pr.price|floatformat:0|localize }}</span>
+                                    <span class="ml-1 text-[0.6rem] font-bold">{% if LANGUAGE_CODE|slice:":2" == "fa" %}تومان{% else %}Toman{% endif %}</span>
                                 </div>
                             </div>
-
-                            <div class="profile-footer pt-3 border-t border-white/10">
-                                <div class="mb-3 text-sm leading-6 text-gray-300 line-clamp-3">
-                                    <bdi>{{ p.bio_long|truncatechars:180 }}</bdi>
-                                </div>
-                                <a href="{% url 'marketplace:profile' p.slug %}" class="text-sm flex items-center gap-1">
-                                    {% trans "View profile & works" %} <i class="fa-solid fa-arrow-right text-xs"></i>
+                            <p class="p-desc line-clamp-2">
+                                <bdi>{{ pr.description|truncatechars:100|default:"No description provided." }}</bdi>
+                            </p>
+                        </div>
+                        
+                        <div class="product-action">
+                            {% if pr.profile %}
+                                <a class="p-meta-creator hover:text-violet-300" href="{% url 'marketplace:profile' pr.profile.slug %}">
+                                    <i class="fa-solid fa-user-tag"></i> <bdi>{{ pr.profile.display_name|truncatechars:15 }}</bdi>
                                 </a>
-                            </div>
-                        </article>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-sm text-gray-500 p-4 rounded-lg border border-white/10">{% trans "No profiles match your search criteria." %}</p>
-            {% endif %}
-        </div>
-
-        <div class="space-y-6">
-            <h2 class="text-white font-extrabold text-xl border-l-4 border-emerald-500 pl-3">{% trans "Top Works & Services" %}</h2>
-
-            {% if products %}
-                <div class="grid gap-6">
-                    {% for pr in products %}
-                        <article class="product-card">
-                            <a href="{% url 'marketplace:product_detail' pr.pk %}" class="product-media block">
-                                {% if pr.image %}
-                                    <img src="{{ pr.image.url }}" alt="{{ pr.title }}" class="w-full h-full object-cover transition duration-300 hover:scale-[1.03]">
-                                {% else %}
-                                    <img src="https://placehold.co/1600x900/1E293B/94A3B8?text=Visual+Work" alt="{{ pr.title }}">
-                                {% endif %}
+                            {% endif %}
+                            <a href="{% url 'marketplace:product_detail' pr.pk %}" class="buy-btn shadow-violet-500/20">
+                                <i class="fa-solid fa-eye mr-1"></i> {% trans "View" %}
                             </a>
-                            <div class="product-body">
-                                <div class="product-row">
-                                    <div class="flex-grow">
-                                        <div class="p-title line-clamp-2">
-                                            <a href="{% url 'marketplace:product_detail' pr.pk %}" class="hover:text-emerald-400 transition">
-                                                <bdi>{{ pr.title }}</bdi>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="p-price flex-shrink-0">
-                                        <i class="fa-solid fa-coins"></i>
-                                        <span>{{ pr.price|floatformat:0|localize }}</span>
-                                        <span class="ml-1 text-[0.65rem] font-bold">{% if LANGUAGE_CODE|slice:":2" == "fa" %}تومان{% else %}Toman{% endif %}</span>
-                                    </div>
-                                </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
 
-                                <div class="p-desc">
-                                    <bdi>{{ pr.description|truncatechars:100 }}</bdi>
-                                </div>
+            {# Pagination #}
+            <div class="flex justify-center gap-4 text-sm text-gray-400 pt-8 items-center">
+                {% if page_obj.has_previous %}
+                    <a class="hover:text-white px-4 py-2 rounded-md border border-white/10 bg-white/5 transition" 
+                        href="?page={{ page_obj.previous_page_number }}&{{ current_query|cut:'page=' }}">
+                        <i class="fa-solid fa-chevron-left text-xs mr-2"></i> {% trans "Previous" %}
+                    </a>
+                {% endif %}
+                <span class="text-white font-medium text-base">
+                    {% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}Page {{ n }} of {{ total }}{% endblocktrans %}
+                </span>
+                {% if page_obj.has_next %}
+                    <a class="hover:text-white px-4 py-2 rounded-md border border-white/10 bg-white/5 transition" 
+                        href="?page={{ page_obj.next_page_number }}&{{ current_query|cut:'page=' }}">
+                        {% trans "Next" %} <i class="fa-solid fa-chevron-right text-xs ml-2"></i>
+                    </a>
+                {% endif %}
+            </div>
 
-                                <div class="p-meta pt-4 border-t border-white/5 mt-4">
-                                    <div class="flex items-center gap-2">
-                                        {% if pr.profile %}
-                                            <a class="hover:underline text-violet-400 font-semibold" href="{% url 'marketplace:profile' pr.profile.slug %}">
-                                                <bdi>{{ pr.profile.display_name }}</bdi>
-                                            </a>
-                                        {% endif %}
-                                        {% if pr.category %}
-                                            <span class="text-gray-500 text-xs">
-                                                · {{ pr.category.display_name|default:pr.category.name }}
-                                            </span>
-                                        {% endif %}
-                                    </div>
-
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-gray-400 text-xs flex items-center gap-1">
-                                            <i class="fa-regular fa-eye"></i>
-                                            {{ pr.views|intcomma }}
-                                        </span>
-                                        <a href="#" class="buy-btn" title="{% trans 'Checkout coming soon' %}">
-                                            <i class="fa-solid fa-cart-plus mr-1"></i> {% trans "Buy" %}
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </article>
-                    {% endfor %}
-                </div>
-
-                <div class="flex justify-center gap-4 text-sm text-gray-400 pt-6 items-center">
-                    {% if page_obj.has_previous %}
-                        <a class="hover:text-white px-3 py-1 rounded-md border border-white/10" href="?page={{ page_obj.previous_page_number }}&{{ current_query|cut:'page=' }}">
-                            <i class="fa-solid fa-arrow-left"></i> {% trans "Previous" %}
-                        </a>
-                    {% endif %}
-                    <span class="text-white font-medium">
-                        {% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}Page {{ n }} / {{ total }}{% endblocktrans %}
-                    </span>
-                    {% if page_obj.has_next %}
-                        <a class="hover:text-white px-3 py-1 rounded-md border border-white/10" href="?page={{ page_obj.next_page_number }}&{{ current_query|cut:'page=' }}">
-                            {% trans "Next" %} <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                    {% endif %}
-                </div>
-
-            {% else %}
-                <p class="text-sm text-gray-500 p-4 rounded-lg border border-white/10">{% trans "No products match your search criteria." %}</p>
-            {% endif %}
-        </div>
-
-    </section>
+        {% else %}
+            <p class="text-base text-gray-500 p-6 rounded-lg border border-white/10 bg-black/10">
+                <i class="fa-solid fa-magnifying-glass-minus mr-2 text-xl"></i> {% trans "No products match your search criteria. Try broadening your filters." %}
+            </p>
+        {% endif %}
+    </div>
 </div>
 </div>
 {% endblock %}

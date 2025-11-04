@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-09 16:13+0330\n"
+"POT-Creation-Date: 2025-11-04 13:38+0330\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,44 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\accounts\forms.py:195 .\accounts\forms.py:219
+#: .\templates\accounts\email_verify_start.html:11
+#: .\templates\accounts\password_reset_start.html:11
+#: .\templates\accounts\signup.html:31 .\templates\landing_page.html:108
+msgid "Email"
+msgstr ""
+
+#: .\accounts\forms.py:195 .\accounts\forms.py:219
+msgid "Your email"
+msgstr ""
+
+#: .\accounts\forms.py:206
+msgid "Use the email associated with your account."
+msgstr ""
+
+#: .\accounts\forms.py:212
+msgid "Verification code"
+msgstr ""
+
+#: .\accounts\forms.py:231 .\templates\accounts\email_verify_confirm.html:13
+#: .\templates\accounts\password_reset_confirm.html:15
+msgid "Code"
+msgstr ""
+
+#: .\accounts\forms.py:234 .\accounts\forms.py:235
+#: .\templates\accounts\password_reset_confirm.html:18
+msgid "New password"
+msgstr ""
+
+#: .\accounts\forms.py:238 .\accounts\forms.py:239
+#: .\templates\accounts\password_reset_confirm.html:21
+msgid "Confirm password"
+msgstr ""
+
+#: .\accounts\forms.py:246
+msgid "Passwords do not match."
+msgstr ""
 
 #: .\accounts\models.py:12
 msgid "Username may only contain letters, numbers, and underscores."
@@ -40,73 +78,424 @@ msgid "Artist"
 msgstr ""
 
 #: .\accounts\models.py:105 .\templates\accounts\choose_role.html:44
-#: .\templates\accounts\profile.html:142
+#: .\templates\accounts\profile.html:156
 #: .\templates\network\follow_list.html:105
 msgid "Audience"
 msgstr ""
 
-#: .\accounts\models.py:108
+#: .\accounts\models.py:109
 msgid "email address"
 msgstr ""
 
-#: .\accounts\models.py:110 .\templates\accounts\signup.html:22
+#: .\accounts\models.py:111 .\templates\accounts\signup.html:22
 msgid "username"
 msgstr ""
 
-#: .\accounts\models.py:114
+#: .\accounts\models.py:115
 msgid "Required. Letters, numbers, and underscores only."
 msgstr ""
 
-#: .\accounts\models.py:151
+#: .\accounts\models.py:152
 msgid "Work"
 msgstr ""
 
-#: .\accounts\models.py:152
+#: .\accounts\models.py:153
 msgid "Favorite"
 msgstr ""
 
-#: .\accounts\models.py:189
+#: .\accounts\models.py:190
 msgid "Website"
 msgstr ""
 
-#: .\accounts\models.py:190
+#: .\accounts\models.py:191
 msgid "GitHub"
 msgstr ""
 
-#: .\accounts\models.py:191
+#: .\accounts\models.py:192
 msgid "Twitter/X"
 msgstr ""
 
-#: .\accounts\models.py:192
+#: .\accounts\models.py:193
 msgid "Instagram"
 msgstr ""
 
-#: .\accounts\models.py:193
+#: .\accounts\models.py:194
 msgid "LinkedIn"
 msgstr ""
 
-#: .\accounts\models.py:194
+#: .\accounts\models.py:195 .\templates\marketplace\home.html:258
 msgid "Other"
 msgstr ""
 
-#: .\accounts\views.py:138
+#: .\accounts\views.py:81
+msgid "Please choose a valid username (letters, numbers, underscores)."
+msgstr ""
+
+#: .\accounts\views.py:94
+msgid "Username already taken."
+msgstr ""
+
+#: .\accounts\views.py:98
+msgid "Email is required."
+msgstr ""
+
+#: .\accounts\views.py:103
+msgid "Email already in use."
+msgstr ""
+
+#: .\accounts\views.py:108
+msgid "Password must be at least 8 characters."
+msgstr ""
+
+#: .\accounts\views.py:166
 msgid "Preferences saved."
 msgstr ""
 
-#: .\accounts\views.py:153
-msgid "Your Favorite Categories"
-msgstr ""
-
-#: .\accounts\views.py:153
+#: .\accounts\views.py:177
 msgid "Your Work Categories"
 msgstr ""
 
-#: .\accounts\views.py:245
+#: .\accounts\views.py:177
+msgid "Your Favorite Categories"
+msgstr ""
+
+#: .\accounts\views.py:271
 msgid "Working categories"
 msgstr ""
 
-#: .\accounts\views.py:248
+#: .\accounts\views.py:274
 msgid "Favorite categories"
+msgstr ""
+
+#: .\accounts\views_auth.py:25
+msgid "Your email is already verified."
+msgstr ""
+
+#: .\accounts\views_auth.py:39
+msgid "Your verification code"
+msgstr ""
+
+#: .\accounts\views_auth.py:40
+#, python-brace-format
+msgid ""
+"Your Artonomy verification code is: {code}\n"
+"This code expires in 15 minutes."
+msgstr ""
+
+#: .\accounts\views_auth.py:56
+msgid "Code sent to your email."
+msgstr ""
+
+#: .\accounts\views_auth.py:80 .\accounts\views_auth.py:163
+msgid "No code found. Please request a new one."
+msgstr ""
+
+#: .\accounts\views_auth.py:91
+msgid "Your email has been verified ✅"
+msgstr ""
+
+#: .\accounts\views_auth.py:95 .\accounts\views_auth.py:178
+msgid "Invalid or expired code."
+msgstr ""
+
+#: .\accounts\views_auth.py:115
+msgid "Your password reset code"
+msgstr ""
+
+#: .\accounts\views_auth.py:116
+#, python-brace-format
+msgid ""
+"Your Artonomy reset code is: {code}\n"
+"This code expires in 15 minutes."
+msgstr ""
+
+#: .\accounts\views_auth.py:132
+msgid "If that email exists, we sent a code."
+msgstr ""
+
+#: .\accounts\views_auth.py:153
+msgid "Invalid code or email."
+msgstr ""
+
+#: .\accounts\views_auth.py:174
+msgid "Password changed successfully. You can log in now."
+msgstr ""
+
+#: .\marketplace\admin.py:48
+msgid "Reset join clicks to 0"
+msgstr ""
+
+#: .\marketplace\admin.py:51
+#, python-brace-format
+msgid "Reset join_clicks for {updated} row(s)."
+msgstr ""
+
+#: .\marketplace\admin.py:74
+msgid "Identity"
+msgstr ""
+
+#: .\marketplace\admin.py:79
+msgid "Media"
+msgstr ""
+
+#: .\marketplace\admin.py:82
+msgid "Meta"
+msgstr ""
+
+#: .\marketplace\admin.py:91
+msgid "Products"
+msgstr ""
+
+#: .\marketplace\admin.py:95
+msgid "Avatar"
+msgstr ""
+
+#: .\marketplace\admin.py:99
+msgid "Avatar preview"
+msgstr ""
+
+#: .\marketplace\admin.py:103
+msgid "Cover preview"
+msgstr ""
+
+#: .\marketplace\admin.py:123
+msgid "Payment uploaded"
+msgstr ""
+
+#: .\marketplace\admin.py:127
+msgid "Payment preview"
+msgstr ""
+
+#: .\marketplace\admin.py:131
+msgid "Approve selected requests (and publish profiles)"
+msgstr ""
+
+#: .\marketplace\admin.py:143
+#, python-brace-format
+msgid "Approved {changed} request(s)."
+msgstr ""
+
+#: .\marketplace\admin.py:145
+msgid "Reject selected requests (profiles remain unapproved)"
+msgstr ""
+
+#: .\marketplace\admin.py:148
+#, python-brace-format
+msgid "Rejected {updated} request(s)."
+msgstr ""
+
+#: .\marketplace\admin.py:171
+msgid "Belongs to"
+msgstr ""
+
+#: .\marketplace\admin.py:172
+msgid "Content"
+msgstr ""
+
+#: .\marketplace\admin.py:173
+msgid "Pricing"
+msgstr ""
+
+#: .\marketplace\admin.py:174
+msgid "Media & Status"
+msgstr ""
+
+#: .\marketplace\admin.py:178 .\templates\accounts\profile.html:244
+msgid "Image"
+msgstr ""
+
+#: .\marketplace\admin.py:182
+msgid "Image preview"
+msgstr ""
+
+#: .\marketplace\admin.py:187
+msgid "Mark selected as Active"
+msgstr ""
+
+#: .\marketplace\admin.py:190
+#, python-brace-format
+msgid "Updated {updated} product(s) to Active."
+msgstr ""
+
+#: .\marketplace\admin.py:192
+msgid "Mark selected as Draft"
+msgstr ""
+
+#: .\marketplace\admin.py:195
+#, python-brace-format
+msgid "Updated {updated} product(s) to Draft."
+msgstr ""
+
+#: .\marketplace\admin.py:197
+msgid "Mark selected as Sold"
+msgstr ""
+
+#: .\marketplace\admin.py:200
+#, python-brace-format
+msgid "Updated {updated} product(s) to Sold."
+msgstr ""
+
+#: .\marketplace\forms.py:22
+msgid "I'm a solo artist"
+msgstr ""
+
+#: .\marketplace\forms.py:23 .\marketplace\models.py:41
+#: .\templates\marketplace\home.html:255
+msgid "Gallery"
+msgstr ""
+
+#: .\marketplace\forms.py:24 .\marketplace\models.py:42
+#: .\templates\marketplace\home.html:256
+msgid "Studio"
+msgstr ""
+
+#: .\marketplace\forms.py:25
+msgid "Concept store"
+msgstr ""
+
+#: .\marketplace\forms.py:26
+msgid "Other creative business"
+msgstr ""
+
+#: .\marketplace\forms.py:48
+msgid "Your public / artist / studio name"
+msgstr ""
+
+#: .\marketplace\forms.py:51
+msgid "Example: Brutalist ceramics with Persian soul"
+msgstr ""
+
+#: .\marketplace\forms.py:56
+msgid ""
+"Tell your story. Be dramatic. What do you create, what do you believe, what "
+"makes you different?"
+msgstr ""
+
+#: .\marketplace\forms.py:61
+msgid "City, Country"
+msgstr ""
+
+#: .\marketplace\forms.py:78
+msgid "Upload payment screenshot"
+msgstr ""
+
+#: .\marketplace\models.py:40 .\templates\marketplace\home.html:254
+msgid "Solo Artist"
+msgstr ""
+
+#: .\marketplace\models.py:43 .\templates\marketplace\home.html:257
+msgid "Concept Store"
+msgstr ""
+
+#: .\marketplace\models.py:44
+msgid "Other / Creative Business"
+msgstr ""
+
+#: .\marketplace\models.py:59
+msgid "Public name. For solo artists, usually your artist name."
+msgstr ""
+
+#: .\marketplace\models.py:66
+msgid "Auto-generated from display name. Used in URLs."
+msgstr ""
+
+#: .\marketplace\models.py:72
+msgid "Short punchline. Example: 'Brutalist ceramic forms with Persian soul.'"
+msgstr ""
+
+#: .\marketplace\models.py:78
+msgid ""
+"Tell your story in a dramatic, emotional way. Who are you, why do you exist, "
+"what makes you different?"
+msgstr ""
+
+#: .\marketplace\models.py:86
+msgid "City / Country or where you're based."
+msgstr ""
+
+#: .\marketplace\models.py:93
+msgid "Logo or portrait."
+msgstr ""
+
+#: .\marketplace\models.py:100
+msgid "Header / vibe image."
+msgstr ""
+
+#: .\marketplace\models.py:105
+msgid "If not approved yet, profile is not shown publicly."
+msgstr ""
+
+#: .\marketplace\models.py:140 .\templates\marketplace\profile_public.html:153
+msgid "Pending Review"
+msgstr ""
+
+#: .\marketplace\models.py:141 .\templates\marketplace\profile_public.html:148
+msgid "Approved"
+msgstr ""
+
+#: .\marketplace\models.py:142
+msgid "Rejected"
+msgstr ""
+
+#: .\marketplace\models.py:167
+msgid "Upload your bank transfer receipt / payment screenshot."
+msgstr ""
+
+#: .\marketplace\models.py:196
+msgid "Active"
+msgstr ""
+
+#: .\marketplace\models.py:197
+msgid "Draft"
+msgstr ""
+
+#: .\marketplace\models.py:198
+msgid "Sold"
+msgstr ""
+
+#: .\marketplace\models.py:230
+msgid ""
+"True = service (logo design, tattoo session, etc.). False = physical work."
+msgstr ""
+
+#: .\marketplace\views.py:58
+msgid "Start or complete your marketplace application."
+msgstr ""
+
+#: .\marketplace\views.py:71
+msgid "Your profile is not approved yet."
+msgstr ""
+
+#: .\marketplace\views.py:80
+msgid "Product created."
+msgstr ""
+
+#: .\marketplace\views.py:100
+msgid "Product updated."
+msgstr ""
+
+#: .\marketplace\views.py:113
+msgid "Product deleted."
+msgstr ""
+
+#: .\marketplace\views.py:245
+msgid "You're already approved. Welcome to your studio!"
+msgstr ""
+
+#: .\marketplace\views.py:279
+msgid "You're already approved."
+msgstr ""
+
+#: .\marketplace\views.py:372
+msgid "Your request has been submitted. Please wait for admin approval."
+msgstr ""
+
+#: .\marketplace\views.py:388
+msgid "Payment Information"
+msgstr ""
+
+#: .\marketplace\views.py:390
+msgid "Send the subscription fee and upload the screenshot."
 msgstr ""
 
 #: .\templates\accounts\after-signup.html:14
@@ -128,6 +517,7 @@ msgstr ""
 #: .\templates\accounts\categories.html:6
 #: .\templates\accounts\categories.html:71 .\templates\category\detail.html:24
 #: .\templates\category\index.html:84
+#: .\templates\marketplace\product_form.html:95
 msgid "Category"
 msgstr ""
 
@@ -139,7 +529,8 @@ msgstr ""
 
 #: .\templates\accounts\categories.html:8
 #: .\templates\accounts\profile_suggested.html:80
-#: .\templates\accounts\signup.html:65 .\templates\category\detail.html:141
+#: .\templates\accounts\signup.html:68 .\templates\category\detail.html:141
+#: .\templates\marketplace\home.html:413
 #: .\templates\network\follow_list.html:139
 msgid "Next"
 msgstr ""
@@ -153,7 +544,7 @@ msgid "Tap to select"
 msgstr ""
 
 #: .\templates\accounts\categories.html:101
-#: .\templates\category\index.html:101
+#: .\templates\category\index.html:119
 msgid "No categories available."
 msgstr ""
 
@@ -165,35 +556,100 @@ msgstr ""
 msgid "Which one are you?"
 msgstr ""
 
+#: .\templates\accounts\email_verify_confirm.html:6
+msgid "Enter verification code"
+msgstr ""
+
+#: .\templates\accounts\email_verify_confirm.html:8
+#, python-format
+msgid "We sent a code to %(email)s. It expires in 15 minutes."
+msgstr ""
+
+#: .\templates\accounts\email_verify_confirm.html:16
+#: .\templates\accounts\password_reset_confirm.html:25
+msgid "Resend"
+msgstr ""
+
+#: .\templates\accounts\email_verify_confirm.html:18
+msgid "Verify"
+msgstr ""
+
+#: .\templates\accounts\email_verify_start.html:6
+msgid "Verify your email"
+msgstr ""
+
+#: .\templates\accounts\email_verify_start.html:7
+msgid "We’ll send a 6-digit code to your email. Enter it on the next step."
+msgstr ""
+
+#: .\templates\accounts\email_verify_start.html:15
+msgid "Send code"
+msgstr ""
+
 #: .\templates\accounts\hero_base.html:108 .\templates\landing_page.html:58
 #: .\templates\posts\single_post.html:358
 msgid "Menu"
 msgstr ""
 
 #: .\templates\accounts\hero_base.html:113 .\templates\accounts\signup.html:11
-#: .\templates\base.html:235 .\templates\base.html:430
+#: .\templates\base.html:237 .\templates\base.html:450
 msgid "Artonomy"
 msgstr ""
 
-#: .\templates\accounts\profile.html:124
+#: .\templates\accounts\password_reset_confirm.html:6
+msgid "Reset your password"
+msgstr ""
+
+#: .\templates\accounts\password_reset_confirm.html:8
+#, python-format
+msgid "We sent a code to %(email)s. Enter it and choose a new password."
+msgstr ""
+
+#: .\templates\accounts\password_reset_confirm.html:27
+msgid "Change password"
+msgstr ""
+
+#: .\templates\accounts\password_reset_start.html:6
+msgid "Forgot your password?"
+msgstr ""
+
+#: .\templates\accounts\password_reset_start.html:7
+msgid ""
+"Enter your account email. We’ll send you a 6-digit code to reset your "
+"password."
+msgstr ""
+
+#: .\templates\accounts\password_reset_start.html:15
+msgid "Send reset code"
+msgstr ""
+
+#: .\templates\accounts\profile.html:82
+msgid "Please verify your email."
+msgstr ""
+
+#: .\templates\accounts\profile.html:86
+msgid "Verify now"
+msgstr ""
+
+#: .\templates\accounts\profile.html:138
 msgid "Suggested by"
 msgstr ""
 
-#: .\templates\accounts\profile.html:134
+#: .\templates\accounts\profile.html:148
 msgid "Suggestions"
-msgstr ""
-
-#: .\templates\accounts\profile.html:150
-#, python-format
-msgid "· +%(remaining)s more"
 msgstr ""
 
 #: .\templates\accounts\profile.html:164
 #, python-format
+msgid "· +%(remaining)s more"
+msgstr ""
+
+#: .\templates\accounts\profile.html:178
+#, python-format
 msgid "See who %(u)s follows"
 msgstr ""
 
-#: .\templates\accounts\profile.html:165 .\templates\accounts\profile.html:181
+#: .\templates\accounts\profile.html:179 .\templates\accounts\profile.html:195
 #: .\templates\category\detail.html:106
 #: .\templates\network\follow_list.html:70
 #: .\templates\network\follow_list.html:122
@@ -204,18 +660,18 @@ msgstr ""
 msgid "Following"
 msgstr ""
 
-#: .\templates\accounts\profile.html:169
+#: .\templates\accounts\profile.html:183
 #, python-format
 msgid "See %(u)s’s followers"
 msgstr ""
 
-#: .\templates\accounts\profile.html:170 .\templates\category\detail.html:39
+#: .\templates\accounts\profile.html:184 .\templates\category\detail.html:39
 #: .\templates\category\detail.html:46 .\templates\category\detail.html:107
 #: .\templates\network\follow_list.html:66
 msgid "Followers"
 msgstr ""
 
-#: .\templates\accounts\profile.html:181 .\templates\category\detail.html:95
+#: .\templates\accounts\profile.html:195 .\templates\category\detail.html:95
 #: .\templates\network\follow_list.html:122
 #: .\templates\posts\single_post.html:479
 #: .\templates\posts\single_post.html:714
@@ -226,137 +682,133 @@ msgstr ""
 msgid "Follow"
 msgstr ""
 
-#: .\templates\accounts\profile.html:184
+#: .\templates\accounts\profile.html:198
 msgid "Edit Profile"
 msgstr ""
 
-#: .\templates\accounts\profile.html:196
+#: .\templates\accounts\profile.html:210
 msgid "Timeline"
 msgstr ""
 
-#: .\templates\accounts\profile.html:197
-#: .\templates\accounts\settings_hub.html:79
+#: .\templates\accounts\profile.html:211
+#: .\templates\accounts\settings_hub.html:79 .\templates\base.html:252
+#: .\templates\base.html:571 .\templates\base.html:582
 msgid "Portfolio"
 msgstr ""
 
-#: .\templates\accounts\profile.html:198
+#: .\templates\accounts\profile.html:212
 msgid "Personal Info"
 msgstr ""
 
-#: .\templates\accounts\profile.html:200 .\templates\base.html:269
-#: .\templates\base.html:554 .\templates\base.html:563
+#: .\templates\accounts\profile.html:214 .\templates\base.html:289
+#: .\templates\base.html:575 .\templates\base.html:585
 msgid "Marketplace"
 msgstr ""
 
-#: .\templates\accounts\profile.html:207 .\templates\base.html:358
+#: .\templates\accounts\profile.html:221 .\templates\base.html:378
 #: .\templates\explore.html:16 .\templates\explore.html:38
 #: .\templates\home.html:12 .\templates\home.html:137
 msgid "All"
 msgstr ""
 
-#: .\templates\accounts\profile.html:208
+#: .\templates\accounts\profile.html:222
 #: .\templates\posts\upload_select_post_type1.html:20
 msgid "Photo"
 msgstr ""
 
-#: .\templates\accounts\profile.html:209
+#: .\templates\accounts\profile.html:223
 #: .\templates\posts\upload_select_post_type1.html:26
 msgid "Video"
 msgstr ""
 
-#: .\templates\accounts\profile.html:210
+#: .\templates\accounts\profile.html:224
 #: .\templates\posts\upload_select_post_type1.html:39
 msgid "Text"
 msgstr ""
 
-#: .\templates\accounts\profile.html:230
-msgid "Image"
-msgstr ""
-
-#: .\templates\accounts\profile.html:279
+#: .\templates\accounts\profile.html:293
 #, python-format
 msgid "by %(u)s"
 msgstr ""
 
-#: .\templates\accounts\profile.html:284
+#: .\templates\accounts\profile.html:298
 msgid "This artist hasn't posted anything on their timeline yet."
 msgstr ""
 
-#: .\templates\accounts\profile.html:293
+#: .\templates\accounts\profile.html:307
 #: .\templates\accounts\settings_portfolio.html:74
 #: .\templates\accounts\settings_portfolio.html:297
 msgid "Education"
 msgstr ""
 
-#: .\templates\accounts\profile.html:295 .\templates\accounts\profile.html:301
+#: .\templates\accounts\profile.html:309 .\templates\accounts\profile.html:315
 msgid "at"
 msgstr ""
 
-#: .\templates\accounts\profile.html:299
+#: .\templates\accounts\profile.html:313
 msgid "Work Experience"
 msgstr ""
 
-#: .\templates\accounts\profile.html:305
+#: .\templates\accounts\profile.html:319
 #: .\templates\accounts\settings_personal.html:176
 #: .\templates\accounts\settings_personal.html:279
 msgid "Skills"
 msgstr ""
 
-#: .\templates\accounts\profile.html:311
+#: .\templates\accounts\profile.html:325
 #: .\templates\accounts\settings_portfolio.html:229
 msgid "Awards"
 msgstr ""
 
-#: .\templates\accounts\profile.html:313 .\templates\accounts\profile.html:319
+#: .\templates\accounts\profile.html:327 .\templates\accounts\profile.html:333
 msgid "from"
 msgstr ""
 
-#: .\templates\accounts\profile.html:317
+#: .\templates\accounts\profile.html:331
 #: .\templates\accounts\settings_portfolio.html:148
 msgid "Certifications"
 msgstr ""
 
-#: .\templates\accounts\profile.html:323
+#: .\templates\accounts\profile.html:337
 #: .\templates\accounts\settings_portfolio.html:257
 msgid "Books"
 msgstr ""
 
-#: .\templates\accounts\profile.html:325
+#: .\templates\accounts\profile.html:339
 msgid "by"
 msgstr ""
 
-#: .\templates\accounts\profile.html:335
+#: .\templates\accounts\profile.html:349
 msgid "About Me"
 msgstr ""
 
-#: .\templates\accounts\profile.html:336 .\templates\category\detail.html:102
+#: .\templates\accounts\profile.html:350 .\templates\category\detail.html:102
 msgid "No bio provided."
 msgstr ""
 
-#: .\templates\accounts\profile.html:339
+#: .\templates\accounts\profile.html:353
 msgid "Contact"
 msgstr ""
 
-#: .\templates\accounts\profile.html:343
+#: .\templates\accounts\profile.html:357
 msgid "Hobbies"
 msgstr ""
 
-#: .\templates\accounts\profile.html:369 .\templates\accounts\profile.html:379
-#: .\templates\marketplace\add.html:39
+#: .\templates\accounts\profile.html:383 .\templates\accounts\profile.html:393
 msgid "Add Service"
 msgstr ""
 
-#: .\templates\accounts\profile.html:380
+#: .\templates\accounts\profile.html:394
 msgid "Create a new marketplace listing"
 msgstr ""
 
-#: .\templates\accounts\profile.html:407
+#: .\templates\accounts\profile.html:421
 #: .\templates\accounts\profile_suggested.html:78
-#: .\templates\marketplace\list.html:240
+#: .\templates\marketplace\dashboard.html:39
 msgid "View"
 msgstr ""
 
-#: .\templates\accounts\profile.html:414
+#: .\templates\accounts\profile.html:428
 msgid "No marketplace listings yet."
 msgstr ""
 
@@ -505,9 +957,9 @@ msgstr ""
 #: .\templates\accounts\settings_portfolio.html:126
 #: .\templates\accounts\settings_portfolio.html:212
 #: .\templates\accounts\settings_portfolio.html:285
-#: .\templates\collab\chat.html:79 .\templates\marketplace\add.html:68
-#: .\templates\marketplace\add.html:89 .\templates\marketplace\add.html:110
-#: .\templates\marketplace\add.html:146
+#: .\templates\collab\chat.html:79
+#: .\templates\marketplace\join_step2_profile.html:159
+#: .\templates\marketplace\join_step3_payment.html:115
 msgid "Back"
 msgstr ""
 
@@ -540,6 +992,7 @@ msgstr ""
 #: .\templates\accounts\settings_portfolio.html:187
 #: .\templates\accounts\settings_portfolio.html:238
 #: .\templates\accounts\settings_portfolio.html:266
+#: .\templates\marketplace\dashboard.html:38
 msgid "Delete"
 msgstr ""
 
@@ -690,119 +1143,120 @@ msgstr ""
 msgid "Only letters, numbers, and underscores"
 msgstr ""
 
-#: .\templates\accounts\signup.html:31 .\templates\landing_page.html:108
-msgid "Email"
+#: .\templates\accounts\signup.html:35
+msgid "you@gmail.com"
 msgstr ""
 
-#: .\templates\accounts\signup.html:35 .\templates\landing_page.html:109
-msgid "you@example.com"
+#: .\templates\accounts\signup.html:37
+msgid "Only Gmail addresses are allowed"
 msgstr ""
 
-#: .\templates\accounts\signup.html:41 .\templates\landing_page.html:114
+#: .\templates\accounts\signup.html:44 .\templates\landing_page.html:114
 msgid "Password"
 msgstr ""
 
-#: .\templates\accounts\signup.html:47 .\templates\landing_page.html:116
+#: .\templates\accounts\signup.html:50 .\templates\landing_page.html:116
 msgid "password"
 msgstr ""
 
-#: .\templates\accounts\signup.html:53 .\templates\accounts\signup.html:89
-#: .\templates\landing_page.html:120 .\templates\landing_page.html:177
+#: .\templates\accounts\signup.html:56 .\templates\accounts\signup.html:92
+#: .\templates\landing_page.html:120 .\templates\landing_page.html:186
 msgid "Show password"
 msgstr ""
 
-#: .\templates\accounts\signup.html:77
+#: .\templates\accounts\signup.html:80
 msgid "Already have an account?"
 msgstr ""
 
-#: .\templates\accounts\signup.html:79 .\templates\base.html:418
+#: .\templates\accounts\signup.html:82 .\templates\base.html:438
 #: .\templates\landing_page.html:131
 msgid "Log in"
 msgstr ""
 
-#: .\templates\accounts\signup.html:88 .\templates\landing_page.html:177
+#: .\templates\accounts\signup.html:91 .\templates\landing_page.html:186
 msgid "Hide password"
 msgstr ""
 
-#: .\templates\base.html:249 .\templates\base.html:550
-#: .\templates\base.html:560 .\templates\home.html:6
+#: .\templates\base.html:262 .\templates\base.html:266
+#: .\templates\base.html:570 .\templates\base.html:581 .\templates\home.html:6
 msgid "Home"
 msgstr ""
 
-#: .\templates\base.html:259 .\templates\base.html:551
-#: .\templates\base.html:561 .\templates\explore.html:6
-#: .\templates\explore.html:154 .\templates\explore.html:255
-#: .\templates\explore.html:347 .\templates\explore.html:417
+#: .\templates\base.html:275 .\templates\base.html:280
+#: .\templates\base.html:572 .\templates\base.html:583
+#: .\templates\explore.html:6 .\templates\explore.html:154
+#: .\templates\explore.html:255 .\templates\explore.html:347
+#: .\templates\explore.html:417
 msgid "Explore"
 msgstr ""
 
-#: .\templates\base.html:278 .\templates\base.html:359
-#: .\templates\base.html:553 .\templates\base.html:562
+#: .\templates\base.html:298 .\templates\base.html:379
+#: .\templates\base.html:574 .\templates\base.html:584
 #: .\templates\posts\single_post.html:553
 #: .\templates\posts\single_post.html:920
 msgid "Artists"
 msgstr ""
 
-#: .\templates\base.html:284
+#: .\templates\base.html:304
 msgid "Art Exchange"
 msgstr ""
 
-#: .\templates\base.html:288
+#: .\templates\base.html:308
 msgid "Blog"
 msgstr ""
 
-#: .\templates\base.html:292
+#: .\templates\base.html:312
 msgid "Jobs"
 msgstr ""
 
-#: .\templates\base.html:305 .\templates\base.html:368
-#: .\templates\base.html:490
+#: .\templates\base.html:325 .\templates\base.html:388
+#: .\templates\base.html:510
 msgid "New Post"
 msgstr ""
 
-#: .\templates\base.html:318 .\templates\base.html:441
+#: .\templates\base.html:338 .\templates\base.html:461
 msgid "Language"
 msgstr ""
 
-#: .\templates\base.html:346 .\templates\base.html:407
-#: .\templates\base.html:527
+#: .\templates\base.html:366 .\templates\base.html:427
+#: .\templates\base.html:547
 msgid "Settings"
 msgstr ""
 
-#: .\templates\base.html:360
+#: .\templates\base.html:380
 msgid "Posts"
 msgstr ""
 
-#: .\templates\base.html:362
+#: .\templates\base.html:382
 msgid "Search Artonomy..."
 msgstr ""
 
-#: .\templates\base.html:375 .\templates\base.html:497
+#: .\templates\base.html:395 .\templates\base.html:517
 #: .\templates\collab\notifications.html:169
 msgid "Notifications"
 msgstr ""
 
-#: .\templates\base.html:385 .\templates\base.html:507
+#: .\templates\base.html:405 .\templates\base.html:527
 msgid "Login"
 msgstr ""
 
-#: .\templates\base.html:401 .\templates\base.html:521
+#: .\templates\base.html:421 .\templates\base.html:541
 msgid "Signed in as"
 msgstr ""
 
-#: .\templates\base.html:404 .\templates\base.html:524
+#: .\templates\base.html:424 .\templates\base.html:544
 msgid "Profile"
 msgstr ""
 
-#: .\templates\base.html:411 .\templates\base.html:531
+#: .\templates\base.html:431 .\templates\base.html:551
 msgid "Logout"
 msgstr ""
 
-#: .\templates\base.html:419 .\templates\landing_page.html:139
+#: .\templates\base.html:439 .\templates\landing_page.html:146
 msgid "Sign up"
 msgstr ""
 
-#: .\templates\base.html:545
+#: .\templates\base.html:565
 msgid "New post"
 msgstr ""
 
@@ -811,11 +1265,10 @@ msgid "Sort By"
 msgstr ""
 
 #: .\templates\category\detail.html:39 .\templates\category\detail.html:45
-#: .\templates\marketplace\list.html:150
 msgid "Latest"
 msgstr ""
 
-#: .\templates\category\detail.html:53 .\templates\marketplace\list.html:173
+#: .\templates\category\detail.html:53 .\templates\marketplace\home.html:278
 msgid "Clear filters"
 msgstr ""
 
@@ -827,9 +1280,25 @@ msgstr ""
 msgid "Site"
 msgstr ""
 
-#: .\templates\category\detail.html:137
+#: .\templates\category\detail.html:137 .\templates\marketplace\home.html:409
 #, python-format
 msgid "Page %(n)s / %(total)s"
+msgstr ""
+
+#: .\templates\category\index.html:91
+msgid "Are you an artist?"
+msgstr ""
+
+#: .\templates\category\index.html:92
+msgid "Pick your categories to get discovered."
+msgstr ""
+
+#: .\templates\category\index.html:95
+msgid "Choose work categories"
+msgstr ""
+
+#: .\templates\category\index.html:95
+msgid "Become an Artist"
 msgstr ""
 
 #: .\templates\collab\chat.html:87
@@ -953,204 +1422,402 @@ msgstr ""
 msgid "Login form"
 msgstr ""
 
+#: .\templates\landing_page.html:109
+msgid "you@example.com"
+msgstr ""
+
 #: .\templates\landing_page.html:137
+msgid "Forgot password?"
+msgstr ""
+
+#: .\templates\landing_page.html:144
 msgid "Not on Artonomy yet?"
 msgstr ""
 
-#: .\templates\landing_page.html:147
+#: .\templates\landing_page.html:155
 msgid "Continue as guest"
 msgstr ""
 
-#: .\templates\landing_page.html:151
+#: .\templates\marketplace\dashboard.html:6
+msgid "Your Studio"
+msgstr ""
+
+#: .\templates\marketplace\dashboard.html:11
+msgid "Products & Services"
+msgstr ""
+
+#: .\templates\marketplace\dashboard.html:14
+msgid "Add New"
+msgstr ""
+
+#: .\templates\marketplace\dashboard.html:30
+msgid "Service"
+msgstr ""
+
+#: .\templates\marketplace\dashboard.html:30
+msgid "Product"
+msgstr ""
+
+#: .\templates\marketplace\dashboard.html:36
+msgid "Edit"
+msgstr ""
+
+#: .\templates\marketplace\dashboard.html:38
+msgid "Delete this item?"
+msgstr ""
+
+#: .\templates\marketplace\dashboard.html:45
+msgid "No products yet. Add your first one!"
+msgstr ""
+
+#: .\templates\marketplace\dashboard.html:50
+msgid "Your Profile"
+msgstr ""
+
+#: .\templates\marketplace\dashboard.html:66
+#: .\templates\marketplace\home.html:164
+msgid "View Public Page"
+msgstr ""
+
+#: .\templates\marketplace\home.html:157
+msgid "Profile Approved!"
+msgstr ""
+
+#: .\templates\marketplace\home.html:158
+msgid "Go to your studio to manage your listings and profile."
+msgstr ""
+
+#: .\templates\marketplace\home.html:162
+msgid "Open Studio"
+msgstr ""
+
+#: .\templates\marketplace\home.html:173
+msgid "Request Under Review"
+msgstr ""
+
+#: .\templates\marketplace\home.html:174
 msgid ""
-"Browse artists, marketplace & explore. Actions like follow/like/comment "
-"require login."
+"We are manually reviewing your application. Thank you for your patience."
 msgstr ""
 
-#: .\templates\marketplace\add.html:48
-#, python-format
-msgid "Step %(n)s"
+#: .\templates\marketplace\home.html:176
+msgid "Pending"
 msgstr ""
 
-#: .\templates\marketplace\add.html:62
-msgid "Choose a category"
+#: .\templates\marketplace\home.html:184
+msgid "Application Rejected"
 msgstr ""
 
-#: .\templates\marketplace\add.html:64
-msgid "Pick the main category for this service."
+#: .\templates\marketplace\home.html:185
+msgid "Please check your email for feedback or try again with updated info."
 msgstr ""
 
-#: .\templates\marketplace\add.html:69 .\templates\marketplace\add.html:90
-#: .\templates\marketplace\add.html:111
+#: .\templates\marketplace\home.html:188
+msgid "Try Again"
+msgstr ""
+
+#: .\templates\marketplace\home.html:197
+msgid "Become a Creator"
+msgstr ""
+
+#: .\templates\marketplace\home.html:198
+msgid "Create a dramatic public profile and start selling your works."
+msgstr ""
+
+#: .\templates\marketplace\home.html:202
+msgid "Join Now"
+msgstr ""
+
+#: .\templates\marketplace\home.html:212
+#: .\templates\marketplace\join_entry.html:13
+#: .\templates\marketplace\join_step1_kind.html:133
+msgid "Join the Marketplace"
+msgstr ""
+
+#: .\templates\marketplace\home.html:213
+msgid "Sign in or register to create your profile and list your works."
+msgstr ""
+
+#: .\templates\marketplace\home.html:216
+msgid "Sign in"
+msgstr ""
+
+#: .\templates\marketplace\home.html:228
+msgid "All Categories"
+msgstr ""
+
+#: .\templates\marketplace\home.html:245
+msgid "Search profiles, works, services…"
+msgstr ""
+
+#: .\templates\marketplace\home.html:253
+msgid "All Types"
+msgstr ""
+
+#: .\templates\marketplace\home.html:267
+msgid "All Offerings"
+msgstr ""
+
+#: .\templates\marketplace\home.html:268
+msgid "Physical Works"
+msgstr ""
+
+#: .\templates\marketplace\home.html:269
+msgid "Services"
+msgstr ""
+
+#: .\templates\marketplace\home.html:282
+msgid "Apply Filters"
+msgstr ""
+
+#: .\templates\marketplace\home.html:291
+msgid "Featured Creators & Spaces"
+msgstr ""
+
+#: .\templates\marketplace\home.html:328
+msgid "View profile & works"
+msgstr ""
+
+#: .\templates\marketplace\home.html:335
+msgid "No profiles match your search criteria."
+msgstr ""
+
+#: .\templates\marketplace\home.html:340
+msgid "Top Works & Services"
+msgstr ""
+
+#: .\templates\marketplace\home.html:392
+msgid "Checkout coming soon"
+msgstr ""
+
+#: .\templates\marketplace\home.html:393
+msgid "Buy"
+msgstr ""
+
+#: .\templates\marketplace\home.html:405
+msgid "Previous"
+msgstr ""
+
+#: .\templates\marketplace\home.html:419
+msgid "No products match your search criteria."
+msgstr ""
+
+#: .\templates\marketplace\join_entry.html:15
+#: .\templates\marketplace\join_step1_kind.html:136
+msgid ""
+"Who are you? Choose what best describes you. This helps us build your public "
+"profile."
+msgstr ""
+
+#: .\templates\marketplace\join_entry.html:37
+#: .\templates\marketplace\join_step1_kind.html:163
 #: .\templates\posts\upload_detail_media2.html:112
 #: .\templates\posts\upload_detail_text2.html:56
 #: .\templates\posts\upload_select_category3.html:43
 msgid "Continue"
 msgstr ""
 
-#: .\templates\marketplace\add.html:80
-msgid "Title"
+#: .\templates\marketplace\join_step2_profile.html:81
+msgid "Your Public Profile"
 msgstr ""
 
-#: .\templates\marketplace\add.html:84
-msgid "Description"
+#: .\templates\marketplace\join_step2_profile.html:85
+msgid ""
+"Tell the world who you are as an artist. We'll create your showcase page."
 msgstr ""
 
-#: .\templates\marketplace\add.html:101
-msgid "Price"
+#: .\templates\marketplace\join_step2_profile.html:87
+msgid ""
+"Introduce your gallery / studio / concept store in a dramatic, human way."
 msgstr ""
 
-#: .\templates\marketplace\add.html:105
+#: .\templates\marketplace\join_step2_profile.html:97
+msgid "Display Name"
+msgstr ""
+
+#: .\templates\marketplace\join_step2_profile.html:105
+msgid "Tagline"
+msgstr ""
+
+#: .\templates\marketplace\join_step2_profile.html:109
+msgid "Short punchline / headline. This appears right below your name."
+msgstr ""
+
+#: .\templates\marketplace\join_step2_profile.html:116
+msgid "Your Story"
+msgstr ""
+
+#: .\templates\marketplace\join_step2_profile.html:120
+msgid "Talk about belief, origin, style, emotion. We show this publicly."
+msgstr ""
+
+#: .\templates\marketplace\join_step2_profile.html:127
+msgid "Location"
+msgstr ""
+
+#: .\templates\marketplace\join_step2_profile.html:137
+msgid "Avatar / Logo"
+msgstr ""
+
+#: .\templates\marketplace\join_step2_profile.html:145
+msgid "Cover image"
+msgstr ""
+
+#: .\templates\marketplace\join_step2_profile.html:149
+msgid "We use this as your visual header on the profile page."
+msgstr ""
+
+#: .\templates\marketplace\join_step2_profile.html:163
+msgid "Continue to Payment"
+msgstr ""
+
+#: .\templates\marketplace\join_step3_payment.html:68
+msgid "Payment & Activation"
+msgstr ""
+
+#: .\templates\marketplace\join_step3_payment.html:71
+msgid ""
+"Send the subscription fee to the account below. Then upload a screenshot of "
+"the payment for manual review."
+msgstr ""
+
+#: .\templates\marketplace\join_step3_payment.html:81
+msgid "Card Number:"
+msgstr ""
+
+#: .\templates\marketplace\join_step3_payment.html:98
+msgid "Upload Payment Screenshot"
+msgstr ""
+
+#: .\templates\marketplace\join_step3_payment.html:104
+msgid ""
+"Your profile will be reviewed manually. You'll get access after approval."
+msgstr ""
+
+#: .\templates\marketplace\join_step3_payment.html:119
+msgid "Submit Request"
+msgstr ""
+
+#: .\templates\marketplace\join_wait.html:6
+msgid "Request received"
+msgstr ""
+
+#: .\templates\marketplace\join_wait.html:8
+msgid "Thanks. Your marketplace profile is now waiting for admin approval."
+msgstr ""
+
+#: .\templates\marketplace\join_wait.html:11
+msgid "Profile:"
+msgstr ""
+
+#: .\templates\marketplace\join_wait.html:14
+msgid ""
+"We will verify payment and activate your studio dashboard. You'll then be "
+"able to publish artworks, services, and products."
+msgstr ""
+
+#: .\templates\marketplace\product_detail.html:11
+msgid "No image"
+msgstr ""
+
+#: .\templates\marketplace\product_detail.html:35
+msgid "views"
+msgstr ""
+
+#: .\templates\marketplace\product_detail.html:62
+msgid "Buy (coming soon)"
+msgstr ""
+
+#: .\templates\marketplace\product_detail.html:65
+msgid "Payments are currently manual. Online checkout will be added soon."
+msgstr ""
+
+#: .\templates\marketplace\product_form.html:60
+msgid "Edit Marketplace Item"
+msgstr ""
+
+#: .\templates\marketplace\product_form.html:60
+msgid "Add New Item"
+msgstr ""
+
+#: .\templates\marketplace\product_form.html:78
+msgid "Item Title"
+msgstr ""
+
+#: .\templates\marketplace\product_form.html:86
+msgid "Detailed Description"
+msgstr ""
+
+#: .\templates\marketplace\product_form.html:103
+msgid "Price (Numeric)"
+msgstr ""
+
+#: .\templates\marketplace\product_form.html:111
 msgid "Currency"
 msgstr ""
 
-#: .\templates\marketplace\add.html:122
-msgid "Summary"
+#: .\templates\marketplace\product_form.html:119
+msgid "Listing Type"
 msgstr ""
 
-#: .\templates\marketplace\add.html:124
-msgid "Category:"
+#: .\templates\marketplace\product_form.html:128
+msgid "Item Image/Thumbnail"
 msgstr ""
 
-#: .\templates\marketplace\add.html:125
-msgid "Title:"
+#: .\templates\marketplace\product_form.html:138
+msgid "Status"
 msgstr ""
 
-#: .\templates\marketplace\add.html:126
-msgid "Description:"
+#: .\templates\marketplace\product_form.html:149
+msgid "Save Item"
 msgstr ""
 
-#: .\templates\marketplace\add.html:130
-#, python-format
-msgid "<b>Price:</b> %(p)s %(cur)s"
-msgstr ""
-
-#: .\templates\marketplace\add.html:136
-msgid "Upload your cover image"
-msgstr ""
-
-#: .\templates\marketplace\add.html:139 .\templates\marketplace\add.html:167
-msgid "Preview will appear here"
-msgstr ""
-
-#: .\templates\marketplace\add.html:141
-msgid "This will be used as the cover image."
-msgstr ""
-
-#: .\templates\marketplace\add.html:147
-#: .\templates\posts\upload_review_publish4.html:42
-msgid "Publish"
-msgstr ""
-
-#: .\templates\marketplace\item.html:68
-#, python-format
-msgid "%(v)s view"
-msgid_plural "%(v)s views"
-msgstr[0] ""
-msgstr[1] ""
-
-#: .\templates\marketplace\item.html:84
-msgid "Base price · taxes or extras may apply"
-msgstr ""
-
-#: .\templates\marketplace\item.html:91
-msgid "Request Service"
-msgstr ""
-
-#: .\templates\marketplace\item.html:94
-msgid "This is your service"
-msgstr ""
-
-#: .\templates\marketplace\item.html:98
-msgid "Log in to request"
-msgstr ""
-
-#: .\templates\marketplace\item.html:113
-msgid "Direct chat with the artist"
-msgstr ""
-
-#: .\templates\marketplace\item.html:116
-msgid "Clear scope & milestones"
-msgstr ""
-
-#: .\templates\marketplace\item.html:119
-msgid "Secure deal via requests"
-msgstr ""
-
-#: .\templates\marketplace\item.html:122
-msgid "Revisions per agreement"
-msgstr ""
-
-#: .\templates\marketplace\item.html:137
-msgid "Request this service"
-msgstr ""
-
-#: .\templates\marketplace\item.html:143
-msgid "Describe your project"
-msgstr ""
-
-#: .\templates\marketplace\item.html:144
-msgid "Share the scope, references/links, style, deadline, deliverables…"
-msgstr ""
-
-#: .\templates\marketplace\item.html:151
+#: .\templates\marketplace\product_form.html:153
 msgid "Cancel"
 msgstr ""
 
-#: .\templates\marketplace\item.html:154
-msgid "Send request"
+#: .\templates\marketplace\profile_public.html:89
+msgid "Cover image for"
 msgstr ""
 
-#: .\templates\marketplace\item.html:187
-msgid "Failed"
+#: .\templates\marketplace\profile_public.html:92
+msgid "No cover image"
 msgstr ""
 
-#: .\templates\marketplace\item.html:193
-msgid "Request sent!"
+#: .\templates\marketplace\profile_public.html:98
+msgid "Avatar of"
 msgstr ""
 
-#: .\templates\marketplace\list.html:126
-msgid "All categories"
+#: .\templates\marketplace\profile_public.html:135
+msgid "No detailed biography provided yet."
 msgstr ""
 
-#: .\templates\marketplace\list.html:141
-msgid "search..."
+#: .\templates\marketplace\profile_public.html:143
+msgid "Approval Status"
 msgstr ""
 
-#: .\templates\marketplace\list.html:151
-msgid "Price: High → Low"
+#: .\templates\marketplace\profile_public.html:160
+msgid "Profile Owner"
 msgstr ""
 
-#: .\templates\marketplace\list.html:152
-msgid "Price: Low → High"
+#: .\templates\marketplace\profile_public.html:175
+msgid "Works & Services"
 msgstr ""
 
-#: .\templates\marketplace\list.html:153
-msgid "Popular"
+#: .\templates\marketplace\profile_public.html:187
+msgid "No Image"
 msgstr ""
 
-#: .\templates\marketplace\list.html:161
-msgid "Min"
+#: .\templates\marketplace\profile_public.html:216
+msgid "Views"
 msgstr ""
 
-#: .\templates\marketplace\list.html:165
-msgid "Max"
+#: .\templates\marketplace\profile_public.html:219
+msgid "View Details"
 msgstr ""
 
-#: .\templates\marketplace\list.html:177
-msgid "Apply"
-msgstr ""
-
-#: .\templates\marketplace\list.html:195
-msgid "Draft"
-msgstr ""
-
-#: .\templates\marketplace\list.html:197
-msgid "Sold"
-msgstr ""
-
-#: .\templates\marketplace\list.html:250
-msgid "No items found."
+#: .\templates\marketplace\profile_public.html:229
+msgid "This profile has no works or services listed yet."
 msgstr ""
 
 #: .\templates\network\follow_list.html:61
@@ -1403,6 +2070,10 @@ msgstr ""
 
 #: .\templates\posts\upload_detail_text2.html:35
 msgid "Add Chapter"
+msgstr ""
+
+#: .\templates\posts\upload_review_publish4.html:42
+msgid "Publish"
 msgstr ""
 
 #: .\templates\posts\upload_select_category3.html:19

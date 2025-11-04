@@ -2,16 +2,23 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 from .models import BusinessProfile, JoinRequest, Product
-
-
 class ProductForm(forms.ModelForm):
+    # Show as radios: Service / Physical Product
+    is_service = forms.TypedChoiceField(
+        label=_("Listing Type"),
+        choices=[(True, _("Service")), (False, _("Physical Product"))],
+        coerce=lambda v: v in (True, "True", "true", "1", 1),
+        widget=forms.RadioSelect
+    )
+
     class Meta:
-        model  = Product
+        model = Product
         fields = ["title", "description", "category", "price", "currency",
                   "is_service", "image", "status"]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 5}),
         }
+
 class JoinPickKindForm(forms.Form):
     """
     Step 1: Are you a solo artist or some kind of business?

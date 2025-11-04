@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-24 11:01+0330\n"
-"PO-Revision-Date: 2025-09-07 00:00+0330\n"
+"POT-Creation-Date: 2025-11-04 14:26+0330\n"
+"PO-Revision-Date: 2025-11-04 13:38+0330\n"
 "Last-Translator: \n"
 "Language-Team: fa <LL@li.org>\n"
 "Language: fa\n"
@@ -26,40 +26,34 @@ msgstr "ایمیل"
 
 #: .\accounts\forms.py:195 .\accounts\forms.py:219
 msgid "Your email"
-msgstr ""
+msgstr "ایمیل شما"
 
 #: .\accounts\forms.py:206
 msgid "Use the email associated with your account."
-msgstr ""
+msgstr "از ایمیلی استفاده کنید که به حساب کاربری شما متصل است."
 
 #: .\accounts\forms.py:212
-#, fuzzy
-#| msgid "Certifications"
 msgid "Verification code"
-msgstr "گواهی‌ها"
+msgstr "کد تأیید"
 
 #: .\accounts\forms.py:231 .\templates\accounts\email_verify_confirm.html:13
 #: .\templates\accounts\password_reset_confirm.html:15
 msgid "Code"
-msgstr ""
+msgstr "کد"
 
 #: .\accounts\forms.py:234 .\accounts\forms.py:235
 #: .\templates\accounts\password_reset_confirm.html:18
-#, fuzzy
-#| msgid "Show password"
 msgid "New password"
-msgstr "نمایش رمز عبور"
+msgstr "رمز عبور جدید"
 
 #: .\accounts\forms.py:238 .\accounts\forms.py:239
 #: .\templates\accounts\password_reset_confirm.html:21
-#, fuzzy
-#| msgid "Show password"
 msgid "Confirm password"
-msgstr "نمایش رمز عبور"
+msgstr "تأیید رمز عبور"
 
 #: .\accounts\forms.py:246
 msgid "Passwords do not match."
-msgstr ""
+msgstr "رمزهای عبور یکسان نیستند."
 
 #: .\accounts\models.py:12
 msgid "Username may only contain letters, numbers, and underscores."
@@ -90,7 +84,7 @@ msgstr "بیننده"
 
 #: .\accounts\models.py:109
 msgid "email address"
-msgstr "ایمیل"
+msgstr "آدرس ایمیل"
 
 #: .\accounts\models.py:111 .\templates\accounts\signup.html:22
 msgid "username"
@@ -110,15 +104,15 @@ msgstr "علاقه"
 
 #: .\accounts\models.py:190
 msgid "Website"
-msgstr "سایت"
+msgstr "وب‌سایت"
 
 #: .\accounts\models.py:191
 msgid "GitHub"
-msgstr "گیتهاب"
+msgstr "گیت‌هاب"
 
 #: .\accounts\models.py:192
 msgid "Twitter/X"
-msgstr "توییتر"
+msgstr "توییتر/X"
 
 #: .\accounts\models.py:193
 msgid "Instagram"
@@ -128,65 +122,57 @@ msgstr "اینستاگرام"
 msgid "LinkedIn"
 msgstr "لینکدین"
 
-#: .\accounts\models.py:195
+#: .\accounts\models.py:195 .\templates\marketplace\home.html:309
 msgid "Other"
-msgstr "دیگر"
+msgstr "سایر"
 
-#: .\accounts\views.py:60
-#, fuzzy
-#| msgid "Username may only contain letters, numbers, and underscores."
+#: .\accounts\views.py:81
 msgid "Please choose a valid username (letters, numbers, underscores)."
-msgstr "نام کاربری فقط می‌تواند شامل حروف، اعداد و زیرخط (_) باشد."
+msgstr "لطفاً یک نام کاربری معتبر انتخاب کنید (حروف، اعداد و زیرخط)."
 
-#: .\accounts\views.py:71
+#: .\accounts\views.py:94
 msgid "Username already taken."
-msgstr ""
+msgstr "این نام کاربری قبلاً انتخاب شده است."
 
-#: .\accounts\views.py:75
+#: .\accounts\views.py:98
 msgid "Email is required."
-msgstr ""
+msgstr "ایمیل الزامی است."
 
-#: .\accounts\views.py:80
-msgid "Only Gmail addresses are allowed (example: you@gmail.com)."
-msgstr ""
-
-#: .\accounts\views.py:84
+#: .\accounts\views.py:103
 msgid "Email already in use."
-msgstr ""
+msgstr "این ایمیل قبلاً استفاده شده است."
 
-#: .\accounts\views.py:88
+#: .\accounts\views.py:108
 msgid "Password must be at least 8 characters."
-msgstr ""
+msgstr "رمز عبور باید حداقل ۸ کاراکتر باشد."
 
-#: .\accounts\views.py:156
+#: .\accounts\views.py:166
 msgid "Preferences saved."
 msgstr "ترجیحات ذخیره شد."
 
-#: .\accounts\views.py:171
-msgid "Your Favorite Categories"
-msgstr "دسته‌های مورد علاقهٔ شما"
-
-#: .\accounts\views.py:171
+#: .\accounts\views.py:177
 msgid "Your Work Categories"
 msgstr "دسته‌های کاری شما"
 
-#: .\accounts\views.py:263
+#: .\accounts\views.py:177
+msgid "Your Favorite Categories"
+msgstr "دسته‌های مورد علاقهٔ شما"
+
+#: .\accounts\views.py:271
 msgid "Working categories"
 msgstr "دسته‌های کاری"
 
-#: .\accounts\views.py:266
+#: .\accounts\views.py:274
 msgid "Favorite categories"
 msgstr "دسته‌های مورد علاقه"
 
 #: .\accounts\views_auth.py:25
 msgid "Your email is already verified."
-msgstr ""
+msgstr "ایمیل شما از قبل تأیید شده است."
 
 #: .\accounts\views_auth.py:39
-#, fuzzy
-#| msgid "Add certification"
 msgid "Your verification code"
-msgstr "افزودن گواهی"
+msgstr "کد تأیید شما"
 
 #: .\accounts\views_auth.py:40
 #, python-brace-format
@@ -194,26 +180,28 @@ msgid ""
 "Your Artonomy verification code is: {code}\n"
 "This code expires in 15 minutes."
 msgstr ""
+"کد تأیید آرتونومی شما: {code}\n"
+"این کد تا ۱۵ دقیقه معتبر است."
 
 #: .\accounts\views_auth.py:56
 msgid "Code sent to your email."
-msgstr ""
+msgstr "کد به ایمیل شما ارسال شد."
 
 #: .\accounts\views_auth.py:80 .\accounts\views_auth.py:163
 msgid "No code found. Please request a new one."
-msgstr ""
+msgstr "هیچ کدی یافت نشد. لطفاً یک کد جدید درخواست کنید."
 
 #: .\accounts\views_auth.py:91
 msgid "Your email has been verified ✅"
-msgstr ""
+msgstr "ایمیل شما تأیید شد ✅"
 
 #: .\accounts\views_auth.py:95 .\accounts\views_auth.py:178
 msgid "Invalid or expired code."
-msgstr ""
+msgstr "کد نامعتبر یا منقضی شده است."
 
 #: .\accounts\views_auth.py:115
 msgid "Your password reset code"
-msgstr ""
+msgstr "کد بازنشانی رمز عبور شما"
 
 #: .\accounts\views_auth.py:116
 #, python-brace-format
@@ -221,33 +209,316 @@ msgid ""
 "Your Artonomy reset code is: {code}\n"
 "This code expires in 15 minutes."
 msgstr ""
+"کد بازنشانی آرتونومی شما: {code}\n"
+"این کد تا ۱۵ دقیقه معتبر است."
 
 #: .\accounts\views_auth.py:132
 msgid "If that email exists, we sent a code."
-msgstr ""
+msgstr "اگر چنین ایمیلی وجود داشته باشد، کد ارسال کردیم."
 
 #: .\accounts\views_auth.py:153
 msgid "Invalid code or email."
-msgstr ""
+msgstr "کد یا ایمیل نامعتبر است."
 
 #: .\accounts\views_auth.py:174
 msgid "Password changed successfully. You can log in now."
-msgstr ""
+msgstr "رمز عبور با موفقیت تغییر کرد. اکنون می‌توانید وارد شوید."
 
-#: .\marketplace\forms.py:12 .\marketplace\models.py:18
-#: .\templates\marketplace\add.html:157
-msgid "Negotiable"
-msgstr "توافقی"
+#: .\marketplace\admin.py:48
+msgid "Reset join clicks to 0"
+msgstr "تنظیم تعداد کلیک‌های عضویت به ۰"
 
-#: .\marketplace\forms.py:13 .\marketplace\models.py:19
-msgid "Fixed"
-msgstr "قیمت ثابت"
+#: .\marketplace\admin.py:51
+#, python-brace-format
+msgid "Reset join_clicks for {updated} row(s)."
+msgstr "تعداد join_clicks برای {updated} ردیف بازنشانی شد."
 
-#: .\marketplace\forms.py:14 .\marketplace\models.py:20
+#: .\marketplace\admin.py:74
+msgid "Identity"
+msgstr "هویت"
+
+#: .\marketplace\admin.py:79
+msgid "Media"
+msgstr "رسانه"
+
+#: .\marketplace\admin.py:82
+msgid "Meta"
+msgstr "متا"
+
+#: .\marketplace\admin.py:91
+msgid "Products"
+msgstr "محصولات"
+
+#: .\marketplace\admin.py:95
+msgid "Avatar"
+msgstr "آواتار"
+
+#: .\marketplace\admin.py:99
+msgid "Avatar preview"
+msgstr "پیش‌نمایش آواتار"
+
+#: .\marketplace\admin.py:103
+msgid "Cover preview"
+msgstr "پیش‌نمایش کاور"
+
+#: .\marketplace\admin.py:123
+msgid "Payment uploaded"
+msgstr "پرداخت بارگذاری شد"
+
+#: .\marketplace\admin.py:127
+msgid "Payment preview"
+msgstr "پیش‌نمایش پرداخت"
+
+#: .\marketplace\admin.py:131
+msgid "Approve selected requests (and publish profiles)"
+msgstr "تأیید درخواست‌های انتخاب‌شده (و انتشار پروفایل‌ها)"
+
+#: .\marketplace\admin.py:143
+#, python-brace-format
+msgid "Approved {changed} request(s)."
+msgstr "{changed} درخواست تأیید شد."
+
+#: .\marketplace\admin.py:145
+msgid "Reject selected requests (profiles remain unapproved)"
+msgstr "رد درخواست‌های انتخاب‌شده (پروفایل‌ها تأیید نمی‌شوند)"
+
+#: .\marketplace\admin.py:148
+#, python-brace-format
+msgid "Rejected {updated} request(s)."
+msgstr "{updated} درخواست رد شد."
+
+#: .\marketplace\admin.py:171
+msgid "Belongs to"
+msgstr "متعلق به"
+
+#: .\marketplace\admin.py:172
+msgid "Content"
+msgstr "محتوا"
+
+#: .\marketplace\admin.py:173
+msgid "Pricing"
+msgstr "قیمت‌گذاری"
+
+#: .\marketplace\admin.py:174
+msgid "Media & Status"
+msgstr "رسانه و وضعیت"
+
+#: .\marketplace\admin.py:178 .\templates\accounts\profile.html:244
+msgid "Image"
+msgstr "تصویر"
+
+#: .\marketplace\admin.py:182
+msgid "Image preview"
+msgstr "پیش‌نمایش تصویر"
+
+#: .\marketplace\admin.py:187
+msgid "Mark selected as Active"
+msgstr "علامت‌گذاری انتخاب‌ها به‌عنوان فعال"
+
+#: .\marketplace\admin.py:190
+#, python-brace-format
+msgid "Updated {updated} product(s) to Active."
+msgstr "وضعیت {updated} محصول به «فعال» تغییر کرد."
+
+#: .\marketplace\admin.py:192
+msgid "Mark selected as Draft"
+msgstr "علامت‌گذاری انتخاب‌ها به‌عنوان پیش‌نویس"
+
+#: .\marketplace\admin.py:195
+#, python-brace-format
+msgid "Updated {updated} product(s) to Draft."
+msgstr "وضعیت {updated} محصول به «پیش‌نویس» تغییر کرد."
+
+#: .\marketplace\admin.py:197
+msgid "Mark selected as Sold"
+msgstr "علامت‌گذاری انتخاب‌ها به‌عنوان فروخته‌شده"
+
+#: .\marketplace\admin.py:200
+#, python-brace-format
+msgid "Updated {updated} product(s) to Sold."
+msgstr "وضعیت {updated} محصول به «فروخته شد» تغییر کرد."
+
+#: .\marketplace\forms.py:8 .\templates\marketplace\product_form.html:119
+msgid "Listing Type"
+msgstr "نوع آگهی"
+
+#: .\marketplace\forms.py:9 .\templates\marketplace\dashboard.html:186
+msgid "Service"
+msgstr "سرویس"
+
+#: .\marketplace\forms.py:9
 #, fuzzy
-#| msgid "Change"
-msgid "Range"
-msgstr "بازه"
+#| msgid "Physical Works"
+msgid "Physical Product"
+msgstr "آثار فیزیکی"
+
+#: .\marketplace\forms.py:29
+msgid "I'm a solo artist"
+msgstr "من یک هنرمند مستقل هستم"
+
+#: .\marketplace\forms.py:30 .\marketplace\models.py:41
+#: .\templates\marketplace\home.html:306
+msgid "Gallery"
+msgstr "گالری"
+
+#: .\marketplace\forms.py:31 .\marketplace\models.py:42
+#: .\templates\marketplace\dashboard.html:126
+#: .\templates\marketplace\home.html:307
+msgid "Studio"
+msgstr "استودیو"
+
+#: .\marketplace\forms.py:32
+msgid "Concept store"
+msgstr "کانسپت‌استور"
+
+#: .\marketplace\forms.py:33
+msgid "Other creative business"
+msgstr "دیگر کسب‌وکارهای خلاق"
+
+#: .\marketplace\forms.py:55
+msgid "Your public / artist / studio name"
+msgstr "نام عمومی / هنری / استودیو"
+
+#: .\marketplace\forms.py:58
+msgid "Example: Brutalist ceramics with Persian soul"
+msgstr "مثال: سرامیک‌های بروتالیستی با روح ایرانی"
+
+#: .\marketplace\forms.py:63
+msgid ""
+"Tell your story. Be dramatic. What do you create, what do you believe, what "
+"makes you different?"
+msgstr ""
+"قصه‌تان را بگویید؛ احساسی و دراماتیک. چه می‌سازید، به چه باور دارید و چه چیز "
+"شما را متمایز می‌کند؟"
+
+#: .\marketplace\forms.py:68
+msgid "City, Country"
+msgstr "شهر، کشور"
+
+#: .\marketplace\forms.py:85
+msgid "Upload payment screenshot"
+msgstr "اسکرین‌شات پرداخت را بارگذاری کنید"
+
+#: .\marketplace\models.py:40 .\templates\marketplace\home.html:305
+msgid "Solo Artist"
+msgstr "هنرمند مستقل"
+
+#: .\marketplace\models.py:43 .\templates\marketplace\home.html:308
+msgid "Concept Store"
+msgstr "کانسپت‌استور"
+
+#: .\marketplace\models.py:44
+msgid "Other / Creative Business"
+msgstr "سایر / کسب‌وکار خلاق"
+
+#: .\marketplace\models.py:59
+msgid "Public name. For solo artists, usually your artist name."
+msgstr "نام عمومی. برای هنرمندان مستقل معمولاً همان نام هنری شماست."
+
+#: .\marketplace\models.py:66
+msgid "Auto-generated from display name. Used in URLs."
+msgstr "به‌صورت خودکار از نام نمایشی ساخته می‌شود. در URLها استفاده می‌شود."
+
+#: .\marketplace\models.py:72
+msgid "Short punchline. Example: 'Brutalist ceramic forms with Persian soul.'"
+msgstr "یک جملهٔ کوتاه و شاخص. مثال: «فرم‌های سرامیکی بروتالیستی با روح ایرانی»."
+
+#: .\marketplace\models.py:78
+msgid ""
+"Tell your story in a dramatic, emotional way. Who are you, why do you exist, "
+"what makes you different?"
+msgstr ""
+"قصه‌تان را احساسی و دراماتیک تعریف کنید. که هستید، چرا هستید و چه چیز شما را "
+"خاص می‌کند؟"
+
+#: .\marketplace\models.py:86
+msgid "City / Country or where you're based."
+msgstr "شهر / کشور یا محل استقرار شما."
+
+#: .\marketplace\models.py:93
+msgid "Logo or portrait."
+msgstr "لوگو یا پرتره."
+
+#: .\marketplace\models.py:100
+msgid "Header / vibe image."
+msgstr "تصویر هدر / حال‌وهوا."
+
+#: .\marketplace\models.py:105
+msgid "If not approved yet, profile is not shown publicly."
+msgstr "اگر هنوز تأیید نشده باشد، پروفایل به‌صورت عمومی نمایش داده نمی‌شود."
+
+#: .\marketplace\models.py:140 .\templates\marketplace\profile_public.html:193
+msgid "Pending Review"
+msgstr "در انتظار بررسی"
+
+#: .\marketplace\models.py:141 .\templates\marketplace\profile_public.html:188
+msgid "Approved"
+msgstr "تأیید شده"
+
+#: .\marketplace\models.py:142
+msgid "Rejected"
+msgstr "رد شده"
+
+#: .\marketplace\models.py:167
+msgid "Upload your bank transfer receipt / payment screenshot."
+msgstr "رسید انتقال بانکی / اسکرین‌شات پرداخت را بارگذاری کنید."
+
+#: .\marketplace\models.py:196
+msgid "Active"
+msgstr "فعال"
+
+#: .\marketplace\models.py:197
+msgid "Draft"
+msgstr "پیش‌نویس"
+
+#: .\marketplace\models.py:198
+msgid "Sold"
+msgstr "فروخته شد"
+
+#: .\marketplace\models.py:230
+msgid ""
+"True = service (logo design, tattoo session, etc.). False = physical work."
+msgstr "True = سرویس (طراحی لوگو، نوبت تاتو و ...). False = اثر فیزیکی."
+
+#: .\marketplace\views.py:58
+msgid "Start or complete your marketplace application."
+msgstr "فرآیند عضویت در مارکت‌پلیس را آغاز یا تکمیل کنید."
+
+#: .\marketplace\views.py:73
+msgid "Your profile is not approved yet."
+msgstr "پروفایل شما هنوز تأیید نشده است."
+
+#: .\marketplace\views.py:82
+msgid "Product created."
+msgstr "محصول ایجاد شد."
+
+#: .\marketplace\views.py:104
+msgid "Product updated."
+msgstr "محصول به‌روزرسانی شد."
+
+#: .\marketplace\views.py:118
+msgid "Product deleted."
+msgstr "محصول حذف شد."
+
+#: .\marketplace\views.py:250
+msgid "You're already approved. Welcome to your studio!"
+msgstr "شما قبلاً تأیید شده‌اید. به استودیوی خود خوش آمدید!"
+
+#: .\marketplace\views.py:284
+msgid "You're already approved."
+msgstr "شما از قبل تأیید شده‌اید."
+
+#: .\marketplace\views.py:378
+msgid "Your request has been submitted. Please wait for admin approval."
+msgstr "درخواست شما ثبت شد. لطفاً منتظر تأیید مدیر بمانید."
+
+#: .\marketplace\views.py:394
+msgid "Payment Information"
+msgstr "اطلاعات پرداخت"
+
+#: .\marketplace\views.py:396
+msgid "Send the subscription fee and upload the screenshot."
+msgstr "هزینهٔ عضویت را پرداخت کرده و اسکرین‌شات را بارگذاری کنید."
 
 #: .\templates\accounts\after-signup.html:14
 msgid "You’re an"
@@ -268,6 +539,7 @@ msgstr "رفتن به آرتونومی"
 #: .\templates\accounts\categories.html:6
 #: .\templates\accounts\categories.html:71 .\templates\category\detail.html:24
 #: .\templates\category\index.html:84
+#: .\templates\marketplace\product_form.html:95
 msgid "Category"
 msgstr "دسته"
 
@@ -282,6 +554,7 @@ msgstr ""
 #: .\templates\accounts\categories.html:8
 #: .\templates\accounts\profile_suggested.html:80
 #: .\templates\accounts\signup.html:68 .\templates\category\detail.html:141
+#: .\templates\marketplace\home.html:444
 #: .\templates\network\follow_list.html:139
 msgid "Next"
 msgstr "بعدی"
@@ -295,7 +568,7 @@ msgid "Tap to select"
 msgstr "برای انتخاب ضربه بزنید"
 
 #: .\templates\accounts\categories.html:101
-#: .\templates\category\index.html:101
+#: .\templates\category\index.html:119
 msgid "No categories available."
 msgstr "هیچ دسته‌ای موجود نیست."
 
@@ -308,38 +581,34 @@ msgid "Which one are you?"
 msgstr "کدام یک هستید؟"
 
 #: .\templates\accounts\email_verify_confirm.html:6
-#, fuzzy
-#| msgid "Add certification"
 msgid "Enter verification code"
-msgstr "افزودن گواهی"
+msgstr "کد تأیید را وارد کنید"
 
 #: .\templates\accounts\email_verify_confirm.html:8
 #, python-format
 msgid "We sent a code to %(email)s. It expires in 15 minutes."
-msgstr ""
+msgstr "کدی به %(email)s ارسال کردیم. این کد تا ۱۵ دقیقه معتبر است."
 
 #: .\templates\accounts\email_verify_confirm.html:16
 #: .\templates\accounts\password_reset_confirm.html:25
 msgid "Resend"
-msgstr ""
+msgstr "ارسال دوباره"
 
 #: .\templates\accounts\email_verify_confirm.html:18
 msgid "Verify"
-msgstr ""
+msgstr "تأیید"
 
 #: .\templates\accounts\email_verify_start.html:6
 msgid "Verify your email"
-msgstr ""
+msgstr "ایمیل خود را تأیید کنید"
 
 #: .\templates\accounts\email_verify_start.html:7
 msgid "We’ll send a 6-digit code to your email. Enter it on the next step."
-msgstr ""
+msgstr "یک کد ۶ رقمی به ایمیل شما ارسال می‌کنیم. در مرحلهٔ بعد آن را وارد کنید."
 
 #: .\templates\accounts\email_verify_start.html:15
-#, fuzzy
-#| msgid "Send"
 msgid "Send code"
-msgstr "ارسال"
+msgstr "ارسال کد"
 
 #: .\templates\accounts\hero_base.html:108 .\templates\landing_page.html:58
 #: .\templates\posts\single_post.html:358
@@ -347,15 +616,13 @@ msgid "Menu"
 msgstr "منو"
 
 #: .\templates\accounts\hero_base.html:113 .\templates\accounts\signup.html:11
-#: .\templates\base.html:235 .\templates\base.html:447
+#: .\templates\base.html:237 .\templates\base.html:450
 msgid "Artonomy"
 msgstr "آرتونومی"
 
 #: .\templates\accounts\password_reset_confirm.html:6
-#, fuzzy
-#| msgid "Show password"
 msgid "Reset your password"
-msgstr "نمایش رمز عبور"
+msgstr "بازنشانی رمز عبور"
 
 #: .\templates\accounts\password_reset_confirm.html:8
 #, python-format
@@ -370,14 +637,14 @@ msgstr "تغییر رمز عبور"
 
 #: .\templates\accounts\password_reset_start.html:6
 msgid "Forgot your password?"
-msgstr "رمز عبورتان را فراموش کرده‌اید؟"
+msgstr "رمز عبور خود را فراموش کرده‌اید؟"
 
 #: .\templates\accounts\password_reset_start.html:7
 msgid ""
 "Enter your account email. We’ll send you a 6-digit code to reset your "
 "password."
 msgstr ""
-"ایمیل حساب خود را وارد کنید. ما یک کد ۶ رقمی برای بازنشانی رمز عبور برایتان "
+"ایمیل حساب خود را وارد کنید. یک کد ۶ رقمی برای بازنشانی رمز عبور برای شما "
 "ارسال می‌کنیم."
 
 #: .\templates\accounts\password_reset_start.html:15
@@ -398,7 +665,7 @@ msgstr "پیشنهاد شده توسط"
 
 #: .\templates\accounts\profile.html:148
 msgid "Suggestions"
-msgstr "پیشنهادات"
+msgstr "پیشنهادها"
 
 #: .\templates\accounts\profile.html:164
 #, python-format
@@ -430,7 +697,7 @@ msgstr "ببینید دنبال‌کنندگان %(u)s"
 #: .\templates\category\detail.html:46 .\templates\category\detail.html:107
 #: .\templates\network\follow_list.html:66
 msgid "Followers"
-msgstr "دنبال‌کننده"
+msgstr "دنبال‌کننده‌ها"
 
 #: .\templates\accounts\profile.html:195 .\templates\category\detail.html:95
 #: .\templates\network\follow_list.html:122
@@ -441,7 +708,7 @@ msgstr "دنبال‌کننده"
 #: .\templates\posts\single_post.html:1093
 #: .\templates\posts\single_post.html:1169
 msgid "Follow"
-msgstr "دنبال کردن"
+msgstr "دنبال‌کردن"
 
 #: .\templates\accounts\profile.html:198
 msgid "Edit Profile"
@@ -452,8 +719,8 @@ msgid "Timeline"
 msgstr "تایم‌لاین"
 
 #: .\templates\accounts\profile.html:211
-#: .\templates\accounts\settings_hub.html:79 .\templates\base.html:250
-#: .\templates\base.html:568 .\templates\base.html:579
+#: .\templates\accounts\settings_hub.html:79 .\templates\base.html:252
+#: .\templates\base.html:571 .\templates\base.html:582
 msgid "Portfolio"
 msgstr "نمونه‌کارها"
 
@@ -461,12 +728,12 @@ msgstr "نمونه‌کارها"
 msgid "Personal Info"
 msgstr "اطلاعات شخصی"
 
-#: .\templates\accounts\profile.html:214 .\templates\base.html:286
-#: .\templates\base.html:572 .\templates\base.html:582
+#: .\templates\accounts\profile.html:214 .\templates\base.html:289
+#: .\templates\base.html:575 .\templates\base.html:585
 msgid "Marketplace"
 msgstr "فروشگاه"
 
-#: .\templates\accounts\profile.html:221 .\templates\base.html:375
+#: .\templates\accounts\profile.html:221 .\templates\base.html:378
 #: .\templates\explore.html:16 .\templates\explore.html:38
 #: .\templates\home.html:12 .\templates\home.html:137
 msgid "All"
@@ -486,10 +753,6 @@ msgstr "ویدیو"
 #: .\templates\posts\upload_select_post_type1.html:39
 msgid "Text"
 msgstr "متن"
-
-#: .\templates\accounts\profile.html:244
-msgid "Image"
-msgstr "تصویر"
 
 #: .\templates\accounts\profile.html:293
 #, python-format
@@ -545,7 +808,7 @@ msgstr "توسط"
 
 #: .\templates\accounts\profile.html:349
 msgid "About Me"
-msgstr "درباره من"
+msgstr "دربارهٔ من"
 
 #: .\templates\accounts\profile.html:350 .\templates\category\detail.html:102
 msgid "No bio provided."
@@ -560,8 +823,6 @@ msgid "Hobbies"
 msgstr "علایق"
 
 #: .\templates\accounts\profile.html:383 .\templates\accounts\profile.html:393
-#: .\templates\marketplace\add.html:35 .\templates\marketplace\list.html:163
-#: .\templates\marketplace\list.html:170
 msgid "Add Service"
 msgstr "افزودن سرویس"
 
@@ -571,7 +832,7 @@ msgstr "یک آگهی جدید در فروشگاه ایجاد کنید"
 
 #: .\templates\accounts\profile.html:421
 #: .\templates\accounts\profile_suggested.html:78
-#: .\templates\marketplace\list.html:263
+#: .\templates\marketplace\home.html:423
 msgid "View"
 msgstr "مشاهده"
 
@@ -696,7 +957,7 @@ msgstr "تنظیمات شخصی"
 
 #: .\templates\accounts\settings_personal.html:122
 msgid "Tune your profile so it looks and feels uniquely you."
-msgstr "پروفایل خود را طوری تنظیم کنید که بازتاب منحصربه‌فردِ شما باشد."
+msgstr "پروفایل خود را طوری تنظیم کنید که منحصربه‌فردِ شما باشد."
 
 #: .\templates\accounts\settings_personal.html:131
 #: .\templates\accounts\settings_personal.html:278
@@ -725,10 +986,10 @@ msgstr "مهارت‌های خود را اضافه یا حذف کنید"
 
 #: .\templates\accounts\settings_personal.html:185
 msgid ""
-"Type to add a skill. Press Enter to create or click a suggestion. Click × to"
-" remove."
+"Type to add a skill. Press Enter to create or click a suggestion. Click × to "
+"remove."
 msgstr ""
-"برای افزودن مهارت تایپ کنید. برای ایجاد Enter را بزنید یا روی پیشنهاد کلیک "
+"برای افزودن مهارت تایپ کنید. برای ایجاد، Enter را بزنید یا روی پیشنهاد کلیک "
 "کنید. برای حذف روی × بزنید."
 
 #: .\templates\accounts\settings_personal.html:190
@@ -738,9 +999,9 @@ msgstr ""
 #: .\templates\accounts\settings_portfolio.html:126
 #: .\templates\accounts\settings_portfolio.html:212
 #: .\templates\accounts\settings_portfolio.html:285
-#: .\templates\collab\chat.html:79 .\templates\marketplace\add.html:50
-#: .\templates\marketplace\add.html:71 .\templates\marketplace\add.html:115
-#: .\templates\marketplace\add.html:182
+#: .\templates\collab\chat.html:79
+#: .\templates\marketplace\join_step2_profile.html:159
+#: .\templates\marketplace\join_step3_payment.html:115
 msgid "Back"
 msgstr "بازگشت"
 
@@ -773,6 +1034,7 @@ msgstr "لینک‌های اجتماعی"
 #: .\templates\accounts\settings_portfolio.html:187
 #: .\templates\accounts\settings_portfolio.html:238
 #: .\templates\accounts\settings_portfolio.html:266
+#: .\templates\marketplace\dashboard.html:209
 msgid "Delete"
 msgstr "حذف"
 
@@ -926,14 +1188,12 @@ msgid "Only letters, numbers, and underscores"
 msgstr "فقط حروف، اعداد و زیرخط"
 
 #: .\templates\accounts\signup.html:35
-#, fuzzy
-#| msgid "you@example.com"
 msgid "you@gmail.com"
-msgstr "you@example.com"
+msgstr "you@gmail.com"
 
 #: .\templates\accounts\signup.html:37
 msgid "Only Gmail addresses are allowed"
-msgstr ""
+msgstr "فقط آدرس‌های جیمیل مجاز هستند"
 
 #: .\templates\accounts\signup.html:44 .\templates\landing_page.html:114
 msgid "Password"
@@ -952,7 +1212,7 @@ msgstr "نمایش رمز عبور"
 msgid "Already have an account?"
 msgstr "از قبل حساب دارید؟"
 
-#: .\templates\accounts\signup.html:82 .\templates\base.html:435
+#: .\templates\accounts\signup.html:82 .\templates\base.html:438
 #: .\templates\landing_page.html:131
 msgid "Log in"
 msgstr "ورود"
@@ -961,86 +1221,86 @@ msgstr "ورود"
 msgid "Hide password"
 msgstr "پنهان کردن رمز عبور"
 
-#: .\templates\base.html:260 .\templates\base.html:264
-#: .\templates\base.html:567 .\templates\base.html:578 .\templates\home.html:6
+#: .\templates\base.html:262 .\templates\base.html:266
+#: .\templates\base.html:570 .\templates\base.html:581 .\templates\home.html:6
 msgid "Home"
 msgstr "خانه"
 
-#: .\templates\base.html:273 .\templates\base.html:277
-#: .\templates\base.html:569 .\templates\base.html:580
+#: .\templates\base.html:275 .\templates\base.html:280
+#: .\templates\base.html:572 .\templates\base.html:583
 #: .\templates\explore.html:6 .\templates\explore.html:154
 #: .\templates\explore.html:255 .\templates\explore.html:347
 #: .\templates\explore.html:417
 msgid "Explore"
 msgstr "اکسپلور"
 
-#: .\templates\base.html:295 .\templates\base.html:376
-#: .\templates\base.html:571 .\templates\base.html:581
+#: .\templates\base.html:298 .\templates\base.html:379
+#: .\templates\base.html:574 .\templates\base.html:584
 #: .\templates\posts\single_post.html:553
 #: .\templates\posts\single_post.html:920
 msgid "Artists"
 msgstr "هنرمندها"
 
-#: .\templates\base.html:301
+#: .\templates\base.html:304
 msgid "Art Exchange"
 msgstr "مبادلهٔ هنر"
 
-#: .\templates\base.html:305
+#: .\templates\base.html:308
 msgid "Blog"
 msgstr "وبلاگ"
 
-#: .\templates\base.html:309
+#: .\templates\base.html:312
 msgid "Jobs"
 msgstr "فرصت‌های شغلی"
 
-#: .\templates\base.html:322 .\templates\base.html:385
-#: .\templates\base.html:507
+#: .\templates\base.html:325 .\templates\base.html:388
+#: .\templates\base.html:510
 msgid "New Post"
 msgstr "پست جدید"
 
-#: .\templates\base.html:335 .\templates\base.html:458
+#: .\templates\base.html:338 .\templates\base.html:461
 msgid "Language"
 msgstr "زبان"
 
-#: .\templates\base.html:363 .\templates\base.html:424
-#: .\templates\base.html:544
+#: .\templates\base.html:366 .\templates\base.html:427
+#: .\templates\base.html:547
 msgid "Settings"
 msgstr "تنظیمات"
 
-#: .\templates\base.html:377
+#: .\templates\base.html:380
 msgid "Posts"
 msgstr "پست‌ها"
 
-#: .\templates\base.html:379
+#: .\templates\base.html:382
 msgid "Search Artonomy..."
 msgstr "جستجوی آرتونومی..."
 
-#: .\templates\base.html:392 .\templates\base.html:514
+#: .\templates\base.html:395 .\templates\base.html:517
 #: .\templates\collab\notifications.html:169
 msgid "Notifications"
 msgstr "اعلان‌ها"
 
-#: .\templates\base.html:402 .\templates\base.html:524
+#: .\templates\base.html:405 .\templates\base.html:527
 msgid "Login"
 msgstr "ورود"
 
-#: .\templates\base.html:418 .\templates\base.html:538
+#: .\templates\base.html:421 .\templates\base.html:541
 msgid "Signed in as"
 msgstr "وارد شده به عنوان"
 
-#: .\templates\base.html:421 .\templates\base.html:541
+#: .\templates\base.html:424 .\templates\base.html:544
 msgid "Profile"
 msgstr "پروفایل"
 
-#: .\templates\base.html:428 .\templates\base.html:548
+#: .\templates\base.html:431 .\templates\base.html:551
 msgid "Logout"
 msgstr "خروج"
 
-#: .\templates\base.html:436 .\templates\landing_page.html:146
+#: .\templates\base.html:439 .\templates\landing_page.html:146
 msgid "Sign up"
 msgstr "ثبت‌نام"
 
-#: .\templates\base.html:562
+#: .\templates\base.html:565
 msgid "New post"
 msgstr "پست جدید"
 
@@ -1049,11 +1309,10 @@ msgid "Sort By"
 msgstr "مرتب‌سازی بر اساس"
 
 #: .\templates\category\detail.html:39 .\templates\category\detail.html:45
-#: .\templates\marketplace\list.html:125
 msgid "Latest"
 msgstr "جدیدترین"
 
-#: .\templates\category\detail.html:53 .\templates\marketplace\list.html:148
+#: .\templates\category\detail.html:53 .\templates\marketplace\home.html:329
 msgid "Clear filters"
 msgstr "پاک‌کردن فیلترها"
 
@@ -1069,6 +1328,22 @@ msgstr "سایت"
 #, python-format
 msgid "Page %(n)s / %(total)s"
 msgstr "صفحه %(n)s / %(total)s"
+
+#: .\templates\category\index.html:91
+msgid "Are you an artist?"
+msgstr "آیا شما هنرمند هستید؟"
+
+#: .\templates\category\index.html:92
+msgid "Pick your categories to get discovered."
+msgstr "دسته‌های خود را انتخاب کنید تا دیده شوید."
+
+#: .\templates\category\index.html:95
+msgid "Choose work categories"
+msgstr "انتخاب دسته‌های کاری"
+
+#: .\templates\category\index.html:95
+msgid "Become an Artist"
+msgstr "هنرمند شوید"
 
 #: .\templates\collab\chat.html:87
 #, python-format
@@ -1165,7 +1440,7 @@ msgstr "هنوز چتی وجود ندارد."
 
 #: .\templates\explore.html:59
 msgid "Trending Picks"
-msgstr "برگزیده ها"
+msgstr "برگزیده‌ها"
 
 #: .\templates\explore.html:491
 msgid "Artonomy Bests"
@@ -1181,11 +1456,11 @@ msgstr "آرتونومی — ورود"
 
 #: .\templates\landing_page.html:89
 msgid "Artonomy — Where"
-msgstr ""
+msgstr "آرتونومی — جایی که"
 
 #: .\templates\landing_page.html:89
 msgid "The Art Connects"
-msgstr ""
+msgstr "هنر، پیوند می‌زند"
 
 #: .\templates\landing_page.html:103
 msgid "Login form"
@@ -1196,10 +1471,8 @@ msgid "you@example.com"
 msgstr "you@example.com"
 
 #: .\templates\landing_page.html:137
-#, fuzzy
-#| msgid "Show password"
 msgid "Forgot password?"
-msgstr "نمایش رمز عبور"
+msgstr "رمز عبور را فراموش کرده‌اید؟"
 
 #: .\templates\landing_page.html:144
 msgid "Not on Artonomy yet?"
@@ -1209,224 +1482,480 @@ msgstr "هنوز عضو آرتونومی نیستید؟"
 msgid "Continue as guest"
 msgstr "ادامه به‌صورت مهمان"
 
-#: .\templates\marketplace\add.html:44
-msgid "Choose a category"
-msgstr "یک دسته انتخاب کنید"
+#: .\templates\marketplace\dashboard.html:131
+#: .\templates\marketplace\dashboard.html:146
+#, fuzzy
+#| msgid "Content"
+msgid "Content Manager"
+msgstr "محتوا"
 
-#: .\templates\marketplace\add.html:46
-msgid "Pick the main category for this service."
-msgstr "دستهٔ اصلی این سرویس را انتخاب کنید."
+#: .\templates\marketplace\dashboard.html:136
+#: .\templates\marketplace\home.html:217
+msgid "View Public Page"
+msgstr "مشاهدهٔ صفحهٔ عمومی"
 
-#: .\templates\marketplace\add.html:51 .\templates\marketplace\add.html:72
-#: .\templates\marketplace\add.html:116
+#: .\templates\marketplace\dashboard.html:139
+#, fuzzy
+#| msgid "Buy (coming soon)"
+msgid "Feature coming soon."
+msgstr "خرید (به‌زودی)"
+
+#: .\templates\marketplace\dashboard.html:141
+#, fuzzy
+#| msgid "Personal settings"
+msgid "Profile Settings (WIP)"
+msgstr "تنظیمات شخصی"
+
+#: .\templates\marketplace\dashboard.html:149
+#, fuzzy
+#| msgid "Products & Services"
+msgid "Products & Services List"
+msgstr "محصولات و سرویس‌ها"
+
+#: .\templates\marketplace\dashboard.html:152
+msgid "ADD NEW ARTWORK/SERVICE"
+msgstr "افزودن اثر/سرویس جدید"
+
+#: .\templates\marketplace\dashboard.html:162
+#, fuzzy
+#| msgid "Works & Services"
+msgid "Artwork / Service"
+msgstr "آثار و سرویس‌ها"
+
+#: .\templates\marketplace\dashboard.html:163
+#: .\templates\marketplace\product_form.html:138
+msgid "Status"
+msgstr "وضعیت"
+
+#: .\templates\marketplace\dashboard.html:164
+msgid "Views"
+msgstr "بازدید"
+
+#: .\templates\marketplace\dashboard.html:165
+msgid "Price"
+msgstr "قیمت"
+
+#: .\templates\marketplace\dashboard.html:166
+#, fuzzy
+#| msgid "Location"
+msgid "Actions"
+msgstr "موقعیت"
+
+#: .\templates\marketplace\dashboard.html:186
+msgid "Product"
+msgstr "محصول"
+
+#: .\templates\marketplace\dashboard.html:206
+msgid "Edit"
+msgstr "ویرایش"
+
+#: .\templates\marketplace\dashboard.html:209
+msgid "Are you sure you want to delete this content?"
+msgstr "آیا از حذف این محتوا مطمئن هستید؟"
+
+#: .\templates\marketplace\dashboard.html:219
+msgid "You haven't added any content yet."
+msgstr "هنوز محتوایی اضافه نکرده‌اید."
+
+#: .\templates\marketplace\dashboard.html:220
+msgid "Start creating your product or service listing now!"
+msgstr "همین الآن فهرست محصول یا سرویس خود را بسازید!"
+
+#: .\templates\marketplace\dashboard.html:223
+#, fuzzy
+#| msgid "Content"
+msgid "Upload Content"
+msgstr "محتوا"
+
+#: .\templates\marketplace\home.html:210
+#, fuzzy
+#| msgid "Profile Approved!"
+msgid "Creator Profile Approved!"
+msgstr "پروفایل تأیید شد!"
+
+#: .\templates\marketplace\home.html:211
+#, fuzzy
+#| msgid "Go to your studio to manage your listings and profile."
+msgid ""
+"Your studio is live. Manage your listings and profile from the dashboard."
+msgstr "برای مدیریت آگهی‌ها و پروفایل به استودیوی خود بروید."
+
+#: .\templates\marketplace\home.html:215
+msgid "Open Dashboard"
+msgstr "باز کردن داشبورد"
+
+#: .\templates\marketplace\home.html:225
+#, fuzzy
+#| msgid "Application Rejected"
+msgid "Application Under Review"
+msgstr "درخواست رد شد"
+
+#: .\templates\marketplace\home.html:226
+msgid ""
+"Your profile application is being manually assessed. We appreciate your "
+"patience."
+msgstr ""
+
+#: .\templates\marketplace\home.html:228
+msgid "Pending"
+msgstr "در انتظار"
+
+#: .\templates\marketplace\home.html:235
+msgid "Application Rejected"
+msgstr "درخواست رد شد"
+
+#: .\templates\marketplace\home.html:236
+msgid "Review the feedback sent to your email and update your information."
+msgstr ""
+
+#: .\templates\marketplace\home.html:239
+msgid "Try Again"
+msgstr "دوباره تلاش کنید"
+
+#: .\templates\marketplace\home.html:246
+#, fuzzy
+#| msgid "Join the Marketplace"
+msgid "Join the Creative Marketplace"
+msgstr "به مارکت‌پلیس بپیوندید"
+
+#: .\templates\marketplace\home.html:247
+#, fuzzy
+#| msgid "Create a dramatic public profile and start selling your works."
+msgid ""
+"Create a public profile to share and sell your unique works and services."
+msgstr "یک پروفایل عمومی جذاب بسازید و فروش آثار خود را آغاز کنید."
+
+#: .\templates\marketplace\home.html:251
+msgid "Join Now"
+msgstr "همین حالا بپیوندید"
+
+#: .\templates\marketplace\home.html:261
+msgid "Unlock Your Potential"
+msgstr "توانایی‌های خود را شکوفا کنید"
+
+#: .\templates\marketplace\home.html:262
+#, fuzzy
+#| msgid "Sign in or register to create your profile and list your works."
+msgid "Sign in or register to begin your application as a marketplace creator."
+msgstr "برای ساخت پروفایل و ثبت آثار، وارد شوید یا ثبت‌نام کنید."
+
+#: .\templates\marketplace\home.html:265
+#, fuzzy
+#| msgid "Signed in as"
+msgid "Sign in / Register"
+msgstr "وارد شده به عنوان"
+
+#: .\templates\marketplace\home.html:279
+msgid "All Categories"
+msgstr "همهٔ دسته‌ها"
+
+#: .\templates\marketplace\home.html:296
+msgid "Search profiles, works, services…"
+msgstr "جستجوی پروفایل‌ها، آثار، سرویس‌ها…"
+
+#: .\templates\marketplace\home.html:304
+#, fuzzy
+#| msgid "All Categories"
+msgid "All Creator Types"
+msgstr "همهٔ دسته‌ها"
+
+#: .\templates\marketplace\home.html:318
+msgid "All Offerings"
+msgstr "همهٔ پیشنهادها"
+
+#: .\templates\marketplace\home.html:319
+msgid "Physical Works"
+msgstr "آثار فیزیکی"
+
+#: .\templates\marketplace\home.html:320
+msgid "Services"
+msgstr "سرویس‌ها"
+
+#: .\templates\marketplace\home.html:333
+#, fuzzy
+#| msgid "Search"
+msgid "Refine Search"
+msgstr "جستجو"
+
+#: .\templates\marketplace\home.html:344
+msgid "Featured Creators & Spaces"
+msgstr "خالقان و فضاهای منتخب"
+
+#: .\templates\marketplace\home.html:367
+msgid "Global / Online"
+msgstr "سراسر جهان / آنلاین"
+
+#: .\templates\marketplace\home.html:374
+#, fuzzy
+#| msgid "No categories available."
+msgid "No featured creators available."
+msgstr "هیچ دسته‌ای موجود نیست."
+
+#: .\templates\marketplace\home.html:382
+msgid "Top Works & Services"
+msgstr "برترین آثار و سرویس‌ها"
+
+#: .\templates\marketplace\home.html:394
+#, fuzzy
+#| msgid "No categories available."
+msgid "Image Unavailable"
+msgstr "هیچ دسته‌ای موجود نیست."
+
+#: .\templates\marketplace\home.html:435
+msgid "Previous"
+msgstr "قبلی"
+
+#: .\templates\marketplace\home.html:439
+#, fuzzy, python-format
+#| msgid "Page %(n)s / %(total)s"
+msgid "Page %(n)s of %(total)s"
+msgstr "صفحه %(n)s / %(total)s"
+
+#: .\templates\marketplace\home.html:451
+#, fuzzy
+#| msgid "No products match your search criteria."
+msgid "No products match your search criteria. Try broadening your filters."
+msgstr "هیچ محصولی با معیارهای جستجوی شما سازگار نیست."
+
+#: .\templates\marketplace\join_entry.html:13
+#: .\templates\marketplace\join_step1_kind.html:133
+msgid "Join the Marketplace"
+msgstr "به مارکت‌پلیس بپیوندید"
+
+#: .\templates\marketplace\join_entry.html:15
+#: .\templates\marketplace\join_step1_kind.html:136
+msgid ""
+"Who are you? Choose what best describes you. This helps us build your public "
+"profile."
+msgstr ""
+"چه کسی هستید؟ بهترین توصیف را انتخاب کنید. این به ساخت پروفایل عمومی شما کمک "
+"می‌کند."
+
+#: .\templates\marketplace\join_entry.html:37
+#: .\templates\marketplace\join_step1_kind.html:163
 #: .\templates\posts\upload_detail_media2.html:112
 #: .\templates\posts\upload_detail_text2.html:56
 #: .\templates\posts\upload_select_category3.html:43
 msgid "Continue"
 msgstr "ادامه"
 
-#: .\templates\marketplace\add.html:62
-msgid "Title"
-msgstr "عنوان"
+#: .\templates\marketplace\join_step2_profile.html:81
+msgid "Your Public Profile"
+msgstr "پروفایل عمومی شما"
 
-#: .\templates\marketplace\add.html:66
-msgid "Description"
-msgstr "توضیحات"
+#: .\templates\marketplace\join_step2_profile.html:85
+msgid ""
+"Tell the world who you are as an artist. We'll create your showcase page."
+msgstr "به جهان بگویید به‌عنوان هنرمند که هستید. ما صفحهٔ نمایش شما را می‌سازیم."
 
-#: .\templates\marketplace\add.html:83
-msgid "Pricing type"
-msgstr "نوع قیمت"
+#: .\templates\marketplace\join_step2_profile.html:87
+msgid ""
+"Introduce your gallery / studio / concept store in a dramatic, human way."
+msgstr ""
+"گالری / استودیو / کانسپت‌استور خود را به‌صورت انسانی و دراماتیک معرفی کنید."
 
-#: .\templates\marketplace\add.html:89
-#, fuzzy
-#| msgid "Choose what you want to update."
-msgid "Choose how you want to price this service."
-msgstr "روش قیمت دهی برای این خدمات رو انتخاب کنید."
+#: .\templates\marketplace\join_step2_profile.html:97
+msgid "Display Name"
+msgstr "نام نمایشی"
 
-#: .\templates\marketplace\add.html:93
-msgid "Price"
-msgstr "قیمت"
+#: .\templates\marketplace\join_step2_profile.html:105
+msgid "Tagline"
+msgstr "تگ‌لاین"
 
-#: .\templates\marketplace\add.html:99
-msgid "Min price"
-msgstr "حداقل قیمت"
+#: .\templates\marketplace\join_step2_profile.html:109
+msgid "Short punchline / headline. This appears right below your name."
+msgstr "یک جملهٔ کوتاه و شاخص که زیر نام شما نمایش داده می‌شود."
 
-#: .\templates\marketplace\add.html:103
-msgid "Max price"
-msgstr "حداکثر قیمت"
+#: .\templates\marketplace\join_step2_profile.html:116
+msgid "Your Story"
+msgstr "داستان شما"
 
-#: .\templates\marketplace\add.html:109
+#: .\templates\marketplace\join_step2_profile.html:120
+msgid "Talk about belief, origin, style, emotion. We show this publicly."
+msgstr ""
+"از باور، ریشه، سبک و احساس بگویید. این متن به‌صورت عمومی نمایش داده می‌شود."
+
+#: .\templates\marketplace\join_step2_profile.html:127
+msgid "Location"
+msgstr "موقعیت"
+
+#: .\templates\marketplace\join_step2_profile.html:137
+msgid "Avatar / Logo"
+msgstr "آواتار / لوگو"
+
+#: .\templates\marketplace\join_step2_profile.html:145
+msgid "Cover image"
+msgstr "تصویر کاور"
+
+#: .\templates\marketplace\join_step2_profile.html:149
+msgid "We use this as your visual header on the profile page."
+msgstr "این تصویر به‌عنوان هدر بصری صفحهٔ پروفایل شما استفاده می‌شود."
+
+#: .\templates\marketplace\join_step2_profile.html:163
+msgid "Continue to Payment"
+msgstr "ادامه به پرداخت"
+
+#: .\templates\marketplace\join_step3_payment.html:68
+msgid "Payment & Activation"
+msgstr "پرداخت و فعال‌سازی"
+
+#: .\templates\marketplace\join_step3_payment.html:71
+msgid ""
+"Send the subscription fee to the account below. Then upload a screenshot of "
+"the payment for manual review."
+msgstr ""
+"هزینهٔ عضویت را به حساب زیر واریز کنید. سپس اسکرین‌شات پرداخت را برای بررسی "
+"دستی بارگذاری کنید."
+
+#: .\templates\marketplace\join_step3_payment.html:81
+msgid "Card Number:"
+msgstr "شماره کارت:"
+
+#: .\templates\marketplace\join_step3_payment.html:98
+msgid "Upload Payment Screenshot"
+msgstr "بارگذاری اسکرین‌شات پرداخت"
+
+#: .\templates\marketplace\join_step3_payment.html:104
+msgid ""
+"Your profile will be reviewed manually. You'll get access after approval."
+msgstr "پروفایل شما به‌صورت دستی بررسی می‌شود. پس از تأیید دسترسی خواهید داشت."
+
+#: .\templates\marketplace\join_step3_payment.html:119
+msgid "Submit Request"
+msgstr "ارسال درخواست"
+
+#: .\templates\marketplace\join_wait.html:6
+msgid "Request received"
+msgstr "درخواست دریافت شد"
+
+#: .\templates\marketplace\join_wait.html:8
+msgid "Thanks. Your marketplace profile is now waiting for admin approval."
+msgstr "متشکریم. پروفایل مارکت‌پلیس شما در انتظار تأیید مدیر است."
+
+#: .\templates\marketplace\join_wait.html:11
+msgid "Profile:"
+msgstr "پروفایل:"
+
+#: .\templates\marketplace\join_wait.html:14
+msgid ""
+"We will verify payment and activate your studio dashboard. You'll then be "
+"able to publish artworks, services, and products."
+msgstr ""
+"پرداخت را بررسی کرده و داشبورد استودیوی شما را فعال می‌کنیم. سپس می‌توانید "
+"آثار، سرویس‌ها و محصولات خود را منتشر کنید."
+
+#: .\templates\marketplace\product_detail.html:11
+msgid "No image"
+msgstr "بدون تصویر"
+
+#: .\templates\marketplace\product_detail.html:35
+msgid "views"
+msgstr "بازدید"
+
+#: .\templates\marketplace\product_detail.html:62
+msgid "Buy (coming soon)"
+msgstr "خرید (به‌زودی)"
+
+#: .\templates\marketplace\product_detail.html:65
+msgid "Payments are currently manual. Online checkout will be added soon."
+msgstr "پرداخت‌ها در حال حاضر دستی است. پرداخت آنلاین به‌زودی اضافه می‌شود."
+
+#: .\templates\marketplace\product_form.html:60
+msgid "Edit Marketplace Item"
+msgstr "ویرایش آیتم فروشگاه"
+
+#: .\templates\marketplace\product_form.html:60
+msgid "Add New Item"
+msgstr "افزودن آیتم جدید"
+
+#: .\templates\marketplace\product_form.html:78
+msgid "Item Title"
+msgstr "عنوان آیتم"
+
+#: .\templates\marketplace\product_form.html:86
+msgid "Detailed Description"
+msgstr "توضیحات کامل"
+
+#: .\templates\marketplace\product_form.html:103
+msgid "Price (Numeric)"
+msgstr "قیمت (عددی)"
+
+#: .\templates\marketplace\product_form.html:111
 msgid "Currency"
 msgstr "ارز"
 
-#: .\templates\marketplace\add.html:147
-msgid "Summary"
-msgstr "خلاصه"
+#: .\templates\marketplace\product_form.html:128
+msgid "Item Image/Thumbnail"
+msgstr "تصویر/بندانگشتی آیتم"
 
-#: .\templates\marketplace\add.html:149
-msgid "Category:"
-msgstr "دسته:"
+#: .\templates\marketplace\product_form.html:149
+msgid "Save Item"
+msgstr "ذخیرهٔ آیتم"
 
-#: .\templates\marketplace\add.html:150
-msgid "Title:"
-msgstr "عنوان:"
-
-#: .\templates\marketplace\add.html:151
-msgid "Description:"
-msgstr "توضیحات:"
-
-#: .\templates\marketplace\add.html:157 .\templates\marketplace\add.html:159
-#: .\templates\marketplace\add.html:163
-#, fuzzy
-#| msgid "Price"
-msgid "Price:"
-msgstr "قیمت"
-
-#: .\templates\marketplace\add.html:172
-msgid "Upload your cover image"
-msgstr "تصویر کاور خود را بارگذاری کنید"
-
-#: .\templates\marketplace\add.html:175 .\templates\marketplace\add.html:203
-msgid "Preview will appear here"
-msgstr "پیش‌نمایش اینجا نمایش داده می‌شود"
-
-#: .\templates\marketplace\add.html:177
-msgid "This will be used as the cover image."
-msgstr "این به‌عنوان تصویر کاور استفاده می‌شود."
-
-#: .\templates\marketplace\add.html:183
-#: .\templates\posts\upload_review_publish4.html:42
-msgid "Publish"
-msgstr "انتشار"
-
-#: .\templates\marketplace\item.html:60
-#, python-format
-msgid "%(v)s view"
-msgid_plural "%(v)s views"
-msgstr[0] "%(v)s بازدید"
-msgstr[1] "%(v)s بازدید"
-
-#: .\templates\marketplace\item.html:89
-msgid "Base price · taxes or extras may apply"
-msgstr "قیمت پایه · ممکن است مالیات یا هزینه‌های اضافه اعمال شود"
-
-#: .\templates\marketplace\item.html:96
-msgid "Request Service"
-msgstr "درخواست سرویس"
-
-#: .\templates\marketplace\item.html:99
-msgid "This is your service"
-msgstr "این سرویس متعلق به شماست"
-
-#: .\templates\marketplace\item.html:103
-msgid "Log in to request"
-msgstr "برای درخواست وارد شوید"
-
-#: .\templates\marketplace\item.html:116
-msgid "Direct chat with the artist"
-msgstr "چت مستقیم با هنرمند"
-
-#: .\templates\marketplace\item.html:119
-msgid "Clear scope & milestones"
-msgstr "حوزه و نقاط عطف مشخص"
-
-#: .\templates\marketplace\item.html:122
-msgid "Secure deal via requests"
-msgstr "معاملهٔ امن از طریق درخواست‌ها"
-
-#: .\templates\marketplace\item.html:125
-msgid "Revisions per agreement"
-msgstr "بازبینی‌ها طبق توافق"
-
-#: .\templates\marketplace\item.html:140
-msgid "Request this service"
-msgstr "درخواست این سرویس"
-
-#: .\templates\marketplace\item.html:146
-msgid "Describe your project"
-msgstr "پروژهٔ خود را توضیح دهید"
-
-#: .\templates\marketplace\item.html:147
-msgid "Share the scope, references/links, style, deadline, deliverables…"
-msgstr "حوزه، منابع/لینک‌ها، سبک، مهلت، خروجی‌ها و… را به‌اشتراک بگذارید"
-
-#: .\templates\marketplace\item.html:154
+#: .\templates\marketplace\product_form.html:153
 msgid "Cancel"
 msgstr "انصراف"
 
-#: .\templates\marketplace\item.html:157
-msgid "Send request"
-msgstr "ارسال درخواست"
+#: .\templates\marketplace\profile_public.html:137
+msgid "Cover image for"
+msgstr "تصویر کاور برای"
 
-#: .\templates\marketplace\item.html:190
-msgid "Failed"
-msgstr "ناموفق"
+#: .\templates\marketplace\profile_public.html:140
+msgid "Channel Banner: The Vibe"
+msgstr "بنر کانال: حال‌وهوا"
 
-#: .\templates\marketplace\item.html:196
-msgid "Request sent!"
-msgstr "درخواست ارسال شد!"
+#: .\templates\marketplace\profile_public.html:148
+msgid "Avatar of"
+msgstr "آواتار"
 
-#: .\templates\marketplace\list.html:101
-msgid "All categories"
-msgstr "همهٔ دسته‌ها"
-
-#: .\templates\marketplace\list.html:116
-msgid "search..."
-msgstr "جستجو..."
-
-#: .\templates\marketplace\list.html:126
-msgid "Price: High → Low"
-msgstr "قیمت: زیاد → کم"
-
-#: .\templates\marketplace\list.html:127
-msgid "Price: Low → High"
-msgstr "قیمت: کم → زیاد"
-
-#: .\templates\marketplace\list.html:128
-msgid "Popular"
-msgstr "محبوب"
-
-#: .\templates\marketplace\list.html:136
-msgid "Min"
-msgstr "حداقل"
-
-#: .\templates\marketplace\list.html:140
-msgid "Max"
-msgstr "حداکثر"
-
-#: .\templates\marketplace\list.html:152
-msgid "Apply"
-msgstr "اعمال"
-
-#: .\templates\marketplace\list.html:173
-msgid "Create a new listing for your service"
-msgstr ""
-
-#: .\templates\marketplace\list.html:179
+#: .\templates\marketplace\profile_public.html:160
 #, fuzzy
-#| msgid "Log in to request"
-msgid "Log in to add a service"
-msgstr "برای درخواست وارد شوید"
+#| msgid "Your Studio"
+msgid "Verified Studio"
+msgstr "استودیوی شما"
 
-#: .\templates\marketplace\list.html:186
+#: .\templates\marketplace\profile_public.html:169
+msgid "Commission Inquiry"
+msgstr "درخواست سفارش (کمیسیون)"
+
+#: .\templates\marketplace\profile_public.html:178
+#: .\templates\posts\single_post.html:540
+#: .\templates\posts\single_post.html:1170
+msgid "Details"
+msgstr "جزئیات"
+
+#: .\templates\marketplace\profile_public.html:183
+msgid "Approval Status"
+msgstr "وضعیت تأیید"
+
+#: .\templates\marketplace\profile_public.html:200
 #, fuzzy
-#| msgid "Log in to request"
-msgid "Log in to add"
-msgstr "برای درخواست وارد شوید"
+#| msgid "Profile Owner"
+msgid "Profile Owner:"
+msgstr "مالک پروفایل"
 
-#: .\templates\marketplace\list.html:189
+#: .\templates\marketplace\profile_public.html:209
+msgid "The Introduction"
+msgstr "معرفی"
+
+#: .\templates\marketplace\profile_public.html:220
+msgid "The artist has not yet uploaded a detailed studio description."
+msgstr "هنرمند هنوز توضیح مفصل استودیو را بارگذاری نکرده است."
+
+#: .\templates\marketplace\profile_public.html:226
 #, fuzzy
-#| msgid "Pick the main category for this service."
-msgid "Sign in to create your first service"
-msgstr "دستهٔ اصلی این سرویس را انتخاب کنید."
+#| msgid "Featured Creators & Spaces"
+msgid "Featured Artworks & Assets"
+msgstr "خالقان و فضاهای منتخب"
 
-#: .\templates\marketplace\list.html:207
-msgid "Draft"
-msgstr "پیش‌نویس"
+#: .\templates\marketplace\profile_public.html:239
+msgid "Thumbnail Unavailable"
+msgstr "تصویر بندانگشتی در دسترس نیست"
 
-#: .\templates\marketplace\list.html:209
-msgid "Sold"
-msgstr "فروخته شد"
+#: .\templates\marketplace\profile_public.html:275
+msgid "No content uploaded yet. Check back for the next masterpiece!"
+msgstr "هنوز محتوایی بارگذاری نشده است. به‌زودی شاهکار بعدی را بررسی کنید!"
+
 
 #: .\templates\network\follow_list.html:61
 #: .\templates\posts\single_post.html:705
@@ -1492,11 +2021,6 @@ msgstr "فصل %(order)s: %(title)s"
 msgid "Chapter %(order)s"
 msgstr "فصل %(order)s"
 
-#: .\templates\posts\single_post.html:540
-#: .\templates\posts\single_post.html:1170
-msgid "Details"
-msgstr "جزئیات"
-
 #: .\templates\posts\single_post.html:541
 #: .\templates\posts\single_post.html:551
 #: .\templates\posts\single_post.html:916
@@ -1558,7 +2082,7 @@ msgstr "%(t)s پیش"
 #: .\templates\posts\single_post.html:661
 #: .\templates\posts\single_post.html:1039
 msgid "Replies"
-msgstr "پاسخ"
+msgstr "پاسخ‌ها"
 
 #: .\templates\posts\single_post.html:669
 #: .\templates\posts\single_post.html:1047
@@ -1680,6 +2204,10 @@ msgstr "افزودن کاور"
 msgid "Add Chapter"
 msgstr "افزودن فصل"
 
+#: .\templates\posts\upload_review_publish4.html:42
+msgid "Publish"
+msgstr "انتشار"
+
 #: .\templates\posts\upload_select_category3.html:19
 msgid "Choose the artwork Category"
 msgstr "دستهٔ اثر هنری را انتخاب کنید"
@@ -1700,222 +2228,191 @@ msgstr "به‌زودی!"
 msgid "Music"
 msgstr "موسیقی"
 
-msgid ""
-"Category\" as CATEGORY_LABEL %}\n"
-"{% trans \"If your artwork category is not in these, don't worry we will add more artwork categories soon.\" as CTA_NOTE %}\n"
-"{% trans \"Next\" as NEXT_LABEL %}\n"
-"\n"
-"<div class=\"lg:bg-white lg:text-gray-900 card-shell overflow-hidden\">\n"
-"  <div class=\"p-0 lg:p-6 lg:sm:p-8\">\n"
-"    <!-- Header -->\n"
-"    <div class=\"text-center\">\n"
-"      <h2 class=\"text-2xl lg:text-[28px] font-extrabold\">\n"
-"        {{ heading_text }}\n"
-"      </h2>\n"
-"    </div>\n"
-"\n"
-"    <!-- Carousel (no native scroll) -->\n"
-"    <div class=\"relative mt-5\">\n"
-"      <!-- navigation -->\n"
-"      <button id=\"navPrev\"\n"
-"              class=\"grid absolute left-2 top-1/2 -translate-y-1/2 z-30\n"
-"                     w-10 h-10 rounded-full bg-white border border-gray-200 shadow\n"
-"                     place-items-center hover:bg-white/95 focus:outline-none\n"
-"                     focus:ring-2 focus:ring-purple-600\">\n"
-"        <i class=\"fa-solid fa-chevron-left text-gray-700 text-base leading-none\"></i>\n"
-"      </button>\n"
-"\n"
-"      <button id=\"navNext\"\n"
-"              class=\"grid absolute right-2 top-1/2 -translate-y-1/2 z-30\n"
-"                     w-10 h-10 rounded-full bg-white border border-gray-200 shadow\n"
-"                     place-items-center hover:bg-white/95 focus:outline-none\n"
-"                     focus:ring-2 focus:ring-purple-600\">\n"
-"        <i class=\"fa-solid fa-chevron-right text-gray-700 text-base leading-none\"></i>\n"
-"      </button>\n"
-"\n"
-"      <!-- viewport -->\n"
-"      <div id=\"viewport\" class=\"relative overflow-hidden -mx-6 px-6\">\n"
-"        <!-- edge fades -->\n"
-"        <div class=\"pointer-events-none absolute left-0 top-0 h-full w-10 bg-gradient-to-r from-black to-transparent z-10 lg:from-white\"></div>\n"
-"        <div class=\"pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-black to-transparent z-10 lg:from-white\"></div>\n"
-"\n"
-"        <!-- track -->\n"
-"        <div id=\"track\" class=\"flex gap-5 will-change-transform transition-transform duration-400 ease-out select-none\">\n"
-"\n"
-"          {% for cat in categories %}\n"
-"            <button type=\"button\"\n"
-"              class=\"cat-card relative shrink-0\n"
-"                     w-44 h-52 sm:w-56 sm:h-60 md:w-64 md:h-72\n"
-"                     rounded-2xl overflow-hidden text-white\n"
-"                     transition-transform duration-300 ease-out\n"
-"                     focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500\n"
-"                     {% if cat.id in chosen_ids %}is-selected{% endif %}\"\n"
-"              role=\"switch\"\n"
-"              aria-checked=\"{% if cat.id in chosen_ids %}true{% else %}false{% endif %}\"\n"
-"              aria-label=\"{{ CATEGORY_LABEL }} {{ cat.display_name|default:cat.name }}\"\n"
-"              data-slug=\"{{ cat.display_slug|default:cat.slug }}\"\n"
-"              data-name=\"{{ cat.display_name|default:cat.name }}\"\n"
-"              data-idx=\"{{ forloop.counter0 }}\"\n"
-"              style=\"--bg:url('{% if cat.image %}{{ cat.image.url }}{% else %}https://images.unsplash.com/photo-1545239351-1141bd82e8a6?q=80&w=1200{% endif %}');\">\n"
-"\n"
-"              <!-- background -->\n"
-"              <div class=\"absolute inset-0 pointer-events-none\"\n"
-"                   style=\"background-image:var(--bg); background-size:cover; background-position:center;\"></div>\n"
-"              <div class=\"absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/70 pointer-events-none\"></div>\n"
-"\n"
-"              <!-- top row -->\n"
-"              <div class=\"absolute inset-x-0 top-0 flex items-center justify-between p-2\">\n"
-"                <span class=\"inline-flex items-center gap-1 rounded-full bg-black/40 backdrop-blur px-2 py-1 text-[11px]\">\n"
-"                  <i class=\"fa-solid fa-folder-open text-[10px]\"></i> {% trans \"Category"
-msgstr ""
+#~ msgid "Add New"
+#~ msgstr "افزودن مورد جدید"
 
-msgid "Ch"
-msgstr ""
+#~ msgid "Delete this item?"
+#~ msgstr "این مورد حذف شود؟"
 
-msgid "Ch :"
-msgstr ""
+#~ msgid "No products yet. Add your first one!"
+#~ msgstr "هنوز محصولی ندارید. اولین مورد را اضافه کنید!"
 
-msgid "Chapter"
-msgstr ""
+#~ msgid "Your Profile"
+#~ msgstr "پروفایل شما"
 
-msgid "Chapter :"
-msgstr ""
+#~ msgid "Open Studio"
+#~ msgstr "ورود به استودیو"
 
-msgid "Chat ·"
-msgstr ""
+#~ msgid "Request Under Review"
+#~ msgstr "درخواست در حال بررسی"
 
-msgid "Choose"
-msgstr ""
+#~ msgid ""
+#~ "We are manually reviewing your application. Thank you for your patience."
+#~ msgstr "درخواست شما به‌صورت دستی بررسی می‌شود. از شکیبایی شما سپاسگزاریم."
 
-msgid "Hand-picked posts that shared"
-msgstr ""
+#~ msgid "Please check your email for feedback or try again with updated info."
+#~ msgstr ""
+#~ "لطفاً ایمیل خود را برای بازخورد بررسی کنید یا با اطلاعات به‌روز دوباره تلاش "
+#~ "کنید."
 
-msgid "Item"
-msgstr ""
+#~ msgid "Become a Creator"
+#~ msgstr "خالق شوید"
 
-msgid "Page /"
-msgstr ""
+#~ msgid "Sign in"
+#~ msgstr "ورود"
 
-msgid ""
-"Post\" as POST_LABEL %}\n"
-"{% trans \"Untitled post\" as UNTITLED_POST %}\n"
-"{% trans \"Back to profile\" as BACK_TO_PROFILE %}\n"
-"{% trans \"Suggested\" as SUGGESTED_LABEL %}\n"
-"{% trans \"View\" as VIEW_LABEL %}\n"
-"{% trans \"Prev\" as PREV_LABEL %}\n"
-"{% trans \"Next\" as NEXT_LABEL %}\n"
-"\n"
-"<div class=\"wrap\">\n"
-"  <div class=\"head\">\n"
-"    <div class=\"lhs\">\n"
-"      <a href=\"{% url 'profile_view' profile_user.username %}\">\n"
-"        {% if profile_user.profile and profile_user.profile.avatar %}\n"
-"          <img class=\"ava\" src=\"{{ profile_user.profile.avatar.url }}\" alt=\"{{ profile_user.username }}\">\n"
-"        {% else %}\n"
-"          <div class=\"ava\">{{ profile_user.username|first|upper }}</div>\n"
-"        {% endif %}\n"
-"      </a>\n"
-"      <div>\n"
-"        <div class=\"title\">\n"
-"          {% blocktrans with u=profile_user.username %}Suggested by @{{ u }}{% endblocktrans %}\n"
-"        </div>\n"
-"        <div class=\"subtitle\">\n"
-"          {% blocktrans with u=profile_user.username %}Hand-picked posts that {{ u }} shared{% endblocktrans %}\n"
-"        </div>\n"
-"      </div>\n"
-"    </div>\n"
-"    <a href=\"{% url 'profile_view' profile_user.username %}\" class=\"badge\">\n"
-"      <i class=\"fa-solid fa-arrow-left\"></i> {{ BACK_TO_PROFILE }}\n"
-"    </a>\n"
-"  </div>\n"
-"\n"
-"  {% if page_obj.object_list %}\n"
-"    <div class=\"grid\">\n"
-"      {% for p in page_obj.object_list %}\n"
-"      <article class=\"card\">\n"
-"\n"
-"        <!-- MEDIA (no .url without a file) -->\n"
-"        <a class=\"media\" href=\"{% url 'single_post' p.pk %}\">\n"
-"          {% with img=p.images.first vid=p.videos.first %}\n"
-"            {% if img %}\n"
-"              <img src=\"{{ img.image.url }}\" alt=\"{{ p.title|default:POST_LABEL }}\">\n"
-"            {% elif vid %}\n"
-"              <video preload=\"metadata\" playsinline muted\n"
-"                {% if vid.poster %}poster=\"{{ vid.poster.url }}\"\n"
-"                {% elif p.cover %}poster=\"{{ p.cover.url }}\"\n"
-"                {% elif p.image %}poster=\"{{ p.image.url }}\"\n"
-"                {% endif %}>\n"
-"                <source src=\"{{ vid.file.url }}\" type=\"video/mp4\">\n"
-"              </video>\n"
-"            {% elif p.image %}\n"
-"              <img src=\"{{ p.image.url }}\" alt=\"{{ p.title|default:POST_LABEL }}\">\n"
-"            {% elif p.video %}\n"
-"              <video preload=\"metadata\" playsinline muted\n"
-"                {% if p.cover %}poster=\"{{ p.cover.url }}\"{% endif %}>\n"
-"                <source src=\"{{ p.video.url }}\" type=\"video/mp4\">\n"
-"              </video>\n"
-"            {% else %}\n"
-"              <img src=\"{% static 'images/placeholder_dark.jpg' %}\" alt=\"\">\n"
-"            {% endif %}\n"
-"          {% endwith %}\n"
-"        </a>\n"
-"\n"
-"        <div class=\"content\">\n"
-"          <a class=\"p-title\" href=\"{% url 'single_post' p.pk %}\">\n"
-"            {{ p.title|default:UNTITLED_POST }}\n"
-"          </a>\n"
-"\n"
-"          {% if p.post_type == \"TEXT"
-msgstr ""
+#~ msgid "All Types"
+#~ msgstr "همهٔ انواع"
 
-msgid "Save as draft"
-msgstr ""
+#~ msgid "Apply Filters"
+#~ msgstr "اعمال فیلترها"
 
-msgid "See who follows"
-msgstr ""
+#~ msgid "View profile & works"
+#~ msgstr "مشاهدهٔ پروفایل و آثار"
 
-msgid "See ’s followers"
-msgstr ""
+#~ msgid "No profiles match your search criteria."
+#~ msgstr "هیچ پروفایلی با معیارهای جستجوی شما سازگار نیست."
 
-msgid "Status:"
-msgstr ""
+#~ msgid "Checkout coming soon"
+#~ msgstr "درگاه پرداخت به‌زودی"
 
-msgid "Suggested by @"
-msgstr ""
+#~ msgid "Buy"
+#~ msgstr "خرید"
 
-msgid "Use this code within 15 minutes"
-msgstr ""
+#~ msgid "No cover image"
+#~ msgstr "بدون تصویر کاور"
 
-msgid "We sent a code to . Enter it and choose a new password."
-msgstr ""
+#~ msgid "No detailed biography provided yet."
+#~ msgstr "هنوز بیوگرافی مفصل ثبت نشده است."
 
-msgid "We sent a code to . It expires in 15 minutes."
-msgstr ""
+#~ msgid "No Image"
+#~ msgstr "بدون تصویر"
 
-msgid "ago"
-msgstr ""
+#~ msgid "View Details"
+#~ msgstr "مشاهدهٔ جزئیات"
 
-msgid "img imgs"
-msgstr ""
+#~ msgid "This profile has no works or services listed yet."
+#~ msgstr "این پروفایل هنوز اثری یا سرویسی ثبت نکرده است."
 
-msgid "step steps"
-msgstr ""
+#~ msgid "Negotiable"
+#~ msgstr "توافقی"
 
-msgid "vid vids"
-msgstr ""
+#~ msgid "Fixed"
+#~ msgstr "قیمت ثابت"
 
-msgid "view views"
-msgstr ""
+#~ msgid "Range"
+#~ msgstr "بازه"
 
-msgid "· + more"
-msgstr ""
+#~ msgid "Pick the main category for this service."
+#~ msgstr "دستهٔ اصلی این سرویس را انتخاب کنید."
+
+#~ msgid "Choose how you want to price this service."
+#~ msgstr "روش قیمت‌گذاری این سرویس را انتخاب کنید."
+
+#~ msgid "Min price"
+#~ msgstr "حداقل قیمت"
+
+#~ msgid "Max price"
+#~ msgstr "حداکثر قیمت"
+
+#~ msgid "Summary"
+#~ msgstr "خلاصه"
+
+#~ msgid "Category:"
+#~ msgstr "دسته:"
+
+#~ msgid "Title:"
+#~ msgstr "عنوان:"
+
+#~ msgid "Description:"
+#~ msgstr "توضیحات:"
+
+#~ msgid "Price:"
+#~ msgstr "قیمت:"
+
+#~ msgid "Preview will appear here"
+#~ msgstr "پیش‌نمایش اینجا نمایش داده می‌شود"
+
+#~ msgid "This will be used as the cover image."
+#~ msgstr "این به‌عنوان تصویر کاور استفاده می‌شود."
+
+#~ msgid "%(v)s view"
+#~ msgid_plural "%(v)s views"
+#~ msgstr[0] "%(v)s بازدید"
+#~ msgstr[1] "%(v)s بازدید"
+
+#~ msgid "Base price · taxes or extras may apply"
+#~ msgstr "قیمت پایه · ممکن است مالیات یا هزینه‌های اضافه اعمال شود"
+
+#~ msgid "This is your service"
+#~ msgstr "این سرویس متعلق به شماست"
+
+#~ msgid "Log in to request"
+#~ msgstr "برای درخواست وارد شوید"
+
+#~ msgid "Direct chat with the artist"
+#~ msgstr "چت مستقیم با هنرمند"
+
+#~ msgid "Clear scope & milestones"
+#~ msgstr "حوزه و نقاط عطف مشخص"
+
+#~ msgid "Secure deal via requests"
+#~ msgstr "معاملهٔ امن از طریق درخواست‌ها"
+
+#~ msgid "Revisions per agreement"
+#~ msgstr "بازبینی‌ها طبق توافق"
+
+#~ msgid "Request this service"
+#~ msgstr "درخواست این سرویس"
+
+#~ msgid "Describe your project"
+#~ msgstr "پروژهٔ خود را توضیح دهید"
+
+#~ msgid "Share the scope, references/links, style, deadline, deliverables…"
+#~ msgstr "حوزه، منابع/لینک‌ها، سبک، مهلت، خروجی‌ها و… را به‌اشتراک بگذارید"
+
+#~ msgid "Failed"
+#~ msgstr "ناموفق"
+
+#~ msgid "Request sent!"
+#~ msgstr "درخواست ارسال شد!"
+
+#~ msgid "search..."
+#~ msgstr "جستجو..."
+
+#~ msgid "Price: High → Low"
+#~ msgstr "قیمت: زیاد → کم"
+
+#~ msgid "Price: Low → High"
+#~ msgstr "قیمت: کم → زیاد"
+
+#~ msgid "Popular"
+#~ msgstr "محبوب"
+
+#~ msgid "Min"
+#~ msgstr "حداقل"
+
+#~ msgid "Max"
+#~ msgstr "حداکثر"
+
+#~ msgid "Apply"
+#~ msgstr "اعمال"
+
+#~ msgid "Log in to add a service"
+#~ msgstr "برای افزودن سرویس وارد شوید"
+
+#~ msgid "Log in to add"
+#~ msgstr "برای افزودن وارد شوید"
+
+#~ msgid "Sign in to create your first service"
+#~ msgstr "برای ساخت اولین سرویس خود وارد شوید"
 
 #~ msgid ""
 #~ "Browse artists, marketplace & explore. Actions like follow/like/comment "
 #~ "require login."
 #~ msgstr ""
-#~ "هنرمندان، فروشگاه و اکسپلور را مرور کنید. اقداماتی مثل "
-#~ "دنبال‌کردن/پسندیدن/نظر دادن نیاز به ورود دارد."
+#~ "هنرمندان، فروشگاه و اکسپلور را مرور کنید. اقداماتی مثل دنبال‌کردن/پسندیدن/"
+#~ "نظر دادن نیاز به ورود دارد."
 
 #~ msgid "Step %(n)s"
 #~ msgstr "مرحله %(n)s"

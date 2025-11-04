@@ -379,8 +379,8 @@ html[dir="rtl"] .sm\:text-left { text-align: right !important; }
     </style>
 
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {% if is_owner %}
-        <a href="{% url 'marketplace:add' %}" class="add-card group block" aria-label="{% trans 'Add Service' %}">
+      <!-- {% if is_owner %}
+        <a href="" class="add-card group block" aria-label="{% trans 'Add Service' %}">
           <div class="pulse"></div>
           <div class="aspect-[4/3] flex items-center justify-center">
             <div class="relative grid place-items-center">
@@ -396,7 +396,7 @@ html[dir="rtl"] .sm\:text-left { text-align: right !important; }
             </div>
           </div>
         </a>
-      {% endif %}
+      {% endif %} -->
 
       {% for item in market_items %}
         <div class="glass-panel overflow-hidden group">
