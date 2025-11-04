@@ -560,16 +560,16 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
     {% block content %}{% endblock content %}
 
     <!-- Mobile Bottom Dock -->
-    <nav class="sm:hidden fixed inset-x-0 bottom-0 z-40 m-fab-wrap px-4 pb-3">
+    <!-- <nav class="sm:hidden fixed inset-x-0 bottom-0 z-40 m-fab-wrap px-4 pb-3">
       {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-        <!-- <a href="{% url 'post_new_start' %}" aria-label="{% trans 'New post' %}" class="m-fab text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
+        <a href="{% url 'post_new_start' %}" aria-label="{% trans 'New post' %}" class="m-fab text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
           <i class="fa-solid fa-plus text-2xl"></i>
-        </a> -->
+        </a>
         <div class="m-dock max-w-screen-md mx-auto">
           <ul class="m-dock-list">
-            <!-- <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li> -->
-            <!-- <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li> -->
-            <!-- <li><a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li> -->
+            <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li>
+            <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
+            <li><a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
             <li aria-hidden="true"></li>
             <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
             <li><a href="{% url 'marketplace:home' %}" class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
@@ -578,15 +578,109 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
       {% else %}
         <div class="m-dock max-w-screen-md mx-auto">
           <ul class="m-dock-list" style="grid-template-columns: repeat(4, minmax(0,1fr));">
-            <!-- <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li> -->
-            <!-- <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li> -->
-            <!-- <li><a href="{% url 'explore' %}" class="m-dock-item  {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li> -->
+            <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li>
+            <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
+            <li><a href="{% url 'explore' %}" class="m-dock-item  {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
             <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
             <li><a href="{% url 'marketplace:home' %}" class="m-dock-item" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
           </ul>
         </div>
       {% endif %}
-    </nav>
+    </nav> -->
+<!-- Mobile Bottom Dock -->
+<nav class="sm:hidden fixed inset-x-0 bottom-0 z-40 m-fab-wrap px-4 pb-3">
+  <style>
+    /* Mobile dock layout */
+    .m-dock { 
+      background: rgba(17, 17, 17, .6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 6px 8px;
+      /* Safe area for iOS home indicator */
+      padding-bottom: calc(6px + env(safe-area-inset-bottom, 0));
+    }
+    .m-dock-list{
+      display:flex;
+      align-items:center;
+      justify-content: space-evenly; /* ✅ distributes 2, 3, or 4 items nicely */
+      gap: 6px;
+      width:100%;
+    }
+    .m-dock-item{
+      flex: 1 1 0;              /* ✅ items grow evenly */
+      max-width: 140px;         /* keeps them from getting too wide with 2 items */
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      padding: 8px 6px;
+      border-radius: 10px;
+      text-decoration:none;
+      color:#d1d5db;
+      font-size: 11px;
+      line-height: 1;
+    }
+    .m-dock-item .ico{ font-size: 18px; line-height: 1; }
+    .m-dock-item span{ white-space: nowrap; }
+    .m-dock-item.active{ 
+      background: rgba(125,92,255,.12);
+      color: #ffffff;
+      outline: 1px solid rgba(125,92,255,.35);
+    }
+    /* Ultra-small phones: hide labels, keep clean icons */
+    @media (max-width: 360px){
+      .m-dock-item span{ display:none; }
+      .m-dock-item{ padding:10px 8px; }
+    }
+  </style>
+
+  {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
+    <div class="m-dock max-w-screen-md mx-auto">
+      <ul class="m-dock-list">
+        <!-- Leave this empty li out; flex handles spacing now -->
+        <li>
+          <a href="{% url 'categories:index' %}" 
+             class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" 
+             aria-label="{% trans 'Artists' %}">
+            <i class="ico fa-solid fa-th-large"></i>
+            <span>{% trans "Artists" %}</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'marketplace:home' %}" 
+             class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" 
+             aria-label="{% trans 'Marketplace' %}">
+            <i class="ico fa-solid fa-store"></i>
+            <span>{% trans "Marketplace" %}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  {% else %}
+    <div class="m-dock max-w-screen-md mx-auto">
+      <ul class="m-dock-list">
+        <li>
+          <a href="{% url 'categories:index' %}" 
+             class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" 
+             aria-label="{% trans 'Artists' %}">
+            <i class="ico fa-solid fa-th-large"></i>
+            <span>{% trans "Artists" %}</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'marketplace:home' %}" 
+             class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" 
+             aria-label="{% trans 'Marketplace' %}">
+            <i class="ico fa-solid fa-store"></i>
+            <span>{% trans "Marketplace" %}</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  {% endif %}
+</nav>
 
   </div>
 </div>

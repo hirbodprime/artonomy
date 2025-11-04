@@ -106,14 +106,14 @@ def toggle_follow(request, user_id: int):
 
     if target == request.user:
         messages.error(request, "You can’t follow yourself.")
-        return redirect(request.META.get("HTTP_REFERER", reverse("explore")))
+        return redirect(request.META.get("HTTP_REFERER", reverse("marketplace:home")))
 
     obj, created = Follow.objects.get_or_create(follower=request.user, following=target)
     if not created:
         obj.delete()
 
     # always reload the previous page
-    return redirect(request.META.get("HTTP_REFERER", reverse("explore")))
+    return redirect(request.META.get("HTTP_REFERER", reverse("marketplace:home")))
 
 # @login_required
 # def toggle_follow(request, user_id: int):

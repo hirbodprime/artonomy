@@ -29,6 +29,6 @@ class OnboardingRedirectMiddleware(MiddlewareMixin):
             return None
 
         if path in set(targets.values()):
-            return redirect("home")  # or "explore"
+            return redirect("marketplace:home")  # or "explore"
 
         return None

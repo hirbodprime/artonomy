@@ -117,7 +117,7 @@ def signup_view(request):
         # if you have email_verified on the model and don’t want to use it here, make sure it defaults to False in the model; no need to touch it now.
 
         login(request, user)
-        return redirect("explore")  # or "home"
+        return redirect("marketplace:home")  # or "home"
 
     return render(request, "accounts/signup.html")
 
@@ -126,7 +126,7 @@ def choose_role(request):
     step = next_onboarding_step(request.user)
     if step != ROLE_STEP:
         # If user isn’t supposed to be here, bounce (middleware also covers it)
-        return redirect("explore") if step == DONE else redirect("choose_categories")
+        return redirect("marketplace:home") if step == DONE else redirect("choose_categories")
 
     if request.method == "POST":
         role = request.POST.get("role")
@@ -151,7 +151,7 @@ def choose_categories(request):
     kind_param = (request.POST.get("kind") or request.GET.get("kind") or UserCategory.Kind.FAV).upper()
     rel_kind = UserCategory.Kind.WORK if kind_param == UserCategory.Kind.WORK else UserCategory.Kind.FAV
 
-    next_url = request.GET.get("next") or request.POST.get("next") or reverse("explore")
+    next_url = request.GET.get("next") or request.POST.get("next") or reverse("marketplace:home")
 
     if request.method == "POST":
         slugs = [s.strip() for s in (request.POST.get("selected_slugs") or "").split(",") if s.strip()]
