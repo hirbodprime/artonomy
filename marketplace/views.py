@@ -256,10 +256,21 @@ def join_marketplace_entry(request):
     return redirect(reverse("marketplace:join_steps"))
 @login_required
 def join_marketplace_steps(request):
-    step = int(request.GET.get("step") or request.POST.get("step") or 1)
-    data = request.session.get("market_join", {})
+    """
+    Wizard with guards so a user can't start duplicates,
+    but can continue to payment after creating a pending JoinRequest.
 
-    # ---- Guard existing requests only on first entry (step 1) ----
+    Steps:
+      1) (handled elsewhere in UI) choose `kind` -> stored in session as market_join["kind"]
+      2) Profile setup -> create BusinessProfile (draft) and ensure ONE JoinRequest per user
+      3) Payment upload -> attach receipt to the single JoinRequest
+    """
+    from django.db import transaction
+
+    step = int(request.GET.get("step") or request.POST.get("step") or 1)
+    data = request.session.get("market_join", {})  # holds 'kind', and later 'profile_id'
+
+    # ---- Gate: if user already has a JoinRequest, route accordingly (only when starting fresh)
     if step == 1:
         existing = (
             JoinRequest.objects
@@ -278,29 +289,15 @@ def join_marketplace_steps(request):
                 messages.info(request, _("You're already approved. Welcome to your studio!"))
                 return redirect("marketplace:dashboard")
 
-        # ---- STEP 1: Pick kind (render on GET, save on POST) ----
-        if request.method == "POST":
-            form = JoinPickKindForm(request.POST)
-            if form.is_valid():
-                data["kind"] = form.cleaned_data["kind"]
-                request.session["market_join"] = data
-                return redirect(f"{reverse('marketplace:join_steps')}?step=2")
-        else:
-            form = JoinPickKindForm(initial={"kind": data.get("kind", "")})
-
-        return render(request, "marketplace/join_step1_kind.html", {
-            "nav_active": "marketplace",
-            "step": 1,
-            "form": form,
-        })
-
-    # From here on, kind must be present
+    # We require `kind` to have been set in step 1
     if "kind" not in data:
-        # No redirect loop: go to step=1 and RENDER there.
         return redirect(f"{reverse('marketplace:join_steps')}?step=1")
 
-    # ------------- STEP 2: profile setup -------------
+    # -----------------
+    # STEP 2: profile setup
+    # -----------------
     if step == 2:
+        # Pre-fill from session if user navigates back
         initial = {
             "display_name": data.get("display_name", ""),
             "tagline": data.get("tagline", ""),
@@ -312,12 +309,14 @@ def join_marketplace_steps(request):
             form = ProfileSetupForm(request.POST, request.FILES, initial=initial)
             if form.is_valid():
                 cd = form.cleaned_data
-                data.update({
-                    "display_name": cd["display_name"],
-                    "tagline": cd["tagline"],
-                    "bio_long": cd["bio_long"],
-                    "location": cd["location"],
-                })
+
+                # Cache simple fields in session (useful if user returns to this step)
+                data["display_name"] = cd["display_name"]
+                data["tagline"]      = cd["tagline"]
+                data["bio_long"]     = cd["bio_long"]
+                data["location"]     = cd["location"]
+
+                # Create a fresh draft BusinessProfile to hold media
                 profile = BusinessProfile.objects.create(
                     owner=request.user,
                     kind=data["kind"],
@@ -327,20 +326,49 @@ def join_marketplace_steps(request):
                     location=cd["location"],
                     is_approved=False,
                 )
-                avatar = cd.get("avatar"); cover = cd.get("cover")
-                updates = []
-                if avatar: profile.avatar = avatar; updates.append("avatar")
-                if cover:  profile.cover  = cover;  updates.append("cover")
-                if updates: profile.save(update_fields=updates)
+                # Save optional media
+                updated_fields = []
+                if cd.get("avatar"):
+                    profile.avatar = cd["avatar"]
+                    updated_fields.append("avatar")
+                if cd.get("cover"):
+                    profile.cover = cd["cover"]
+                    updated_fields.append("cover")
+                if updated_fields:
+                    profile.save(update_fields=updated_fields)
 
+                # Track this profile in the session
                 data["profile_id"] = profile.id
                 request.session["market_join"] = data
 
-                JoinRequest.objects.get_or_create(
-                    user=request.user,
-                    profile=profile,
-                    defaults={"status": JoinRequest.Status.PENDING},
-                )
+                # Ensure ONLY ONE JoinRequest per user.
+                # Reuse/update an existing row instead of creating a new one.
+                with transaction.atomic():
+                    jr = (
+                        JoinRequest.objects
+                        .select_for_update()
+                        .filter(user=request.user)
+                        .order_by("-created_at")
+                        .first()
+                    )
+                    if jr:
+                        # If the user is already approved, don't let them restart.
+                        if jr.status == JoinRequest.Status.APPROVED and jr.profile.is_approved:
+                            messages.info(request, _("You're already approved. Welcome to your studio!"))
+                            return redirect("marketplace:dashboard")
+
+                        # Otherwise keep a single row per user: repoint & reset status to PENDING
+                        jr.profile = profile
+                        jr.status = JoinRequest.Status.PENDING
+                        jr.save(update_fields=["profile", "status"])
+                    else:
+                        # First ever request for this user
+                        JoinRequest.objects.create(
+                            user=request.user,
+                            profile=profile,
+                            status=JoinRequest.Status.PENDING,
+                        )
+
                 return redirect(f"{reverse('marketplace:join_steps')}?step=3")
         else:
             form = ProfileSetupForm(initial=initial)
@@ -352,10 +380,13 @@ def join_marketplace_steps(request):
             "kind_choice": data["kind"],
         })
 
-    # ------------- STEP 3: payment upload -------------
+    # -----------------
+    # STEP 3: payment upload
+    # -----------------
     if step == 3:
         profile_id = data.get("profile_id")
         if not profile_id:
+            # No profile created yet, send back to step 2
             return redirect(f"{reverse('marketplace:join_steps')}?step=2")
 
         profile = get_object_or_404(BusinessProfile, id=profile_id, owner=request.user)
@@ -364,7 +395,11 @@ def join_marketplace_steps(request):
         form = PaymentUploadForm(request.POST or None, request.FILES or None, instance=join_req)
         if request.method == "POST" and form.is_valid():
             form.save()
-            messages.success(request, _("Your request has been submitted. Please wait for admin approval."))
+            messages.success(
+                request,
+                _("Your request has been submitted. Please wait for admin approval.")
+            )
+            # Clear the wizard session so they can start fresh next time
             request.session.pop("market_join", None)
             return render(request, "marketplace/join_wait.html", {
                 "profile": profile,
@@ -372,7 +407,6 @@ def join_marketplace_steps(request):
             })
 
         return render(request, "marketplace/join_step3_payment.html", {
-            "nav_active": "marketplace",
             "step": 3,
             "form": form,
             "profile": profile,
@@ -386,7 +420,6 @@ def join_marketplace_steps(request):
 
     # Fallback
     return redirect(reverse("marketplace:home"))
-
 
 # ----------------------
 # PUBLIC PROFILE PAGE

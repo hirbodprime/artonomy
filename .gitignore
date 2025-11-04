@@ -11,6 +11,7 @@ __pycache__/
 *.log
 *.pot
 *.mo
+media/
 
 # =========================
 # Virtual environments
