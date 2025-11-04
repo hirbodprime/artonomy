@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load i18n l10n humanize %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 text-white">
+  <div class="bg-[#12141A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+    {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.title }}" class="w-full aspect-[16/9] object-cover">
+    {% else %}
+      <div class="w-full aspect-[16/9] bg-[#0D0F12] text-gray-500 grid place-items-center text-sm">
+        <i class="fa-regular fa-image text-xl mr-2"></i> {% trans "No image" %}
+      </div>
+    {% endif %}
+
+    <div class="p-6">
+      <div class="flex flex-wrap gap-2 items-start justify-between mb-4">
+        <h1 class="text-xl sm:text-2xl font-extrabold text-white leading-tight flex-1">
+          <bdi>{{ product.title }}</bdi>
+        </h1>
+
+        <div class="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-emerald-400/30 bg-emerald-500/10">
+          <i class="fa-solid fa-tag text-[#11C865]"></i>
+          <span class="text-xl font-extrabold text-emerald-200">
+            {{ product.price|floatformat:0|localize }}
+          </span>
+          <span class="text-[10px] font-semibold px-1.5 py-[2px] rounded-md border border-emerald-400/30 text-emerald-300">
+            <bdi>{% if LANGUAGE_CODE|slice:":2" == "fa" %}تومان{% else %}Toman{% endif %}</bdi>
+          </span>
+        </div>
+      </div>
+
+      <div class="text-gray-400 text-sm flex flex-wrap items-center gap-3 mb-4">
+        <div>
+          <i class="fa-regular fa-eye text-[#7D5CFF] mr-1.5"></i>
+          {{ product.views|intcomma }} {% trans "views" %}
+        </div>
+
+        {% if product.category %}
+        <div class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-[.7rem]">
+          <i class="fa-solid fa-layer-group text-[#11C865] mr-1.5"></i>
+          <bdi>{{ product.category.display_name|default:product.category.name }}</bdi>
+        </div>
+        {% endif %}
+
+        {% if product.profile %}
+        <a href="{% url 'marketplace:profile' product.profile.slug %}"
+           class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-[.7rem] hover:text-white hover:bg-white/10 transition">
+          <i class="fa-regular fa-user mr-1.5 text-[#7D5CFF]"></i>
+          <bdi>{{ product.profile.display_name }}</bdi>
+        </a>
+        {% endif %}
+      </div>
+
+      {% if product.description %}
+        <div class="text-[15px] leading-7 text-gray-300 mb-6 whitespace-pre-line">
+          <bdi>{{ product.description }}</bdi>
+        </div>
+      {% endif %}
+
+      <div class="flex items-center flex-wrap gap-3">
+        <span class="opacity-40 cursor-not-allowed px-4 py-2 rounded-xl border border-white/10 bg-white/5 font-bold text-sm">
+          {% trans "Buy (coming soon)" %}
+        </span>
+        <span class="text-[11px] text-gray-500 leading-4">
+          {% trans "Payments are currently manual. Online checkout will be added soon." %}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

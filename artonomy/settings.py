@@ -28,6 +28,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = ["artonomy.ir","www.artonomy.ir","127.0.0.1","79.175.189.225"]
 
+ONBOARDING_ENABLED = False
 
 # Force HTTPS
 if not DEBUG:

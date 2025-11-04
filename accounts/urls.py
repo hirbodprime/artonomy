@@ -7,6 +7,8 @@ urlpatterns = [
     path("signup/", v.signup_view, name="signup"),
     path("choose-role/", v.choose_role, name="choose_role"),
     path("choose-categories/", v.choose_categories, name="choose_categories"),
+    path("start-artist-setup/", v.start_artist_setup, name="start_artist_setup"),  # ✅ new
+
     path("u/<str:username>/", v.profile_view, name="profile_view"),
     path("logout/", v.logout_view, name="logout"),
     # Edit profile hub

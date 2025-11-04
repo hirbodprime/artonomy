@@ -6,6 +6,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="enamad" content="7536993" />
+
   <title>{% block title %}Artonomy{% endblock %}</title>
 
   <!-- Favicons -->
@@ -278,7 +280,7 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
           <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Explore" %}</span>
         </a> -->
         <!-- Marketplace -->
-        <a href="{% url 'marketplace:list' %}"
+        <a href="{% url 'marketplace:home' %}"
            class="group flex items-center justify-center xl:justify-start
                   gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
                   {% if nav_active == 'marketplace' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
@@ -570,7 +572,7 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
             <li><a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
             <li aria-hidden="true"></li>
             <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
-            <li><a href="{% url 'marketplace:list' %}" class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
+            <li><a href="{% url 'marketplace:home' %}" class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
           </ul>
         </div>
       {% else %}
@@ -580,7 +582,7 @@ html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
             <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
             <li><a href="{% url 'explore' %}" class="m-dock-item  {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
             <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
-            <li><a href="{% url 'marketplace:list' %}" class="m-dock-item" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
+            <li><a href="{% url 'marketplace:home' %}" class="m-dock-item" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
           </ul>
         </div>
       {% endif %}

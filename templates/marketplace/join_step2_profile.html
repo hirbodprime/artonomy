@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+    /* 🎨 NEW: Public Profile Setup Styles */
+    :root {
+        --color-bg-primary: #0F172A; /* Slate 900 */
+        --color-bg-card: #1E293B; /* Slate 800 - for the container */
+        --color-accent: #8B5CF6; /* Violet 500 */
+        --color-success: #10B981; /* Emerald 500 */
+        --color-text-primary: #F8FAFC; /* Slate 50 */
+        --color-text-secondary: #94A3B8; /* Slate 400 */
+        --color-input-bg: #0F172A; /* Deeper background for inputs */
+        --color-input-border: #334155; /* Slate 700 */
+        --color-input-focus: #8B5CF6;
+    }
+    
+    .page-bg {
+        background-color: var(--color-bg-primary);
+    }
+    
+    /* 🎯 TARGETING DEFAULT DJANGO FORM WIDGETS */
+    .form-field-wrapper input:not([type="file"]):not([type="checkbox"]):not([type="radio"]),
+    .form-field-wrapper select,
+    .form-field-wrapper textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        background-color: var(--color-input-bg);
+        border: 1px solid var(--color-input-border);
+        color: var(--color-text-primary);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-field-wrapper input:focus,
+    .form-field-wrapper textarea:focus {
+        border-color: var(--color-input-focus);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.5);
+    }
+
+    .card-form {
+        background: var(--color-bg-card);
+        border: 1px solid rgba(255, 255, 255, .08);
+        border-radius: 1.5rem;
+        padding: 2rem; /* Increased padding */
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Styling for File Upload inputs (Avatar/Cover) */
+    .file-upload-wrapper input[type="file"] {
+        display: block; /* Ensure the file input is visible but relies on standard browser UI */
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px dashed var(--color-input-border);
+        border-radius: 0.5rem;
+        background-color: var(--color-input-bg);
+        color: var(--color-text-primary);
+    }
+    .file-upload-wrapper input[type="file"]::file-selector-button {
+        background-color: var(--color-input-border);
+        color: var(--color-text-primary);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        margin-right: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .file-upload-wrapper input[type="file"]::file-selector-button:hover {
+        background-color: #475569; /* Slate 600 */
+    }
+    
+</style>
+
+<div class="page-bg min-h-screen py-10">
+<div class="max-w-3xl mx-auto px-4 sm:px-6 text-white">
+    
+    <h1 class="text-3xl font-extrabold mb-2 text-white text-center">
+        <i class="fa-solid fa-id-card text-violet-500 mr-2"></i> {% trans "Your Public Profile" %}
+    </h1>
+    <p class="text-base text-gray-400 mb-8 text-center max-w-xl mx-auto">
+        {% if kind_choice == "SOLO_ARTIST" %}
+            {% trans "Tell the world who you are as an artist. We'll create your showcase page." %}
+        {% else %}
+            {% trans "Introduce your gallery / studio / concept store in a dramatic, human way." %}
+        {% endif %}
+    </p>
+
+    <form method="post" enctype="multipart/form-data" class="card-form space-y-6">
+        {% csrf_token %}
+        <input type="hidden" name="step" value="2">
+        
+        <div class="space-y-2 form-field-wrapper">
+            <label for="{{ form.display_name.id_for_label }}" class="text-sm font-semibold block text-gray-300">
+                {% trans "Display Name" %} <span class="text-red-400">*</span>
+            </label>
+            {{ form.display_name }}
+            {% if form.display_name.errors %}{{ form.display_name.errors }}{% endif %}
+        </div>
+        
+        <div class="space-y-2 form-field-wrapper">
+            <label for="{{ form.tagline.id_for_label }}" class="text-sm font-semibold block text-gray-300">
+                {% trans "Tagline" %}
+            </label>
+            {{ form.tagline }}
+            <p class="text-xs text-gray-500 mt-1">
+                {% trans "Short punchline / headline. This appears right below your name." %}
+            </p>
+            {% if form.tagline.errors %}{{ form.tagline.errors }}{% endif %}
+        </div>
+        
+        <div class="space-y-2 form-field-wrapper">
+            <label for="{{ form.bio_long.id_for_label }}" class="text-sm font-semibold block text-gray-300">
+                {% trans "Your Story" %} <span class="text-red-400">*</span>
+            </label>
+            {{ form.bio_long }}
+            <p class="text-xs text-gray-500 mt-1">
+                {% trans "Talk about belief, origin, style, emotion. We show this publicly." %}
+            </p>
+            {% if form.bio_long.errors %}{{ form.bio_long.errors }}{% endif %}
+        </div>
+        
+        <div class="space-y-2 form-field-wrapper">
+            <label for="{{ form.location.id_for_label }}" class="text-sm font-semibold block text-gray-300">
+                {% trans "Location" %}
+            </label>
+            {{ form.location }}
+            {% if form.location.errors %}{{ form.location.errors }}{% endif %}
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 pt-4 border-t border-white/10">
+            
+            <div class="space-y-2 file-upload-wrapper">
+                <label for="{{ form.avatar.id_for_label }}" class="text-sm font-semibold block text-gray-300">
+                    <i class="fa-solid fa-user-circle text-violet-400 mr-1"></i> {% trans "Avatar / Logo" %}
+                </label>
+                {{ form.avatar }}
+                {% if form.avatar.errors %}{{ form.avatar.errors }}{% endif %}
+            </div>
+            
+            <div class="space-y-2 file-upload-wrapper">
+                <label for="{{ form.cover.id_for_label }}" class="text-sm font-semibold block text-gray-300">
+                    <i class="fa-solid fa-image text-violet-400 mr-1"></i> {% trans "Cover image" %}
+                </label>
+                {{ form.cover }}
+                <p class="text-xs text-gray-500 mt-1">
+                    {% trans "We use this as your visual header on the profile page." %}
+                </p>
+                {% if form.cover.errors %}{{ form.cover.errors }}{% endif %}
+            </div>
+
+        </div>
+
+        <div class="pt-6 flex justify-between gap-3 border-t border-white/10">
+            <a href="{% url 'marketplace:join_steps' %}?step=1"
+                class="px-6 py-3 rounded-xl border border-gray-600 text-gray-300 font-medium hover:bg-gray-700 transition duration-200 flex items-center">
+                <i class="fa-solid fa-arrow-left mr-2"></i> {% trans "Back" %}
+            </a>
+            
+            <button type="submit" class="px-6 py-3 rounded-xl font-bold bg-green-600 hover:bg-green-700 text-black text-lg shadow-lg shadow-green-500/30 transition duration-200">
+                {% trans "Continue to Payment" %} <i class="fa-solid fa-credit-card ml-2"></i>
+            </button>
+        </div>
+    </form>
+</div>
+</div>
+{% endblock %}

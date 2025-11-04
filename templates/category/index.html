@@ -82,6 +82,24 @@
 
 <div class="cat-wrap">
   <h1 class="cat-title">{% trans "Category" %}</h1>
+{# above the grid #}
+{% if request.user.is_authenticated %}
+  {% if request.user.role != 'ARTIST' or not has_work %}
+    <div class="mb-4 p-4 rounded-xl border border-white/10 bg-black/30">
+      <div class="flex items-center justify-between gap-3">
+        <div class="text-sm text-gray-200">
+          {% trans "Are you an artist?" %}<br>
+          <span class="text-gray-400">{% trans "Pick your categories to get discovered." %}</span>
+        </div>
+        <a class="follow-btn" href="{% url 'start_artist_setup' %}?next={{ request.get_full_path|urlencode }}">
+          {% if request.user.role == 'ARTIST' %}{% trans "Choose work categories" %}{% else %}{% trans "Become an Artist" %}{% endif %}
+        </a>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+
+
 
   <div class="cat-grid">
     {% for c in categories %}

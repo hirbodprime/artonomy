@@ -124,6 +124,10 @@
     <form id="catForm" method="post" action="{% url 'choose_categories' %}" class="hidden">
       {% csrf_token %}
       <input type="hidden" name="selected_slugs" id="selected_slugs">
+      <input type="hidden" name="kind" value="{{ rel_kind }}">
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <!-- <input type="hidden" name="selected_slugs" id="selected-slugs"> -->
+
     </form>
   </div>
 </div>

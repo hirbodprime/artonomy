@@ -17,10 +17,10 @@ from posts.models import Post, TextChapter, Comment, Like, Bookmark, Category as
 from network.models import Follow
 
 # === Marketplace ===
-from marketplace.models import MarketItem, MarketFavorite
+# from marketplace.models import MarketItem, MarketFavorite
 
 # === Collab ===
-from collab.models import ServiceRequest, Conversation, Message, Notification
+# from collab.models import ServiceRequest, Conversation, Message, Notification
 
 # === Suggest ===
 from suggest.models import Suggestion, ExplorePin
@@ -86,29 +86,29 @@ def admin_overview(request):
         .order_by('-date_joined')[:10]
     )
 
-    # ---- Marketplace
-    market_total = MarketItem.objects.count()
-    market_status = (
-        MarketItem.objects
-        .values('status')
-        .annotate(c=Count('id'))
-        .order_by('-c')
-    )
-    market_favorites = MarketFavorite.objects.count()
+    # # ---- Marketplace
+    # market_total = MarketItem.objects.count()
+    # market_status = (
+    #     MarketItem.objects
+    #     .values('status')
+    #     .annotate(c=Count('id'))
+    #     .order_by('-c')
+    # )
+    # market_favorites = MarketFavorite.objects.count()
 
     # ---- Collab
-    req_total = ServiceRequest.objects.count()
-    req_by_status = (
-        ServiceRequest.objects
-        .values('status')
-        .annotate(c=Count('id'))
-        .order_by('-c')
-    )
-    convo_total = Conversation.objects.count()
-    msg_total = Message.objects.count()
-    msg_last_24h = Message.objects.filter(created_at__gte=last_24h).count()
-    notif_total = Notification.objects.count()
-    notif_unread = Notification.objects.filter(is_read=False).count()
+    # req_total = ServiceRequest.objects.count()
+    # req_by_status = (
+    #     ServiceRequest.objects
+    #     .values('status')
+    #     .annotate(c=Count('id'))
+    #     .order_by('-c')
+    # )
+    # convo_total = Conversation.objects.count()
+    # msg_total = Message.objects.count()
+    # msg_last_24h = Message.objects.filter(created_at__gte=last_24h).count()
+    # notif_total = Notification.objects.count()
+    # notif_unread = Notification.objects.filter(is_read=False).count()
 
     # ---- Suggestions / Explore
     suggestion_total = Suggestion.objects.count()
@@ -155,18 +155,18 @@ def admin_overview(request):
         'recent_posts': recent_posts,
 
         # Marketplace
-        'market_total': market_total,
-        'market_status': list(market_status),
-        'market_favorites': market_favorites,
+        # 'market_total': market_total,
+        # 'market_status': list(market_status),
+        # 'market_favorites': market_favorites,
 
         # Collab
-        'req_total': req_total,
-        'req_by_status': list(req_by_status),
-        'convo_total': convo_total,
-        'msg_total': msg_total,
-        'msg_last_24h': msg_last_24h,
-        'notif_total': notif_total,
-        'notif_unread': notif_unread,
+        # 'req_total': req_total,
+        # 'req_by_status': list(req_by_status),
+        # 'convo_total': convo_total,
+        # 'msg_total': msg_total,
+        # 'msg_last_24h': msg_last_24h,
+        # 'notif_total': notif_total,
+        # 'notif_unread': notif_unread,
 
         # Suggest / Explore
         'suggestion_total': suggestion_total,

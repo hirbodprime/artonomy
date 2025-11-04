@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load l10n humanize %}
+
+{% block content %}
+<style>
+    /* 🎨 NEW: Gallery-Inspired Marketplace Styles */
+    :root {
+        --color-bg: #0F172A; /* Slate 900 */
+        --color-card-bg: #1E293B; /* Slate 800 */
+        --color-border: #334155; /* Slate 700 */
+        --color-text-primary: #F8FAFC; /* Slate 50 */
+        --color-text-muted: #94A3B8; /* Slate 400 */
+        --color-accent-violet: #8B5CF6; /* Violet 500 */
+        --color-accent-emerald: #10B981; /* Emerald 500 */
+    }
+
+    /* --- General Layout & Background --- */
+    .page-bg { background-color: var(--color-bg); }
+    .content-wrap { max-width: 1400px; margin: 0 auto; }
+    
+    /* --- CTA / User Status Banners --- */
+    .status-banner {
+        background-color: var(--color-card-bg);
+        border-radius: 1rem;
+        padding: 1.25rem 1.5rem;
+        border: 1px solid var(--color-border);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    .status-banner.approved { border-color: var(--color-accent-emerald); background-color: rgba(16, 185, 129, 0.1); }
+    .status-banner.pending { border-color: #A3A9B6; background-color: rgba(148, 163, 184, 0.1); }
+    .status-banner.rejected { border-color: #F87171; background-color: rgba(248, 113, 113, 0.1); }
+    
+    /* --- Filter Bar Redesign --- */
+    .mk-filters {
+        background: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 1.5rem; /* Smoother radius */
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        padding: 1.25rem 1.5rem;
+    }
+    .mk-chip-field {
+        background: var(--color-bg); /* Darker input background */
+        border: 1px solid var(--color-border);
+        border-radius: 0.75rem;
+        height: 3rem; /* Taller fields for easier clicking */
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        transition: border-color 0.2s;
+    }
+    .mk-chip-field:focus-within { border-color: var(--color-accent-violet); }
+
+    .mk-select {
+        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        background: transparent; border: 0; color: var(--color-text-primary);
+        width: 100%; padding-right: 1.5rem; font-size: 0.95rem;
+        outline: none;
+    }
+    .mk-select option { color: #111; background: #fff } /* Ensure options are readable */
+    @media (prefers-color-scheme: dark) { .mk-select option { color: var(--color-text-primary); background: #111827; } }
+
+    .mk-apply-btn {
+        background: linear-gradient(90deg, #7D5CFF, #9F7DFF);
+        color: var(--color-bg);
+        font-weight: 700;
+        border-radius: 0.75rem;
+        padding: 0 1.5rem;
+        height: 3rem;
+        box-shadow: 0 5px 15px rgba(125, 92, 255, 0.3);
+        transition: opacity 0.2s;
+    }
+    .mk-apply-btn:hover { opacity: 0.9; }
+
+    /* --- Content Grid --- */
+    .blocks-grid {
+        display: grid;
+        gap: 3rem; /* More space between columns */
+        grid-template-columns: 1fr;
+    }
+    @media(min-width:1024px){ /* Use lg breakpoint for grid switch */
+        .blocks-grid{ grid-template-columns: 1fr 1.5fr; align-items: start; }
+    }
+
+    /* --- Profile Card (Left Column) --- */
+    .profile-card {
+        background: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .profile-card:hover { 
+        transform: translateY(-3px); 
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+    .profile-avatar {
+        width: 64px; height: 64px; border-radius: 1rem; /* Softer corners */
+        background: var(--color-bg); border: 2px solid var(--color-accent-violet);
+    }
+    .profile-meta h2 { font-size: 1.15rem; font-weight: 700; }
+    .profile-meta .kind {
+        background: rgba(139, 92, 246, 0.15);
+        border: 1px solid rgba(139, 92, 246, 0.4);
+        color: #D8B4FE; /* Lavender text */
+        border-radius: 0.75rem;
+        font-size: 0.65rem; padding: 0.2rem 0.6rem;
+    }
+    .profile-footer a { color: var(--color-accent-violet); font-weight: 600; }
+
+    /* --- Product Card (Right Column) --- */
+    .product-card {
+        background: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 1.5rem;
+        overflow: hidden;
+        transition: box-shadow 0.3s;
+    }
+    .product-card:hover {
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+    }
+    .product-media { aspect-ratio: 16/9; background: #000; } /* Tighter aspect ratio for better display */
+    .product-body { padding: 1.5rem; }
+    .p-title { font-size: 1.1rem; font-weight: 800; }
+    .p-price {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--color-accent-emerald);
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        padding: 0.4rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.85rem;
+    }
+    .p-desc { color: var(--color-text-muted); font-size: 0.9rem; }
+    .p-meta { font-size: 0.8rem; }
+    .buy-btn {
+        background: var(--color-accent-emerald);
+        color: var(--color-bg);
+        font-weight: 700;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+</style>
+
+<div class="page-bg min-h-screen pb-12">
+<div class="content-wrap w-full px-4 sm:px-6 py-8 space-y-10">
+
+    {% if request.user.is_authenticated %}
+        {% if user_approved_profile %}
+            <div class="status-banner approved">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="text-sm text-emerald-100">
+                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-check-circle"></i> {% trans "Profile Approved!" %}</span>
+                        <p class="text-emerald-300 mt-1">{% trans "Go to your studio to manage your listings and profile." %}</p>
+                    </div>
+                    <div class="flex gap-3 flex-shrink-0">
+                        <a class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-sm"
+                            href="{% url 'marketplace:dashboard' %}">{% trans "Open Studio" %}</a>
+                        <a class="px-4 py-2 rounded-lg border border-white/20 text-white text-sm hover:bg-white/10"
+                            href="{% url 'marketplace:profile' user_approved_profile.slug %}">{% trans "View Public Page" %}</a>
+                    </div>
+                </div>
+            </div>
+
+        {% elif user_join_status == 'PENDING' %}
+            <div class="status-banner pending">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="text-sm text-gray-200">
+                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-clock"></i> {% trans "Request Under Review" %}</span>
+                        <p class="text-gray-400 mt-1">{% trans "We are manually reviewing your application. Thank you for your patience." %}</p>
+                    </div>
+                    <span class="px-4 py-2 rounded-lg border border-white/20 text-gray-300 text-sm flex-shrink-0">{% trans "Pending" %}</span>
+                </div>
+            </div>
+
+        {% elif user_join_status == 'REJECTED' %}
+            <div class="status-banner rejected">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="text-sm text-red-100">
+                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-times-circle"></i> {% trans "Application Rejected" %}</span>
+                        <p class="text-red-300 mt-1">{% trans "Please check your email for feedback or try again with updated info." %}</p>
+                    </div>
+                    <a class="px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm hover:bg-white/20 flex-shrink-0"
+                        href="{% url 'marketplace:join_entry' %}">{% trans "Try Again" %}</a>
+                </div>
+            </div>
+
+        {% else %}
+            {# default: show normal join CTA with counter #}
+            <div class="status-banner border-violet-500/30 bg-violet-500/10">
+                <div class="flex items-center justify-between gap-3">
+                    <div class="text-sm text-violet-100">
+                        <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-user-plus"></i> {% trans "Become a Creator" %}</span>
+                        <p class="text-violet-300 mt-1">{% trans "Create a dramatic public profile and start selling your works." %}</p>
+                    </div>
+                    <a class="px-4 py-2 rounded-lg bg-gradient-to-tr from-[#7D5CFF] to-[#9F7DFF] text-black font-bold text-sm flex-shrink-0"
+                        href="{% url 'marketplace:join_entry' %}">
+                        {% trans "Join Now" %} · {{ join_clicks|default:0 }}
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        {# Guests: show join button leading to login/landing #}
+        <div class="status-banner">
+            <div class="flex items-center justify-between gap-3">
+                <div class="text-sm text-gray-200">
+                    <span class="font-bold flex items-center gap-2"><i class="fa-solid fa-user-lock"></i> {% trans "Join the Marketplace" %}</span>
+                    <p class="text-gray-400 mt-1">{% trans "Sign in or register to create your profile and list your works." %}</p>
+                </div>
+                <a class="px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white text-sm hover:bg-white/20 flex-shrink-0"
+                    href="{% url 'landing' %}">{% trans "Sign in" %}</a>
+            </div>
+        </div>
+    {% endif %}
+
+
+    <form method="get" class="mk-filters">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-[200px_minmax(150px,1fr)_160px_160px_120px_auto] gap-4 items-center">
+            
+            <div class="col-span-1 relative">
+                <div class="mk-chip-field w-full">
+                    <select name="cat" class="mk-select">
+                        <option value="">{% trans "All Categories" %}</option>
+                        {% for c in categories %}
+                            <option value="{{ c.slug }}" {% if active_category_slug == c.slug %}selected{% endif %}>
+                                {{ c.display_name|default:c.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 text-[10px] text-gray-400"></i>
+                </div>
+            </div>
+
+            <div class="col-span-2 sm:col-span-1">
+                <div class="mk-chip-field w-full">
+                    <i class="fa-solid fa-magnifying-glass text-gray-400 mr-3 text-base"></i>
+                    <input type="text"
+                            name="q"
+                            value="{{ search_q }}"
+                            placeholder="{% trans 'Search profiles, works, services…' %}"
+                            class="bg-transparent border-0 text-white w-full outline-none text-sm">
+                </div>
+            </div>
+
+            <div class="col-span-1 relative hidden lg:block">
+                <div class="mk-chip-field w-full">
+                    <select name="kind" class="mk-select">
+                        <option value="">{% trans "All Types" %}</option>
+                        <option value="SOLO_ARTIST" {% if kind_filter == "SOLO_ARTIST" %}selected{% endif %}>{% trans "Solo Artist" %}</option>
+                        <option value="GALLERY" {% if kind_filter == "GALLERY" %}selected{% endif %}>{% trans "Gallery" %}</option>
+                        <option value="STUDIO" {% if kind_filter == "STUDIO" %}selected{% endif %}>{% trans "Studio" %}</option>
+                        <option value="CONCEPT_STORE" {% if kind_filter == "CONCEPT_STORE" %}selected{% endif %}>{% trans "Concept Store" %}</option>
+                        <option value="OTHER" {% if kind_filter == "OTHER" %}selected{% endif %}>{% trans "Other" %}</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 text-[10px] text-gray-400"></i>
+                </div>
+            </div>
+
+            <div class="col-span-1 relative hidden lg:block">
+                <div class="mk-chip-field w-full">
+                    <select name="type" class="mk-select">
+                        <option value="">{% trans "All Offerings" %}</option>
+                        <option value="physical" {% if prod_type == "physical" %}selected{% endif %}>{% trans "Physical Works" %}</option>
+                        <option value="service" {% if prod_type == "service" %}selected{% endif %}>{% trans "Services" %}</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-4 text-[10px] text-gray-400"></i>
+                </div>
+            </div>
+
+            <div class="col-span-2 sm:col-span-1 lg:col-span-2 flex items-center justify-end gap-3">
+                <a href="{{ request.path }}"
+                    class="mk-chip-field text-gray-300 hover:text-white text-sm w-12 h-12 justify-center flex-shrink-0"
+                    title="{% trans 'Clear filters' %}" aria-label="{% trans 'Clear filters' %}">
+                    <i class="fa-regular fa-trash-can text-base"></i>
+                </a>
+                <button class="mk-apply-btn flex-grow">
+                    <i class="fa-solid fa-filter mr-2"></i> {% trans "Apply Filters" %}
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <section class="blocks-grid">
+
+        <div class="space-y-6">
+            <h2 class="text-white font-extrabold text-xl border-l-4 border-violet-500 pl-3">{% trans "Featured Creators & Spaces" %}</h2>
+
+            {% if profiles %}
+                <div class="space-y-4">
+                    {% for p in profiles %}
+                        <article class="profile-card">
+                            <div class="profile-head">
+                                <div class="profile-avatar">
+                                    {% if p.avatar %}
+                                        <img src="{{ p.avatar.url }}" class="w-full h-full object-cover" alt="{{ p.display_name }}">
+                                    {% else %}
+                                        <span class="text-xl text-violet-300">{{ p.display_name|slice:":2"|upper }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="profile-meta">
+                                    <h2>
+                                        <a href="{% url 'marketplace:profile' p.slug %}" class="hover:text-violet-400 text-white transition">
+                                            <bdi>{{ p.display_name }}</bdi>
+                                        </a>
+                                        <span class="kind">{{ p.get_kind_display }}</span>
+                                    </h2>
+                                    {% if p.tagline %}
+                                        <div class="tagline text-gray-400 mt-1"><bdi>{{ p.tagline }}</bdi></div>
+                                    {% endif %}
+                                    {% if p.location %}
+                                        <div class="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                                            <i class="fa-solid fa-location-dot"></i> {{ p.location }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="profile-footer pt-3 border-t border-white/10">
+                                <div class="mb-3 text-sm leading-6 text-gray-300 line-clamp-3">
+                                    <bdi>{{ p.bio_long|truncatechars:180 }}</bdi>
+                                </div>
+                                <a href="{% url 'marketplace:profile' p.slug %}" class="text-sm flex items-center gap-1">
+                                    {% trans "View profile & works" %} <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </a>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-sm text-gray-500 p-4 rounded-lg border border-white/10">{% trans "No profiles match your search criteria." %}</p>
+            {% endif %}
+        </div>
+
+        <div class="space-y-6">
+            <h2 class="text-white font-extrabold text-xl border-l-4 border-emerald-500 pl-3">{% trans "Top Works & Services" %}</h2>
+
+            {% if products %}
+                <div class="grid gap-6">
+                    {% for pr in products %}
+                        <article class="product-card">
+                            <a href="{% url 'marketplace:product_detail' pr.pk %}" class="product-media block">
+                                {% if pr.image %}
+                                    <img src="{{ pr.image.url }}" alt="{{ pr.title }}" class="w-full h-full object-cover transition duration-300 hover:scale-[1.03]">
+                                {% else %}
+                                    <img src="https://placehold.co/1600x900/1E293B/94A3B8?text=Visual+Work" alt="{{ pr.title }}">
+                                {% endif %}
+                            </a>
+                            <div class="product-body">
+                                <div class="product-row">
+                                    <div class="flex-grow">
+                                        <div class="p-title line-clamp-2">
+                                            <a href="{% url 'marketplace:product_detail' pr.pk %}" class="hover:text-emerald-400 transition">
+                                                <bdi>{{ pr.title }}</bdi>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="p-price flex-shrink-0">
+                                        <i class="fa-solid fa-coins"></i>
+                                        <span>{{ pr.price|floatformat:0|localize }}</span>
+                                        <span class="ml-1 text-[0.65rem] font-bold">{% if LANGUAGE_CODE|slice:":2" == "fa" %}تومان{% else %}Toman{% endif %}</span>
+                                    </div>
+                                </div>
+
+                                <div class="p-desc">
+                                    <bdi>{{ pr.description|truncatechars:100 }}</bdi>
+                                </div>
+
+                                <div class="p-meta pt-4 border-t border-white/5 mt-4">
+                                    <div class="flex items-center gap-2">
+                                        {% if pr.profile %}
+                                            <a class="hover:underline text-violet-400 font-semibold" href="{% url 'marketplace:profile' pr.profile.slug %}">
+                                                <bdi>{{ pr.profile.display_name }}</bdi>
+                                            </a>
+                                        {% endif %}
+                                        {% if pr.category %}
+                                            <span class="text-gray-500 text-xs">
+                                                · {{ pr.category.display_name|default:pr.category.name }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-gray-400 text-xs flex items-center gap-1">
+                                            <i class="fa-regular fa-eye"></i>
+                                            {{ pr.views|intcomma }}
+                                        </span>
+                                        <a href="#" class="buy-btn" title="{% trans 'Checkout coming soon' %}">
+                                            <i class="fa-solid fa-cart-plus mr-1"></i> {% trans "Buy" %}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+
+                <div class="flex justify-center gap-4 text-sm text-gray-400 pt-6 items-center">
+                    {% if page_obj.has_previous %}
+                        <a class="hover:text-white px-3 py-1 rounded-md border border-white/10" href="?page={{ page_obj.previous_page_number }}&{{ current_query|cut:'page=' }}">
+                            <i class="fa-solid fa-arrow-left"></i> {% trans "Previous" %}
+                        </a>
+                    {% endif %}
+                    <span class="text-white font-medium">
+                        {% blocktrans with n=page_obj.number total=page_obj.paginator.num_pages %}Page {{ n }} / {{ total }}{% endblocktrans %}
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a class="hover:text-white px-3 py-1 rounded-md border border-white/10" href="?page={{ page_obj.next_page_number }}&{{ current_query|cut:'page=' }}">
+                            {% trans "Next" %} <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+
+            {% else %}
+                <p class="text-sm text-gray-500 p-4 rounded-lg border border-white/10">{% trans "No products match your search criteria." %}</p>
+            {% endif %}
+        </div>
+
+    </section>
+</div>
+</div>
+{% endblock %}

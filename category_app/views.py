@@ -20,7 +20,24 @@ def category_index(request):
         )
         .order_by("name")
     )
-    return render(request, "category/index.html", {"categories": categories,"nav_active": "category"})
+
+    has_work = False
+    if request.user.is_authenticated:
+        has_work = UserCategory.objects.filter(
+            user=request.user,
+            kind=UserCategory.Kind.WORK
+        ).exists()
+
+    return render(
+        request,
+        "category/index.html",
+        {
+            "categories": categories,
+            "nav_active": "category",
+            "has_work": has_work,  # ✅
+        },
+    )
+
 
 # views.py  (category_artists)
 def category_artists(request, slug):

@@ -27,12 +27,35 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, F
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext as _, get_language
-
 from core.decorators import redirect_if_authenticated
+import re
 
+
+USERNAME_CLEANER = re.compile(r'[^a-zA-Z0-9_]')
 User = get_user_model()
 
-# views.py (signup, clean version)
+
+# accounts/views.py
+from django.utils.http import urlencode
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
+@login_required
+def start_artist_setup(request):
+    """
+    Current behavior (NOW): make the user an ARTIST and send them to choose_categories for WORK.
+    Later you can remove the role flip if you want FAV for non-artists.
+    """
+    next_url = request.GET.get("next") or reverse("categories:index")
+
+    # NOW: ensure they are ARTIST so we save WORK
+    if request.user.role != User.Role.ARTIST:
+        request.user.role = User.Role.ARTIST
+        request.user.save(update_fields=["role"])
+
+    # send them to picker for WORK categories
+    return redirect(f"{reverse('choose_categories')}?{urlencode({'kind': UserCategory.Kind.WORK, 'next': next_url})}")
+
 
 
 GMAIL_PATTERN = re.compile(r"^[A-Za-z0-9._%+-]+@gmail\.com$", re.IGNORECASE)
@@ -43,30 +66,30 @@ def logout_view(request):
     return redirect(reverse("landing"))
 
 
-@redirect_if_authenticated(to="explore")  
 def signup_view(request):
     if request.method == "POST":
         username = (request.POST.get("username") or "").strip()
         email    = (request.POST.get("email") or "").strip().lower()
         password = (request.POST.get("password") or "")
 
-        # keep previous values to repopulate on error
         ctx = {"prefill": {"username": username, "email": email}}
 
-        # normalize username: only keep [a-zA-Z0-9_], force lowercase
-        cleaned_username = re.sub(r'[^a-zA-Z0-9_]', '', username).lower()
+        # sanitize username -> keep letters/numbers/underscore and force lowercase
+        cleaned_username = USERNAME_CLEANER.sub("", username).lower()
 
         if not cleaned_username:
             messages.error(request, _("Please choose a valid username (letters, numbers, underscores)."))
             return render(request, "accounts/signup.html", ctx)
 
+        # run model validator (same one used on the User model)
         try:
-            from accounts.models import username_validator  # or import at top
+            from accounts.models import username_validator
             username_validator(cleaned_username)
         except ValidationError as e:
             messages.error(request, e.message)
             return render(request, "accounts/signup.html", ctx)
 
+        # unique checks
         if User.objects.filter(username__iexact=cleaned_username).exists():
             messages.error(request, _("Username already taken."))
             return render(request, "accounts/signup.html", ctx)
@@ -75,36 +98,28 @@ def signup_view(request):
             messages.error(request, _("Email is required."))
             return render(request, "accounts/signup.html", ctx)
 
-        # ✅ Gmail-only
-        if not GMAIL_PATTERN.match(email):
-            messages.error(request, _("Only Gmail addresses are allowed (example: you@gmail.com)."))
-            return render(request, "accounts/signup.html", ctx)
-
+        # standard email uniqueness (no Gmail-only restriction)
         if User.objects.filter(email__iexact=email).exists():
             messages.error(request, _("Email already in use."))
             return render(request, "accounts/signup.html", ctx)
 
+        # simple password length rule
         if len(password) < 8:
             messages.error(request, _("Password must be at least 8 characters."))
             return render(request, "accounts/signup.html", ctx)
 
-        # Create user
+        # create + login
         user = User.objects.create_user(
-            username=cleaned_username,
             email=email,
+            username=cleaned_username,
             password=password,
         )
-        if hasattr(user, "email_verified"):
-            user.email_verified = False
-            user.save(update_fields=["email_verified"])
+        # if you have email_verified on the model and don’t want to use it here, make sure it defaults to False in the model; no need to touch it now.
 
         login(request, user)
-        return redirect("choose_role")
+        return redirect("explore")  # or "home"
 
-    # GET
     return render(request, "accounts/signup.html")
-
-
 
 @login_required
 def choose_role(request):
@@ -122,60 +137,53 @@ def choose_role(request):
             return redirect("choose_categories")
         messages.error(request, "Please choose a valid option.")
     return render(request, "accounts/choose_role.html")
-
+# accounts/views.py
+from django.db.models import Q
+from django.utils.translation import get_language
+from django.db.models.functions import Coalesce
+from django.contrib import messages
 
 @login_required
 def choose_categories(request):
-    step = next_onboarding_step(request.user)
-    if step == ROLE_STEP:
-        return redirect("choose_role")
-    if step == DONE:
-        return redirect("explore")
-
     user = request.user
-    rel_kind = UserCategory.Kind.WORK if user.role == User.Role.ARTIST else UserCategory.Kind.FAV
+
+    # kind source of truth: POST > GET > default(FAV)
+    kind_param = (request.POST.get("kind") or request.GET.get("kind") or UserCategory.Kind.FAV).upper()
+    rel_kind = UserCategory.Kind.WORK if kind_param == UserCategory.Kind.WORK else UserCategory.Kind.FAV
+
+    next_url = request.GET.get("next") or request.POST.get("next") or reverse("explore")
 
     if request.method == "POST":
-        slugs = [s.strip() for s in request.POST.get("selected_slugs", "").split(",") if s.strip()]
-        # Accept both English and Persian slugs
+        slugs = [s.strip() for s in (request.POST.get("selected_slugs") or "").split(",") if s.strip()]
         cats = list(Category.objects.filter(Q(slug__in=slugs) | Q(slug_fa__in=slugs)))
 
-        # remove deselected
         UserCategory.objects.filter(user=user, kind=rel_kind).exclude(category__in=cats).delete()
-
-        existing = set(
-            UserCategory.objects.filter(user=user, kind=rel_kind).values_list("category_id", flat=True)
-        )
-        to_create = [
-            UserCategory(user=user, category=c, kind=rel_kind)
-            for c in cats if c.id not in existing
-        ]
+        existing = set(UserCategory.objects.filter(user=user, kind=rel_kind).values_list("category_id", flat=True))
+        to_create = [UserCategory(user=user, category=c, kind=rel_kind) for c in cats if c.id not in existing]
         if to_create:
             UserCategory.objects.bulk_create(to_create, ignore_conflicts=True)
 
         messages.success(request, _("Preferences saved."))
-        return redirect("explore")  # onboarding complete
+        return redirect(next_url)
 
-    # Preselect current choices
-    chosen_ids = set(
-        UserCategory.objects.filter(user=user, kind=rel_kind).values_list("category_id", flat=True)
-    )
+    chosen_ids = set(UserCategory.objects.filter(user=user, kind=rel_kind).values_list("category_id", flat=True))
 
-    # Language-aware ordering for the chooser grid
     lang = (get_language() or "").lower()
     if lang.startswith("fa"):
         categories = Category.objects.annotate(sort_name=Coalesce("name_fa", "name")).order_by("sort_name")
     else:
         categories = Category.objects.all().order_by("name")
 
-    heading_text = _("Your Favorite Categories") if rel_kind == UserCategory.Kind.FAV else _("Your Work Categories")
+    heading_text = _("Your Work Categories") if rel_kind == UserCategory.Kind.WORK else _("Your Favorite Categories")
 
     return render(request, "accounts/categories.html", {
         "categories": categories,
         "chosen_ids": chosen_ids,
         "rel_kind": rel_kind,
         "heading_text": heading_text,
+        "next_url": next_url,
     })
+
 
 
 

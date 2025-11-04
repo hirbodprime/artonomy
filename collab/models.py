@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.core.validators import MinLengthValidator
 from django.contrib.postgres.fields import ArrayField  # optional; remove if not using Postgres
 
-from marketplace.models import MarketItem
+# from marketplace.models import MarketItem
 
 User = settings.AUTH_USER_MODEL
 
@@ -17,7 +17,7 @@ class ServiceRequest(models.Model):
         CANCELLED         = "CANCELLED",         "Cancelled"
         ACCEPTED_BOTH     = "ACCEPTED_BOTH",     "Accepted by both (chat open)"
 
-    item       = models.ForeignKey(MarketItem, on_delete=models.CASCADE, related_name="service_requests")
+    # item       = models.ForeignKey(MarketItem, on_delete=models.CASCADE, related_name="service_requests")
     requester  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="service_requests_made")
     provider   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="service_requests_received")
     brief      = models.TextField(validators=[MinLengthValidator(8)])
@@ -33,7 +33,7 @@ class ServiceRequest(models.Model):
 
 class Conversation(models.Model):
     """Created automatically when both users accept."""
-    item      = models.ForeignKey(MarketItem, on_delete=models.CASCADE, related_name="conversations")
+    # item      = models.ForeignKey(MarketItem, on_delete=models.CASCADE, related_name="conversations")
     request   = models.OneToOneField(ServiceRequest, on_delete=models.CASCADE, related_name="conversation")
     user_a    = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="conversations_a")
     user_b    = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="conversations_b")

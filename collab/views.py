@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST, require_GET
 
-from marketplace.models import MarketItem
+# from marketplace.models import MarketItem
 from .models import ServiceRequest, Conversation, Message, Notification
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
