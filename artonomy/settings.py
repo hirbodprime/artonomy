@@ -47,7 +47,13 @@ if not DEBUG:
 
     # If behind a proxy/load balancer that sets X-Forwarded-Proto (common on shared hosts)
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
+MARKETPLACE_BANK = {
+    "title": "Mellat Bank — Artonomy",
+    "card_number": "6037-9911-2345-6789",
+    "note": "Include your username or profile slug in the transfer note. Amount: 150,000 Toman per month.",
+    "amount": "150000",
+    "currency": "TOMAN",
+}
 
 # Application definition
 

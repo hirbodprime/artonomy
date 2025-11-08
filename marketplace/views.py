@@ -1,4 +1,5 @@
 # marketplace/views.py
+from datetime import timedelta
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Q, Count
 from django.shortcuts import render, redirect, get_object_or_404
@@ -8,6 +9,9 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from django.http import Http404
 from django.db.models import Max
+from django.utils import timezone
+
+from decimal import Decimal
 
 from .models import (
     BusinessProfile,
@@ -18,31 +22,29 @@ from .models import (
 from .forms import (
     JoinPickKindForm,
     ProfileSetupForm,
-    PaymentUploadForm,
+    ProductForm,
 )
 from accounts.models import Category
 
-# marketplace/views.py  (add below studio_dashboard or replace it)
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
-from django.utils.translation import gettext as _
-from django.contrib import messages
-from .forms import ProductForm
+from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
+from .models import SubscriptionPayment
+from .forms import SubscriptionPaymentForm
 
 def _get_user_approved_profile_or_none(user):
     return (
         BusinessProfile.objects
-        .filter(owner=user, is_approved=True)
+        .filter(owner=user, is_approved=True, subscription_expires_at__gt=timezone.now())
         .order_by("-created_at")
         .first()
     )
 
+
 @login_required
 def studio_dashboard(request):
     """
-    Landing for approved users. If not approved yet, show wait screen.
+    Landing for approved users. If not approved or subscription expired, show guidance.
     """
-    # latest join request (if any)
     jr = (JoinRequest.objects
           .filter(user=request.user)
           .select_related("profile")
@@ -52,25 +54,33 @@ def studio_dashboard(request):
     approved_profile = _get_user_approved_profile_or_none(request.user)
 
     if not approved_profile:
-        # No approved profile -> show wait (or invite to join if no request)
-        if jr and jr.status == JoinRequest.Status.PENDING:
-            return render(request, "marketplace/join_wait.html", {"profile": jr.profile, "join_req": jr})
-        messages.info(request, _("Start or complete your marketplace application."))
-        return redirect("marketplace:join_entry")
+        # Maybe they have a profile but expired or not approved
+        latest_profile = (BusinessProfile.objects
+                          .filter(owner=request.user)
+                          .order_by("-created_at")
+                          .first())
+        ctx = {
+            "nav_active": "marketplace",
+            "profile": latest_profile,
+            "is_expired": bool(latest_profile and not latest_profile.is_subscription_active()) if latest_profile else False,
+            "needs_approval": bool(latest_profile and not latest_profile.is_approved) if latest_profile else True,
+            "join_req": jr,
+        }
+        return render(request, "marketplace/join_wait.html", ctx)
 
     products = approved_profile.products.order_by("-created_at")
     return render(request, "marketplace/dashboard.html", {
         "nav_active": "marketplace",
-
         "profile": approved_profile,
         "products": products,
     })
+
 
 @login_required
 def product_create(request):
     profile = _get_user_approved_profile_or_none(request.user)
     if not profile:
-        messages.error(request, _("Your profile is not approved yet."))
+        messages.error(request, _("Your shop is not live yet. Complete onboarding or renew subscription."))
         return redirect("marketplace:dashboard")
 
     if request.method == "POST":
@@ -87,8 +97,8 @@ def product_create(request):
     return render(request, "marketplace/product_form.html", {
         "form": form, "is_edit": False,
         "nav_active": "marketplace",
-
     })
+
 
 @login_required
 def product_edit(request, pk):
@@ -111,6 +121,7 @@ def product_edit(request, pk):
         "form": form, "is_edit": True, "product": product
     })
 
+
 @login_required
 def product_delete(request, pk):
     product = get_object_or_404(Product, pk=pk, profile__owner=request.user)
@@ -118,30 +129,32 @@ def product_delete(request, pk):
     messages.success(request, _("Product deleted."))
     return redirect("marketplace:dashboard")
 
+
 # ----------------------
 # PUBLIC HOMEPAGE
 # ----------------------
 def marketplace_home(request):
     """
     Home:
-    - Approved business profiles (galleries, artists, etc.)
-    - Top products by views
-    - Filters: search, category, type (service vs physical)
-    - Join Marketplace CTA with counter
+    - LIVE business profiles (approved + active subscription)
+    - Top products by views from LIVE profiles
+    - Filters
     """
-
-    # for header CTA counter
     stats_obj, _ = MarketplaceStats.objects.get_or_create(name="global")
     join_clicks = stats_obj.join_clicks
 
-    # filters
     q = (request.GET.get("q") or "").strip()
     cat_slug = (request.GET.get("cat") or "").strip()
     kind_filter = (request.GET.get("kind") or "").strip()  # SOLO_ARTIST / GALLERY / ...
     prod_type = (request.GET.get("type") or "").strip()    # "service" / "physical"
 
-    # Approved profiles
-    profiles_qs = BusinessProfile.objects.filter(is_approved=True)
+    now = timezone.now()
+
+    # LIVE profiles (approved + subscription active)
+    profiles_qs = BusinessProfile.objects.filter(
+        is_approved=True,
+        subscription_expires_at__gt=now,
+    )
 
     if kind_filter:
         profiles_qs = profiles_qs.filter(kind=kind_filter)
@@ -154,13 +167,13 @@ def marketplace_home(request):
             Q(location__icontains=q)
         )
 
-    # Show a few profiles (no pagination or light pagination)
     profiles_qs = profiles_qs.order_by("-created_at")[:12]
 
-    # Products
+    # Products only from LIVE profiles
     products_qs = Product.objects.filter(
         status=Product.Status.ACTIVE,
         profile__is_approved=True,
+        profile__subscription_expires_at__gt=now,
     ).select_related("profile", "category")
 
     if cat_slug:
@@ -178,7 +191,6 @@ def marketplace_home(request):
             Q(profile__display_name__icontains=q)
         )
 
-    # Top by views for homepage showcase
     products_qs = products_qs.order_by("-views", "-id")
 
     paginator = Paginator(products_qs, 12)
@@ -197,8 +209,9 @@ def marketplace_home(request):
         )
         if jr:
             user_join_status = jr.status
-            if jr.status == JoinRequest.Status.APPROVED and jr.profile.is_approved:
+            if jr.profile.is_live():
                 user_approved_profile = jr.profile
+
     ctx = {
         "nav_active": "marketplace",
         "join_clicks": join_clicks,
@@ -213,7 +226,6 @@ def marketplace_home(request):
         "current_query": request.GET.urlencode(),
         "user_join_status": user_join_status,         # None / "PENDING" / "APPROVED" / "REJECTED"
         "user_approved_profile": user_approved_profile,  # BusinessProfile or None
-
     }
     return render(request, "marketplace/home.html", ctx)
 
@@ -221,76 +233,36 @@ def marketplace_home(request):
 # ----------------------
 # JOIN FLOW
 # ----------------------
-
 @login_required
 def join_marketplace_entry(request):
     """
     Clicked 'Join the Marketplace'.
-    - If they already have a PENDING request: show wait screen.
-    - If APPROVED: go to dashboard.
-    - Else: start wizard.
+    - If they already have any request, send to steps (we don't block now).
+    - Start wizard.
     """
-    # latest request for this user (if any)
-    jr = (
-        JoinRequest.objects
-        .filter(user=request.user)
-        .select_related("profile")
-        .order_by("-created_at")
-        .first()
-    )
-    if jr:
-        if jr.status == JoinRequest.Status.PENDING:
-            # don't bump the counter more than necessary, but it's ok if you want:
-            # MarketplaceStats.bump_join_clicks()
-            return render(request, "marketplace/join_wait.html", {
-                "profile": jr.profile,
-                "join_req": jr,
-            })
-        if jr.status == JoinRequest.Status.APPROVED and jr.profile.is_approved:
-            messages.info(request, _("You're already approved. Welcome to your studio!"))
-            return redirect("marketplace:dashboard")
-
-    # no blocking request -> proceed
     MarketplaceStats.bump_join_clicks()
     request.session.setdefault("market_join", {})
-    return redirect(reverse("marketplace:join_steps"))
+    return redirect(f"{reverse('marketplace:join_steps')}?step=1")
+
+
 @login_required
 def join_marketplace_steps(request):
-    """
-    Wizard with guards so a user can't start duplicates,
-    but can continue to payment after creating a pending JoinRequest.
+    step = int(request.GET.get("step") or request.POST.get("step") or 1)
+    data = request.session.get("market_join", {})
 
-    Steps:
-      1) Pick `kind` (stores in session: market_join["kind"])
-      2) Profile setup -> create BusinessProfile (draft) and ensure ONE JoinRequest per user
-      3) Payment upload -> attach receipt to the single JoinRequest
-    """
+    # ⚙️ NEW: Auto-fill session if user clicked "Pay Monthly Fee"
+    if step == 3 and "kind" not in data:
+        # find their active profile
+        profile = BusinessProfile.objects.filter(owner=request.user, is_approved=True).first()
+        if profile:
+            data["kind"] = profile.kind
+            data["profile_id"] = profile.id
+            request.session["market_join"] = data
     from django.db import transaction
 
-    step = int(request.GET.get("step") or request.POST.get("step") or 1)
-    data = request.session.get("market_join", {})  # holds 'kind', and later 'profile_id'
 
-    # ---------- STEP 1: choose kind (must render/process here to avoid loops)
+    # ---- STEP 1: Choose kind
     if step == 1:
-        # If user already has a JR, route them appropriately first.
-        existing = (
-            JoinRequest.objects
-            .filter(user=request.user)
-            .select_related("profile")
-            .order_by("-created_at")
-            .first()
-        )
-        if existing:
-            if existing.status == JoinRequest.Status.PENDING:
-                return render(request, "marketplace/join_wait.html", {
-                    "profile": existing.profile,
-                    "join_req": existing,
-                })
-            if existing.status == JoinRequest.Status.APPROVED and existing.profile.is_approved:
-                messages.info(request, _("You're already approved. Welcome to your studio!"))
-                return redirect("marketplace:dashboard")
-
-        # Render the picker and store the choice
         if request.method == "POST":
             form = JoinPickKindForm(request.POST)
             if form.is_valid():
@@ -299,7 +271,6 @@ def join_marketplace_steps(request):
                 request.session.modified = True
                 return redirect(f"{reverse('marketplace:join_steps')}?step=2")
         else:
-            # Preselect if user had previously chosen a kind
             form = JoinPickKindForm(initial={"kind": data.get("kind")})
 
         return render(request, "marketplace/join_step1_kind.html", {
@@ -308,12 +279,11 @@ def join_marketplace_steps(request):
             "form": form,
         })
 
-    # From here on we require `kind`
+    # From here we need kind
     if "kind" not in data:
-        # No kind chosen yet -> send to step 1 (but do NOT redirect to step=1 if we're already there)
         return redirect(f"{reverse('marketplace:join_steps')}?step=1")
 
-    # ---------- STEP 2: profile setup
+    # ---- STEP 2: Profile setup
     if step == 2:
         initial = {
             "display_name": data.get("display_name", ""),
@@ -327,13 +297,13 @@ def join_marketplace_steps(request):
             if form.is_valid():
                 cd = form.cleaned_data
 
-                # Cache simple fields in session
+                # Cache basic fields in session (if user returns back)
                 data["display_name"] = cd["display_name"]
                 data["tagline"]      = cd["tagline"]
                 data["bio_long"]     = cd["bio_long"]
                 data["location"]     = cd["location"]
 
-                # Create draft BusinessProfile to hold media
+                # Create draft profile (not visible until trial starts in step 3)
                 profile = BusinessProfile.objects.create(
                     owner=request.user,
                     kind=data["kind"],
@@ -341,7 +311,7 @@ def join_marketplace_steps(request):
                     tagline=cd["tagline"],
                     bio_long=cd["bio_long"],
                     location=cd["location"],
-                    is_approved=False,
+                    is_approved=False,  # will become True when trial starts
                 )
                 updated_fields = []
                 if cd.get("avatar"):
@@ -355,7 +325,7 @@ def join_marketplace_steps(request):
                 request.session["market_join"] = data
                 request.session.modified = True
 
-                # Ensure ONLY ONE JoinRequest per user (update or create)
+                # Create/Update a JoinRequest as APPROVED (we skip payment now)
                 with transaction.atomic():
                     jr = (
                         JoinRequest.objects
@@ -365,17 +335,14 @@ def join_marketplace_steps(request):
                         .first()
                     )
                     if jr:
-                        if jr.status == JoinRequest.Status.APPROVED and jr.profile.is_approved:
-                            messages.info(request, _("You're already approved. Welcome to your studio!"))
-                            return redirect("marketplace:dashboard")
                         jr.profile = profile
-                        jr.status = JoinRequest.Status.PENDING
+                        jr.status = JoinRequest.Status.APPROVED
                         jr.save(update_fields=["profile", "status"])
                     else:
                         JoinRequest.objects.create(
                             user=request.user,
                             profile=profile,
-                            status=JoinRequest.Status.PENDING,
+                            status=JoinRequest.Status.APPROVED,
                         )
 
                 return redirect(f"{reverse('marketplace:join_steps')}?step=3")
@@ -389,57 +356,153 @@ def join_marketplace_steps(request):
             "kind_choice": data["kind"],
         })
 
-    # ---------- STEP 3: payment upload
+    # ---- STEP 3: Start 2-day free trial + success
     if step == 3:
         profile_id = data.get("profile_id")
         if not profile_id:
             return redirect(f"{reverse('marketplace:join_steps')}?step=2")
 
         profile = get_object_or_404(BusinessProfile, id=profile_id, owner=request.user)
-        join_req = get_object_or_404(JoinRequest, profile=profile, user=request.user)
 
-        form = PaymentUploadForm(request.POST or None, request.FILES or None, instance=join_req)
-        if request.method == "POST" and form.is_valid():
-            form.save()
-            messages.success(request, _("Your request has been submitted. Please wait for admin approval."))
-            request.session.pop("market_join", None)
-            return render(request, "marketplace/join_wait.html", {
-                "profile": profile,
-                "join_req": join_req,
-            })
+        # Only start trial if nothing is active
+        if not profile.is_subscription_active():
+            profile.start_free_trial(days=2, auto_approve=True)
 
-        return render(request, "marketplace/join_step3_payment.html", {
-            "step": 3,
-            "form": form,
+        approved_payment_exists = SubscriptionPayment.objects.filter(
+            profile=profile,
+            status=SubscriptionPayment.Status.APPROVED
+        ).exists()
+
+        payments = list(profile.subscription_payments.all()[:10])
+
+        request.session.pop("market_join", None)
+
+        return render(request, "marketplace/join_step3_trial_started.html", {
             "profile": profile,
-            "join_req": join_req,
-            "bank_info": {
-                "title": _("Payment Information"),
-                "card_number": "1234 5678 9012 3456",
-                "note": _("Send the subscription fee and upload the screenshot."),
-            },
+            "state": profile.subscription_state(),   # 👈 pass state explicitly
+            "approved_payment_exists": approved_payment_exists,
+            "payments": payments,
         })
 
     # Fallback
     return redirect(reverse("marketplace:home"))
+
+
+
+
+
+from .models import (
+    BusinessProfile, JoinRequest, Product, MarketplaceStats, SubscriptionPayment
+)
+from .forms import (
+    JoinPickKindForm, ProfileSetupForm, ProductForm, SubscriptionPaymentForm
+)
+from django.contrib.auth.decorators import user_passes_test
+
+@login_required
+def subscription_pay(request):
+    profile = (BusinessProfile.objects
+               .filter(owner=request.user)
+               .order_by("-created_at")
+               .first())
+    if not profile:
+        messages.error(request, _("Please complete your profile first."))
+        return redirect("marketplace:join_steps")
+
+    bank_info = {
+        "title": _("Marketplace Billing"),
+        "card_number": "6219-8619-4904-7871",
+        "note": _("Send exact amount. Upload your receipt here. We'll review ASAP."),
+    }
+
+    if request.method == "POST":
+        form = SubscriptionPaymentForm(request.POST, request.FILES)
+        if form.is_valid():
+            sp = form.save(commit=False)
+            sp.profile = profile
+            sp.status = SubscriptionPayment.Status.PENDING
+            sp.currency = "TOMAN"           # optional default
+            sp.months_granted = 1           # default month
+            sp.save()
+            messages.success(request, _("Payment submitted. We’ll notify you after review."))
+            return redirect("marketplace:subscription_pay")
+        else:
+            messages.error(request, _("Please fix the errors below."))
+    else:
+        form = SubscriptionPaymentForm()
+
+    payments = profile.subscription_payments.all()[:10]
+
+    ctx = {
+        "nav_active": "marketplace",
+        "profile": profile,
+        "expires_at": profile.subscription_expires_at,   # real expiry (trial or paid)
+        "approved_payment_exists": profile.subscription_payments
+                                    .filter(status="APPROVED").exists(),
+        "bank_info": bank_info,
+        "form": form,
+        "payments": payments,
+    }
+    return render(request, "marketplace/join_step3_payment.html", ctx)
+
+
+
+
+@user_passes_test(lambda u: u.is_staff)
+def payment_review(request, pk, action):
+    sp = get_object_or_404(SubscriptionPayment.objects.select_related("profile"), pk=pk)
+    if action == "approve":
+        sp.approve(request.user)
+        messages.success(request, _("Payment approved and subscription extended."))
+    elif action == "reject":
+        note = request.GET.get("note", "")
+        sp.reject(request.user, note=note)
+        messages.warning(request, _("Payment rejected."))
+    else:
+        messages.error(request, _("Unknown action."))
+    # send the admin back where they came from or to the payment page for that user
+    return redirect(request.META.get("HTTP_REFERER") or reverse("marketplace:subscription_pay"))
+
+@staff_member_required
+def payments_inbox(request):
+    qs = (SubscriptionPayment.objects
+          .select_related("user", "profile")
+          .order_by("status", "-created_at"))
+    return render(request, "marketplace/payments_inbox.html", {"payments": qs})
+
+
+@staff_member_required
+def payment_approve(request, pk):
+    pay = get_object_or_404(SubscriptionPayment, pk=pk)
+    if request.method == "POST":
+        note = request.POST.get("note", "")
+        months = int(request.POST.get("months") or "1")
+        pay.approve(request.user, months=months, note=note)
+        messages.success(request, _("Payment approved. Subscription extended."))
+    return redirect("marketplace:payments_inbox")
+
+
+@staff_member_required
+def payment_reject(request, pk):
+    pay = get_object_or_404(SubscriptionPayment, pk=pk)
+    if request.method == "POST":
+        note = request.POST.get("note", "")
+        pay.reject(request.user, note=note)
+        messages.warning(request, _("Payment rejected."))
+    return redirect("marketplace:payments_inbox")
+
 # ----------------------
 # PUBLIC PROFILE PAGE
 # ----------------------
-
 def profile_public(request, slug):
     profile = get_object_or_404(
         BusinessProfile.objects.select_related("owner"),
         slug=slug
     )
 
-    if not profile.is_approved:
-        # Only owner or staff can see unapproved
-        if not request.user.is_authenticated or (
-            not request.user.is_staff and request.user != profile.owner
-        ):
-            raise Http404()
-
-    # bump product views happens in product_detail, not here
+    # Only visible if approved + active subscription
+    if not profile.is_live():
+        raise Http404()
 
     products = profile.products.filter(status=Product.Status.ACTIVE).order_by("-views", "-id")
     return render(request, "marketplace/profile_public.html", {
@@ -452,19 +515,15 @@ def profile_public(request, slug):
 # ----------------------
 # PRODUCT DETAIL PAGE
 # ----------------------
-
 def product_detail(request, pk):
     product = get_object_or_404(
         Product.objects.select_related("profile", "profile__owner", "category"),
         pk=pk
     )
 
-    # hide if parent profile isn't approved publicly
-    if not product.profile.is_approved:
-        if not request.user.is_authenticated or (
-            not request.user.is_staff and request.user != product.profile.owner
-        ):
-            raise Http404()
+    # hide if parent profile isn't LIVE
+    if not product.profile.is_live():
+        raise Http404()
 
     # bump views
     Product.objects.filter(pk=product.pk).update(views=F("views") + 1)
@@ -473,10 +532,3 @@ def product_detail(request, pk):
         "nav_active": "marketplace",
         "product": product,
     })
-
-
-# ----------------------
-# DASHBOARD (placeholder)
-# ----------------------
-
-

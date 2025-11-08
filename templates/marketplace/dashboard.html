@@ -151,6 +151,13 @@
                 href="{% url 'marketplace:product_add' %}">
                 <i class="fa-solid fa-upload mr-1.5"></i> {% trans "ADD NEW ARTWORK/SERVICE" %}
             </a>
+            {% if profile.is_approved %}
+    <a class="px-4 py-2 rounded-full text-sm bg-green-500 hover:bg-green-600 text-black font-bold shadow-lg shadow-green-500/40"
+       href="{% url 'marketplace:join_steps' %}?step=3">
+        <i class="fa-solid fa-credit-card mr-1.5"></i> {% trans "Pay Monthly Fee" %}
+    </a>
+{% endif %}
+
         </div>
 
         {% if products %}

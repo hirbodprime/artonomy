@@ -1,15 +1,19 @@
 # marketplace/models.py
 from decimal import Decimal
+from datetime import timedelta
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
+from django.db.models import Q, UniqueConstraint
 
 from accounts.models import Category  # using your Category model
 
 User = get_user_model()
 
-
+# marketplace/models.py (add after Product model or wherever appropriate)
+from django.conf import settings
 class MarketplaceStats(models.Model):
     """
     Tracks global marketplace stats like how many people clicked 'Join'.
@@ -26,7 +30,6 @@ class MarketplaceStats(models.Model):
         obj, _ = cls.objects.get_or_create(name="global")
         obj.join_clicks = models.F("join_clicks") + 1
         obj.save(update_fields=["join_clicks"])
-        # refresh to get real int after F()
         obj.refresh_from_db()
         return obj.join_clicks
 
@@ -34,7 +37,8 @@ class MarketplaceStats(models.Model):
 class BusinessProfile(models.Model):
     """
     Public-facing 'studio' / 'artist page' / 'gallery page'.
-    This is what the world sees.
+    Moderation (is_approved) is separate from paywall (subscription_expires_at).
+    Profile is LIVE only when both are satisfied.
     """
     class Kind(models.TextChoices):
         SOLO_ARTIST   = "SOLO_ARTIST", _("Solo Artist")
@@ -100,9 +104,17 @@ class BusinessProfile(models.Model):
         help_text=_("Header / vibe image.")
     )
 
+    # Moderation gate
     is_approved = models.BooleanField(
         default=False,
-        help_text=_("If not approved yet, profile is not shown publicly.")
+        help_text=_("If not approved yet, profile is not shown publicly (even if subscribed).")
+    )
+
+    # Subscription / paywall gate
+    trial_started_at = models.DateTimeField(null=True, blank=True)
+    subscription_expires_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text=_("When this timestamp is in the past, the shop becomes hidden until renewed.")
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -116,7 +128,6 @@ class BusinessProfile(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             base = slugify(self.display_name) or "profile"
-            # ensure uniqueness
             candidate = base
             n = 1
             while BusinessProfile.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
@@ -125,16 +136,76 @@ class BusinessProfile(models.Model):
             self.slug = candidate
         super().save(*args, **kwargs)
 
+    # ---- Subscription helpers ----
+    def is_subscription_active(self) -> bool:
+        """
+        Returns True if now < subscription_expires_at.
+        """
+        if not self.subscription_expires_at:
+            return False
+        return timezone.now() < self.subscription_expires_at
+
+    def is_live(self) -> bool:
+        """
+        A profile is LIVE when it is approved AND its subscription is active.
+        """
+        return bool(self.is_approved and self.is_subscription_active())
+
+    def start_free_trial(self, days:int = 2, auto_approve:bool = True):
+        """
+        Start (or restart) a free trial now for `days`.
+        Optionally auto-approve the profile so it is visible immediately.
+        """
+        now = timezone.now()
+        self.trial_started_at = now
+        self.subscription_expires_at = now + timedelta(days=days)
+        if auto_approve:
+            self.is_approved = True
+        self.save(update_fields=["trial_started_at", "subscription_expires_at", "is_approved"])
+
+    def extend_subscription(self, months:int = 1):
+        """
+        Extend subscription by `months` months from the *later* of now or current expiry.
+        Use this after a successful monthly payment + admin approval.
+        """
+        now = timezone.now()
+        base = self.subscription_expires_at if self.subscription_expires_at and self.subscription_expires_at > now else now
+        # simple month = 30 days to avoid external libs; adjust if you want calendar months
+        self.subscription_expires_at = base + timedelta(days=30 * months)
+        # ensure it stays approved after renewal (moderation is separate but we keep this true)
+        if not self.is_approved:
+            self.is_approved = True
+        self.save(update_fields=["subscription_expires_at", "is_approved"])
+    def is_subscription_active(self) -> bool:
+        if not self.subscription_expires_at:
+            return False
+        return timezone.now() < self.subscription_expires_at
+
+    def is_on_trial(self) -> bool:
+        """
+        True iff the current expiry is within the initial trial window.
+        """
+        if not (self.trial_started_at and self.subscription_expires_at):
+            return False
+        return self.subscription_expires_at <= (self.trial_started_at + timedelta(days=2))
+
+    def subscription_state(self) -> str:
+        """
+        Returns: "TRIAL", "ACTIVE", or "EXPIRED"
+        """
+        if not self.is_subscription_active():
+            return "EXPIRED"
+        return "TRIAL" if self.is_on_trial() else "ACTIVE"
+
     @property
     def public_products(self):
         return self.products.filter(status=Product.Status.ACTIVE).order_by("-views", "-id")[:8]
 
-from django.db.models import Q, UniqueConstraint
 
 class JoinRequest(models.Model):
     """
-    One per account at a time (normally).
-    Tracks onboarding & payment proof.
+    We keep JoinRequest as a thin audit of the onboarding attempt.
+    Payment screenshot is no longer required by the new flow.
     """
     class Status(models.TextChoices):
         PENDING  = "PENDING",  _("Pending Review")
@@ -156,27 +227,20 @@ class JoinRequest(models.Model):
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
-        default=Status.PENDING,
+        default=Status.APPROVED,  # new flow: auto-approve on trial
     )
 
-    # payment screenshot
-    payment_image = models.ImageField(
-        upload_to="market/payments/",
-        blank=True,
-        null=True,
-        help_text=_("Upload your bank transfer receipt / payment screenshot.")
-    )
+    # payment_image REMOVED from the new flow (not needed)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
         constraints = [
-            # at most one PENDING per user
             UniqueConstraint(
-                fields=["user"],
+                fields=["user", "profile"],
                 condition=Q(status="PENDING"),
-                name="uniq_pending_join_per_user",
+                name="uniq_pending_payment_per_user_profile",
             ),
         ]
 
@@ -256,3 +320,89 @@ class Product(models.Model):
     def can_buy(self):
         # disabled for now
         return False
+
+# marketplace/models.py
+from django.utils import timezone
+from django.db import models
+from decimal import Decimal
+
+# marketplace/models.py (append near the bottom)
+
+class SubscriptionPayment(models.Model):
+    class Status(models.TextChoices):
+        PENDING  = "PENDING",  _("Pending")
+        APPROVED = "APPROVED", _("Approved")
+        REJECTED = "REJECTED", _("Rejected")
+
+    profile = models.ForeignKey(
+        BusinessProfile,
+        on_delete=models.CASCADE,
+        related_name="subscription_payments",
+    )
+    # how much the user paid (optional display)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    currency = models.CharField(max_length=12, default="TOMAN")
+
+    # admin decides how many months to grant (default 1)
+    months_granted = models.PositiveSmallIntegerField(default=1)
+
+    # user proof
+    payment_image = models.ImageField(upload_to="market/payments/", blank=True, null=True)
+
+    # status
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+
+    # audit
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name="reviewed_subscription_payments"
+    )
+
+    # snapshot of expiry change (filled when APPROVED)
+    previous_expires_at = models.DateTimeField(null=True, blank=True)
+    new_expires_at = models.DateTimeField(null=True, blank=True)
+    admin_note = models.TextField(blank=True, default="")
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.profile.display_name} · {self.get_status_display()} · {self.created_at:%Y-%m-%d}"
+
+    def approve(self, reviewer: User, months: int | None = None, note: str = ""):
+        if self.status == self.Status.APPROVED:
+            return
+
+        if months and months > 0:
+            self.months_granted = months
+
+        now = timezone.now()
+        self.previous_expires_at = self.profile.subscription_expires_at or now
+
+        # extend profile
+        self.profile.extend_subscription(months=self.months_granted)
+        self.profile.trial_started_at = None
+        self.profile.save(update_fields=["trial_started_at","subscription_expires_at","is_approved"])
+
+        self.new_expires_at = self.profile.subscription_expires_at
+        self.status = self.Status.APPROVED
+        self.reviewed_at = now
+        self.reviewed_by = reviewer
+        if note:
+            self.admin_note = (self.admin_note + "\n" if self.admin_note else "") + note
+
+        self.save(update_fields=[
+            "months_granted","previous_expires_at","new_expires_at",
+            "status","reviewed_at","reviewed_by","admin_note",
+        ])
+
+    def reject(self, reviewer: User, note: str = ""):
+        if self.status == self.Status.REJECTED:
+            return
+        self.status = self.Status.REJECTED
+        self.reviewed_at = timezone.now()
+        self.reviewed_by = reviewer
+        if note:
+            self.admin_note = note
+        self.save(update_fields=["status", "reviewed_at", "reviewed_by", "admin_note"])

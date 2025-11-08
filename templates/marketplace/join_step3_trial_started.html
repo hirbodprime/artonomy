@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+  :root {
+    --bg: #0F172A;
+    --card: #1E293B;
+    --accent: #8B5CF6;
+    --success: #10B981;
+    --text: #F8FAFC;
+    --muted: #94A3B8;
+  }
+  .page-bg { background: var(--bg); }
+  .card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 1.25rem;
+    padding: 2rem;
+  }
+  .tag {
+    background: rgba(16,185,129,.15);
+    border: 1px solid var(--success);
+    color: var(--success);
+    padding: .25rem .5rem;
+    border-radius: .5rem;
+    font-weight: 700;
+  }
+  .btn-prim {
+    background: linear-gradient(90deg,#7D5CFF,#9F7DFF);
+    color: #0F172A;
+    font-weight: 800;
+    border-radius: .75rem;
+    padding: .75rem 1.25rem;
+  }
+  .btn-sec {
+    border: 1px solid rgba(255,255,255,.25);
+    color: var(--text);
+    border-radius: .75rem;
+    padding: .75rem 1.25rem;
+  }
+  .pill {
+    background: rgba(139,92,246,.15);
+    border: 1px solid var(--accent);
+    color: #D8B4FE;
+    padding: .35rem .6rem;
+    border-radius: 999px;
+    font-weight: 700;
+  }
+</style>
+
+<div class="page-bg min-h-screen py-12">
+  <div class="max-w-2xl mx-auto px-4 text-white space-y-6">
+
+    <!-- ✅ MAIN LIVE CARD -->
+    <div class="card space-y-4">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-extrabold">
+          <i class="fa-solid fa-rocket text-success mr-2"></i>
+          {% if state == "ACTIVE" %}
+            {% trans "Subscription Active" %}
+          {% elif state == "TRIAL" %}
+            {% trans "You're Live!" %}
+          {% else %}
+            {% trans "Subscription Expired" %}
+          {% endif %}
+        </h1>
+
+        {% if state == "ACTIVE" %}
+          <span class="tag">{% trans "Monthly Plan" %}</span>
+        {% elif state == "TRIAL" %}
+          <span class="tag">{% trans "Free Trial Activated" %}</span>
+        {% else %}
+          <span class="tag">{% trans "Hidden (Expired)" %}</span>
+        {% endif %}
+      </div>
+
+      <p class="text-base text-gray-300">
+        {% blocktrans with name=profile.display_name %}
+          Your shop <b>{{ name }}</b> is visible on the marketplace.
+        {% endblocktrans %}
+      </p>
+
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="p-4 rounded-xl bg-black/20 border border-white/10">
+          <div class="text-sm text-gray-400">
+            {% if state == "ACTIVE" %}
+              {% trans "Active Until" %}
+            {% elif state == "TRIAL" %}
+              {% trans "Trial Expires" %}
+            {% else %}
+              {% trans "Expired On" %}
+            {% endif %}
+          </div>
+          <div class="text-lg font-bold mt-1">
+            {{ profile.subscription_expires_at|date:"M d, Y H:i" }}
+
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-black/20 border border-white/10">
+          <div class="text-sm text-gray-400">{% trans "Status" %}</div>
+          <div class="text-lg font-bold mt-1
+            {% if state == 'ACTIVE' %}text-emerald-400
+            {% elif state == 'TRIAL' %}text-yellow-300
+            {% else %}text-red-400{% endif %}">
+            {% if state == "TRIAL" %}
+              {% trans "TRIAL (Visible)" %}
+            {% elif state == "ACTIVE" %}
+              {% trans "ACTIVE (Visible)" %}
+            {% else %}
+              {% trans "EXPIRED (Hidden)" %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% if state == "TRIAL" %}
+        <p class="text-sm text-gray-400">
+          {% trans "When your time runs out, the shop hides until you renew. After payment and approval, it goes live again." %}
+        </p>
+      {% endif %}
+
+      <div class="flex flex-wrap gap-3 pt-2">
+        <a class="btn-prim" href="{% url 'marketplace:dashboard' %}">
+          <i class="fa-solid fa-screwdriver-wrench mr-2"></i> {% trans "Open Dashboard" %}
+        </a>
+        <a class="btn-sec" href="{% url 'marketplace:profile' profile.slug %}">
+          <i class="fa-solid fa-eye mr-2"></i> {% trans "View Public Page" %}
+        </a>
+      </div>
+    </div>
+
+    <!-- ✅ SUBSCRIPTION SECTION -->
+    <div class="card space-y-4">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="pill"><i class="fa-solid fa-rotate mr-1"></i> {% trans "Monthly Subscription" %}</span>
+      </div>
+      <p class="text-gray-300">
+        {% trans "Subscriptions renew monthly. When you pay, we extend your subscription by one month from your current expiry (or from today if already expired)." %}
+      </p>
+
+      <div class="pt-4 flex justify-end">
+        <a href="{% url 'marketplace:subscription_pay' %}"
+           class="btn-prim flex items-center gap-2 text-base shadow-lg shadow-violet-500/40 hover:opacity-90">
+          <i class="fa-solid fa-credit-card"></i>
+          {% trans "Pay Monthly Fee" %}
+        </a>
+      </div>
+    </div>
+
+    <!-- 🧾 PAYMENT HISTORY -->
+    <div class="card space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold">{% trans "Payment History" %}</h2>
+        {% if approved_payment_exists %}
+          <span class="tag">{% trans "Payments Found" %}</span>
+        {% endif %}
+      </div>
+
+      {% if payments %}
+        <ul class="divide-y divide-white/10">
+          {% for p in payments %}
+            <li class="py-3 flex items-center justify-between">
+              <div>
+                <div class="font-semibold">
+                  {{ p.created_at|date:"M d, Y H:i" }}
+                  — {{ p.amount }} {{ p.currency }}
+                </div>
+                <div class="text-sm text-gray-400">
+                  {% trans "Status" %}: {{ p.get_status_display }}
+                  {% if p.status == "APPROVED" and p.new_expires_at %}
+                    · {% trans "New Expiry" %}: {{ p.new_expires_at|date:"M d, Y H:i" }}
+                  {% endif %}
+                </div>
+              </div>
+              {% if p.payment_image %}
+                <a class="btn-sec text-sm" href="{{ p.payment_image.url }}" target="_blank" rel="noopener">
+                  <i class="fa-solid fa-receipt mr-1"></i> {% trans "Receipt" %}
+                </a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-gray-400">{% trans "No payments yet." %}</p>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

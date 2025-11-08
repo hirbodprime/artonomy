@@ -1,7 +1,9 @@
 # marketplace/forms.py
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from .models import BusinessProfile, JoinRequest, Product
+from .models import BusinessProfile, JoinRequest, Product,SubscriptionPayment
+from .utils.images import compress_image  # keep your compressor helper
+
 class ProductForm(forms.ModelForm):
     # Show as radios: Service / Physical Product
     is_service = forms.TypedChoiceField(
@@ -19,6 +21,7 @@ class ProductForm(forms.ModelForm):
             "description": forms.Textarea(attrs={"rows": 5}),
         }
 
+
 class JoinPickKindForm(forms.Form):
     """
     Step 1: Are you a solo artist or some kind of business?
@@ -34,11 +37,7 @@ class JoinPickKindForm(forms.Form):
         ],
         widget=forms.RadioSelect
     )
-# marketplace/forms.py
-from django import forms
-from django.utils.translation import gettext_lazy as _
-from .models import BusinessProfile
-from .utils.images import compress_image  # <- uses the helper we wrote
+
 
 class ProfileSetupForm(forms.ModelForm):
     """
@@ -78,29 +77,15 @@ class ProfileSetupForm(forms.ModelForm):
         f = self.cleaned_data.get("avatar")
         if not f:
             return f
-        # smaller cap for avatars
         return compress_image(f, max_side=800, webp=True, quality=82)
 
     def clean_cover(self):
         f = self.cleaned_data.get("cover")
         if not f:
             return f
-        # larger cap for cover/header images
         return compress_image(f, max_side=2560, webp=True, quality=80)
-
-
-
-class PaymentUploadForm(forms.ModelForm):
-    """
-    Step 3: upload proof of payment.
-    We don't choose price plans yet (you can add plan later).
-    """
+class SubscriptionPaymentForm(forms.ModelForm):
     class Meta:
-        model = JoinRequest
-        fields = ["payment_image"]
-        widgets = {
-            "payment_image": forms.ClearableFileInput(attrs={"accept": "image/*"})
-        }
-        labels = {
-            "payment_image": _("Upload payment screenshot"),
-        }
+        model = SubscriptionPayment
+        fields = ["payment_image"]  # 👈 image only
+        labels = {"payment_image": _("Upload Payment Screenshot")}
