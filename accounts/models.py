@@ -5,6 +5,7 @@ from django.urls import reverse
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Q
+from core.utils.images import compress_image_field
 
 User = get_user_model()
 
@@ -262,13 +263,17 @@ class Profile(models.Model):
         return self.code
 
     def save(self, *args, **kwargs):
-        # تشخیص اینکه این اولین بار ذخیره می‌شود یا نه
+        # ✅ قبل از ذخیره، تصویر هدر را فشرده کن
+        if self.header_background:
+            # برای کاور پروفایل منطقیه عرض بیشتر باشه
+            compress_image_field(self, "header_background", max_width=1920, quality=70)
+
         creating = self.pk is None
         super().save(*args, **kwargs)
-        # بعد از ذخیره‌ی اولیه، اگر کد نداریم، بر اساس pk تولید کن
         if creating and not self.code:
             self.code = self.generate_code()
             super(Profile, self).save(update_fields=["code"])
+
 
     def __str__(self):
         if self.code:
@@ -317,7 +322,10 @@ class Testimonial(models.Model):
 
     class Meta:
         ordering = ["order", "id"]
-
+    def save(self, *args, **kwargs):
+        if self.background_image:
+            compress_image_field(self, "background_image", max_width=1600, quality=70)
+        super().save(*args, **kwargs)
     def __str__(self):
         return f"{self.profile.user.username} - {self.person_name}"
 
@@ -344,6 +352,9 @@ class ClientLogo(models.Model):
 
     class Meta:
         ordering = ["order", "id"]
-
+    def save(self, *args, **kwargs):
+        if self.image:
+            compress_image_field(self, "image", max_width=600, quality=70)
+        super().save(*args, **kwargs)
     def __str__(self):
         return f"{self.profile.user.username} - {self.title or 'client'}"

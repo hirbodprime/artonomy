@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 User = get_user_model()
+from core.utils.images import compress_image_field
 
 CURRENCY_CHOICES = (
     ("IRT", "تومان"),
@@ -43,10 +44,7 @@ class Product(TimeStamped):
     class Meta:
         ordering = ["order", "-updated_at", "-id"]
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title, allow_unicode=True) or "item"
-        super().save(*args, **kwargs)
+
 
     def display_price(self):
         if self.price_type == Product.PriceType.NEGOTIABLE:
@@ -59,14 +57,16 @@ class Product(TimeStamped):
     def get_absolute_url(self):
         return reverse("artpiece_detail", kwargs={"slug": self.slug, "pk": self.pk})
 
-    # --- gallery helpers ---
-    # def cover_image(self):
-    #     # prefer explicit primary, then lowest order, then legacy image
-    #     img = self.images.filter(is_primary=True).order_by("order", "id").first()
-    #     if img: return img
-    #     img = self.images.order_by("order", "id").first()
-    #     return img
-    # models.py  (inside class Product)
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title, allow_unicode=True) or "item"
+
+        # ✅ قبل از ذخیره، تصویر اصلی را هم فشرده کن
+        if self.image:
+            compress_image_field(self, "image", max_width=1600, quality=65)
+
+        super().save(*args, **kwargs)
+
     @property
     def cover_image(self):
         # primary → lowest order → newest
@@ -92,8 +92,15 @@ class ProductImage(TimeStamped):
     class Meta:
         ordering = ["order", "id"]
 
+    def save(self, *args, **kwargs):
+        if self.image:
+            # max_width را می‌توانی بسته به نیاز کمتر/بیشتر کنی
+            compress_image_field(self, "image", max_width=1600, quality=65)
+        super().save(*args, **kwargs)
+        
     def __str__(self):
         return f"تصویر {self.product_id} #{self.id}"
+
 
 
 class Service(TimeStamped):
@@ -122,6 +129,10 @@ class Service(TimeStamped):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title, allow_unicode=True)
+
+        if self.image:
+            compress_image_field(self, "image", max_width=1600, quality=65)
+
         super().save(*args, **kwargs)
 
     def display_price(self):
@@ -169,6 +180,11 @@ class ServiceImage(TimeStamped):
 
     def __str__(self):
         return f"تصویر سرویس {self.service_id} #{self.id}"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            compress_image_field(self, "image", max_width=1600, quality=65)
+        super().save(*args, **kwargs)
 
 
 
@@ -218,6 +234,10 @@ class ArtPost(TimeStamped):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title, allow_unicode=True) or "post"
+
+        if self.image:
+            compress_image_field(self, "image", max_width=1600, quality=65)
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -251,6 +271,8 @@ class ArtPost(TimeStamped):
 
     def total_likes(self):
         return self.likes.count()
+    
+    
 class ArtPostImage(TimeStamped):
     artpost = models.ForeignKey(
         ArtPost,
@@ -267,3 +289,8 @@ class ArtPostImage(TimeStamped):
 
     def __str__(self):
         return f"تصویر پست {self.artpost_id} #{self.id}"
+
+    def save(self, *args, **kwargs):
+        if self.image:
+            compress_image_field(self, "image", max_width=1600, quality=65)
+        super().save(*args, **kwargs)
