@@ -136,6 +136,7 @@ class ProfileAdmin(admin.ModelAdmin):
                 "subcategory",
                 "business_kind",
                 "completion",
+                "code"
             )
         }),
         ("هدر پروفایل", {
