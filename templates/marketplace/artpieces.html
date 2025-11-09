@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div id="wrapper">
+  <div class="content-holder">
+
+    {# ───────────────── گرید آثار ───────────────── #}
+    <div class="vertical-portfolio_wrap" id="port-scroll">
+      <div class="gallery-items big-padding lightgallery gi_left_al">
+
+        {% for p in page_obj %}
+          <div class="gallery-item">
+            <div class="grid-item-holder hov_zoom">
+
+              {# Cover selection order: primary gallery → first gallery → legacy image → placeholder #}
+              {% with cover=p.cover_image %}
+                {% if cover %}
+                  <img src="{{ cover.image.url }}" alt="{{ cover.alt_text|default:p.title }}">
+                {% elif p.image %}
+                  <img src="{{ p.image.url }}" alt="{{ p.title|default_if_none:'-' }}">
+                {% else %}
+                  <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}"
+                       alt="{{ p.title|default_if_none:'-' }}">
+                {% endif %}
+              {% endwith %}
+
+              <div class="grid-item-info">
+                <h3>
+                  <a href="{{ p.get_absolute_url }}" class="ajax">{{ p.title }}</a>
+                </h3>
+
+                {% if p.description %}
+                  <p>{{ p.description|truncatechars:120 }}</p>
+                {% endif %}
+
+<p style="margin-top:6px;opacity:.9;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+
+  {# نوع آیتم: محصول برای فروش / محتوای هنری #}
+  {% if p.is_for_sale %}
+    <span class="chip"
+          style="background:rgba(16,185,129,.15);
+                 border:1px solid #10B981;
+                 padding:2px 8px;border-radius:9999px;">
+      محصول برای فروش
+    </span>
+    <span style="border:1px solid rgba(255,255,255,.15);
+                 padding:2px 8px;border-radius:9999px;">
+      {{ p.display_price }}
+    </span>
+  {% else %}
+    <span class="chip"
+          style="background:rgba(59,130,246,.15);
+                 border:1px solid #3B82F6;
+                 padding:2px 8px;border-radius:9999px;">
+      محتوای هنری
+    </span>
+  {% endif %}
+
+  {# وضعیت کالا (در صورت تعریف) #}
+  {% if p.condition == 'new' %}
+    <span class="chip" style="margin-inline-start:6px;">نو</span>
+  {% elif p.condition == 'used' %}
+    <span class="chip" style="margin-inline-start:6px;">کارکرده</span>
+  {% endif %}
+</p>
+
+              </div>
+
+              <div class="pr_num"></div>
+
+              {% if p.cover_image %}
+                <a href="{{ p.cover_image.image.url }}" class="grid-media-zoom image-popup">
+                  <i class="far fa-search"></i>
+                </a>
+              {% endif %}
+
+            </div>
+          </div>
+        {% empty %}
+          <div class="container small-container" style="padding:24px 16px;">
+            <div class="panel" style="text-align:center">
+              موردی یافت نشد.
+            </div>
+          </div>
+        {% endfor %}
+
+      </div>
+    </div>
+
+    {# ───────────────── صفحه‌بندی (با حفظ فیلترها) ───────────────── #}
+    {% if page_obj.paginator.num_pages > 1 %}
+      <div class="container small-container" style="padding:12px 16px 28px;">
+        <nav class="pagination">
+          <ul style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+                     list-style:none;padding:0;margin:0;">
+
+            {% if page_obj.has_previous %}
+              <li>
+                <a class="btn btn-ghost"
+                   href="?{% if q %}q={{ q|urlencode }}&{% endif %}
+                           {% if price_type %}price_type={{ price_type }}&{% endif %}
+                           {% if condition %}condition={{ condition }}&{% endif %}
+                           {% if currency %}currency={{ currency }}&{% endif %}
+                           {% if min_price %}min_price={{ min_price }}&{% endif %}
+                           {% if max_price %}max_price={{ max_price }}&{% endif %}
+                           page={{ page_obj.previous_page_number }}">
+                  قبلی
+                </a>
+              </li>
+            {% endif %}
+
+            {% for i in page_obj.paginator.page_range %}
+              {% if i == page_obj.number %}
+                <li><span class="btn" style="pointer-events:none;">{{ i }}</span></li>
+              {% else %}
+                <li>
+                  <a class="btn btn-ghost"
+                     href="?{% if q %}q={{ q|urlencode }}&{% endif %}
+                             {% if price_type %}price_type={{ price_type }}&{% endif %}
+                             {% if condition %}condition={{ condition }}&{% endif %}
+                             {% if currency %}currency={{ currency }}&{% endif %}
+                             {% if min_price %}min_price={{ min_price }}&{% endif %}
+                             {% if max_price %}max_price={{ max_price }}&{% endif %}
+                             page={{ i }}">
+                    {{ i }}
+                  </a>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+              <li>
+                <a class="btn btn-ghost"
+                   href="?{% if q %}q={{ q|urlencode }}&{% endif %}
+                           {% if price_type %}price_type={{ price_type }}&{% endif %}
+                           {% if condition %}condition={{ condition }}&{% endif %}
+                           {% if currency %}currency={{ currency }}&{% endif %}
+                           {% if min_price %}min_price={{ min_price }}&{% endif %}
+                           {% if max_price %}max_price={{ max_price }}&{% endif %}
+                           page={{ page_obj.next_page_number }}">
+                  بعدی
+                </a>
+              </li>
+            {% endif %}
+
+          </ul>
+        </nav>
+      </div>
+    {% endif %}
+
+    {# ───────────────── پایین ثابت تم (دکمه فیلتر) ───────────────── #}
+    <div class="fixed-bottom-container f_bc_vis">
+      <!-- <div class="scroll-down-wrap">
+        <div class="mousey"><div class="scroller"></div></div>
+      </div> -->
+      <div class="filter-btn hid-filter">
+        <div class="filter-btn_container"></div>
+        <span class="filt-title">فیلترها</span>
+      </div>
+      <div class="folio-counter">
+        <div class="num-album"></div>
+        <div class="all-album"></div>
+      </div>
+    </div>
+
+    {# ───────────────── پنل فیلتر کشویی ───────────────── #}
+    <div class="gallery-filters-wrap">
+      <div class="gallery-filters">
+
+        <div class="container small-container" style="padding:24px 16px;">
+          <h3 style="margin-bottom:16px;">فیلتر آثار</h3>
+
+          <form method="get" action=""
+                class="fl-wrap"
+                style="display:flex;flex-direction:column;gap:14px;">
+
+            {# جستجو #}
+            <input type="text" name="q" value="{{ q }}"
+                   placeholder="جستجوی عنوان یا توضیح…"
+                   style="width:100%; padding:10px 14px;
+                          border-radius:14px; border:1px solid rgba(255,255,255,.15);
+                          background:var(--bg-2,#181b2a); color:var(--text,#eef1ff);">
+
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+
+              {# نوع قیمت #}
+              <select name="price_type"
+                      style="flex:1; min-width:160px;padding:10px 12px;border-radius:20px;
+                             border:1px solid rgba(255,255,255,.15);
+                             background:var(--bg-2,#181b2a);color:var(--text,#eef1ff);">
+                <option value="">همه قیمت‌ها</option>
+                {% for val,label in price_type_choices %}
+                  <option value="{{ val }}" {% if val == price_type %}selected{% endif %}>
+                    {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+
+              {# وضعیت کالا #}
+              <select name="condition"
+                      style="flex:1; min-width:150px;padding:10px 12px;border-radius:20px;
+                             border:1px solid rgba(255,255,255,.15);
+                             background:var(--bg-2,#181b2a);color:var(--text,#eef1ff);">
+                <option value="">همه وضعیت‌ها</option>
+                {% for val,label in condition_choices %}
+                  <option value="{{ val }}" {% if val == condition %}selected{% endif %}>
+                    {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+
+              {# ارز #}
+              <select name="currency"
+                      style="flex:1; min-width:140px;padding:10px 12px;border-radius:20px;
+                             border:1px solid rgba(255,255,255,.15);
+                             background:var(--bg-2,#181b2a);color:var(--text,#eef1ff);">
+                <option value="">همه ارزها</option>
+                {% for val,label in currency_choices %}
+                  <option value="{{ val }}" {% if val == currency %}selected{% endif %}>
+                    {{ label }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;gap:10px;">
+              {# بازه قیمت #}
+              <input type="number" name="min_price" value="{{ min_price }}"
+                     placeholder="حداقل قیمت"
+                     style="flex:1; min-width:140px;padding:10px 12px;border-radius:20px;
+                            border:1px solid rgba(255,255,255,.15);
+                            background:var(--bg-2,#181b2a);color:var(--text,#eef1ff);">
+              <input type="number" name="max_price" value="{{ max_price }}"
+                     placeholder="حداکثر قیمت"
+                     style="flex:1; min-width:140px;padding:10px 12px;border-radius:20px;
+                            border:1px solid rgba(255,255,255,.15);
+                            background:var(--bg-2,#181b2a);color:var(--text,#eef1ff);">
+            </div>
+
+<div style="display:flex;gap:10px;justify-content:flex-start;margin-top:8px;">
+  <button class="btn" type="submit">اعمال فیلتر</button>
+
+  {# دکمه‌ی فرم؛ ویو اگر clear=1 ببیند، ریدایرکت می‌کند #}
+  <button class="btn btn-clear" type="submit" name="clear" value="1">
+    حذف فیلترها
+  </button>
+</div>
+
+<style>
+  .btn.btn-clear {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.4);
+    transition: all 0.2s ease-in-out;
+  }
+  .btn.btn-clear:hover {
+    background: rgba(255,255,255,.15);
+    color: #fff;
+    border-color: rgba(255,255,255,.6);
+  }
+</style>
+
+
+          </form>
+        </div>
+
+      </div>
+      <div class="gallery-filters-overlay"></div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock content %}

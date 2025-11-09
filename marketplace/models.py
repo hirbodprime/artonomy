@@ -1,408 +1,269 @@
 # marketplace/models.py
-from decimal import Decimal
-from datetime import timedelta
 from django.db import models
-from django.contrib.auth import get_user_model
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 from django.utils.text import slugify
-from django.db.models import Q, UniqueConstraint
-
-from accounts.models import Category  # using your Category model
-
+from django.utils.translation import gettext_lazy as _
+from django.urls import reverse
+from django.contrib.auth import get_user_model
 User = get_user_model()
 
-# marketplace/models.py (add after Product model or wherever appropriate)
-from django.conf import settings
-class MarketplaceStats(models.Model):
-    """
-    Tracks global marketplace stats like how many people clicked 'Join'.
-    This is basically a singleton row.
-    """
-    name = models.CharField(max_length=32, unique=True, default="global")
-    join_clicks = models.PositiveIntegerField(default=0)
+CURRENCY_CHOICES = (
+    ("IRT", "تومان"),
+    ("IRR", "ریال"),
+)
 
-    def __str__(self):
-        return f"{self.name} clicks={self.join_clicks}"
+class TimeStamped(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True, db_index=True)
+    class Meta:
+        abstract = True
 
-    @classmethod
-    def bump_join_clicks(cls):
-        obj, _ = cls.objects.get_or_create(name="global")
-        obj.join_clicks = models.F("join_clicks") + 1
-        obj.save(update_fields=["join_clicks"])
-        obj.refresh_from_db()
-        return obj.join_clicks
+class Product(TimeStamped):
+    class PriceType(models.TextChoices):
+        FIXED = "fixed", _("قیمت ثابت")
+        NEGOTIABLE = "neg", _("توافقی")
 
+    class Condition(models.TextChoices):
+        NEW = "new", _("نو")
+        USED = "used", _("کارکرده")
 
-class BusinessProfile(models.Model):
-    """
-    Public-facing 'studio' / 'artist page' / 'gallery page'.
-    Moderation (is_approved) is separate from paywall (subscription_expires_at).
-    Profile is LIVE only when both are satisfied.
-    """
-    class Kind(models.TextChoices):
-        SOLO_ARTIST   = "SOLO_ARTIST", _("Solo Artist")
-        GALLERY       = "GALLERY",     _("Gallery")
-        STUDIO        = "STUDIO",      _("Studio")
-        CONCEPT_STORE = "CONCEPT_STORE", _("Concept Store")
-        OTHER         = "OTHER",       _("Other / Creative Business")
-
-    owner = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="business_profiles",
-    )
-
-    kind = models.CharField(
-        max_length=20,
-        choices=Kind.choices,
-    )
-
-    display_name = models.CharField(
-        max_length=200,
-        help_text=_("Public name. For solo artists, usually your artist name.")
-    )
-
-    slug = models.SlugField(
-        max_length=220,
-        unique=True,
-        blank=True,
-        help_text=_("Auto-generated from display name. Used in URLs."),
-    )
-
-    tagline = models.CharField(
-        max_length=240,
-        blank=True,
-        help_text=_("Short punchline. Example: 'Brutalist ceramic forms with Persian soul.'")
-    )
-
-    bio_long = models.TextField(
-        blank=True,
-        help_text=_(
-            "Tell your story in a dramatic, emotional way. "
-            "Who are you, why do you exist, what makes you different?"
-        )
-    )
-
-    location = models.CharField(
-        max_length=160,
-        blank=True,
-        help_text=_("City / Country or where you're based.")
-    )
-
-    avatar = models.ImageField(
-        upload_to="market/profile/avatar/",
-        blank=True,
-        null=True,
-        help_text=_("Logo or portrait.")
-    )
-
-    cover = models.ImageField(
-        upload_to="market/profile/cover/",
-        blank=True,
-        null=True,
-        help_text=_("Header / vibe image.")
-    )
-
-    # Moderation gate
-    is_approved = models.BooleanField(
-        default=False,
-        help_text=_("If not approved yet, profile is not shown publicly (even if subscribed).")
-    )
-
-    # Subscription / paywall gate
-    trial_started_at = models.DateTimeField(null=True, blank=True)
-    subscription_expires_at = models.DateTimeField(
-        null=True, blank=True,
-        help_text=_("When this timestamp is in the past, the shop becomes hidden until renewed.")
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
+    profile = models.ForeignKey("accounts.Profile", on_delete=models.CASCADE, related_name="products")
+    title = models.CharField(max_length=180)
+    slug = models.SlugField(max_length=220, blank=True)
+    description = models.TextField(blank=True, default="")
+    price_type = models.CharField(max_length=8, choices=PriceType.choices, default=PriceType.FIXED)
+    price_amount = models.PositiveIntegerField(blank=True, null=True, help_text=_("برای قیمت ثابت پر شود"))
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default="IRT")
+    quantity = models.PositiveIntegerField(default=1)
+    condition = models.CharField(max_length=8, choices=Condition.choices, default=Condition.NEW)
+    # (optional legacy single image; safe to keep)
+    image = models.ImageField(upload_to="market/products/%Y/%m/", blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
 
     class Meta:
-        ordering = ["-is_approved", "-created_at"]
-
-    def __str__(self):
-        return f"{self.display_name} ({self.get_kind_display()})"
+        ordering = ["order", "-updated_at", "-id"]
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            base = slugify(self.display_name) or "profile"
-            candidate = base
-            n = 1
-            while BusinessProfile.objects.filter(slug=candidate).exclude(pk=self.pk).exists():
-                n += 1
-                candidate = f"{base}-{n}"
-            self.slug = candidate
+            self.slug = slugify(self.title, allow_unicode=True) or "item"
         super().save(*args, **kwargs)
 
-    # ---- Subscription helpers ----
-    def is_subscription_active(self) -> bool:
-        """
-        Returns True if now < subscription_expires_at.
-        """
-        if not self.subscription_expires_at:
-            return False
-        return timezone.now() < self.subscription_expires_at
+    def display_price(self):
+        if self.price_type == Product.PriceType.NEGOTIABLE:
+            return "توافقی"
+        if self.price_amount:
+            unit = dict(CURRENCY_CHOICES).get(self.currency, "تومان")
+            return f"{self.price_amount:,.0f} {unit}".replace(",", "٬")
+        return "—"
 
-    def is_live(self) -> bool:
-        """
-        A profile is LIVE when it is approved AND its subscription is active.
-        """
-        return bool(self.is_approved and self.is_subscription_active())
+    def get_absolute_url(self):
+        return reverse("artpiece_detail", kwargs={"slug": self.slug, "pk": self.pk})
 
-    def start_free_trial(self, days:int = 2, auto_approve:bool = True):
-        """
-        Start (or restart) a free trial now for `days`.
-        Optionally auto-approve the profile so it is visible immediately.
-        """
-        now = timezone.now()
-        self.trial_started_at = now
-        self.subscription_expires_at = now + timedelta(days=days)
-        if auto_approve:
-            self.is_approved = True
-        self.save(update_fields=["trial_started_at", "subscription_expires_at", "is_approved"])
-
-    def extend_subscription(self, months:int = 1):
-        """
-        Extend subscription by `months` months from the *later* of now or current expiry.
-        Use this after a successful monthly payment + admin approval.
-        """
-        now = timezone.now()
-        base = self.subscription_expires_at if self.subscription_expires_at and self.subscription_expires_at > now else now
-        # simple month = 30 days to avoid external libs; adjust if you want calendar months
-        self.subscription_expires_at = base + timedelta(days=30 * months)
-        # ensure it stays approved after renewal (moderation is separate but we keep this true)
-        if not self.is_approved:
-            self.is_approved = True
-        self.save(update_fields=["subscription_expires_at", "is_approved"])
-    def is_subscription_active(self) -> bool:
-        if not self.subscription_expires_at:
-            return False
-        return timezone.now() < self.subscription_expires_at
-
-    def is_on_trial(self) -> bool:
-        """
-        True iff the current expiry is within the initial trial window.
-        """
-        if not (self.trial_started_at and self.subscription_expires_at):
-            return False
-        return self.subscription_expires_at <= (self.trial_started_at + timedelta(days=2))
-
-    def subscription_state(self) -> str:
-        """
-        Returns: "TRIAL", "ACTIVE", or "EXPIRED"
-        """
-        if not self.is_subscription_active():
-            return "EXPIRED"
-        return "TRIAL" if self.is_on_trial() else "ACTIVE"
-
+    # --- gallery helpers ---
+    # def cover_image(self):
+    #     # prefer explicit primary, then lowest order, then legacy image
+    #     img = self.images.filter(is_primary=True).order_by("order", "id").first()
+    #     if img: return img
+    #     img = self.images.order_by("order", "id").first()
+    #     return img
+    # models.py  (inside class Product)
     @property
-    def public_products(self):
-        return self.products.filter(status=Product.Status.ACTIVE).order_by("-views", "-id")[:8]
+    def cover_image(self):
+        # primary → lowest order → newest
+        return self.images.order_by('-is_primary', 'order', 'id').first()
 
-
-class JoinRequest(models.Model):
-    """
-    We keep JoinRequest as a thin audit of the onboarding attempt.
-    Payment screenshot is no longer required by the new flow.
-    """
-    class Status(models.TextChoices):
-        PENDING  = "PENDING",  _("Pending Review")
-        APPROVED = "APPROVED", _("Approved")
-        REJECTED = "REJECTED", _("Rejected")
-
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="market_join_requests"
-    )
-
-    profile = models.OneToOneField(
-        BusinessProfile,
-        on_delete=models.CASCADE,
-        related_name="join_request"
-    )
-
-    status = models.CharField(
-        max_length=10,
-        choices=Status.choices,
-        default=Status.APPROVED,  # new flow: auto-approve on trial
-    )
-
-    # payment_image REMOVED from the new flow (not needed)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-        constraints = [
-            UniqueConstraint(
-                fields=["user", "profile"],
-                condition=Q(status="PENDING"),
-                name="uniq_pending_payment_per_user_profile",
-            ),
-        ]
+    def ordered_images(self):
+        return self.images.order_by('-is_primary', 'order', 'id')
+    @property
+    def is_for_sale(self):
+        return True
 
     def __str__(self):
-        return f"{self.user} -> {self.profile} [{self.status}]"
+        return self.title
 
 
-class Product(models.Model):
+class ProductImage(TimeStamped):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="market/products/%Y/%m/gallery/")
+    alt_text = models.CharField(max_length=200, blank=True, default="")
+    order = models.PositiveIntegerField(default=0, help_text=_("ترتیب نمایش"))
+    is_primary = models.BooleanField(default=False, help_text=_("کاور/تصویر اصلی"))
+
+    class Meta:
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return f"تصویر {self.product_id} #{self.id}"
+
+
+class Service(TimeStamped):
+    class PricingModel(models.TextChoices):
+        FIXED = "fixed", _("قیمت ثابت")
+        RANGE = "range", _("بازه قیمتی")
+        HOURLY = "hourly", _("ساعتی")
+        QUOTE = "quote", _("براساس پروژه (استعلام)")
+
+    profile = models.ForeignKey("accounts.Profile", on_delete=models.CASCADE, related_name="services")
+    title = models.CharField(max_length=180)
+    slug = models.SlugField(max_length=220, blank=True)
+    description = models.TextField(blank=True, default="")
+    image = models.ImageField(upload_to="market/services/%Y/%m/", blank=True, null=True)  # legacy single
+    tags = models.CharField(max_length=200, blank=True, default="", help_text=_("لیست برچسب‌ها با ویرگول"))
+    pricing_model = models.CharField(max_length=10, choices=PricingModel.choices, default=PricingModel.QUOTE)
+    currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default="IRT")
+    min_price = models.PositiveIntegerField(blank=True, null=True)
+    max_price = models.PositiveIntegerField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "-updated_at", "-id"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title, allow_unicode=True)
+        super().save(*args, **kwargs)
+
+    def display_price(self):
+        unit = dict(CURRENCY_CHOICES).get(self.currency, "تومان")
+        if self.pricing_model == Service.PricingModel.FIXED and self.min_price:
+            return f"{self.min_price:,.0f} {unit}".replace(",", "٬")
+        if self.pricing_model == Service.PricingModel.RANGE and self.min_price and self.max_price:
+            lo = f"{self.min_price:,.0f}".replace(",", "٬")
+            hi = f"{self.max_price:,.0f}".replace(",", "٬")
+            return f"{lo}–{hi} {unit}"
+        if self.pricing_model == Service.PricingModel.HOURLY and self.min_price:
+            return f"{self.min_price:,.0f} {unit} / ساعت".replace(",", "٬")
+        return "استعلام قیمت"
+
+    def tag_list(self):
+        return [t.strip() for t in self.tags.split(",") if t.strip()]
+
+    # def cover_image(self):
+    #     img = self.images.filter(is_primary=True).order_by("order", "id").first()
+    #     if img: return img
+    #     img = self.images.order_by("order", "id").first()
+    #     return img
+
+    def __str__(self):
+        return self.title
+    @property
+    def cover_image(self):
+        return self.images.order_by('-is_primary', 'order', 'id').first()
+    def get_absolute_url(self):
+        return reverse("service_detail", kwargs={"slug": self.slug, "pk": self.pk})
+
+    def ordered_images(self):
+        return self.images.order_by('-is_primary', 'order', 'id')
+
+
+class ServiceImage(TimeStamped):
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="market/services/%Y/%m/gallery/")
+    alt_text = models.CharField(max_length=200, blank=True, default="")
+    order = models.PositiveIntegerField(default=0)
+    is_primary = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return f"تصویر سرویس {self.service_id} #{self.id}"
+
+
+
+
+class ArtPost(TimeStamped):
     """
-    Items offered by a BusinessProfile:
-    - physical artworks
-    - services
-    - design packages
-    etc.
+    محتوای هنری / پست بدون قیمت‌گذاری (فقط برای نمایش و جذب مخاطب)
+    شبیه Product است ولی بدون قیمت.
     """
-    class Status(models.TextChoices):
-        ACTIVE = "ACTIVE", _("Active")
-        DRAFT  = "DRAFT",  _("Draft")
-        SOLD   = "SOLD",   _("Sold")
+    class Condition(models.TextChoices):
+        NEW = "new", _("نو")
+        USED = "used", _("کارکرده")
 
     profile = models.ForeignKey(
-        BusinessProfile,
+        "accounts.Profile",
         on_delete=models.CASCADE,
-        related_name="products"
+        related_name="artposts",
     )
-
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-
-    # category of the product (art type / service domain)
-    category = models.ForeignKey(
-        Category,
-        null=True, blank=True,
-        on_delete=models.SET_NULL,
-        related_name="products"
+    title = models.CharField(max_length=180)
+    slug = models.SlugField(max_length=220, blank=True)
+    description = models.TextField(blank=True, default="")
+    quantity = models.PositiveIntegerField(default=1)  # اختیاری ولی شبیه Product
+    condition = models.CharField(
+        max_length=8,
+        choices=Condition.choices,
+        default=Condition.NEW,
     )
-
-    # pricing
-    price = models.DecimalField(
-        max_digits=12,
-        decimal_places=2,
-        default=Decimal("0.00")
-    )
-    currency = models.CharField(
-        max_length=12,
-        default="TOMAN"
-    )
-
-    is_service = models.BooleanField(
-        default=False,
-        help_text=_("True = service (logo design, tattoo session, etc.). False = physical work.")
-    )
-
     image = models.ImageField(
-        upload_to="market/products/",
+        upload_to="market/artposts/%Y/%m/",
         blank=True,
-        null=True
+        null=True,
     )
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
 
-    status = models.CharField(
-        max_length=10,
-        choices=Status.choices,
-        default=Status.ACTIVE
+    # ❤️‍🔥 تعاملات
+    likes = models.ManyToManyField(
+        User,
+        related_name="liked_artposts",
+        blank=True,
     )
-
     views = models.PositiveIntegerField(default=0)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-
     class Meta:
-        ordering = ["-created_at", "-id"]
+        ordering = ["order", "-updated_at", "-id"]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title, allow_unicode=True) or "post"
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.title} · {self.profile.display_name}"
+        return self.title
+
+    # شبیه Product ولی فقط برای نمایش
+    def display_price(self):
+        return "—"
 
     @property
-    def can_buy(self):
-        # disabled for now
+    def is_for_sale(self):
         return False
 
-# marketplace/models.py
-from django.utils import timezone
-from django.db import models
-from decimal import Decimal
+    @property
+    def cover_image(self):
+        # primary → lowest order → newest
+        img = self.images.order_by("-is_primary", "order", "id").first()
+        if img:
+            return img
+        # fallback: legacy single image
+        if self.image:
+            # شبیه ProductImage interface (image.url)
+            return None  # در تمپلیت خود image را چک می‌کنیم
+        return None
 
-# marketplace/models.py (append near the bottom)
+    def ordered_images(self):
+        return self.images.order_by("-is_primary", "order", "id")
 
-class SubscriptionPayment(models.Model):
-    class Status(models.TextChoices):
-        PENDING  = "PENDING",  _("Pending")
-        APPROVED = "APPROVED", _("Approved")
-        REJECTED = "REJECTED", _("Rejected")
+    def get_absolute_url(self):
+        return reverse("artpost_detail", kwargs={"slug": self.slug, "pk": self.pk})
 
-    profile = models.ForeignKey(
-        BusinessProfile,
+    def total_likes(self):
+        return self.likes.count()
+class ArtPostImage(TimeStamped):
+    artpost = models.ForeignKey(
+        ArtPost,
         on_delete=models.CASCADE,
-        related_name="subscription_payments",
+        related_name="images"
     )
-    # how much the user paid (optional display)
-    amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
-    currency = models.CharField(max_length=12, default="TOMAN")
-
-    # admin decides how many months to grant (default 1)
-    months_granted = models.PositiveSmallIntegerField(default=1)
-
-    # user proof
-    payment_image = models.ImageField(upload_to="market/payments/", blank=True, null=True)
-
-    # status
-    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
-
-    # audit
-    created_at = models.DateTimeField(auto_now_add=True)
-    reviewed_at = models.DateTimeField(null=True, blank=True)
-    reviewed_by = models.ForeignKey(
-        User, null=True, blank=True, on_delete=models.SET_NULL, related_name="reviewed_subscription_payments"
-    )
-
-    # snapshot of expiry change (filled when APPROVED)
-    previous_expires_at = models.DateTimeField(null=True, blank=True)
-    new_expires_at = models.DateTimeField(null=True, blank=True)
-    admin_note = models.TextField(blank=True, default="")
+    image = models.ImageField(upload_to="market/artposts/%Y/%m/gallery/")
+    alt_text = models.CharField(max_length=200, blank=True, default="")
+    order = models.PositiveIntegerField(default=0, help_text=_("ترتیب نمایش"))
+    is_primary = models.BooleanField(default=False, help_text=_("کاور/تصویر اصلی"))
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["order", "id"]
 
     def __str__(self):
-        return f"{self.profile.display_name} · {self.get_status_display()} · {self.created_at:%Y-%m-%d}"
-
-    def approve(self, reviewer: User, months: int | None = None, note: str = ""):
-        if self.status == self.Status.APPROVED:
-            return
-
-        if months and months > 0:
-            self.months_granted = months
-
-        now = timezone.now()
-        self.previous_expires_at = self.profile.subscription_expires_at or now
-
-        # extend profile
-        self.profile.extend_subscription(months=self.months_granted)
-        self.profile.trial_started_at = None
-        self.profile.save(update_fields=["trial_started_at","subscription_expires_at","is_approved"])
-
-        self.new_expires_at = self.profile.subscription_expires_at
-        self.status = self.Status.APPROVED
-        self.reviewed_at = now
-        self.reviewed_by = reviewer
-        if note:
-            self.admin_note = (self.admin_note + "\n" if self.admin_note else "") + note
-
-        self.save(update_fields=[
-            "months_granted","previous_expires_at","new_expires_at",
-            "status","reviewed_at","reviewed_by","admin_note",
-        ])
-
-    def reject(self, reviewer: User, note: str = ""):
-        if self.status == self.Status.REJECTED:
-            return
-        self.status = self.Status.REJECTED
-        self.reviewed_at = timezone.now()
-        self.reviewed_by = reviewer
-        if note:
-            self.admin_note = note
-        self.save(update_fields=["status", "reviewed_at", "reviewed_by", "admin_note"])
+        return f"تصویر پست {self.artpost_id} #{self.id}"

@@ -1,602 +1,413 @@
-# accounts/views.py
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from .onboarding import next_onboarding_step, ROLE_STEP, CATEGORIES_STEP, DONE
-from posts.models import Post
-from network.models import Follow
-from accounts.models import (
-    Profile, Education, Experience, Book, Certification, Course, Project, Award,
-    SkillTag, SocialLink, PersonalValue, HobbyInterest, Achievement, Goal, FunFact,UserCategory,Category,User,User ,username_validator
-)
-from suggest.models import Suggestion
-
-from django.contrib.auth import logout
-from django.urls import reverse
-
-# accounts/views.py  (additions)
-from django.db import transaction
-from .forms import (
-    ProfileBasicsForm, SkillsCSVForm, ValuesHobbiesForm, FunFactsForm,
-    SocialLinkFormSet,
-    EducationFS, ExperienceFS, ProjectFS, CertificationFS, CourseFS, AwardFS, BookFS
-)
-import re
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import login, get_user_model
-from django.core.exceptions import ValidationError
-from django.db.models import Q, F
-from django.db.models.functions import Coalesce
-from django.utils.translation import gettext as _, get_language
-from core.decorators import redirect_if_authenticated
-import re
+from django.contrib.auth import login, logout
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth import get_user_model, update_session_auth_hash
 
 
-USERNAME_CLEANER = re.compile(r'[^a-zA-Z0-9_]')
+from django.contrib.auth.decorators import login_required
+from django.db import transaction
+from .models import Profile
+from marketplace.models import Product, Service, ArtPost
+from marketplace.forms import ProductImageFormSet, ServiceImageFormSet, ArtPostImageFormSet
+from .forms import (
+    UserForm, ProfileForm, RoleCategoryForm,
+    CounterFormSet, SkillFormSet, SocialLinkFormSet,
+    ClientLogoFormSet, TestimonialFormSet,
+    ProductFormSet, ServiceFormSet, ArtPostFormSet, LoginForm, SignupForm, PasswordChangeForm
+)
+
+
+
 User = get_user_model()
 
 
-# accounts/views.py
-from django.utils.http import urlencode
-from django.contrib.auth.decorators import login_required
-from django.urls import reverse
-
-@login_required
-def start_artist_setup(request):
-    """
-    Current behavior (NOW): make the user an ARTIST and send them to choose_categories for WORK.
-    Later you can remove the role flip if you want FAV for non-artists.
-    """
-    next_url = request.GET.get("next") or reverse("categories:index")
-
-    # NOW: ensure they are ARTIST so we save WORK
-    if request.user.role != User.Role.ARTIST:
-        request.user.role = User.Role.ARTIST
-        request.user.save(update_fields=["role"])
-
-    # send them to picker for WORK categories
-    return redirect(f"{reverse('choose_categories')}?{urlencode({'kind': UserCategory.Kind.WORK, 'next': next_url})}")
-
-
-
-GMAIL_PATTERN = re.compile(r"^[A-Za-z0-9._%+-]+@gmail\.com$", re.IGNORECASE)
-@login_required
-def logout_view(request):
-    """Logs out the user and redirects to explore (or login)."""
-    logout(request)
-    return redirect(reverse("landing"))
-
-
-def signup_view(request):
-    if request.method == "POST":
-        username = (request.POST.get("username") or "").strip()
-        email    = (request.POST.get("email") or "").strip().lower()
-        password = (request.POST.get("password") or "")
-
-        ctx = {"prefill": {"username": username, "email": email}}
-
-        # sanitize username -> keep letters/numbers/underscore and force lowercase
-        cleaned_username = USERNAME_CLEANER.sub("", username).lower()
-
-        if not cleaned_username:
-            messages.error(request, _("Please choose a valid username (letters, numbers, underscores)."))
-            return render(request, "accounts/signup.html", ctx)
-
-        # run model validator (same one used on the User model)
-        try:
-            from accounts.models import username_validator
-            username_validator(cleaned_username)
-        except ValidationError as e:
-            messages.error(request, e.message)
-            return render(request, "accounts/signup.html", ctx)
-
-        # unique checks
-        if User.objects.filter(username__iexact=cleaned_username).exists():
-            messages.error(request, _("Username already taken."))
-            return render(request, "accounts/signup.html", ctx)
-
-        if not email:
-            messages.error(request, _("Email is required."))
-            return render(request, "accounts/signup.html", ctx)
-
-        # standard email uniqueness (no Gmail-only restriction)
-        if User.objects.filter(email__iexact=email).exists():
-            messages.error(request, _("Email already in use."))
-            return render(request, "accounts/signup.html", ctx)
-
-        # simple password length rule
-        if len(password) < 8:
-            messages.error(request, _("Password must be at least 8 characters."))
-            return render(request, "accounts/signup.html", ctx)
-
-        # create + login
-        user = User.objects.create_user(
-            email=email,
-            username=cleaned_username,
-            password=password,
-        )
-        # if you have email_verified on the model and don’t want to use it here, make sure it defaults to False in the model; no need to touch it now.
-
-        login(request, user)
-        return redirect("marketplace:home")  # or "home"
-
-    return render(request, "accounts/signup.html")
-
-@login_required
-def choose_role(request):
-    step = next_onboarding_step(request.user)
-    if step != ROLE_STEP:
-        # If user isn’t supposed to be here, bounce (middleware also covers it)
-        return redirect("marketplace:home") if step == DONE else redirect("choose_categories")
-
-    if request.method == "POST":
-        role = request.POST.get("role")
-        if role in dict(User.Role.choices):
-            request.user.role = role
-            request.user.save(update_fields=["role"])
-            messages.success(request, "Role saved.")
-            return redirect("choose_categories")
-        messages.error(request, "Please choose a valid option.")
-    return render(request, "accounts/choose_role.html")
-# accounts/views.py
-from django.db.models import Q
-from django.utils.translation import get_language
-from django.db.models.functions import Coalesce
-from django.contrib import messages
-
-@login_required
-def choose_categories(request):
-    user = request.user
-
-    # kind source of truth: POST > GET > default(FAV)
-    kind_param = (request.POST.get("kind") or request.GET.get("kind") or UserCategory.Kind.FAV).upper()
-    rel_kind = UserCategory.Kind.WORK if kind_param == UserCategory.Kind.WORK else UserCategory.Kind.FAV
-
-    next_url = request.GET.get("next") or request.POST.get("next") or reverse("marketplace:home")
-
-    if request.method == "POST":
-        slugs = [s.strip() for s in (request.POST.get("selected_slugs") or "").split(",") if s.strip()]
-        cats = list(Category.objects.filter(Q(slug__in=slugs) | Q(slug_fa__in=slugs)))
-
-        UserCategory.objects.filter(user=user, kind=rel_kind).exclude(category__in=cats).delete()
-        existing = set(UserCategory.objects.filter(user=user, kind=rel_kind).values_list("category_id", flat=True))
-        to_create = [UserCategory(user=user, category=c, kind=rel_kind) for c in cats if c.id not in existing]
-        if to_create:
-            UserCategory.objects.bulk_create(to_create, ignore_conflicts=True)
-
-        messages.success(request, _("Preferences saved."))
-        return redirect(next_url)
-
-    chosen_ids = set(UserCategory.objects.filter(user=user, kind=rel_kind).values_list("category_id", flat=True))
-
-    lang = (get_language() or "").lower()
-    if lang.startswith("fa"):
-        categories = Category.objects.annotate(sort_name=Coalesce("name_fa", "name")).order_by("sort_name")
-    else:
-        categories = Category.objects.all().order_by("name")
-
-    heading_text = _("Your Work Categories") if rel_kind == UserCategory.Kind.WORK else _("Your Favorite Categories")
-
-    return render(request, "accounts/categories.html", {
-        "categories": categories,
-        "chosen_ids": chosen_ids,
-        "rel_kind": rel_kind,
-        "heading_text": heading_text,
-        "next_url": next_url,
-    })
-
-
-
 
 
 @login_required
-def profile_view(request, username: str):
-    UserModel = get_user_model()
-    profile_user = get_object_or_404(
-        UserModel.objects.select_related("profile"),
-        username=username
-    )
-    profile = getattr(profile_user, "profile", None) or Profile.objects.create(user=profile_user) if not hasattr(profile_user, "profile") else profile_user.profile
+def profile_dashboard_view(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
 
-    # follow stats / state
-    followers_count = profile_user.follower_relations.count()
-    following_count = profile_user.following_relations.count()
-    is_following = (
-        request.user.is_authenticated
-        and request.user != profile_user
-        and Follow.objects.filter(follower=request.user, following=profile_user).exists()
-    )
+    # ✅ 1) Make sure every user has a 1-week trial by default
+    profile.ensure_trial_default(save=True)
 
-    # timeline
-    timeline_posts = (
-        Post.objects.filter(author=profile_user)
-        .select_related("author", "author__profile")
-        .prefetch_related("images", "videos", "chapters")
-        .order_by("-created_at")
-    )
-
-    # personal info
-    social_links = profile.social_links.all()
-    values       = profile.values.all()
-    hobbies      = profile.hobbies.all()
-    achievements = profile.achievements.all()
-    goals        = profile.goals.all()
-    funfacts     = profile.funfacts.all()
-
-    # portfolio (resume)
-    educations     = profile.educations.all()
-    experiences    = profile.experiences.all()
-    skills         = profile.skills.all()
-    books          = profile.books.all()
-    certifications = profile.certifications.all()
-    courses        = profile.courses.all()
-    projects       = profile.projects.all()
-    awards         = profile.awards.all()
-
-    # marketplace (optional)
-    market_items = []
-    try:
-        from marketplace.models import MarketItem
-        market_items = (
-            MarketItem.objects.filter(seller=profile_user, status=MarketItem.Status.ACTIVE)
-            .select_related("seller", "seller__profile", "category")
-            .order_by("-created_at")[:18]
-        )
-    except Exception:
-        pass
-
-    work_cats = Category.objects.filter(
-        usercategory__user=profile_user,
-        usercategory__kind=UserCategory.Kind.WORK
-    ).order_by("name")
-
-    fav_cats = Category.objects.filter(
-        usercategory__user=profile_user,
-        usercategory__kind=UserCategory.Kind.FAV
-    ).order_by("name")
-
-    suggestions_made_count = Suggestion.objects.filter(suggester=profile_user).count()
-    suggestions_received_count = Suggestion.objects.filter(post__author=profile_user).count()
-
-    suggested_posts = (
-        Post.objects.filter(suggestions__suggester=profile_user)
-        .select_related("author", "author__profile")
-        .prefetch_related("images", "videos", "chapters")
-        .order_by("-suggestions__created_at")
-    )
-
-    # ---- language-aware category label + ordering for hero chips ----
-    lang = (get_language() or "").lower()
-    if profile_user.role == User.Role.ARTIST:
-        kind = UserCategory.Kind.WORK
-        hero_cats_label = _("Working categories")
-    else:
-        kind = UserCategory.Kind.FAV
-        hero_cats_label = _("Favorite categories")
-
-    if lang.startswith("fa"):
-        # order by Persian name if available, else English name
-        hero_cats = (
-            Category.objects
-            .filter(usercategory__user=profile_user, usercategory__kind=kind)
-            .annotate(sort_name=Coalesce("name_fa", "name"))
-            .order_by("sort_name")[:6]
-        )
-    else:
-        hero_cats = (
-            Category.objects
-            .filter(usercategory__user=profile_user, usercategory__kind=kind)
-            .order_by("name")[:6]
-        )
-
-    show_market = (profile_user.role == User.Role.ARTIST)
-    is_owner = request.user.is_authenticated and request.user == profile_user
-
-    ctx = {
-        "nav_active": None,
-        "profile_user": profile_user,
-        "profile": profile,
-        "show_market": show_market,
-
-        "followers_count": followers_count,
-        "following_count": following_count,
-        "is_following_author": is_following,
-
-        "timeline_posts": timeline_posts,
-        "is_owner": is_owner,
-
-        "social_links": social_links,
-        "values": values,
-        "hobbies": hobbies,
-        "achievements": achievements,
-        "goals": goals,
-        "funfacts": funfacts,
-
-        "educations": educations,
-        "experiences": experiences,
-        "skills": skills,
-        "books": books,
-        "certifications": certifications,
-        "courses": courses,
-        "projects": projects,
-        "awards": awards,
-
-        "market_items": market_items,
-
-        "hero_cats": hero_cats,
-        "hero_cats_label": hero_cats_label,
-        "suggestions_made_count": suggestions_made_count,
-        "suggestions_received_count": suggestions_received_count,
-        "suggested_posts": suggested_posts,
+    tab = request.GET.get("tab", "profile")
+    valid = {
+        "profile","counters","skills","testimonials","social",
+        "clients","role","products","services","content","security"
     }
-    return render(request, "accounts/profile.html", ctx)
+
+    if tab not in valid:
+        tab = "profile"
+
+    # ✅ 2) Gate premium tabs (products/services) for expired trial / no subscription
+    # This protects both GET & POST. If they try to access directly, redirect them.
+    if tab in {"products", "services"} and not profile.can_use_premium:
+        messages.warning(
+            request,
+            "دوره آزمایشی شما تمام شده است. برای استفاده از «محصولات» و «خدمات» "
+            "اشتراک ماهانه (۱ دلار) را فعال کنید."
+        )
+        return redirect(f"{request.path}?tab=role")
+
+    # --- helper to construct your original forms/formsets (unchanged) ---
+    def build_forms(bound: bool):
+        kw = (request.POST, request.FILES) if bound else (None, None)
+        forms = dict(
+            user_form = UserForm(*(kw if bound else ()), instance=request.user),
+            form      = ProfileForm(*(kw if bound else ()), instance=profile),
+
+            fs_counters = CounterFormSet(
+                *(((request.POST,)) if bound and tab=="counters" else ()),
+                instance=profile, prefix="cnt"
+            ),
+            fs_skills   = SkillFormSet(
+                *(((request.POST,)) if bound and tab=="skills" else ()),
+                instance=profile, prefix="sk"
+            ),
+            fs_social   = SocialLinkFormSet(
+                *(((request.POST,)) if bound and tab=="social" else ()),
+                instance=profile, prefix="soc"
+            ),
+            fs_clients  = ClientLogoFormSet(
+                *(((request.POST, request.FILES)) if bound and tab=="clients" else ()),
+                instance=profile, prefix="cl"
+            ),
+            fs_tests    = TestimonialFormSet(
+                *(((request.POST, request.FILES)) if bound and tab=="testimonials" else ()),
+                instance=profile, prefix="ts"
+            ),
+            role_form   = RoleCategoryForm(
+                *(kw if bound and tab=="role" else (None, None)),
+                instance=profile
+            ),
+
+            # parent formsets (profile -> products / services)
+            fs_products = ProductFormSet(
+                *(((request.POST, request.FILES)) if bound and tab=="products" else ()),
+                instance=profile, prefix="prd"
+            ),
+            fs_services = ServiceFormSet(
+                *(((request.POST, request.FILES)) if bound and tab=="services" else ()),
+                instance=profile, prefix="srv"
+            ),
+            fs_artposts = ArtPostFormSet(
+                *(((request.POST, request.FILES)) if bound and tab=="content" else ()),
+                instance=profile, prefix="art"
+            ),
+        )
+        if tab == "security":
+            if bound:
+                forms["pwd_form"] = PasswordChangeForm(user=request.user, data=request.POST)
+            else:
+                forms["pwd_form"] = PasswordChangeForm(user=request.user)
+        else:
+            forms["pwd_form"] = None
+
+        return forms
+
+    # ====== POST ======
+    if request.method == "POST":
+        f = build_forms(True)
+        ok = False
+
+        # اینها را اینجا تعریف می‌کنیم تا در صورت نیاز در ctx بگذاریم
+        product_image_fsets = None
+        service_image_fsets = None
+        artpost_image_fsets = None
+
+        with transaction.atomic():
+            if tab == "profile":
+                ok = f["user_form"].is_valid() and f["form"].is_valid()
+                if ok:
+                    f["user_form"].save()
+                    f["form"].save()
+
+            elif tab == "counters":
+                ok = f["fs_counters"].is_valid()
+                if ok: f["fs_counters"].save()
+
+            elif tab == "skills":
+                ok = f["fs_skills"].is_valid()
+                if ok: f["fs_skills"].save()
+
+            elif tab == "social":
+                ok = f["fs_social"].is_valid()
+                if ok: f["fs_social"].save()
+
+            elif tab == "clients":
+                ok = f["fs_clients"].is_valid()
+                if ok: f["fs_clients"].save()
+
+            elif tab == "testimonials":
+                ok = f["fs_tests"].is_valid()
+                if ok: f["fs_tests"].save()
+
+            elif tab == "role":
+                ok = f["role_form"].is_valid()
+                if ok: f["role_form"].save()
+
+            # ---------- PRODUCTS: save parent rows, then per-item gallery ----------
+            elif tab == "products":
+                ok = f["fs_products"].is_valid()
+                product_image_fsets = {}  # بایندهای همین درخواست را نگه می‌داریم
+
+                if ok:
+                    # 1) والدها را ذخیره کن (محصول‌های جدید PK می‌گیرند)
+                    f["fs_products"].save()
+
+                    # 2) فرم‌ست گالری برای هر محصول (بایند و ذخیره)
+                    products_qs = Product.objects.filter(profile=profile)
+                    for p in products_qs:
+                        imgs_fs = ProductImageFormSet(
+                            request.POST, request.FILES,
+                            instance=p,
+                            prefix=f"prdimg-{p.pk}",
+                        )
+                        product_image_fsets[p.pk] = imgs_fs
+                        if imgs_fs.is_valid():
+                            imgs_fs.save()
+                        else:
+                            ok = False
+                else:
+                    # اگر والد نامعتبر بود، باز هم فرم‌ست‌های تصاویر را بایند کن تا ورودی از دست نرود
+                    products_qs = Product.objects.filter(profile=profile)
+                    for p in products_qs:
+                        imgs_fs = ProductImageFormSet(
+                            request.POST, request.FILES,
+                            instance=p,
+                            prefix=f"prdimg-{p.pk}",
+                        )
+                        product_image_fsets[p.pk] = imgs_fs
+
+            # ---------- SERVICES: save parent rows, then per-item gallery ----------
+            elif tab == "services":
+                ok = f["fs_services"].is_valid()
+                service_image_fsets = {}  # مشابه بالا
+
+                if ok:
+                    f["fs_services"].save()
+
+                    services_qs = Service.objects.filter(profile=profile)
+                    for s in services_qs:
+                        imgs_fs = ServiceImageFormSet(
+                            request.POST, request.FILES,
+                            instance=s,
+                            prefix=f"srvimg-{s.pk}",
+                        )
+                        service_image_fsets[s.pk] = imgs_fs
+                        if imgs_fs.is_valid():
+                            imgs_fs.save()
+                        else:
+                            ok = False
+                else:
+                    services_qs = Service.objects.filter(profile=profile)
+                    for s in services_qs:
+                        imgs_fs = ServiceImageFormSet(
+                            request.POST, request.FILES,
+                            instance=s,
+                            prefix=f"srvimg-{s.pk}",
+                        )
+                        service_image_fsets[s.pk] = imgs_fs
+            elif tab == "content":
+                ok = f["fs_artposts"].is_valid()
+                artpost_image_fsets = {}
+
+                if ok:
+                    f["fs_artposts"].save()
+
+                    posts_qs = ArtPost.objects.filter(profile=profile)
+                    for post in posts_qs:
+                        imgs_fs = ArtPostImageFormSet(
+                            request.POST, request.FILES,
+                            instance=post,
+                            prefix=f"artimg-{post.pk}",   # ✅ prefix دقیقا همین
+                        )
+                        artpost_image_fsets[post.pk] = imgs_fs
+                        if imgs_fs.is_valid():
+                            imgs_fs.save()
+                        else:
+                            ok = False
+                else:
+                    posts_qs = ArtPost.objects.filter(profile=profile)
+                    for post in posts_qs:
+                        imgs_fs = ArtPostImageFormSet(
+                            request.POST, request.FILES,
+                            instance=post,
+                            prefix=f"artimg-{post.pk}",
+                        )
+                        artpost_image_fsets[post.pk] = imgs_fs
+            elif tab == "security":
+                pwd_form = f["pwd_form"]
+                ok = pwd_form is not None and pwd_form.is_valid()
+                if ok:
+                    user = pwd_form.save()              # رمز جدید ست می‌کند
+                    update_session_auth_hash(request, user)  # لاگین را نگه می‌دارد
+                    messages.success(request, "رمز عبور شما با موفقیت تغییر کرد.")
 
 
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Prefetch
-from django.contrib.auth import get_user_model
-from posts.models import Post  # adjust if your model path differs
+        # ✅ refresh cached percent after any change
+        profile.refresh_completion(save=True)
 
-@login_required
-def profile_suggested_posts(request, username: str):
-    User = get_user_model()
-    profile_user = get_object_or_404(
-        User.objects.select_related("profile"),
-        username=username
-    )
+        if ok:
+            if tab != "security":
+                messages.success(request, "تغییرات ذخیره شد.")
+            return redirect(f"{request.path}?tab={tab}")
 
-    # Posts this user suggested (fast prefetch for media)
-    qs = (
-        Post.objects
-        .filter(suggestions__suggester=profile_user)
-        .select_related("author", "author__profile")
-        .prefetch_related("images", "videos", "chapters")
-        .order_by("-suggestions__created_at", "-created_at")
-        .distinct()
-    )
+        else:
+            messages.error(request, "لطفاً خطاها را بررسی کنید.")
+            # برای رندر مجدد با خطاها، فرم‌ها + فرم‌ست‌های بایندشده را بفرست
+            ctx = f
+            if tab == "products" and product_image_fsets is not None:
+                ctx["product_image_fsets"] = product_image_fsets
+            if tab == "services" and service_image_fsets is not None:
+                ctx["service_image_fsets"] = service_image_fsets
+            if tab == "content" and artpost_image_fsets is not None:
+                ctx["artpost_image_fsets"] = artpost_image_fsets
 
-    paginator = Paginator(qs, 12)  # 12 cards per page
-    page = request.GET.get("page") or 1
+    # ====== GET ======
+    else:
+        ctx = build_forms(False)
+
+    # ✅ also refresh on GET (cheap and safe)
+    profile.refresh_completion(save=True)
+
+    # Build subcategory map (unchanged)
     try:
-        page_obj = paginator.page(page)
-    except (PageNotAnInteger, EmptyPage):
-        page_obj = paginator.page(1)
+        from artists.models import Category, Subcategory
+        subcat_map = {
+            c.id: list(Subcategory.objects.filter(category=c).values("id", "name"))
+            for c in Category.objects.all()
+        }
+    except Exception:
+        subcat_map = {}
 
-    return render(
-        request,
-        "accounts/profile_suggested.html",
-        {
-            "profile_user": profile_user,
-            "page_obj": page_obj,
-            "total": paginator.count,
-        },
-    )
+    # ----- Attach UNBOUND gallery formsets for GET (and for POST when ok==False) -----
+    if request.method == "GET":
+        if tab == "products":
+            product_image_fsets = {
+                p.pk: ProductImageFormSet(instance=p, prefix=f"prdimg-{p.pk}")
+                for p in Product.objects.filter(profile=profile)
+            }
+            ctx["product_image_fsets"] = product_image_fsets
+
+        if tab == "services":
+            service_image_fsets = {
+                s.pk: ServiceImageFormSet(instance=s, prefix=f"srvimg-{s.pk}")
+                for s in Service.objects.filter(profile=profile)
+            }
+            ctx["service_image_fsets"] = service_image_fsets
+        if tab == "content":
+            artpost_image_fsets = {
+                post.pk: ArtPostImageFormSet(instance=post, prefix=f"artimg-{post.pk}")
+                for post in ArtPost.objects.filter(profile=profile)
+            }
+            ctx["artpost_image_fsets"] = artpost_image_fsets
+
+    # وقتی POST انجام شده و ok==False بود، بالاتر already ست شده بود؛
+    # اگر POST بود و ok==True، ریدایرکت کردیم و به اینجا نمی‌رسیم.
+
+    ctx.update(dict(
+        profile=profile,
+        active_tab=tab,
+        subcat_map=subcat_map,
+        completion=profile.completion,
+
+        # ✅ NEW: subscription / trial info for the template
+        can_use_premium=profile.can_use_premium,
+        is_trial=profile.in_trial,
+        has_subscription=profile.has_subscription,
+        subscription_status_label=profile.subscription_status_label,
+        premium_days_left=profile.premium_days_left,
+    ))
+    return render(request, "accounts/dashboard.html", ctx)
 
 
+@require_http_methods(["GET", "POST"])
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("/")
 
+    if request.method == "POST":
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            user = form.cleaned_data["user"]
+            login(request, user)
 
+            # remember me
+            remember = form.cleaned_data.get("remember")
+            if remember:
+                request.session.set_expiry(1209600)  # 14 روز
+            else:
+                request.session.set_expiry(0)        # تا بستن مرورگر
 
+            next_url = request.GET.get("next") or "/"
+            return redirect(next_url)
+    else:
+        form = LoginForm()
 
-
-
-
-
-
-
-
-
-
-# ---------- Edit profile hub ----------
-@login_required
-def settings_profile_start(request):
-    profile = get_object_or_404(Profile, user=request.user)
-    return render(request, "accounts/settings_hub.html", {
-        "nav_active": None,
-        "profile": profile,
+    # همان auth.html را رندر می‌کنیم؛ تب «ورود» باز است
+    return render(request, "accounts/auth.html", {
+        "active_tab": "login",
+        "login_form": form,
+        "signup_form": SignupForm(),  # برای نمایش همزمان
     })
 
-# ---------- Personal wizard (6 steps) ----------
-PERSONAL_STEPS = [
-    "Basics", "Skills", "Values & Hobbies", "Fun facts", "Social links", "Review",
-]
 
-@login_required
-@transaction.atomic
-def settings_personal_wizard(request, step=1):
-    step = int(step or 1)
-    profile = get_object_or_404(Profile, user=request.user)
+@require_http_methods(["GET", "POST"])
+def signup_view(request):
+    if request.user.is_authenticated:
+        return redirect("/")
 
-    # Step 1: Basics
-    if step == 1:
-        if request.method == "POST":
-            form = ProfileBasicsForm(request.POST, request.FILES, instance=profile)
-            if form.is_valid():
-                form.save()
-                messages.success(request, "Basics saved.")
-                return redirect("settings_personal", step=2)
-        else:
-            form = ProfileBasicsForm(instance=profile)
-        return render(request, "accounts/settings_personal.html", {
-            "step": step, "steps": PERSONAL_STEPS, "form": form,
-        })
+    if request.method == "POST":
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.create_user()
+            login(request, user)
+            messages.success(request, "ثبت‌نام با موفقیت انجام شد.")
+            return redirect("/")
+    else:
+        form = SignupForm()
 
-    # Step 2: Skills (CSV)
-    if step == 2:
-        if request.method == "POST":
-            form = SkillsCSVForm(request.POST)
-            if form.is_valid():
-                csv = form.cleaned_data.get("skills_csv","")
-                names = [s.strip() for s in csv.replace("\n", ",").split(",") if s.strip()]
-                if names:
-                    tags = [SkillTag.objects.get_or_create(name=n)[0] for n in names]
-                    profile.skills.set(tags)
-                else:
-                    profile.skills.clear()
-                messages.success(request, "Skills updated.")
-                return redirect("settings_personal", step=3)
-        else:
-            current = ", ".join(profile.skills.values_list("name", flat=True))
-            form = SkillsCSVForm(initial={"skills_csv": current})
-        return render(request, "accounts/settings_personal.html", {
-            "step": step, "steps": PERSONAL_STEPS, "form": form,
-        })
-
-    # Step 3: Values & Hobbies
-    if step == 3:
-        if request.method == "POST":
-            form = ValuesHobbiesForm(request.POST)
-            if form.is_valid():
-                v = [s.strip() for s in form.cleaned_data.get("values_csv","").replace("\n", ",").split(",") if s.strip()]
-                h = [s.strip() for s in form.cleaned_data.get("hobbies_csv","").replace("\n", ",").split(",") if s.strip()]
-                profile.values.all().delete()
-                profile.hobbies.all().delete()
-                PersonalValue.objects.bulk_create([PersonalValue(profile=profile, name=x) for x in v])
-                HobbyInterest.objects.bulk_create([HobbyInterest(profile=profile, name=x) for x in h])
-                messages.success(request, "Values & hobbies saved.")
-                return redirect("settings_personal", step=4)
-        else:
-            v = ", ".join(profile.values.values_list("name", flat=True))
-            h = ", ".join(profile.hobbies.values_list("name", flat=True))
-            form = ValuesHobbiesForm(initial={"values_csv": v, "hobbies_csv": h})
-        return render(request, "accounts/settings_personal.html", {
-            "step": step, "steps": PERSONAL_STEPS, "form": form,
-        })
-
-    # Step 4: Fun facts
-    if step == 4:
-        if request.method == "POST":
-            form = FunFactsForm(request.POST)
-            if form.is_valid():
-                txt = form.cleaned_data.get("funfacts_csv","")
-                lines = [s.strip() for s in txt.replace(",", "\n").split("\n") if s.strip()]
-                profile.funfacts.all().delete()
-                FunFact.objects.bulk_create([FunFact(profile=profile, text=x[:220]) for x in lines])
-                messages.success(request, "Fun facts saved.")
-                return redirect("settings_personal", step=5)
-        else:
-            existing = ", ".join(profile.funfacts.values_list("text", flat=True))
-            form = FunFactsForm(initial={"funfacts_csv": existing})
-        return render(request, "accounts/settings_personal.html", {
-            "step": step, "steps": PERSONAL_STEPS, "form": form,
-        })
-
-    # Step 5: Social links (formset)
-    # views.py – Personal step 5
-    if step == 5:
-        if request.method == "POST":
-            fs = SocialLinkFormSet(request.POST, instance=profile)
-            if 'skip' in request.POST or fs.is_valid():
-                if fs.is_valid():
-                    fs.save()
-                    messages.success(request, "Social links saved.")
-                else:
-                    messages.info(request, "Skipped social links for now.")
-                return redirect("settings_personal", step=6)
-        else:
-            fs = SocialLinkFormSet(instance=profile)
-        return render(request, "accounts/settings_personal.html", {
-            "step": step, "steps": PERSONAL_STEPS, "formset": fs,
-        })
-
-
-    # Step 6: Review
-    return render(request, "accounts/settings_personal.html", {
-        "step": step, "steps": PERSONAL_STEPS,
-        "profile": profile,
+    # همان auth.html اما تب «ثبت‌نام» باز باشد
+    return render(request, "accounts/auth.html", {
+        "active_tab": "signup",
+        "login_form": LoginForm(),
+        "signup_form": form,
     })
 
-# ---------- Portfolio wizard (6 steps) ----------
-PORTFOLIO_STEPS = [
-    "Education", "Experience", "Projects", "Certs & Courses", "Awards & Books", "Review",
-]
 
-@login_required
-@transaction.atomic
-def settings_portfolio_wizard(request, step=1):
-    step = int(step or 1)
-    profile = get_object_or_404(Profile, user=request.user)
-
-    def render_step(ctx):
-        ctx.update({"step": step, "steps": PORTFOLIO_STEPS})
-        return render(request, "accounts/settings_portfolio.html", ctx)
-
-    if step == 1:
-        fs = EducationFS(request.POST or None, instance=profile, prefix="edu")
-        if request.method == "POST" and fs.is_valid():
-            fs.save()
-            messages.success(request, "Education updated.")
-            return redirect("settings_portfolio", step=2)
-        return render_step({"formset": fs})
-
-    if step == 2:
-        fs = ExperienceFS(request.POST or None, instance=profile, prefix="exp")
-        if request.method == "POST" and fs.is_valid():
-            fs.save()
-            messages.success(request, "Experience updated.")
-            return redirect("settings_portfolio", step=3)
-        return render_step({"formset": fs})
-
-    if step == 3:
-        fs = ProjectFS(request.POST or None, instance=profile, prefix="proj")
-        if request.method == "POST" and fs.is_valid():
-            fs.save()
-            messages.success(request, "Projects updated.")
-            return redirect("settings_portfolio", step=4)
-        return render_step({"formset": fs})
-
-    if step == 4:
-        certs = CertificationFS(request.POST or None, instance=profile, prefix="cert")
-        courses = CourseFS(request.POST or None, instance=profile, prefix="course")
-        if request.method == "POST" and certs.is_valid() and courses.is_valid():
-            certs.save(); courses.save()
-            messages.success(request, "Certifications & Courses saved.")
-            return redirect("settings_portfolio", step=5)
-        return render_step({"formset_certs": certs, "formset_courses": courses})
-
-    if step == 5:
-        awards = AwardFS(request.POST or None, instance=profile, prefix="award")
-        books  = BookFS(request.POST or None, instance=profile, prefix="book")
-        if request.method == "POST" and awards.is_valid() and books.is_valid():
-            awards.save(); books.save()
-            messages.success(request, "Awards & Books saved.")
-            return redirect("settings_portfolio", step=6)
-        return render_step({"formset_awards": awards, "formset_books": books})
-
-    # Step 6 Review
-    return render_step({"profile": profile})
+def logout_view(request):
+    logout(request)
+    return redirect("/")
 
 
 
 
+def public_profile_view(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = user.profile
+    skills = profile.skills.all()
+    testimonials = profile.testimonials.all()
+    social_links = profile.social_links.all()
+    counters = profile.counters.all()
+    client_logos = profile.clients.all()
+    profile.refresh_completion(save=False)
+    products = profile.products.filter(is_active=True)
+    services = profile.services.filter(is_active=True)
 
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from django.shortcuts import redirect
-from django.urls import translate_url
+    return render(request, "accounts/profile.html", {
+        "profile": profile,
+        "products": products,
+        "services": services,
 
-@require_POST
-@login_required
-def set_user_language(request):
-    lang = request.POST.get("language") in ("fa", "en") and request.POST["language"] or None
-    next_url = request.POST.get("next") or "/"
-    if not lang:
-        return redirect(next_url)
+        "skills": skills,
+        "testimonials": testimonials,
+        "social_links": social_links,
+        "counters": counters,
+        "client_logos": client_logos,
+        "completion": profile.completion,
+    })
 
-    request.user.language = lang
-    request.user.save(update_fields=["language"])
 
-    # let middleware also sync session, but we redirect now to correct URL
-    return redirect(translate_url(next_url, lang))
-
-from django.http import HttpResponse
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-
-@require_POST
-@login_required
-def api_save_language(request):
-    lang = request.POST.get("language")
-    if lang in ("fa","en"):
-        request.user.language = lang
-        request.user.save(update_fields=["language"])
-    return HttpResponse(status=204)
 

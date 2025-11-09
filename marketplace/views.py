@@ -1,534 +1,285 @@
-# marketplace/views.py
-from datetime import timedelta
-from django.contrib.auth.decorators import login_required
-from django.db.models import F, Q, Count
-from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.translation import gettext as _
-from django.contrib import messages
+# app: marketplace (or whatever app holds Product)
+from django.shortcuts import render, get_object_or_404,redirect
 from django.core.paginator import Paginator
-from django.urls import reverse
-from django.http import Http404
-from django.db.models import Max
+from django.contrib.auth import get_user_model
+from .models import Product, Service, CURRENCY_CHOICES, ArtPost
 from django.utils import timezone
+from datetime import timedelta
+from accounts.models import Profile
+from itertools import chain
+from django.db.models import Q, F
+from django.db import models
+from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
 
-from decimal import Decimal
+User = get_user_model()
 
-from .models import (
-    BusinessProfile,
-    JoinRequest,
-    Product,
-    MarketplaceStats,
-)
-from .forms import (
-    JoinPickKindForm,
-    ProfileSetupForm,
-    ProductForm,
-)
-from accounts.models import Category
-
-from django.conf import settings
-from django.contrib.admin.views.decorators import staff_member_required
-from .models import SubscriptionPayment
-from .forms import SubscriptionPaymentForm
-
-def _get_user_approved_profile_or_none(user):
-    return (
-        BusinessProfile.objects
-        .filter(owner=user, is_approved=True, subscription_expires_at__gt=timezone.now())
-        .order_by("-created_at")
-        .first()
+LIST_PAGE_SIZE = 12
+@require_POST
+@login_required
+def artpost_toggle_like(request, pk):
+    post = get_object_or_404(
+        ArtPost.objects.filter(is_active=True, profile__user__is_active=True),
+        pk=pk,
     )
 
-
-@login_required
-def studio_dashboard(request):
-    """
-    Landing for approved users. If not approved or subscription expired, show guidance.
-    """
-    jr = (JoinRequest.objects
-          .filter(user=request.user)
-          .select_related("profile")
-          .order_by("-created_at")
-          .first())
-
-    approved_profile = _get_user_approved_profile_or_none(request.user)
-
-    if not approved_profile:
-        # Maybe they have a profile but expired or not approved
-        latest_profile = (BusinessProfile.objects
-                          .filter(owner=request.user)
-                          .order_by("-created_at")
-                          .first())
-        ctx = {
-            "nav_active": "marketplace",
-            "profile": latest_profile,
-            "is_expired": bool(latest_profile and not latest_profile.is_subscription_active()) if latest_profile else False,
-            "needs_approval": bool(latest_profile and not latest_profile.is_approved) if latest_profile else True,
-            "join_req": jr,
-        }
-        return render(request, "marketplace/join_wait.html", ctx)
-
-    products = approved_profile.products.order_by("-created_at")
-    return render(request, "marketplace/dashboard.html", {
-        "nav_active": "marketplace",
-        "profile": approved_profile,
-        "products": products,
-    })
-
-
-@login_required
-def product_create(request):
-    profile = _get_user_approved_profile_or_none(request.user)
-    if not profile:
-        messages.error(request, _("Your shop is not live yet. Complete onboarding or renew subscription."))
-        return redirect("marketplace:dashboard")
-
-    if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            prod = form.save(commit=False)
-            prod.profile = profile
-            prod.save()
-            messages.success(request, _("Product created."))
-            return redirect("marketplace:dashboard")
+    user = request.user
+    if post.likes.filter(pk=user.pk).exists():
+        post.likes.remove(user)
+        liked = False
     else:
-        form = ProductForm(initial={"status": Product.Status.ACTIVE})
+        post.likes.add(user)
+        liked = True
 
-    return render(request, "marketplace/product_form.html", {
-        "form": form, "is_edit": False,
-        "nav_active": "marketplace",
+    return JsonResponse({
+        "liked": liked,
+        "total_likes": post.total_likes(),
     })
 
-
-@login_required
-def product_edit(request, pk):
-    profile = _get_user_approved_profile_or_none(request.user)
-    product = get_object_or_404(Product, pk=pk, profile__owner=request.user)
-    if not profile or product.profile != profile:
-        raise Http404()
-
-    if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES, instance=product)
-        if form.is_valid():
-            form.save()
-            messages.success(request, _("Product updated."))
-            return redirect("marketplace:dashboard")
-    else:
-        form = ProductForm(instance=product)
-
-    return render(request, "marketplace/product_form.html", {
-        "nav_active": "marketplace",
-        "form": form, "is_edit": True, "product": product
-    })
-
-
-@login_required
-def product_delete(request, pk):
-    product = get_object_or_404(Product, pk=pk, profile__owner=request.user)
-    product.delete()
-    messages.success(request, _("Product deleted."))
-    return redirect("marketplace:dashboard")
-
-
-# ----------------------
-# PUBLIC HOMEPAGE
-# ----------------------
-def marketplace_home(request):
+def premium_filter_q():
     """
-    Home:
-    - LIVE business profiles (approved + active subscription)
-    - Top products by views from LIVE profiles
-    - Filters
+    برمی‌گردونه Q برای: یا اشتراک فعال، یا تریال ۷ روزه فعال
     """
-    stats_obj, _ = MarketplaceStats.objects.get_or_create(name="global")
-    join_clicks = stats_obj.join_clicks
-
-    q = (request.GET.get("q") or "").strip()
-    cat_slug = (request.GET.get("cat") or "").strip()
-    kind_filter = (request.GET.get("kind") or "").strip()  # SOLO_ARTIST / GALLERY / ...
-    prod_type = (request.GET.get("type") or "").strip()    # "service" / "physical"
-
     now = timezone.now()
+    trial_cutoff = now - timedelta(days=Profile.TRIAL_DAYS)
 
-    # LIVE profiles (approved + subscription active)
-    profiles_qs = BusinessProfile.objects.filter(
-        is_approved=True,
-        subscription_expires_at__gt=now,
+    return (
+        Q(profile__subscription_expires_at__gte=now) |  # ساب پولی فعال
+        Q(
+            profile__subscription_expires_at__isnull=True,  # هنوز سابی نخریده
+            profile__trial_started_at__gte=trial_cutoff,    # و داخل ۷ روز اخیر تریال شروع شده
+        )
     )
 
-    if kind_filter:
-        profiles_qs = profiles_qs.filter(kind=kind_filter)
 
+def services_list(request, username=None):
+    qs = Service.objects.filter(is_active=True).select_related("profile__user").order_by(
+        "order", "-updated_at", "-id"
+    )
+    owner = None
+    if username:
+        owner = get_object_or_404(User, username=username)
+        qs = qs.filter(profile__user=owner)
+
+    # 🔐 هم ساب‌دار هم تریال‌دار
+    qs = qs.filter(premium_filter_q())
+    # 🔹 اگر روی «حذف فیلترها» کلیک شد، ریدایرکت تمیز بدون کوئری‌استرینگ
+    if request.GET.get("clear"):
+        if username:
+            return redirect("user_services", username=username)
+        return redirect("services")
+
+    # --- جستجو ---
+    q = request.GET.get("q", "").strip()
     if q:
-        profiles_qs = profiles_qs.filter(
-            Q(display_name__icontains=q) |
-            Q(tagline__icontains=q) |
-            Q(bio_long__icontains=q) |
-            Q(location__icontains=q)
+        qs = qs.filter(
+            Q(title__icontains=q)
+            | Q(description__icontains=q)
+            | Q(tags__icontains=q)
         )
 
-    profiles_qs = profiles_qs.order_by("-created_at")[:12]
+    # --- فیلترها ---
+    pricing_model = request.GET.get("pricing_model", "").strip()
+    currency = request.GET.get("currency", "").strip()
+    min_price = request.GET.get("min_price", "").strip()
+    max_price = request.GET.get("max_price", "").strip()
 
-    # Products only from LIVE profiles
-    products_qs = Product.objects.filter(
-        status=Product.Status.ACTIVE,
-        profile__is_approved=True,
-        profile__subscription_expires_at__gt=now,
-    ).select_related("profile", "category")
+    if pricing_model in Service.PricingModel.values:
+        qs = qs.filter(pricing_model=pricing_model)
 
-    if cat_slug:
-        products_qs = products_qs.filter(category__slug=cat_slug)
+    if currency in dict(CURRENCY_CHOICES):
+        qs = qs.filter(currency=currency)
 
-    if prod_type == "service":
-        products_qs = products_qs.filter(is_service=True)
-    elif prod_type == "physical":
-        products_qs = products_qs.filter(is_service=False)
+    if min_price:
+        try:
+            qs = qs.filter(min_price__gte=int(min_price))
+        except ValueError:
+            pass
+
+    if max_price:
+        try:
+            qs = qs.filter(max_price__lte=int(max_price))
+        except ValueError:
+            pass
+
+    # --- صفحه‌بندی ---
+    paginator = Paginator(qs, LIST_PAGE_SIZE)
+    page_obj = paginator.get_page(request.GET.get("page"))
+
+    ctx = {
+        "page_obj": page_obj,
+        "owner": owner,
+        "username": username,
+
+        # مقادیر فعلی فیلترها
+        "q": q,
+        "pricing_model": pricing_model,
+        "currency": currency,
+        "min_price": min_price,
+        "max_price": max_price,
+
+        # برای ساخت <select> ها
+        "pricing_model_choices": Service.PricingModel.choices,
+        "currency_choices": CURRENCY_CHOICES,
+    }
+    return render(request, "marketplace/services.html", ctx)
+
+def service_detail(request, slug, pk):
+    obj = get_object_or_404(
+        Service.objects.prefetch_related('images').filter(
+            premium_filter_q()
+        ),
+        pk=pk, slug=slug, is_active=True
+    )
+    return render(request, "marketplace/service_single.html", {"service": obj})
+def artpieces_list(request, username=None):
+    # ---- محصولات (برای فروش) ----
+    products_qs = Product.objects.filter(is_active=True).select_related("profile__user")
+
+    if username:
+        products_qs = products_qs.filter(profile__user__username=username)
+
+    # فقط پروفایل‌های پریمیوم (ساب یا تریال)
+    products_qs = products_qs.filter(premium_filter_q())
+
+    # --- کوئری و فیلترها (برای محصولات) ---
+    q = request.GET.get("q", "").strip()
+    price_type = request.GET.get("price_type", "").strip()   # fixed / neg
+    condition = request.GET.get("condition", "").strip()     # new / used
+    currency = request.GET.get("currency", "").strip()       # IRT / IRR
+    min_price = request.GET.get("min_price", "").strip()
+    max_price = request.GET.get("max_price", "").strip()
+
+    # حذف فیلترها
+    if request.GET.get("clear"):
+        if username:
+            return redirect("user_artpieces", username=username)
+        return redirect("artpieces")
 
     if q:
         products_qs = products_qs.filter(
-            Q(title__icontains=q) |
-            Q(description__icontains=q) |
-            Q(profile__display_name__icontains=q)
+            Q(title__icontains=q) | Q(description__icontains=q)
         )
 
-    products_qs = products_qs.order_by("-views", "-id")
+    if price_type in Product.PriceType.values:
+        products_qs = products_qs.filter(price_type=price_type)
 
-    paginator = Paginator(products_qs, 12)
+    if condition in Product.Condition.values:
+        products_qs = products_qs.filter(condition=condition)
+
+    if currency in dict(CURRENCY_CHOICES):
+        products_qs = products_qs.filter(currency=currency)
+
+    if min_price:
+        try:
+            products_qs = products_qs.filter(price_amount__gte=int(min_price))
+        except ValueError:
+            pass
+
+    if max_price:
+        try:
+            products_qs = products_qs.filter(price_amount__lte=int(max_price))
+        except ValueError:
+            pass
+
+    price_filters_active = any([price_type, currency, min_price, max_price])
+
+    # ---- پست‌های محتوایی (ArtPost) ----
+    artposts_qs = ArtPost.objects.filter(is_active=True).select_related("profile__user")
+    if username:
+        artposts_qs = artposts_qs.filter(profile__user__username=username)
+
+    # اگر می‌خوای فقط پریمیوم‌ها بتونن پست منتشر کنن:
+    # artposts_qs = artposts_qs.filter(premium_filter_q())
+
+    if q:
+        artposts_qs = artposts_qs.filter(
+            Q(title__icontains=q) | Q(description__icontains=q)
+        )
+
+    # اگر فیلتر قیمت هست، منطقیه فقط محصولات را نشان بدیم
+    if price_filters_active:
+        combined = list(products_qs)
+    else:
+        combined = list(chain(products_qs, artposts_qs))
+
+    # مرتب‌سازی مطابق متا (order ASC, updated_at DESC, id DESC)
+    combined.sort(
+        key=lambda obj: (
+            obj.order,
+            -obj.updated_at.timestamp(),
+            -obj.id,
+        )
+    )
+
+    paginator = Paginator(combined, LIST_PAGE_SIZE)
     page_obj = paginator.get_page(request.GET.get("page"))
 
-    categories = Category.objects.order_by("name")
-    user_join_status = None
-    user_approved_profile = None
-    if request.user.is_authenticated:
-        jr = (
-            JoinRequest.objects
-            .filter(user=request.user)
-            .select_related("profile")
-            .order_by("-created_at")
-            .first()
-        )
-        if jr:
-            user_join_status = jr.status
-            if jr.profile.is_live():
-                user_approved_profile = jr.profile
-
     ctx = {
-        "nav_active": "marketplace",
-        "join_clicks": join_clicks,
-        "profiles": profiles_qs,
-        "products": page_obj,
         "page_obj": page_obj,
-        "categories": categories,
-        "active_category_slug": cat_slug,
-        "search_q": q,
-        "kind_filter": kind_filter,
-        "prod_type": prod_type,
-        "current_query": request.GET.urlencode(),
-        "user_join_status": user_join_status,         # None / "PENDING" / "APPROVED" / "REJECTED"
-        "user_approved_profile": user_approved_profile,  # BusinessProfile or None
+        "q": q,
+        "username": username,
+
+        "price_type": price_type,
+        "condition": condition,
+        "currency": currency,
+        "min_price": min_price,
+        "max_price": max_price,
+
+        "price_type_choices": Product.PriceType.choices,
+        "condition_choices": Product.Condition.choices,
+        "currency_choices": CURRENCY_CHOICES,
     }
-    return render(request, "marketplace/home.html", ctx)
+    return render(request, "marketplace/artpieces.html", ctx)
 
+def artpiece_detail(request, slug, pk):
+    obj = get_object_or_404(
+        Product.objects.select_related("profile__user").filter(
+            premium_filter_q()
+        ),
+        pk=pk, slug=slug, is_active=True
+    )
 
-# ----------------------
-# JOIN FLOW
-# ----------------------
-@login_required
-def join_marketplace_entry(request):
-    """
-    Clicked 'Join the Marketplace'.
-    - If they already have any request, send to steps (we don't block now).
-    - Start wizard.
-    """
-    MarketplaceStats.bump_join_clicks()
-    request.session.setdefault("market_join", {})
-    return redirect(f"{reverse('marketplace:join_steps')}?step=1")
+    related = (
+        Product.objects.filter(
+            is_active=True,
+            profile=obj.profile
+        )
+        .filter(premium_filter_q())  # فقط اگر هنوز پریمیوم است
+        .exclude(pk=obj.pk)
+        .order_by("-updated_at")[:8]
+    )
 
+    ctx = {"obj": obj, "related": related}
+    return render(request, "marketplace/artpiece-single.html", ctx)
+def artpost_detail(request, slug, pk):
+    obj = get_object_or_404(
+        ArtPost.objects.select_related("profile__user").filter(
+            is_active=True,
+            profile__user__is_active=True,  # اختیاری
+        ),
+        pk=pk,
+        slug=slug,
+    )
 
-@login_required
-def join_marketplace_steps(request):
-    step = int(request.GET.get("step") or request.POST.get("step") or 1)
-    data = request.session.get("market_join", {})
+    # افزایش تعداد بازدید
+    ArtPost.objects.filter(pk=obj.pk).update(views=models.F("views") + 1)
+    obj.refresh_from_db(fields=["views"])
 
-    # ⚙️ NEW: Auto-fill session if user clicked "Pay Monthly Fee"
-    if step == 3 and "kind" not in data:
-        # find their active profile
-        profile = BusinessProfile.objects.filter(owner=request.user, is_approved=True).first()
-        if profile:
-            data["kind"] = profile.kind
-            data["profile_id"] = profile.id
-            request.session["market_join"] = data
-    from django.db import transaction
+    related = (
+        ArtPost.objects.filter(is_active=True, profile=obj.profile)
+        .exclude(pk=obj.pk)
+        .order_by("-updated_at")[:8]
+    )
 
-
-    # ---- STEP 1: Choose kind
-    if step == 1:
-        if request.method == "POST":
-            form = JoinPickKindForm(request.POST)
-            if form.is_valid():
-                data["kind"] = form.cleaned_data["kind"]
-                request.session["market_join"] = data
-                request.session.modified = True
-                return redirect(f"{reverse('marketplace:join_steps')}?step=2")
-        else:
-            form = JoinPickKindForm(initial={"kind": data.get("kind")})
-
-        return render(request, "marketplace/join_step1_kind.html", {
-            "nav_active": "marketplace",
-            "step": 1,
-            "form": form,
-        })
-
-    # From here we need kind
-    if "kind" not in data:
-        return redirect(f"{reverse('marketplace:join_steps')}?step=1")
-
-    # ---- STEP 2: Profile setup
-    if step == 2:
-        initial = {
-            "display_name": data.get("display_name", ""),
-            "tagline": data.get("tagline", ""),
-            "bio_long": data.get("bio_long", ""),
-            "location": data.get("location", ""),
-        }
-
-        if request.method == "POST":
-            form = ProfileSetupForm(request.POST, request.FILES, initial=initial)
-            if form.is_valid():
-                cd = form.cleaned_data
-
-                # Cache basic fields in session (if user returns back)
-                data["display_name"] = cd["display_name"]
-                data["tagline"]      = cd["tagline"]
-                data["bio_long"]     = cd["bio_long"]
-                data["location"]     = cd["location"]
-
-                # Create draft profile (not visible until trial starts in step 3)
-                profile = BusinessProfile.objects.create(
-                    owner=request.user,
-                    kind=data["kind"],
-                    display_name=cd["display_name"],
-                    tagline=cd["tagline"],
-                    bio_long=cd["bio_long"],
-                    location=cd["location"],
-                    is_approved=False,  # will become True when trial starts
-                )
-                updated_fields = []
-                if cd.get("avatar"):
-                    profile.avatar = cd["avatar"]; updated_fields.append("avatar")
-                if cd.get("cover"):
-                    profile.cover = cd["cover"]; updated_fields.append("cover")
-                if updated_fields:
-                    profile.save(update_fields=updated_fields)
-
-                data["profile_id"] = profile.id
-                request.session["market_join"] = data
-                request.session.modified = True
-
-                # Create/Update a JoinRequest as APPROVED (we skip payment now)
-                with transaction.atomic():
-                    jr = (
-                        JoinRequest.objects
-                        .select_for_update()
-                        .filter(user=request.user)
-                        .order_by("-created_at")
-                        .first()
-                    )
-                    if jr:
-                        jr.profile = profile
-                        jr.status = JoinRequest.Status.APPROVED
-                        jr.save(update_fields=["profile", "status"])
-                    else:
-                        JoinRequest.objects.create(
-                            user=request.user,
-                            profile=profile,
-                            status=JoinRequest.Status.APPROVED,
-                        )
-
-                return redirect(f"{reverse('marketplace:join_steps')}?step=3")
-        else:
-            form = ProfileSetupForm(initial=initial)
-
-        return render(request, "marketplace/join_step2_profile.html", {
-            "nav_active": "marketplace",
-            "step": 2,
-            "form": form,
-            "kind_choice": data["kind"],
-        })
-
-    # ---- STEP 3: Start 2-day free trial + success
-    if step == 3:
-        profile_id = data.get("profile_id")
-        if not profile_id:
-            return redirect(f"{reverse('marketplace:join_steps')}?step=2")
-
-        profile = get_object_or_404(BusinessProfile, id=profile_id, owner=request.user)
-
-        # Only start trial if nothing is active
-        if not profile.is_subscription_active():
-            profile.start_free_trial(days=2, auto_approve=True)
-
-        approved_payment_exists = SubscriptionPayment.objects.filter(
-            profile=profile,
-            status=SubscriptionPayment.Status.APPROVED
-        ).exists()
-
-        payments = list(profile.subscription_payments.all()[:10])
-
-        request.session.pop("market_join", None)
-
-        return render(request, "marketplace/join_step3_trial_started.html", {
-            "profile": profile,
-            "state": profile.subscription_state(),   # 👈 pass state explicitly
-            "approved_payment_exists": approved_payment_exists,
-            "payments": payments,
-        })
-
-    # Fallback
-    return redirect(reverse("marketplace:home"))
-
-
-
-
-
-from .models import (
-    BusinessProfile, JoinRequest, Product, MarketplaceStats, SubscriptionPayment
-)
-from .forms import (
-    JoinPickKindForm, ProfileSetupForm, ProductForm, SubscriptionPaymentForm
-)
-from django.contrib.auth.decorators import user_passes_test
-
-@login_required
-def subscription_pay(request):
-    profile = (BusinessProfile.objects
-               .filter(owner=request.user)
-               .order_by("-created_at")
-               .first())
-    if not profile:
-        messages.error(request, _("Please complete your profile first."))
-        return redirect("marketplace:join_steps")
-
-    bank_info = {
-        "title": _("Marketplace Billing"),
-        "card_number": "6219-8619-4904-7871",
-        "note": _("Send exact amount. Upload your receipt here. We'll review ASAP."),
-    }
-
-    if request.method == "POST":
-        form = SubscriptionPaymentForm(request.POST, request.FILES)
-        if form.is_valid():
-            sp = form.save(commit=False)
-            sp.profile = profile
-            sp.status = SubscriptionPayment.Status.PENDING
-            sp.currency = "TOMAN"           # optional default
-            sp.months_granted = 1           # default month
-            sp.save()
-            messages.success(request, _("Payment submitted. We’ll notify you after review."))
-            return redirect("marketplace:subscription_pay")
-        else:
-            messages.error(request, _("Please fix the errors below."))
-    else:
-        form = SubscriptionPaymentForm()
-
-    payments = profile.subscription_payments.all()[:10]
+    liked_by_me = False
+    if request.user.is_authenticated:
+        liked_by_me = obj.likes.filter(pk=request.user.pk).exists()
 
     ctx = {
-        "nav_active": "marketplace",
-        "profile": profile,
-        "expires_at": profile.subscription_expires_at,   # real expiry (trial or paid)
-        "approved_payment_exists": profile.subscription_payments
-                                    .filter(status="APPROVED").exists(),
-        "bank_info": bank_info,
-        "form": form,
-        "payments": payments,
+        "obj": obj,
+        "related": related,
+        "liked_by_me": liked_by_me,
     }
-    return render(request, "marketplace/join_step3_payment.html", ctx)
-
-
-
-
-@user_passes_test(lambda u: u.is_staff)
-def payment_review(request, pk, action):
-    sp = get_object_or_404(SubscriptionPayment.objects.select_related("profile"), pk=pk)
-    if action == "approve":
-        sp.approve(request.user)
-        messages.success(request, _("Payment approved and subscription extended."))
-    elif action == "reject":
-        note = request.GET.get("note", "")
-        sp.reject(request.user, note=note)
-        messages.warning(request, _("Payment rejected."))
-    else:
-        messages.error(request, _("Unknown action."))
-    # send the admin back where they came from or to the payment page for that user
-    return redirect(request.META.get("HTTP_REFERER") or reverse("marketplace:subscription_pay"))
-
-@staff_member_required
-def payments_inbox(request):
-    qs = (SubscriptionPayment.objects
-          .select_related("user", "profile")
-          .order_by("status", "-created_at"))
-    return render(request, "marketplace/payments_inbox.html", {"payments": qs})
-
-
-@staff_member_required
-def payment_approve(request, pk):
-    pay = get_object_or_404(SubscriptionPayment, pk=pk)
-    if request.method == "POST":
-        note = request.POST.get("note", "")
-        months = int(request.POST.get("months") or "1")
-        pay.approve(request.user, months=months, note=note)
-        messages.success(request, _("Payment approved. Subscription extended."))
-    return redirect("marketplace:payments_inbox")
-
-
-@staff_member_required
-def payment_reject(request, pk):
-    pay = get_object_or_404(SubscriptionPayment, pk=pk)
-    if request.method == "POST":
-        note = request.POST.get("note", "")
-        pay.reject(request.user, note=note)
-        messages.warning(request, _("Payment rejected."))
-    return redirect("marketplace:payments_inbox")
-
-# ----------------------
-# PUBLIC PROFILE PAGE
-# ----------------------
-def profile_public(request, slug):
-    profile = get_object_or_404(
-        BusinessProfile.objects.select_related("owner"),
-        slug=slug
-    )
-
-    # Only visible if approved + active subscription
-    if not profile.is_live():
-        raise Http404()
-
-    products = profile.products.filter(status=Product.Status.ACTIVE).order_by("-views", "-id")
-    return render(request, "marketplace/profile_public.html", {
-        "nav_active": "marketplace",
-        "profile": profile,
-        "products": products,
-    })
-
-
-# ----------------------
-# PRODUCT DETAIL PAGE
-# ----------------------
-def product_detail(request, pk):
-    product = get_object_or_404(
-        Product.objects.select_related("profile", "profile__owner", "category"),
-        pk=pk
-    )
-
-    # hide if parent profile isn't LIVE
-    if not product.profile.is_live():
-        raise Http404()
-
-    # bump views
-    Product.objects.filter(pk=product.pk).update(views=F("views") + 1)
-
-    return render(request, "marketplace/product_detail.html", {
-        "nav_active": "marketplace",
-        "product": product,
-    })
+    return render(request, "marketplace/artpost-single.html", ctx)

@@ -1,513 +1,423 @@
 {% extends "base.html" %}
-{% load i18n %}
-{% load profile_extras %}
-{% load humanize %}
-<!-- {% get_current_language as CURRENT_LANG %} -->
-
+{% load static %}
 {% block content %}
 <style>
-  /* === FABULOUS PROFILE REDESIGN V5 === */
-  :root {
-    --deep-purple: #570080;
-    --light-purple: #C240FF;
-    --green: #11C865;
-    --blue: #216CFF;
-
-    --background: #101015;
-    --glass-bg: rgba(26, 26, 34, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --text-primary: #EAEAEA;
-    --text-secondary: #A0A0B0;
+  .skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
   }
-  body { background-color: var(--background); color: var(--text-primary); }
-  .glass-panel { background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,.2); }
-  .hero-banner { background: linear-gradient(to top, var(--background) 5%, transparent 100%); }
-  .hero-avatar { border: 4px solid var(--background); box-shadow: 0 0 25px -5px var(--light-purple); }
-  .hero-subtitle { font-weight: 500; background: linear-gradient(90deg, var(--light-purple), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-fill-color: transparent; }
-  .hero-follow-btn { background: var(--light-purple); box-shadow: 0 0 20px -8px var(--light-purple); transition: all .3s; }
-  .hero-follow-btn.following { background: var(--glass-bg); box-shadow: none; border: 1px solid var(--glass-border); }
-  .hero-follow-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-  .controls-container { border-bottom: 1px solid var(--glass-border); }
-  .profile-tab { padding:.5rem 0; margin:0 .5rem; font-weight:500; position:relative; color:var(--text-secondary); transition: color .3s; }
-  @media (min-width:640px){ .profile-tab{ margin:0 1rem; } }
-  .profile-tab:hover{ color:var(--text-primary); }
-  .profile-tab::after{ content:''; position:absolute; bottom:-1px; left:0; width:100%; height:2px; background:var(--light-purple); transform:scaleX(0); transform-origin:center; transition:transform .3s cubic-bezier(.25,1,.5,1); }
-  .profile-tab.active{ color:#fff; }
-  .profile-tab.active::after{ transform:scaleX(1); box-shadow:0 0 10px var(--light-purple); }
-  .filter-group{ display:flex; align-items:center; gap:.5rem; background:rgba(16,16,21,.7); border:1px solid var(--glass-border); padding:.35rem; border-radius:.75rem; }
-  .filter-btn{ display:flex; align-items:center; gap:.5rem; padding:.5rem 1rem; font-size:.875rem; font-weight:500; color:var(--text-secondary); border-radius:.5rem; transition:all .3s; }
-  .filter-btn:hover{ color:var(--text-primary); background:rgba(255,255,255,.05); }
-  .filter-btn.active{ background:var(--light-purple); color:#fff; box-shadow:0 0 15px -5px var(--light-purple); }
-  .sort-select{ background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); padding:.6rem 2.5rem .6rem 1rem; border-radius:.75rem; appearance:none; -webkit-appearance:none; font-size:.875rem; font-weight:500; transition:all .3s; }
-  .sort-select:hover{ border-color:rgba(255,255,255,.3); }
-  .masonry{ column-gap:1.5rem; column-width:340px; }
-  .masonry-item{ break-inside:avoid; margin-bottom:1.5rem; width:100%; display:inline-block; vertical-align:top; border-radius:1.25rem; overflow:hidden; transition:transform .3s; }
-  .masonry-item:hover{ transform:translateY(-5px); }
-  .portfolio-overlay{ background:linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 100%); opacity:0; transition:opacity .3s; }
-  .group:hover .portfolio-overlay{ opacity:1; }
-  .info-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(320px,1fr)); gap:2rem; }
-  .info-card{ background:rgba(255,255,255,.03); padding:1.5rem; border-radius:1rem; border:1px solid var(--glass-border); }
-  .info-card h3{ display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-size:1.125rem; font-weight:600; color:var(--text-primary); }
-  .info-card h3 .icon{ color:var(--light-purple); font-size:1.25rem; width:20px; text-align:center; }
-  .skill-chip{ background:rgba(255,255,255,.05); border:1px solid var(--glass-border); padding:.5rem 1rem; border-radius:.5rem; font-size:.875rem; }
-  @keyframes fadeIn{ from{opacity:0} to{opacity:1} }
-  @keyframes slideUp{ from{opacity:0; transform:translateY(20px)} to{opacity:1; transform:translateY(0)} }
-  .fade-in{ animation:fadeIn .8s ease forwards; }
-  .slide-up{ animation:slideUp .8s ease forwards; }
-  .code-badge{ background:linear-gradient(90deg,#7c3aed,#4f46e5); color:#fff; font-weight:800; letter-spacing:.02em; padding:.2rem .55rem; border-radius:.7rem; box-shadow:0 2px 10px rgba(124,58,237,.35); line-height:1; display:inline-flex; align-items:center; white-space:nowrap; flex-shrink:0; transform:translateY(.05rem); }
-  @media (max-width:640px){ .code-badge{ font-size:.75rem; padding:.2rem .5rem; } }
-  .chip-row{ row-gap:.35rem; }
 
-  /* RTL niceties */
-  html[dir="rtl"] .fa-play { transform: scaleX(-1); } /* flip play caret */
-  .text-start { text-align: start; }
-.text-end   { text-align: end; }
+  .skill-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #e5e7eb;
+  }
 
-/* Responsive helper to mimic sm:text-start */
-@media (min-width: 640px) {
-  .sm\:text-start { text-align: start; }
-}
+  .skill-name {
+    font-weight: 500;
+  }
 
-/* Safety override if legacy 'sm:text-left' sneaks in under RTL */
-html[dir="rtl"] .sm\:text-left { text-align: right !important; }
+  .skill-percent {
+    font-family: inherit;
+  }
 
+  .skill-track {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    background: #3a3a3a;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  /* نوار پرشونده – از راست به چپ پر شود */
+  .skill-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;              /* از لبه‌ی راست شروع کن */
+    left: auto;
+    background: #ffffff;   /* رنگ نوار (می‌تونی عوض کنی) */
+    border-radius: inherit;
+    width: calc(var(--p, 0) * 1%);
+    max-width: 100%;
+  }
 </style>
 
-<div class="max-w-7xl w-full mx-auto px-3 sm:px-6 py-6">
-<!-- ===== Profile Hero ===== -->
-{% if request.user.is_authenticated and request.user == profile_user and not request.user.email_verified %}
-  <div class="bg-amber-400 text-black text-sm font-semibold px-4 py-2 flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <i class="fa-solid fa-triangle-exclamation"></i>
-      <span>{% trans "Please verify your email." %}</span>
+<!-- Header   end-->
+<!-- wrapper -->
+<div id="wrapper">
+    <!-- content-holder -->
+    <div class="content-holder">
+        <!-- column-image  -->
+        <div class="column-image">
+            <div class="bg"
+                 data-bg="{% if profile.header_background %}{{ profile.header_background.url }}{% else %}{% static 'images/bg/17.jpg' %}{% endif %}">
+            </div>
+            <div class="overlay"></div>
+            <div class="column-title">
+                <h2>{{ profile.header_title|default:"درباره من" }}</h2>
+                <h3>{{ profile.header_subtitle|default:"" }}</h3>
+            </div>
+            <div class="ci_dec"><span></span></div>
+        </div>
+        <!-- column-image end  -->
+
+        <!-- column-wrapper -->
+        <div class="column-wrapper">
+            <!--section  -->
+            <section id="sec1">
+                <div class="container small-container">
+                    <div class="section-title fl-wrap">
+                        <h3>{{ profile.story_title|default:"داستان کوچک من" }}</h3>
+                        <h4>{{ profile.story_subtitle|default:"" }}</h4>
+                        <div class="section-number">01.</div>
+                    </div>
+
+                    <!-- ✅ تنها تغییر مجاز: نمایش نقش کاربر زیر «داستان کوچک من» -->
+<div class="fl-wrap" style="margin:-10px 0 20px 0;">
+    <span class="tag" style="display:inline-block;padding:6px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#ccc">
+        
+        {% if profile.role == 'artist' %}
+            هنرمند
+            {% if profile.category %}
+                – {{ profile.category.name }}
+            {% endif %}
+            {% if profile.subcategory %}
+                – {{ profile.subcategory.name }}
+            {% endif %}
+
+        {% elif profile.role == 'business' %}
+            مالک کسب‌وکار
+            {% if profile.business_kind %}
+                – 
+                {% if profile.business_kind == 'gallery' %}
+                    گالری
+                {% elif profile.business_kind == 'studio' %}
+                    استودیو
+                {% elif profile.business_kind == 'concept_store' %}
+                    کانسپت استور
+                {% endif %}
+            {% endif %}
+
+        {% else %}
+            کاربر عادی
+        {% endif %}
+
+    </span>
+</div>
+
+                    <!-- پایان تغییر -->
+
+                    <div class="column-wrapper_item fl-wrap">
+                        <div class="column-wrapper_text fl-wrap">
+                            <p>{{ profile.story_paragraph_1|linebreaksbr }}</p>
+                            {% if profile.story_paragraph_2 %}<p>{{ profile.story_paragraph_2|linebreaksbr }}</p>{% endif %}
+{% if counters.exists %}
+
+                            <div class="inline-facts-holder fl-wrap">
+                                {% for c in counters %}
+                                <!-- inline-facts -->
+                                <div class="inline-facts">
+                                    <div class="milestone-counter">
+                                        <div class="stats animaper">
+                                            <div class="num" data-content="{{ c.value }}" data-num="{{ c.value }}">{{ c.value }}</div>
+                                        </div>
+                                    </div>
+                                    <h6>{{ c.label }}</h6>
+                                </div>
+                                <!-- inline-facts end -->
+                                {% empty %}
+                                <!-- اگر هنوز چیزی ثبت نشده باشد، چیزی نشان نده -->
+                                {% endfor %}
+                            </div>
+{% endif %}
+
+                            {# لینک پورتفولیو: اگر صفحه‌ای داری رفرنس بده، فعلاً به route ثابت #}
+                            <a href="{% url 'public_profile' user.username %}#portfolio" class="btn fl-btn">پرتفولیوی من</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!--section end  -->
+{% if services.exists or products.exists %}
+<section id="sec2">
+  <div class="container small-container">
+    <div class="section-title fl-wrap">
+      <h3>خدمات و قیمت‌ها</h3>
+      <h4>خدمات فعال و محصولات قابل فروش من</h4>
+      <div class="section-number">02.</div>
     </div>
-    <a href="{% url 'email_verify_start' %}"
-       class="ml-4 underline hover:text-gray-800">
-      {% trans "Verify now" %}
-    </a>
+
+    <div class="column-wrapper_item fl-wrap">
+      <div class="column-wrapper_text fl-wrap">
+
+        <!-- ─────── خدمات ─────── -->
+        {% if services.exists %}
+        <div class="serv-wrap fl-wrap">
+          {% for s in services %}
+          <div class="serv-item">
+            <div class="serv-media">
+              <a href="{% url 'service_detail' s.slug s.pk %}">
+                {% if s.image %}
+                  <img src="{{ s.image.url }}" alt="{{ s.title }}">
+                {% else %}
+                  <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
+                {% endif %}
+              </a>
+            </div>
+            <div class="serv-text">
+              <h4>
+                <a href="{% url 'service_detail' s.slug s.pk %}">{{ s.title }}</a>
+              </h4>
+
+              {% if s.description %}
+                <p>{{ s.description }}</p>
+              {% endif %}
+
+              {% if s.tag_list %}
+                <ul>
+                  {% for t in s.tag_list %}
+                    <li><a href="#">{{ t }}</a></li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+
+              <div class="serv-price">
+                قیمت: <span>{{ s.display_price }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+
+        <!-- ─────── محصولات ─────── -->
+        {% if products.exists %}
+        <div class="serv-wrap fl-wrap" style="margin-top:20px">
+          {% for p in products %}
+          <div class="serv-item">
+            <div class="serv-media">
+              <a href="{% url 'artpiece_detail' p.slug p.pk %}">
+                {% if p.image %}
+                  <img src="{{ p.image.url }}" alt="{{ p.title }}">
+                {% else %}
+                  <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
+                {% endif %}
+              </a>
+            </div>
+            <div class="serv-text">
+              <h4>
+                <a href="{% url 'artpiece_detail' p.slug p.pk %}">{{ p.title }}</a>
+              </h4>
+
+              {% if p.description %}
+                <p>{{ p.description }}</p>
+              {% endif %}
+
+              <ul>
+                <li>وضعیت: {% if p.condition == 'new' %}نو{% else %}کارکرده{% endif %}</li>
+                {% if p.quantity %}
+                  <li>موجودی: {{ p.quantity }}</li>
+                {% endif %}
+              </ul>
+
+              <div class="serv-price">
+                قیمت: <span>{{ p.display_price }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if not services.exists and not products.exists %}
+          <p class="muted">هنوز خدمتی یا محصولی ثبت نشده است.</p>
+        {% endif %}
+      </div>
+    </div>
   </div>
+</section>
 {% endif %}
 
 
-  <section class="relative mb-8 text-center sm:text-start fade-in">
-    {% if profile_user.profile and profile_user.profile.cover %}
-      <div class="h-48 sm:h-64 rounded-2xl bg-center bg-cover relative pb-10 sm:pb-0"
-           style="background-image:url('{{ profile_user.profile.cover.url }}');">
-        <div class="absolute inset-0 hero-banner"></div>
-      </div>
-    {% else %}
-      <div class="h-48 sm:h-64 rounded-2xl relative overflow-hidden pb-10 sm:pb-0">
-        <div class="absolute inset-0"
-             style="background:
-                    radial-gradient(1200px 400px at -10% -30%, rgba(120,65,255,.18), rgba(120,65,255,0) 60%),
-                    radial-gradient(900px 300px at 110% 130%, rgba(65,120,255,.18), rgba(65,120,255,0) 60%),
-                    var(--panel2);"></div>
-        <div class="absolute inset-0 hero-banner"></div>
-      </div>
-    {% endif %}
+            <!--section   -->
+            {% if skills.exists %}
 
-    <div class="px-4 sm:px-8">
-      <div class="flex flex-col sm:flex-row items-center sm:items-end gap-5 -mt-16 sm:-mt-20">
-        <!-- Avatar -->
-        <img
-          src="{% if profile_user.profile.avatar %}{{ profile_user.profile.avatar.url }}{% else %}https://placehold.co/160x160/222/FFF?text=U{% endif %}"
-          class="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover hero-avatar slide-up"
-          style="animation-delay:.2s" alt="{{ profile_user.username }}"
-        >
+<section id="sec3">
+  <div class="container small-container">
+    <div class="section-title fl-wrap">
+      <h3>مهارت‌ها و دستاوردها</h3>
+      <h4>اما زمان، توده‌ای از خاردارها و تسهیلات را فراهم می‌آورد. در تخمیر، تسهیل‌های توده‌ای</h4>
+      <div class="section-number">03.</div>
+    </div>
 
-        <!-- User Info -->
-        <div class="flex-1 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4 w-full slide-up" style="animation-delay:.4s;">
-          <div class="min-w-0 w-full">
-            <h1 class="text-3xl sm:text-4xl font-bold truncate max-w-full">
-              {{ profile_user.username }}
-            </h1>
+    <div class="column-wrapper_item fl-wrap">
+      <div class="column-wrapper_text fl-wrap">
 
-            <!-- Chips / badges row -->
-            <div class="mt-2 flex items-center gap-2 flex-wrap">
-              {% if profile_user.public_code %}
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold tracking-wide
-                             bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg">
-                  #{{ profile_user.public_code }}
-                </span>
-              {% endif %}
-
-              {% if profile_user.role == 'ARTIST' %}
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                      style="background:#570080; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(87,0,128,.45);">
-                  <i class="fa-solid fa-star text-[10px]"></i>
-                  <span>{% trans "Suggested by" %}</span>
-                  <span class="opacity-90">·</span>
-                  <span>{{ suggestions_received_count|default:0 }}</span>
-                </span>
-              {% endif %}
-
-              <a href="{% url 'profile_suggested' profile_user.username %}"
-                 class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold text-black"
-                 style="background:#11C865; box-shadow:0 0 0 1px rgba(255,255,255,.08), 0 2px 12px rgba(17,200,101,.35);">
-                <i class="fa-solid fa-lightbulb text-[10px]"></i>
-                <span>{% trans "Suggestions" %}</span>
-                <span class="opacity-90">·</span>
-                <span>{{ suggestions_made_count|default:0 }}</span>
-              </a>
+        <div class="skills-list">
+          {% for s in skills %}
+          <div class="skill-row">
+            <div class="skill-row-header">
+              <span class="skill-name">{{ s.name }}</span>
+              <span class="skill-percent">{{ s.percent }}%</span>
             </div>
 
-            <!-- Categories / role / title -->
-            {% if profile_user.role == 'AUDIENCE' %}
-              <p class="text-sm truncate hero-subtitle mt-1">{% trans "Audience" %}</p>
-            {% elif hero_cats and hero_cats|length %}
-              {% with total=hero_cats|length %}
-                <p class="text-sm truncate hero-subtitle mt-1">
-  {% for c in hero_cats|slice:":3" %}
-    <bdi>{{ c.display_name|default:c.name }}</bdi>{% if not forloop.last %} · {% endif %}
-  {% endfor %}
-  {% if total > 3 %}
-    {% blocktrans with remaining=total|add:"-3" %}· +{{ remaining }} more{% endblocktrans %}
-  {% endif %}
-</p>
-              {% endwith %}
-            {% elif profile_user.profile and profile_user.profile.title %}
-              <p class="text-sm truncate hero-subtitle mt-1">{{ profile_user.profile.title }}</p>
-            {% endif %}
-          </div>
-
-          <!-- Follow / counts -->
-          <div class="flex items-center gap-4 sm:gap-6 mt-4 sm:mt-0">
-            <div class="flex gap-4 text-sm text-gray-400">
-              <a href="{% url 'network:following_list' profile_user.username %}"
-                 class="inline-flex items-center gap-1 px-2 py-1 rounded-full hover:bg-white/5 hover:text-white transition-colors"
-                 title="{% blocktrans with u=profile_user.username %}See who {{ u }} follows{% endblocktrans %}">
-                <b class="text-white font-semibold">{{ following_count|default:0 }}</b> {% trans "Following" %}
-              </a>
-              <a href="{% url 'network:followers_list' profile_user.username %}"
-                 class="inline-flex items-center gap-1 px-2 py-1 rounded-full hover:bg-white/5 hover:text-white transition-colors"
-                 title="{% blocktrans with u=profile_user.username %}See {{ u }}’s followers{% endblocktrans %}">
-                <b class="text-white font-semibold">{{ followers_count|default:0 }}</b> {% trans "Followers" %}
-              </a>
-            </div>
-
-            <div class="flex-shrink-0">
-              {% if request.user.is_authenticated and request.user != profile_user %}
-                <button
-                  class="px-5 py-2 text-sm font-semibold rounded-full hero-follow-btn js-follow-btn {% if is_following_author %}following{% endif %}"
-                  data-user="{{ profile_user.id }}"
-                  data-endpoint="{% url 'network:toggle_follow' profile_user.id %}"
-                  aria-pressed="{{ is_following_author|yesno:'true,false' }}">
-                  {% if is_following_author %}{% trans "Following" %}{% else %}{% trans "Follow" %}{% endif %}
-                </button>
-              {% elif request.user == profile_user and show_market %}
-                <a href="{% url 'settings_profile' %}" class="px-5 py-2 text-sm font-semibold rounded-full hero-follow-btn following">{% trans "Edit Profile" %}</a>
-              {% endif %}
+            <div class="skill-track">
+              {# مقدار درصد را به صورت CSS variable می‌فرستیم #}
+              <div class="skill-fill" style="--p: {{ s.percent|default:0 }};"></div>
             </div>
           </div>
+          {% empty %}
+          {# بدون خروجی خاص #}
+          {% endfor %}
         </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- ===== Integrated Controls Bar ===== -->
-  <div class="flex flex-wrap items-center justify-center sm:justify-between gap-6 controls-container mb-8 slide-up" style="animation-delay:.6s;">
-    <div class="flex items-center flex-wrap justify-center">
-      <button class="profile-tab active" data-tab="timeline">{% trans "Timeline" %}</button>
-      <button class="profile-tab" data-tab="portfolio">{% trans "Portfolio" %}</button>
-      <button class="profile-tab" data-tab="personal">{% trans "Personal Info" %}</button>
-      {% if show_market %}
-        <button class="profile-tab" data-tab="market">{% trans "Marketplace" %}</button>
-      {% endif %}
-    </div>
-
-    <!-- Filters (Timeline only) -->
-    <div id="timeline-controls" class="flex items-center gap-4">
-      <div class="filter-group">
-        <button class="filter-btn js-type active" data-type="all"><i class="fa-solid fa-layer-group text-xs"></i> <span>{% trans "All" %}</span></button>
-        <button class="filter-btn js-type" data-type="PHOTO">{% trans "Photo" %}</button>
-        <button class="filter-btn js-type" data-type="VIDEO">{% trans "Video" %}</button>
-        <button class="filter-btn js-type" data-type="TEXT">{% trans "Text" %}</button>
       </div>
     </div>
   </div>
+</section>
 
-  <!-- ===== PANELS ===== -->
+            <!--section end  -->
+{% endif %}
+{% if testimonials.exists %}
 
-  <!-- TIMELINE PANEL -->
-  <section class="panel" data-panel="timeline">
-    <div class="masonry" id="timelineGrid">
-      {% for post in timeline_posts %}
-        <article class="masonry-item js-post group" data-type="{{ post.post_type }}" data-pop="{{ post.likes_count|default:0 }}">
-          <a href="{% url 'single_post' post.pk %}" class="block relative">
-            {% if post.post_type == "PHOTO" %}
-              {% with first_img=post.images.all|first %}
-                {% if first_img %}
-                  <img src="{{ first_img.image.url }}" class="w-full h-auto object-cover" alt="{{ post.title }}">
-                {% elif post.image %}
-                  <img src="{{ post.image.url }}" class="w-full h-auto object-cover" alt="{{ post.title }}">
-                {% else %}
-                  <img src="https://placehold.co/400x400/1E1E1E/FFF?text=Image" class="w-full h-auto object-cover" alt="{% trans 'Image' %}">
-                {% endif %}
-              {% endwith %}
-            {% elif post.post_type == "VIDEO" %}
-              {% with clip=post.videos.all|first %}
-                <div class="relative overflow-hidden rounded-2xl">
-                  <div class="relative aspect-video sm:aspect-[349/195]">
-                    <img id="thumb-{{ post.id }}"
-                         src="{% if clip and clip.poster %}{{ clip.poster.url }}{% else %}https://placehold.co/800x600/12141A/EEE?text=Video{% endif %}"
-                         alt="{{ post.title }}"
-                         class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]" />
-                    {% if clip and not clip.poster %}
-                      <video class="hidden js-make-thumb" preload="metadata"
-                             data-target="thumb-{{ post.id }}" data-second="1" crossorigin="anonymous">
-                        <source src="{{ clip.file.url|default:clip.video.url }}" type="video/mp4">
-                      </video>
-                    {% elif not clip and post.video %}
-                      <video class="hidden js-make-thumb" preload="metadata"
-                             data-target="thumb-{{ post.id }}" data-second="1" crossorigin="anonymous">
-                        <source src="{{ post.video.url }}" type="video/mp4">
-                      </video>
-                    {% endif %}
-
-                    <span class="pointer-events-none absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></span>
-                    <span class="pointer-events-none absolute inset-0 flex items-center justify-center">
-                      <span class="relative grid place-items-center w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-black/65 group-hover:bg-black/75 transition">
-                        <span class="absolute -inset-1 rounded-full ring-2 ring-white/10"></span>
-                        <i class="fa-solid fa-play text-white text-sm ml-0.5"></i>
-                      </span>
-                    </span>
-                  </div>
+            <!--section -->
+            <section id="sec4">
+                <div class="container small-container">
+                    <div class="section-title fl-wrap">
+                        <h3> مشتریان و نظرات</h3>
+                        <h4>اما زمان، توده‌ای از خاردارها و تسهیلات را فراهم می‌آورد. در تخمیر، تسهیل‌های توده‌ای</h4>
+                        <div class="section-number">04.</div>
+                    </div>
                 </div>
-              {% endwith %}
-            {% elif post.post_type == "TEXT" %}
-              <div class="p-6 h-full" style="background-color:#1a1a22;">
-                <h3 class="font-bold text-lg text-white mb-2 line-clamp-2">{{ post.title }}</h3>
-                <p class="text-sm text-gray-400 line-clamp-5">
-                  {% with ch=post.chapters.all|first %}
-                    {% if ch %}
-                      {{ ch.content|striptags|truncatewords:30 }}
-                    {% else %}
-                      {{ post.body|default:post.caption|striptags|truncatewords:30 }}
-                    {% endif %}
-                  {% endwith %}
-                </p>
-              </div>
-            {% endif %}
-            <div class="absolute inset-0 portfolio-overlay p-4 flex flex-col justify-end">
-              <h3 class="font-bold text-white truncate">{{ post.title }}</h3>
-              <p class="text-sm text-gray-300 truncate">{% blocktrans with u=post.author.username %}by {{ u }}{% endblocktrans %}</p>
-            </div>
-          </a>
-        </article>
-      {% empty %}
-        <p class="text-gray-400 col-span-full text-center py-10">{% trans "This artist hasn't posted anything on their timeline yet." %}</p>
-      {% endfor %}
-    </div>
-  </section>
 
-  <!-- PORTFOLIO PANEL -->
-  <section class="panel hidden" data-panel="portfolio">
-    <div class="info-grid">
-      <div class="info-card">
-        <h3><i class="fa-solid fa-graduation-cap icon"></i>{% trans "Education" %}</h3>
-        <div class="space-y-4">
-          {% for e in educations %}<p class="text-sm text-gray-300">{{ e.degree }} {% trans "at" %} <b>{{ e.school }}</b></p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
-        </div>
-      </div>
-      <div class="info-card">
-        <h3><i class="fa-solid fa-briefcase icon"></i>{% trans "Work Experience" %}</h3>
-        <div class="space-y-4">
-          {% for w in experiences %}<p class="text-sm text-gray-300">{{ w.title }} {% trans "at" %} <b>{{ w.company }}</b></p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
-        </div>
-      </div>
-      <div class="info-card">
-        <h3><i class="fa-solid fa-star icon"></i>{% trans "Skills" %}</h3>
-        <div class="flex flex-wrap gap-2">
-          {% for s in skills %}<span class="skill-chip">{{ s.name }}</span>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
-        </div>
-      </div>
-      <div class="info-card">
-        <h3><i class="fa-solid fa-award icon"></i>{% trans "Awards" %}</h3>
-        <div class="space-y-4">
-          {% for a in awards %}<p class="text-sm text-gray-300">{{ a.title }} {% trans "from" %} <b>{{ a.organization }}</b></p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
-        </div>
-      </div>
-      <div class="info-card">
-        <h3><i class="fa-solid fa-certificate icon"></i>{% trans "Certifications" %}</h3>
-        <div class="space-y-4">
-          {% for c in certifications %}<p class="text-sm text-gray-300">{{ c.name }} {% trans "from" %} <b>{{ c.issuer }}</b></p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
-        </div>
-      </div>
-      <div class="info-card">
-        <h3><i class="fa-solid fa-book-open icon"></i>{% trans "Books" %}</h3>
-        <div class="space-y-4">
-          {% for b in books %}<p class="text-sm text-gray-300"><b>{{ b.title }}</b> {% trans "by" %} {{ b.author }}</p>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
-        </div>
-      </div>
-    </div>
-  </section>
+                <div class="container small-container">
+                    <div class="testimonilas-carousel">
+                        <div class="swiper-container">
+                            <div class="swiper-wrapper">
+                                {% for t in testimonials %}
+                                <div class="swiper-slide">
+                                    <div class="testi-item_wrap">
+                                        <div class="testi-item">
+                                            <h3>{{ t.person_name }}</h3>
+                                            <p>"{{ t.quote }}"</p>
+                                            {% if t.source_url %}
+                                              <a href="{{ t.source_url }}" class="teti-link" target="_blank">{{ t.source_label|default:"منبع" }}</a>
+                                            {% elif t.source_label %}
+                                              <span class="teti-link">{{ t.source_label }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="bg"
+                                             data-bg="{% if t.background_image %}{{ t.background_image.url }}{% else %}{% static 'images/folio/5.jpg' %}{% endif %}">
+                                        </div>
+                                        <div class="overlay"></div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                {# اگر هنوز نظری ثبت نشده باشد، چیزی رندر نشود تا UI ثابت بماند #}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="single_slider_btn hsc-next"><i class="fal fa-angle-right"></i></div>
+                        <div class="single_slider_btn hsc-prev"><i class="fal fa-angle-left"></i></div>
+                    </div>
 
-  <!-- PERSONAL INFO PANEL -->
-  <section data-panel="personal" class="hidden panel">
-    <div class="info-grid">
-      <div class="info-card lg:col-span-2">
-        <h3><i class="fa-regular fa-user icon"></i>{% trans "About Me" %}</h3>
-        <p class="text-sm text-gray-300 leading-relaxed">{{ profile_user.profile.bio|default:_("No bio provided.") }}</p>
-      </div>
-      <div class="info-card">
-        <h3><i class="fa-solid fa-link icon"></i>{% trans "Contact" %}</h3>
-        <div class="space-y-2 text-sm"><p>{{ profile_user.email }}</p></div>
-      </div>
-      <div class="info-card">
-        <h3><i class="fa-solid fa-heart icon"></i>{% trans "Hobbies" %}</h3>
-        <div class="flex flex-wrap gap-2">
-          {% for h in hobbies %}<span class="skill-chip">{{ h.name }}</span>{% empty %}<p class="text-sm text-gray-500">—</p>{% endfor %}
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- MARKETPLACE PANEL -->
-  <section class="panel hidden" data-panel="market">
-    <style>
-      .add-card{ position:relative; overflow:hidden; border-radius:16px; border:1px solid var(--glass-border, rgba(255,255,255,.08));
-        background: radial-gradient(120% 100% at -10% 120%, rgba(125,92,255,.15), transparent 60%),
-                   radial-gradient(90% 80% at 120% -10%, rgba(17,200,101,.12), transparent 55%),
-                   rgba(255,255,255,.02);
-        transition: transform .25s, box-shadow .25s, border-color .25s, background .25s; }
-      .add-card:hover{ transform:translateY(-4px); border-color:transparent; box-shadow:0 16px 48px rgba(125,92,255,.25);
-        background: radial-gradient(120% 100% at -10% 120%, rgba(125,92,255,.20), transparent 60%),
-                    radial-gradient(90% 80% at 120% -10%, rgba(17,200,101,.16), transparent 55%),
-                    rgba(255,255,255,.03); }
-      .add-card .pulse{ position:absolute; inset:-30%; background:conic-gradient(from 0deg, rgba(125,92,255,.15), rgba(17,200,101,.10), rgba(125,92,255,.15)); filter:blur(30px); animation:spin 12s linear infinite; opacity:.55; }
-      @keyframes spin{ to{ transform:rotate(360deg) } }
-    </style>
-
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      <!-- {% if is_owner %}
-        <a href="" class="add-card group block" aria-label="{% trans 'Add Service' %}">
-          <div class="pulse"></div>
-          <div class="aspect-[4/3] flex items-center justify-center">
-            <div class="relative grid place-items-center">
-              <div class="w-16 h-16 rounded-full border border-white/15 bg-white/5 backdrop-blur grid place-items-center transition-transform duration-200 group-hover:scale-105">
-                <svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12h14"/>
-                </svg>
-              </div>
-              <div class="mt-4 text-center">
-                <div class="text-gray-200 font-semibold">{% trans "Add Service" %}</div>
-                <div class="text-xs text-[var(--muted)] mt-1">{% trans "Create a new marketplace listing" %}</div>
-              </div>
-            </div>
-          </div>
-        </a>
-      {% endif %} -->
-
-      {% for item in market_items %}
-        <div class="glass-panel overflow-hidden group">
-          <div class="aspect-[4/3] bg-black/40">
-            {% if item.image %}
-              <img src="{{ item.image.url }}" alt="{{ item.title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-            {% endif %}
-          </div>
-          <div class="p-4">
-            <h3 class="font-semibold line-clamp-1">{{ item.title }}</h3>
-            <div class="mt-3 flex items-center justify-between">
-              <div>
-                <div class="font-bold text-lg text-[var(--green)]">
-                  {{ item.currency }} {{ item.price|floatformat:0|intcomma }}
+                    <div class="testi-contorls">
+                        <div class="hero-slider-wrap_pagination-wrap2">
+                            <div class="hero-slider-wrap_pagination hero-slider-pag"></div>
+                        </div>
+                        <div class="testi-counter">
+                            <div class="ts_current">01</div>
+                            <div class="ts_total"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="text-[11px] text-[var(--muted)] mt-1">
-                  {{ item.created_at|date:"M d" }}
-                </div>
-              </div>
-              <a href="{% url 'marketplace:item' item.pk %}"
-                 class="px-3 py-1.5 text-sm rounded-lg border border-[var(--glass-border)] hover:bg-[var(--light-purple)] hover:border-transparent transition-colors">
-                {% trans "View" %}
-              </a>
-            </div>
-          </div>
-        </div>
-      {% empty %}
-        {% if not is_owner %}
-          <p class="text-gray-400 col-span-full text-center py-10">{% trans "No marketplace listings yet." %}</p>
-        {% endif %}
-      {% endfor %}
-    </div>
-  </section>
+            </section>
+            <!--section end  -->
+{% endif %}
+{% if client_logos.exists %}
 
+            <div class="clients-carousel-wrap">
+                <div class="clients-carousel">
+                    <div class="swiper-container">
+                        <div class="swiper-wrapper">
+                            {% for c in client_logos %}
+                            <div class="swiper-slide">
+                                {% if c.url %}
+                                <a href="{{ c.url }}" target="_blank" class="client-item">
+                                    <img width="100px" src="{{ c.image.url }}" alt="{{ c.title }}">
+                                </a>
+                                {% else %}
+                                <span class="client-item">
+                                    <img width="100px" src="{{ c.image.url }}" alt="{{ c.title }}">
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% empty %}
+                            {# اگر هنوز لوگویی ثبت نشده، چیزی نمایش نده تا طرح اصلی دست‌نخورده بماند #}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endif %}
+
+            <div class="order-wrap">
+                <div class="container small-container">
+                    <h4>آیا آماده سفارش پروژه خود هستید؟</h4>
+                </div>
+                <a href="{% url 'public_profile' user.username %}#contact" class="order_btn">تماس بگیرید</a>
+            </div>
+        </div>
+        <!-- column-wrapper -->
+
+        <!-- fixed-bottom-container -->
+        <div class="fixed-bottom-container">
+            <!-- <div class="scroll-down-wrap">
+                <div class="mousey"><div class="scroller"></div></div>
+            </div> -->
+            <div class="page-scroll-nav">
+                <nav class="scroll-init">
+                    <ul>
+                        <li><a href="#sec1" class="act-sec"></a><span>درباره</span></li>
+                        <li><a href="#sec2"></a><span>خدمات</span></li>
+                        <li><a href="#sec3"></a><span>مهارت‌ها</span></li>
+                        <li><a href="#sec4"></a><span>مشتریان</span></li>
+                    </ul>
+                </nav>
+            </div>
+            <!-- <div class="progress-bar-wrap">
+                <div class="progress-bar color-bg"></div>
+            </div> -->
+        </div>
+        <!-- fixed-bottom-container end-->
+    </div>
+    <!-- content-holder end -->
 </div>
+<!-- wrapper end -->
 
-<script>
-(function () {
-  document.querySelectorAll('video.js-make-thumb').forEach(function (v) {
-    const seekTo = +(v.dataset.second || 1);
-    const img = document.getElementById(v.dataset.target);
-    if (!img) return;
+<!-- aside-column -->
+<div class="aside-column">
+    <!-- social_links-->
+    <div class="header_social">
+        <ul>
+            {% for s in social_links %}
+              <li><a href="{{ s.url }}" target="_blank">{{ s.title }}</a></li>
+            {% empty %}
+              <li><a href="#" target="_blank">فیسبوک</a></li>
+              <li><a href="#" target="_blank">اینستاگرام</a></li>
+              <li><a href="#" target="_blank">توییتر</a></li>
+              <li><a href="#" target="_blank">تیک</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <!-- social_links end-->
+</div>
+<!-- aside-column  end -->
 
-    v.addEventListener('loadedmetadata', function () {
-      v.currentTime = Math.min(seekTo, v.duration || seekTo);
-    }, { once: true });
-
-    v.addEventListener('seeked', function () {
-      const canvas = document.createElement('canvas');
-      canvas.width = 698; canvas.height = 390;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
-      img.src = canvas.toDataURL('image/jpeg', 0.86);
-    }, { once: true });
-  });
-})();
-</script>
-
-<script>
-(function(){
-  const TABS = document.querySelectorAll('.profile-tab');
-  const PANELS = document.querySelectorAll('.panel');
-  const timelineControls = document.getElementById('timeline-controls');
-  function activate(name){
-    TABS.forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
-    PANELS.forEach(p=>p.classList.toggle('hidden', p.dataset.panel!==name));
-    if (timelineControls) timelineControls.style.display = (name === 'timeline') ? 'flex' : 'none';
-  }
-  TABS.forEach(t=>t.addEventListener('click', ()=>activate(t.dataset.tab)));
-  activate( (location.hash||'').replace('#','') || 'timeline' );
-})();
-</script>
-
-<script>
-(function(){
-  const btns = document.querySelectorAll('.js-type');
-  const cards = document.querySelectorAll('.js-post');
-  btns.forEach(b => b.addEventListener('click', () => {
-    btns.forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    const t = b.dataset.type;
-    cards.forEach(c => c.style.display = (t==='all' || c.dataset.type===t) ? '' : 'none');
-  }));
-})();
-</script>
-
-<script>
-(function(){
-  function getCookie(name){
-    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return m ? m.pop() : '';
-  }
-  const CSRF = getCookie('csrftoken');
-
-  document.querySelectorAll('.js-follow-btn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      try {
-        const res = await fetch(btn.dataset.endpoint, {
-          method:'POST',
-          headers:{ 'X-CSRFToken': CSRF },
-          credentials:'same-origin'
-        });
-        if (!res.ok) return;
-        window.location.reload();
-      } catch (err) {
-        console.error('Toggle follow failed:', err);
-      }
-    });
-  });
-})();
-</script>
-
-{% endblock %}
+{% endblock content %}

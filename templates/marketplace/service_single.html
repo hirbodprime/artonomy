@@ -1,0 +1,124 @@
+{# marketplace/service_single.html #}
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div id="wrapper">
+  <div class="content-holder" data-pagetitle="{{ service.title }}">
+
+    {# --- HERO --- #}
+    {% with gallery=service.ordered_images %}
+      {% if gallery|length %}
+        {% with hero=gallery|first %}
+          <div class="column-image">
+            <div class="bg" data-bg="{{ hero.image.url }}"></div>
+            <div class="overlay"></div>
+            <div class="column-title">
+              <h2>{{ service.title }}</h2>
+              {% if service.description %}<h3>{{ service.description|truncatewords:22 }}</h3>{% endif %}
+            </div>
+            <div class="ci_dec"><span></span></div>
+          </div>
+        {% endwith %}
+      {% else %}
+        <div class="column-image">
+          {% if service.image %}
+            <div class="bg" data-bg="{{ service.image.url }}"></div>
+          {% else %}
+            <div class="bg" data-bg="{% static 'images/placeholder.jpg' %}"></div>
+          {% endif %}
+          <div class="overlay"></div>
+          <div class="column-title">
+            <h2>{{ service.title }}</h2>
+            {% if service.description %}<h3>{{ service.description|truncatewords:22 }}</h3>{% endif %}
+          </div>
+          <div class="ci_dec"><span></span></div>
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="column-wrapper">
+      <section id="sec1">
+        <div class="container small-container">
+          <div class="section-title fl-wrap">
+            <h3>{{ service.title }}</h3>
+            <h4>{{ service.display_price }}</h4>
+            <div class="section-number">01.</div>
+          </div>
+        </div>
+
+        {# --- GALLERY GRID --- #}
+        <div class="container small-container">
+          <div class="gallery-items lightgallery two-column big-padding sg_items scale_anim">
+            {% with gallery=service.ordered_images %}
+              {% if gallery|length %}
+                {% for gi in gallery %}
+                  <div class="gallery-item">
+                    <div class="grid-item-holder hov_zoom">
+                      <a href="{{ gi.image.url }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
+                      <img src="{{ gi.image.url }}" alt="{{ gi.alt_text|default:service.title }}">
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="gallery-item">
+                  <div class="grid-item-holder hov_zoom">
+                    {% if service.image %}
+                      <a href="{{ service.image.url }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
+                      <img src="{{ service.image.url }}" alt="{{ service.title }}">
+                    {% else %}
+                      <img src="{% static 'images/placeholder.jpg' %}" alt="{{ service.title }}">
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+
+        <div class="container small-container">
+          <div class="single_det_wrap">
+            <p>{{ service.description|linebreaks }}</p>
+
+            <div class="caption-wrap det-anim mt-4">
+              <ul>
+                <li><span>قیمت</span><a href="#">{{ service.display_price }}</a></li>
+                <li><span>نوع قیمت‌گذاری</span><a href="#">{{ service.get_pricing_model_display }}</a></li>
+                {% with tags=service.tag_list %}
+                  {% if tags %}
+                    <li><span>برچسب‌ها</span><a href="#">{{ tags|join:", " }}</a></li>
+                  {% endif %}
+                {% endwith %}
+              </ul>
+            </div>
+
+            <a href="{% url 'contacts' %}" class="btn">درخواست سرویس</a>
+          </div>
+        </div>
+      </section>
+
+      <div class="order-wrap">
+        <div class="container small-container"><h4>آیا آماده سفارش هستید؟</h4></div>
+        <a href="{% url 'contacts' %}" class="order_btn">تماس بگیرید</a>
+      </div>
+    </div>
+
+    <div class="fixed-bottom-container">
+      <div class="aside_icon_wrap hbn_vis">
+        <div class="list">
+          <a href="{% url 'services' %}">
+            <span>
+              <i class="b1 c1"></i><i class="b1 c2"></i><i class="b1 c3"></i>
+              <i class="b2 c1"></i><i class="b2 c2"></i><i class="b2 c3"></i>
+              <i class="b3 c1"></i><i class="b3 c2"></i><i class="b3 c3"></i>
+            </span>
+          </a>
+        </div>
+        <strong>بازگشت به سرویس‌ها</strong>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar color-bg"></div></div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

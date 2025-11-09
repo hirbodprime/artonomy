@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+  .gallery-items .grid-item-holder{ position:relative; display:block; overflow:hidden; filter:none !important; }
+  .gallery-items .grid-item-holder img{ width:100%; display:block; transform:none !important; }
+  .gallery-items .grid-item-holder::before,
+  .gallery-items .grid-item-holder::after{ pointer-events:none !important; }
+
+  .gallery-items .grid-item-holder .grid-item-info{
+    position:absolute; inset-inline:0; bottom:0;
+    padding:16px 18px;
+    background:linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,0));
+    color:#fff; z-index:3;
+    opacity:1 !important; visibility:visible !important;
+    transform:none !important; max-height:none !important; height:auto !important;
+    transition:none !important;
+  }
+  .gallery-items .grid-item-info h3{ margin:0 0 6px 0; font-size:18px; font-weight:800; }
+  .gallery-items .grid-item-info p{ margin:0; font-size:14px; opacity:.95; }
+</style>
+
+<div id="wrapper"><div class="content-holder">
+  <div class="vertical-portfolio_wrap" id="port-scroll">
+    <div class="gallery-items big-padding gi_left_al">
+      {% for p in items %}
+      <div class="gallery-item">
+        <a class="grid-item-holder hov_zoom" href="{{ p.get_absolute_url }}">
+          <img
+            src="{% if p.header_background %}{{ p.header_background.url }}{% else %}{% static 'images/placeholder/cover-16x9-dark.png' %}{% endif %}"
+            alt="{{ p.user.get_full_name|default:p.user.username }}">
+          <div class="grid-item-info">
+            <h3>{{ p.user.get_full_name|default:p.user.username }}</h3>
+<p>
+  هنرمند — {{ category.name }}
+  {% if subcategory %}
+    ·
+    {% if p.custom_subcategory %}
+      {{ p.custom_subcategory }}
+    {% else %}
+      {{ subcategory.name }}
+    {% endif %}
+  {% endif %}
+</p>
+
+          </div>
+        </a>
+      </div>
+      {% empty %}
+      <p class="muted" style="padding:2rem">در «{{ category.name }} / {{ subcategory.name }}» هنوز هنرمندی ثبت نشده.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div></div>
+
+<script>
+  document.querySelectorAll('.grid-media-zoom, .image-popup, .box-media-zoom').forEach(el => el.remove());
+</script>
+{% endblock %}

@@ -1,36 +1,26 @@
-
 from django.urls import path
-from . import views as v
-from . import views_auth
+from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path("signup/", v.signup_view, name="signup"),
-    path("choose-role/", v.choose_role, name="choose_role"),
-    path("choose-categories/", v.choose_categories, name="choose_categories"),
-    path("start-artist-setup/", v.start_artist_setup, name="start_artist_setup"),  # ✅ new
+    path("login/",  views.login_view,  name="login"),
+    path("signup/", views.signup_view, name="signup"),
+    path("logout/", views.logout_view, name="logout"),
 
-    path("u/<str:username>/", v.profile_view, name="profile_view"),
-    path("logout/", v.logout_view, name="logout"),
-    # Edit profile hub
-    path("settings/", v.settings_profile_start, name="settings_profile"),
-    path("<str:username>/suggested/", v.profile_suggested_posts, name="profile_suggested"),
-
-    # Personal info wizard
-    path("settings/personal/<int:step>/", v.settings_personal_wizard, name="settings_personal"),
-    path("settings/personal/", v.settings_personal_wizard, {"step": 1}, name="settings_personal_start"),
-
-    # Portfolio wizard
-    path("settings/portfolio/<int:step>/", v.settings_portfolio_wizard, name="settings_portfolio"),
-    path("settings/portfolio/", v.settings_portfolio_wizard, {"step": 1}, name="settings_portfolio_start"),
-    path("set-language/", v.set_user_language, name="account_set_language"),
-    path("auth/email/", views_auth.email_verify_start, name="email_verify_start"),
-    path("auth/email/confirm/", views_auth.email_verify_confirm, name="email_verify_confirm"),
-
-    # Password reset (OTP)
-    path("auth/password/forgot/", views_auth.password_reset_start, name="password_reset_start"),
-    path("auth/password/reset/",  views_auth.password_reset_confirm, name="password_reset_confirm"),
+    # ریست رمز با ویوهای آماده جنگو
+    path("password-reset/", auth_views.PasswordResetView.as_view(
+        template_name="accounts/password_reset.html"
+    ), name="password_reset"),
+    path("password-reset/done/", auth_views.PasswordResetDoneView.as_view(
+        template_name="accounts/password_reset_done.html"
+    ), name="password_reset_done"),
+    path("reset/<uidb64>/<token>/", auth_views.PasswordResetConfirmView.as_view(
+        template_name="accounts/password_reset_confirm.html"
+    ), name="password_reset_confirm"),
+    path("reset/done/", auth_views.PasswordResetCompleteView.as_view(
+        template_name="accounts/password_reset_complete.html"
+    ), name="password_reset_complete"),
+    path("u/<str:username>/", views.public_profile_view, name="public_profile"),
+    path("dashboard/profile/", views.profile_dashboard_view, name="profile_dashboard"),
 
 ]
-
-
-

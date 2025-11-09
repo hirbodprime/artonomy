@@ -1,0 +1,160 @@
+  {% extends "base.html" %}
+  {% load static %}
+  {% block content %}
+
+  <div id="wrapper">
+    <div class="content-holder" data-pagetitle="{{ obj.title }}">
+
+      {% with gallery=obj.images.all %}
+        {% if gallery|length %}
+          {% with hero=gallery.0 %}
+            <div class="column-image">
+              <div class="bg" data-bg="{{ hero.image.url }}"></div>
+              <div class="overlay"></div>
+              <div class="column-title">
+                <h2>{{ obj.title }}</h2>
+                <h3>{% if obj.description %}{{ obj.description|truncatechars:140 }}{% else %}جزئیات اثر{% endif %}</h3>
+              </div>
+              <div class="ci_dec"><span></span></div>
+            </div>
+          {% endwith %}
+        {% else %}
+          <div class="column-image">
+            {% if obj.image %}
+              <div class="bg" data-bg="{{ obj.image.url }}"></div>
+            {% else %}
+              <div class="bg" data-bg="{% static 'images/placeholder/cover-16x9-dark.png' %}"></div>
+            {% endif %}
+            <div class="overlay"></div>
+            <div class="column-title">
+              <h2>{{ obj.title }}</h2>
+              <h3>{% if obj.description %}{{ obj.description|truncatechars:140 }}{% else %}جزئیات اثر{% endif %}</h3>
+            </div>
+            <div class="ci_dec"><span></span></div>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <div class="column-wrapper">
+        <section id="sec1">
+          <div class="container small-container">
+            <div class="section-title fl-wrap">
+              <h3>{{ obj.title }}</h3>
+              <h4 style="font-weight:600;">
+                قیمت: {{ obj.display_price }}{% if obj.quantity %} &nbsp;|&nbsp; موجودی: {{ obj.quantity }}{% endif %}
+                &nbsp;|&nbsp; وضعیت: {% if obj.condition == 'new' %}نو{% else %}کارکرده{% endif %}
+              </h4>
+              <div class="section-number">01.</div>
+            </div>
+          </div>
+
+          <!-- GALLERY -->
+          <div class="container small-container">
+            <div class="gallery-items lightgallery two-column big-padding sg_items scale_anim">
+              {% with gallery=obj.images.all %}
+                {% if gallery|length %}
+                  {% for gi in gallery %}
+                    <div class="gallery-item">
+                      <div class="grid-item-holder hov_zoom">
+                        <a href="{{ gi.image.url }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
+                        <img src="{{ gi.image.url }}" alt="{{ gi.alt_text|default:obj.title }}">
+                      </div>
+                    </div>
+                  {% endfor %}
+                {% else %}
+                  <div class="gallery-item">
+                    <div class="grid-item-holder hov_zoom">
+                      {% if obj.image %}
+                        <a href="{{ obj.image.url }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
+                        <img src="{{ obj.image.url }}" alt="{{ obj.title }}">
+                      {% else %}
+                        <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="{{ obj.title }}">
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+              {% endwith %}
+            </div>
+          </div>
+
+          <div class="container small-container">
+            <div class="single_det_wrap">
+              {% if obj.description %}
+                <p style="white-space:pre-line">{{ obj.description }}</p>
+              {% else %}
+                <p>بدون توضیحات.</p>
+              {% endif %}
+
+              <div class="caption-wrap det-anim">
+                <ul>
+                  <li><span>هنرمند/پروفایل</span><a href="{% url 'public_profile' obj.profile.user.username %}">{{ obj.profile.user.get_full_name|default:obj.profile.user.username }}</a></li>
+                  <li><span>دسته قیمت</span><a href="#">{% if obj.price_type == 'neg' %}توافقی{% else %}ثابت{% endif %}</a></li>
+                  <li><span>ثبت</span><a href="#">{{ obj.created_at|date:"Y/m/d" }}</a></li>
+                  <li><span>به‌روزرسانی</span><a href="#">{{ obj.updated_at|date:"Y/m/d" }}</a></li>
+                </ul>
+              </div>
+
+              <a href="{% url 'contacts' %}" class="btn">تماس برای سفارش</a>
+            </div>
+          </div>
+        </section>
+
+        {% if related %}
+        <section id="sec2">
+          <div class="container small-container">
+            <div class="section-title fl-wrap">
+              <h3>دیگر آثار</h3>
+              <div class="section-number">02.</div>
+            </div>
+            <div class="gallery-items two-column big-padding sg_items">
+              {% for r in related %}
+                <div class="gallery-item">
+                  <div class="grid-item-holder hov_zoom">
+                    {% with rg=r.images.all %}
+                      {% if rg|length %}
+                        <img src="{{ rg.0.image.url }}" alt="{{ r.title }}">
+                      {% elif r.image %}
+                        <img src="{{ r.image.url }}" alt="{{ r.title }}">
+                      {% else %}
+                        <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="{{ r.title }}">
+                      {% endif %}
+                    {% endwith %}
+                    <div class="grid-item-info">
+                      <h3><a href="{{ r.get_absolute_url }}" class="ajax">{{ r.title }}</a></h3>
+                      <p>{{ r.display_price }}</p>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+        {% endif %}
+
+        <div class="order-wrap">
+          <div class="container small-container"><h4>آیا آماده سفارش پروژه خود هستید؟</h4></div>
+          <a href="{% url 'contacts' %}" class="order_btn">تماس بگیرید</a>
+        </div>
+      </div>
+
+      <div class="fixed-bottom-container">
+        <div class="scroll-down-wrap"><div class="mousey"><div class="scroller"></div></div></div>
+        <div class="aside_icon_wrap hbn_vis">
+          <div class="list">
+            <a href="{% url 'artpieces' %}">
+              <span>
+                <i class="b1 c1"></i><i class="b1 c2"></i><i class="b1 c3"></i>
+                <i class="b2 c1"></i><i class="b2 c2"></i><i class="b2 c3"></i>
+                <i class="b3 c1"></i><i class="b3 c2"></i><i class="b3 c3"></i>
+              </span>
+            </a>
+          </div>
+          <strong>بازگشت به آثار</strong>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar color-bg"></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  {% endblock content %}

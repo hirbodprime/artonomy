@@ -1,799 +1,567 @@
-{% load static i18n %}
-{% get_current_language as CURRENT_LANG %}
-{% get_current_language as LANGUAGE_CODE %}
-<!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:'en' }}" dir="{% if LANGUAGE_CODE == 'fa' %}rtl{% else %}ltr{% endif %}">
+{% load static %}
+<!DOCTYPE HTML>
+<html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- <meta name="enamad" content="7536993" /> -->
+  <meta charset="UTF-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>{% block title %}39892005 Artonomy{% endblock %}</title>
+  <title>فتوگام - قالب نمونه‌کار خلاقانه عکاسی</title>
 
-  <!-- Favicons -->
-  <link rel="icon" type="image/x-icon" href="{% static 'favicon/favicon.ico' %}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
-  <link rel="icon" type="image/png" sizes="192x192" href="{% static 'favicon/android-chrome-192x192.png' %}">
-  <link rel="icon" type="image/png" sizes="512x512" href="{% static 'favicon/android-chrome-512x512.png' %}">
-  <link rel="apple-touch-icon" href="{% static 'favicon/apple-touch-icon.png' %}">
+  <!-- Fonts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@33.003/misc/Farsi-Digits/Vazirmatn-FD-font-face.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta+Mahee:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" />
 
-  <!-- Global CSS -->
-  <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Theme css -->
+  <link rel="stylesheet" href="{% static 'css/plugins.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+</head>
 
-  <!-- Persian font only when fa is active -->
-  {% if LANGUAGE_CODE == 'fa' %}
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;800&display=swap" rel="stylesheet">
-  {% endif %}
+<style>
+    .suppress-loader .main-loader { display: none !important; }
 
-  <style>
-    :root { --dock-h: 108px; --bg:#0D0F12; --panel:#12141A; --panel2:#171A22; --border:#222733; --text:#E6E8EC; --muted:#A3A9B6; --purple:#7C3AED; }
-    body{
-      font-family:
-        {% if LANGUAGE_CODE == 'fa' %}"Vazirmatn",{% endif %}
-        Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background:var(--bg); color:var(--text)
-    }
-    .card{ background:var(--panel); border:1px solid var(--border) }
-    .glass{ background:rgba(13,15,18,.72); backdrop-filter:blur(8px) }
-    .no-scrollbar::-webkit-scrollbar{ display:none } .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none }
-    .thumb-active{ outline:3px solid var(--purple); box-shadow:0 0 0 4px rgba(124,58,237,.35) inset }
-    .tab-active{ color:#fff; border-color:var(--purple) }
-    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2a2f3b; border-radius: 999px; }
-    .break-inside-avoid { break-inside: avoid; }
-    .tag-switch { display:inline-flex; align-items:center; background:#1f222b; color:var(--text); border-radius:999px; padding:4px; gap:2px; box-shadow:0 4px 18px rgba(0,0,0,.25); border:1px solid var(--border); }
-    .tag-switch .seg { padding:.375rem .8rem; border-radius:999px; font-weight:600; font-size:.825rem; line-height:1; cursor:pointer; transition:background-color .2s,color .2s; }
-    .tag-switch .seg.active { background:var(--purple); color:#fff; }
-    .cat-tile { position:relative; overflow:hidden; border-radius:1.25rem; width:12rem; height:6rem; display:grid; place-items:center; transition:.2s; border:1px solid transparent; flex-shrink:0; }
-    .cat-tile img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .3s ease; }
-    .cat-tile:hover img { transform:scale(1.05); }
-    .cat-tile::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.6)); }
-    .cat-tile .label { position:relative; z-index:2; font-weight:600; font-size:1.125rem; color:white; }
-    .cat-tile.active { border-color:var(--purple); box-shadow:0 0 15px rgba(124,58,237,.5); }
-    @media (min-width: 640px){ .masonry { column-width: 349px; column-gap: 16px; } }
-    @media (max-width: 639.98px){ .masonry { column-width: 100%; column-gap: 16px; } }
-    .masonry-item { break-inside: avoid; display:block; margin-bottom:16px; }
-    .icon-active { color:#570080 !important; }
-    .icon-active path, .icon-active circle, .icon-active rect, .icon-active polygon { fill:#570080 !important; stroke:#570080 !important; transition: fill .15s, stroke .15s, color .15s; }
-    .count-active { color:#570080 !important; }
-    .menu-card { background:var(--panel); border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.35); }
-    .menu-item { display:flex; align-items:center; gap:.6rem; padding:.6rem .8rem; border-radius:.6rem; }
-    .menu-item:hover { background:rgba(255,255,255,0.06); }
-    @media (max-width: 639.98px){
-      .mobile-cat-pills{ background: var(--panel2); border: 1px solid var(--border); border-radius: .75rem; padding: .6rem .75rem; }
-      .mobile-cat-chip{ position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: 110px; height: 44px; padding: 0 14px; border-radius: 999px; overflow: hidden; border: 1px solid var(--border); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6);}
-      .mobile-cat-chip::before{ content: ""; position: absolute; inset: 0; background-image: var(--chip-bg); background-size: cover; background-position: center; filter: brightness(.9); transform: scale(1.02); }
-      .mobile-cat-chip::after{ content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.15)); }
-      .mobile-cat-chip .label{ position: relative; z-index: 1; font-weight: 700; font-size: .95rem; }
-      .mobile-cat-chip.active{ outline: 2px solid var(--purple); box-shadow: 0 0 0 3px rgba(124,58,237,.25); }
-    }
-    .m-dock { background: rgba(16,16,21,.78); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 18px; box-shadow: 0 -10px 40px rgba(0,0,0,.35); }
-    .m-dock-list { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); padding: .4rem .6rem; }
-    .m-dock-item { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .18rem; padding: .55rem .25rem; color: #9aa0ad; font-size: 11px; line-height: 1; transition: color .2s ease; }
-    .m-dock-item .ico { font-size: 20px; transition: transform .18s ease, color .18s ease, text-shadow .18s ease; }
-    .m-dock-item:active .ico { transform: scale(.96); }
-    .m-dock-item.active { color: #fff; }
-    .m-dock-item.active .ico { color: var(--purple); text-shadow: 0 0 18px rgba(124,58,237,.55); }
-    .m-dock-item.active::before { content: ""; position: absolute; bottom: 4px; left: 50%; width: 28px; height: 3px; transform: translateX(-50%); border-radius: 999px; background: linear-gradient(90deg, rgba(124,58,237,.95), rgba(124,58,237,.35)); }
-    .m-fab-wrap { position: relative; }
-    .m-fab { position: absolute; left: 50%; transform: translate(-50%, -26%); width: 62px; height: 62px; border-radius: 999px; display: grid; place-items: center; color: #fff; background: radial-gradient(60% 60% at 30% 30%, #C240FF, #7C3AED); border: 1px solid rgba(255,255,255,.12); box-shadow: 0 12px 30px rgba(124,58,237,.5), 0 0 0 6px rgba(124,58,237,.18); transition: transform .15s ease, filter .15s ease; z-index: 5; }
-    .m-fab:active { transform: translate(-50%, -26%) scale(.97); }
+/* ============ Account menu (self-contained, no theme classes) ============ */
+.share-btn.isShare.show-share { position: relative; display: inline-block; }
+.share-btn.account-slot { position: relative; display: inline-block; }
 
-    :root { --dock-h: 108px; }
-    .content-bottom-space { padding-bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 16px); }
-    @media (min-width: 640px) { .content-bottom-space { padding-bottom: 16px; } }
+/* Optional tiny nudge if the label seems off (adjust as needed) */
+.share-btn.account-slot { margin-inline-start: -6px; }
 
-    /* small tweak for RTL paddings in sidebar text labels */
-    html[dir="rtl"] .xl\:inline { direction: rtl; }
-/* Desktop glass group */
-.lang-switch{
-  display:inline-flex; align-items:center; gap:.25rem; padding:.25rem;
-  border-radius:9999px; background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.12);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+.ux-usernav__label{
+  font-size: 26px;
+  font-weight: 1000;
+  letter-spacing: -0.3px;   /* cleaner Persian typography */
+  line-height: 1;           /* visually centered */
 }
 
-/* Pills */
-.lang-switch .pill{
-  display:inline-flex; align-items:center; gap:.45rem;
-  padding:.5rem .8rem; border-radius:9999px; border:0; cursor:pointer;
-  color:var(--text-secondary); font-weight:700; font-size:.85rem;
-  background:transparent; transition:transform .15s ease, background .2s ease, color .2s ease, box-shadow .2s;
-}
-.lang-switch .pill:hover{ transform:translateY(-1px); background:rgba(255,255,255,.06); color:var(--text-primary); }
-.lang-switch .pill:focus-visible{
-  outline:none; box-shadow:0 0 0 2px rgba(99,102,241,.35);
-}
-.lang-switch .pill.active{
-  background:linear-gradient(90deg, var(--light-purple), var(--blue));
-  color:#fff; box-shadow:0 8px 26px rgba(86,0,255,.28), inset 0 0 0 1px rgba(255,255,255,.18);
-}
-.lang-switch .pill[disabled]{ cursor:default; filter:saturate(.95); }
-
-/* Small bits */
-.lang-switch .flag{ font-size:1rem; line-height:1; }
-.lang-switch .label{ line-height:1; }
-.lang-switch .divider{
-  width:1px; height:18px; background:rgba(255,255,255,.12); border-radius:1px;
-}
-
-/* RTL safe ordering */
-html[dir="rtl"] .lang-switch{ direction:rtl; }
-
-.lang-compact{
+.share-btn.isShare.show-share { top: 1px; }
+/* Match the old share button slot in the header */
+.header-account-slot{
   position: relative;
   display: inline-block;
-  border-radius: 12px;
+  align-self: center;         /* follow header flex/baseline */
+  margin-inline-start: 18px;  /* similar gap the old share-btn had */
+  top: 2px;                   /* tiny nudge to align vertically like before */
+  z-index: 1200;
 }
-.lang-compact__select{
-  appearance: none; -webkit-appearance: none; -moz-appearance: none;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: 12px;
-  color: #eaeaea;
-  font-weight: 800;
-  font-size: .80rem;         /* “EN” size */
-  line-height: 1;
-  padding: .5rem 1.6rem .5rem .7rem;  /* room for chevron on the right */
-  min-width: 56px;           /* keeps pill width stable */
+
+/* Root */
+.ux-usernav{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  /* pick up your dark theme CSS vars if available */
+  --ux-panel: var(--panel, #121420);
+  --ux-panel-2: var(--bg-2, #181b2a);
+  --ux-text: var(--text, #eef1ff);
+  --ux-muted: var(--muted, #b7bdd3);
+  --ux-border: var(--border, 1px solid rgba(255,255,255,.10));
+  --ux-shadow: var(--shadow, 0 8px 24px rgba(0,0,0,.35));
+  --ux-radius: 16px;
 }
-.lang-compact__select:hover{
-  border-color: rgba(255,255,255,.24);
+
+/* Trigger */
+.ux-usernav__toggle{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: var(--ux-text);
+  font: inherit;
 }
-.lang-compact__select:focus{
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(99,102,241,.35);
+.ux-usernav__toggle:hover{ background: rgba(255,255,255,.06); }
+
+.ux-usernav__label{
+  font-size: 17px;     /* readable “اکانت” */
+  font-weight: 700;
+  letter-spacing: -0.2px;
 }
-.lang-compact::after{
-  content: "▾";              /* chevron */
+.ux-usernav__caret{ transition: transform .18s ease; }
+
+/* Menu */
+.ux-usernav__menu{
   position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: calc(100% + 12px);
+  inset-inline-end: 0;               /* RTL-safe right align */
+  min-width: 280px;
+  background: var(--ux-panel);
+  color: var(--ux-text);
+  border: var(--ux-border);
+  border-radius: var(--ux-radius);
+  box-shadow: var(--ux-shadow);
+  padding: 12px;
+  opacity: 0;
+  transform: translateY(-6px);
   pointer-events: none;
-  font-size: .7rem;
-  color: rgba(255,255,255,.75);
+  transition: opacity .15s ease, transform .15s ease;
 }
 
-/* RTL: flip chevron + padding sides */
-html[dir="rtl"] .lang-compact__select{
-  padding: .5rem .7rem .5rem 1.6rem;
+/* Items */
+.ux-usernav__item{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 15px;
 }
-html[dir="rtl"] .lang-compact::after{
-  right: auto; left: 8px;
-}
-/* Custom dropdown */
-.lang-dd { position: relative; display: inline-block; z-index: 40; }
-summary::-webkit-details-marker { display: none; }
+.ux-usernav__item:hover{ background: var(--ux-panel-2); }
 
-.lang-dd__btn{
-  all: unset;
-  display:inline-flex; align-items:center; gap:.35rem;
-  padding:.5rem .8rem; min-width:56px;
-  border:1px solid rgba(255,255,255,.14); border-radius:12px;
-  background: rgba(255,255,255,.06);
-  color:#eaeaea; font-weight:800; font-size:.8rem; cursor:pointer;
-}
-.lang-dd__btn:focus{ outline:none; box-shadow:0 0 0 2px rgba(99,102,241,.35); }
-.lang-dd__btn .chev{ font-size:.7rem; opacity:.8; transition:transform .15s ease; }
-details[open] .lang-dd__btn .chev{ transform: rotate(180deg); }
+.ux-usernav__item--danger{ color:#ff9898; }
+.ux-usernav__item--danger:hover{ background: rgba(255,0,0,.08); }
 
-.lang-dd__menu{
-  position:absolute; right:0; top:calc(100% + 6px);
-  min-width:110px; padding:.35rem;
-  background:linear-gradient(180deg, rgba(23,26,34,.95), rgba(23,26,34,.85));
-  border:1px solid rgba(255,255,255,.12); border-radius:12px;
-  box-shadow:0 16px 40px rgba(0,0,0,.45);
+.ux-usernav__icon{ font-size: 16px; width: 20px; text-align: center; opacity:.95; }
+.ux-usernav__sep{ height:1px; background: rgba(255,255,255,.14); margin: 8px 6px; border-radius:1px; }
+
+/* Open state */
+.ux-usernav.is-open .ux-usernav__menu{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
-.lang-dd__item{
-  display:block; width:100%; text-align:left;
-  padding:.55rem .65rem; border-radius:10px;
-  font-weight:700; font-size:.9rem;
-  color:var(--text-secondary); background:transparent;
-}
-.lang-dd__item:hover, .lang-dd__item:focus{
-  color:#fff; background:rgba(255,255,255,.08);
-}
-.lang-dd__item.is-active{
-  color:#fff; background:linear-gradient(90deg, var(--light-purple), var(--blue));
+.ux-usernav.is-open .ux-usernav__caret{ transform: rotate(180deg); }
+
+/* Guest links */
+.ux-usernav--guest{ color: var(--ux-text); }
+.ux-usernav__link{ color: var(--ux-text); text-decoration: none; font-size: 15px; }
+.ux-usernav__link:hover{ text-decoration: underline; }
+.ux-usernav__divider{ opacity:.7; margin: 0 2px; }
+
+/* Small screens */
+@media (max-width: 480px){
+  .ux-usernav__menu{ min-width: 220px; }
 }
 
-/* RTL anchor */
-html[dir="rtl"] .lang-dd__menu{ right:auto; left:0; }
-.lang-dd summary { list-style: none; }
-.lang-dd summary::-webkit-details-marker { display: none; }
-.lang-dd summary::marker { content: ""; }
+/* Keep the header placement from the theme's share block */
+.share-btn.account-slot { position: relative; display: inline-block; }
 
-/* Make sure label is visible */
-.lang-dd__btn { color:#eaeaea; }
-.lang-dd__btn .abbr { font-weight:800; font-size:.8rem; text-transform:uppercase; }
+/* Slight nudge if needed to line up with your navbar */
+.share-btn.account-slot { margin-inline-start: -4px; }
 
-  </style>
-</head>
-<body class="bg-gray-900 text-gray-200">
-<div class="flex min-h-screen">
+/* ===== User Nav look & feel ===== */
+.ux-usernav{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;                          /* tighter spacing */
+  --ux-panel: var(--panel, #121420);
+  --ux-panel-2: var(--bg-2, #181b2a);
+  --ux-text: var(--text, #eef1ff);
+  --ux-muted: var(--muted, #b7bdd3);
+  --ux-border: var(--border, 1px solid rgba(255,255,255,.10));
+  --ux-shadow: var(--shadow, 0 12px 32px rgba(0,0,0,.45));
+  --ux-radius: 16px;
+  z-index: 4000;                     /* sit above header decor */
+}
 
-  <!-- ===== Sidebar ===== -->
-  <aside class="hidden sm:flex shrink-0 flex-col justify-between
-         w-16 md:w-20 lg:w-24 xl:w-64
-         border-r border-[color:var(--border)] bg-[color:var(--panel)]
-         sticky top-0 h-screen">
-    <div class="p-2 md:p-3 xl:p-6">
-      <!-- Logo -->
-      <div class="flex items-center justify-center xl:justify-start gap-3 mb-4 md:mb-6">
-        <a href="{% url 'marketplace:home' %}">
-          <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl border border-[color:var(--border)]"
-               style="background: var(--panel2) url('{% static 'favicon/favicon-32x32.png' %}') center/85% no-repeat;">
-          </div>
-        </a>
-        <div class="hidden xl:block text-lg font-semibold">
-          <a href="{% url 'marketplace:home' %}" class="hidden xl:block text-lg font-semibold hover:text-purple-400 transition-colors">
-            {% trans "Artonomy" %}
-          </a>
-        </div>
+.ux-usernav__toggle{
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; border: 0; cursor: pointer;
+  padding: 8px 10px; border-radius: 10px; color: var(--ux-text); font: inherit;
+}
+.ux-usernav__toggle:hover{ background: rgba(255,255,255,.06); }
+
+/* Bigger label + caret closer */
+.ux-usernav__label{ font-size: 18px; font-weight: 800; letter-spacing: -0.2px; }
+.ux-usernav__caret{ font-size: 16px; transform-origin: center; margin-inline-start: 2px; }
+
+.ux-usernav__menu{
+  position: absolute; top: calc(100% + 12px); inset-inline-end: 0;
+  min-width: 280px; background: var(--ux-panel); color: var(--ux-text);
+  border: var(--ux-border); border-radius: var(--ux-radius);
+  box-shadow: var(--ux-shadow); padding: 12px; opacity: 0;
+  transform: translateY(-6px); pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.ux-usernav__item{
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: 12px; color: inherit; text-decoration: none; font-size: 15px;
+}
+.ux-usernav__item:hover{ background: var(--ux-panel-2); }
+.ux-usernav__item--danger{ color: #ff9898; }
+.ux-usernav__item--danger:hover{ background: rgba(255,0,0,.08); }
+
+.ux-usernav__icon{ font-size: 16px; width: 20px; text-align: center; opacity: .95; }
+.ux-usernav__sep{ height: 1px; background: rgba(255,255,255,.14); margin: 8px 6px; border-radius: 1px; }
+
+.ux-usernav.is-open .ux-usernav__menu{ opacity: 1; transform: translateY(0); pointer-events: auto; }
+.ux-usernav.is-open .ux-usernav__caret{ transform: rotate(180deg); }
+
+.ux-usernav--guest{ color: var(--ux-text); }
+.ux-usernav__link{ color: var(--ux-text); text-decoration: none; font-size: 16px; font-weight: 700; }
+.ux-usernav__link:hover{ text-decoration: underline; }
+.ux-usernav__divider{ opacity: .7; margin: 0 2px; }
+.ux-usernav__label{
+  font-size: 20px;          /* was 18px */
+  font-weight: 900;         /* was 800 */
+  letter-spacing: -0.2px;
+}
+
+/* Optional: bring the caret rules out (since we removed it) */
+.ux-usernav__caret{ display:none !important; }
+
+/* Shift the menu a bit to the LEFT so it doesn't go off-screen.
+   Increase --ux-shift if you need more. */
+.ux-usernav{
+  --ux-shift: 28px;         /* tweak: 20–40px usually works */
+}
+
+.ux-usernav__menu{
+  /* use physical right/left to avoid logical-dir quirks */
+  right: 0;
+  left: auto;
+
+  min-width: 260px;         /* a bit narrower helps fit */
+  /* move left by --ux-shift, and keep the slight Y offset from before */
+  transform: translate(calc(-1 * var(--ux-shift)), -6px);
+}
+
+/* (We also had an “open” state that removed the translateY; keep the X shift) */
+.ux-usernav.is-open .ux-usernav__menu{
+  transform: translate(calc(-1 * var(--ux-shift)), 0);
+}
+
+/* If your header is tight, you can also tighten the button spacing a touch */
+.ux-usernav__toggle{ gap: 4px; padding: 8px 10px; }
+.share-btn.account-slot .ux-usernav .ux-usernav__toggle .ux-usernav__label{
+  font-size: 18px !important;   /* make it big */
+  font-weight: 950 !important;  /* extra bold */
+  letter-spacing: -0.3px;
+  line-height: 1;
+}
+/* ثابت کردن رنگ اکانت در همه صفحات */
+.share-btn.account-slot .ux-usernav,
+.share-btn.account-slot .ux-usernav *,
+.share-btn.account-slot .ux-usernav__toggle,
+.share-btn.account-slot .ux-usernav__label {
+    color: #ffffff !important;
+}
+
+/* آیکون‌ها هم سفید بمانند */
+.share-btn.account-slot .ux-usernav__icon {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+.share-btn.account-slot .ux-usernav__menu {
+    background: #121420 !important;
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,.18) !important;
+}
+
+</style>
+
+<body>
+<!--loader-->
+<div class="main-loader">
+  <div class="ml-wrap">
+    <div class="ml-mask"></div>
+    <img src="{% static 'images/logo-w.svg' %}" alt="">
+  </div>
+  <div class="ml_images-wrap">
+    <div class="ml_bg-item" style="top:-30px; inset-inline-start: 0"><div class="bg" data-bg="{% static 'images/folio/2.jpg' %}"></div></div>
+    <div class="ml_bg-item" style="bottom:-20px; inset-inline-start:50px"><div class="bg" data-bg="{% static 'images/folio/6.jpg' %}"></div></div>
+    <div class="ml_bg-item" style="top:30px; inset-inline-end:-120px"><div class="bg" data-bg="{% static 'images/folio/18.jpg' %}"></div></div>
+  </div>
+</div>
+<!--loader end-->
+
+<div id="main">
+  <header class="main-header">
+    <div class="main-inner">
+      <!-- logo -->
+      <a href="{% url 'home' %}" class="logo-holder"><img src="{% static 'images/logo-w.svg' %}" alt=""></a>
+
+      <!-- sb-button -->
+      <div class="sb-button c_sb"><span></span></div>
+
+      <!-- mobile nav -->
+      <div class="nav-button-wrap">
+        <div class="nav-button"><span></span><span></span><span></span></div>
       </div>
 
-      <!-- Nav -->
-      <nav class="flex flex-col p-2 xl:p-4 space-y-1 xl:space-y-2">
-        <!-- portfolio -->
-
-        <!-- <a href="{% url 'portfolio:theme_gallery' %}"
-           class="group flex items-center justify-center xl:justify-start
-                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
-                  {% if nav_active == 'portfolio' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
-          <i class="fa-solid fa-user-tie text-lg md:text-xl w-6 text-center
-                    {% if nav_active == 'portfolio' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Portfolio" %}</span>
-        </a> -->
-        <!-- Home -->
-                 
-        <!-- <a href="{% url 'home' %}"
-           class="group flex items-center justify-center xl:justify-start
-                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
-                  {% if nav_active == 'home' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
-          <i class="fa-solid fa-house text-lg md:text-xl w-6 text-center
-                    {% if nav_active == 'home' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Home" %}</span>
-        </a> -->
-<!-- <a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
-          <i class="fa-solid fa-house text-lg md:text-xl w-6 text-center"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Home" %}</span>
-        </a> -->
-        <!-- Explore -->
-        <!-- <a href="{% url 'explore' %}"
-           class="group flex items-center justify-center xl:justify-start
-                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
-                  {% if nav_active == 'explore' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
-          <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center
-                    {% if nav_active == 'explore' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Explore" %}</span>
-        </a> -->
-
-<!-- <a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
-          <i class="fa-solid fa-compass text-lg md:text-xl w-6 text-center"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Explore" %}</span>
-        </a> -->
-        <!-- Marketplace -->
-        <a href="{% url 'marketplace:home' %}"
-           class="group flex items-center justify-center xl:justify-start
-                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
-                  {% if nav_active == 'marketplace' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
-          <i class="fa-solid fa-store text-lg md:text-xl w-6 text-center
-                    {% if nav_active == 'marketplace' %} text-purple-300 {% else %} text-gray-500 group-hover:text-purple-400 {% endif %}"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Marketplace" %}</span>
-        </a>
-
-        <!-- Artists -->
-        <a href="{% url 'categories:index' %}"
-           class="group flex items-center justify-center xl:justify-start
-                  gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl transition-all duration-300
-                  {% if nav_active == 'category' %} bg-purple-600/30 text-white shadow-lg shadow-purple-500/20 border border-purple-500/30 {% else %} text-gray-400 hover:bg-gray-800/60 hover:text-white {% endif %}">
-          <i class="fa-solid fa-th-large text-lg md:text-xl w-6 text-center text-gray-500 group-hover:text-purple-400"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Artists" %}</span>
-        </a>
-
-        <!-- Disabled examples kept -->
-        <!-- <a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
-          <i class="fa-solid fa-arrows-rotate text-lg md:text-xl w-6 text-center"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Art Exchange" %}</span>
-        </a> -->
-        <!-- <a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
-          <i class="fa-solid fa-blog text-lg md:text-xl w-6 text-center"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Blog" %}</span>
-        </a> -->
-        <!-- <a href="#" aria-disabled="true" tabindex="-1" class="group flex items-center justify-center xl:justify-start gap-x-0 xl:gap-x-4 px-2 xl:px-4 py-3 rounded-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
-          <i class="fa-solid fa-bullhorn text-lg md:text-xl w-6 text-center"></i>
-          <span class="hidden xl:inline font-semibold tracking-wide">{% trans "Jobs" %}</span>
-        </a> -->
-
-        <!-- Divider -->
-        <div class="pt-3 xl:pt-4 pb-2"><hr class="border-gray-700/60"></div>
-
-        <!-- New Post (artists only) -->
-        <!-- {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-          <a href="{% url 'post_new_start' %}"
-             class="flex items-center justify-center xl:justify-start gap-x-4 px-4 py-3 rounded-xl text-white
-                    bg-[#570080] shadow-lg shadow-purple-700/40 hover:shadow-xl hover:shadow-purple-700/50
-                    hover:scale-[1.02] transform transition-all duration-300 ease-in-out">
-            <i class="fa-solid fa-square-plus w-6 text-center text-xl"></i>
-            <span class="hidden text-gray-500 opacity-60 cursor-not-allowed pointer-events-none xl:inline font-bold tracking-wide">{% trans "New Post" %}</span>
-          </a>
-        {% endif %} -->
-      </nav>
-    </div>
-
-    <!-- Settings + Language switcher -->
-    <div class="p-2 md:p-3 xl:p-6 space-y-2">
-      <!-- Language switcher -->
+      <!-- account (independent dropdown — no theme classes) -->
 {% if request.user.is_authenticated %}
-{% with active=request.LANGUAGE_CODE|default:LANGUAGE_CODE|lower %}
-<form action="{% url 'account_set_language' %}" method="post"
-      class="lang-switch hidden sm:inline-flex"
-      aria-label="{% trans 'Language' %}">
-  {% csrf_token %}
-  <input type="hidden" name="next" value="{{ request.get_full_path }}">
-
-  <button type="submit" name="language" value="fa"
-          class="pill {% if active|slice:':2' == 'fa' %}active{% endif %}"
-          aria-pressed="{% if active|slice:':2' == 'fa' %}true{% else %}false{% endif %}"
-          {% if active|slice:':2' == 'fa' %}disabled{% endif %}>
-    <span class="flag" aria-hidden="true">🇮🇷</span>
-    <span class="label">فارسی</span>
-  </button>
-
-  <span class="divider" aria-hidden="true"></span>
-
-  <button type="submit" name="language" value="en"
-          class="pill {% if active|slice:':2' == 'en' %}active{% endif %}"
-          aria-pressed="{% if active|slice:':2' == 'en' %}true{% else %}false{% endif %}"
-          {% if active|slice:':2' == 'en' %}disabled{% endif %}>
-    <span class="flag" aria-hidden="true">🇬🇧</span>
-    <span class="label">English</span>
-  </button>
-</form>
-{% endwith %}
-{% endif %}
+<div class="share-btn account-slot">  {# keep .share-btn for layout ONLY #}
+  <div class="ux-usernav" dir="rtl">
+    <button class="ux-usernav__toggle" type="button" aria-haspopup="true" aria-expanded="false">
+  <span class="ux-usernav__label">اکانت</span>
+</button>
 
 
-      <a href="{% url 'settings_profile' %}" class="flex items-center justify-center xl:justify-start gap-3 px-2 xl:px-3 py-2 rounded-xl hover:bg-white/5">
-        <i class="fa-solid fa-gear w-5 text-center"></i>
-        <span class="hidden xl:inline">{% trans "Settings" %}</span>
+    <div class="ux-usernav__menu" role="menu" aria-hidden="true">
+      <a class="ux-usernav__item" href="{% url 'public_profile' request.user.username %}" role="menuitem">
+        <span>پروفایل من</span>
       </a>
-    </div>
-  </aside>
-
-  <!-- ===== Main ===== -->
-  <div class="flex-1 flex flex-col overflow-y-auto custom-scrollbar content-bottom-space">
-
-    <!-- Desktop/Tablet Header -->
-    <header class="hidden sm:flex items-center justify-between px-4 sm:px-6 py-4 border-b border-gray-700 sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md">
-      <div class="w-full max-w-2xl relative flex rounded-full bg-gray-800 border border-gray-700 overflow-hidden opacity-60 cursor-not-allowed">
-        <select disabled class="pl-4 pr-1 py-2 text-sm bg-gray-800 text-gray-400 border-r border-gray-700 focus:outline-none appearance-none">
-          <option>{% trans "All" %}</option>
-          <option>{% trans "Artists" %}</option>
-          <option>{% trans "Posts" %}</option>
-        </select>
-        <input disabled type="text" placeholder="{% trans 'Search Artonomy...' %}" class="flex-1 pl-4 pr-10 py-2 bg-gray-800 text-gray-400 focus:outline-none cursor-not-allowed">
-        <i class="fa-solid fa-magnifying-glass absolute {% if LANGUAGE_CODE == 'fa' %}left-4{% else %}right-4{% endif %} top-1/2 -translate-y-1/2 text-gray-400"></i>
-      </div>
-
-      <div class="flex items-center gap-4">
-        <!-- {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-          <a href="{% url 'post_new_start' %}" class="text-gray-500 opacity-60 cursor-not-allowed pointer-events-none text-xl text-gray-400 hover:text-white" title="{% trans 'New Post' %}">
-            <i class="fa-solid fa-square-plus"></i>
-          </a>
-        {% endif %} -->
-
-        {% if request.user.is_authenticated %}
-          {% with unread=notif_unread_count %}
-          <a href="{% url 'collab:notifications' %}" class="relative inline-flex items-center justify-center" id="notifBellDesk" title="{% trans 'Notifications' %}" aria-label="{% trans 'Notifications' %}">
-            <i class="fa-solid fa-bell text-xl text-gray-400 hover:text-white"></i>
-            {% if unread %}
-              <span id="notifBadgeDesk" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 rounded-full bg-[#7C3AED] text-white text-[10px] font-bold grid place-items-center">{{ unread }}</span>
-            {% else %}
-              <span id="notifBadgeDesk" class="hidden"></span>
-            {% endif %}
-          </a>
-          {% endwith %}
-        {% else %}
-          <a href="{% url 'landing' %}" class="text-xl text-gray-400 hover:text-white" title="{% trans 'Login' %}">
-            <i class="fa-solid fa-bell"></i>
-          </a>
-        {% endif %}
-
-        {% if request.user.is_authenticated %}
-          <div class="relative">
-            <button id="userMenuBtn" class="flex items-center">
-              {% if request.user.profile and request.user.profile.avatar %}
-                <img src="{{ request.user.profile.avatar.url }}" class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
-              {% else %}
-                <img src="https://placehold.co/100x100/7C3AED/FFFFFF?text=A" class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
-              {% endif %}
-            </button>
-            <div id="userMenu" class="hidden absolute {% if LANGUAGE_CODE == 'fa' %}left-0{% else %}right-0{% endif %} mt-3 w-56 menu-card p-2">
-              <div class="px-2 pb-2 text-sm text-[color:var(--muted)]">
-                {% trans "Signed in as" %} <span class="text-white font-semibold">{{ request.user.username }}</span>
-              </div>
-              <a class="menu-item" href="{% url 'profile_view' request.user.username %}">
-                <i class="fa-regular fa-user"></i><span>{% trans "Profile" %}</span>
-              </a>
-              <a class="menu-item" href="{% url 'settings_profile' %}">
-                <i class="fa-solid fa-sliders"></i><span>{% trans "Settings" %}</span>
-              </a>
-              <form method="post" action="{% url 'logout' %}">{% csrf_token %}
-                <button class="menu-item w-full text-left" type="submit">
-                  <i class="fa-solid fa-right-from-bracket"></i><span>{% trans "Logout" %}</span>
-                </button>
-              </form>
-            </div>
-          </div>
-        {% else %}
-          <div class="flex items-center gap-2">
-            <a href="{% url 'landing' %}" class="px-3 py-1.5 rounded-lg border border-[color:var(--border)] hover:bg-white/5 text-sm">{% trans "Log in" %}</a>
-            <a href="{% url 'signup' %}" class="px-3 py-1.5 rounded-lg bg-[color:var(--purple)] text-white text-sm">{% trans "Sign up" %}</a>
-          </div>
-        {% endif %}
-      </div>
-    </header>
-
-    <!-- Mobile Header -->
-    <header class="sm:hidden flex items-center justify-between px-4 py-3 border-b border-gray-700 sticky top-0 z-20 bg-gray-900/80 backdrop-blur-md">
-      <a href="{% url 'marketplace:home' %}" class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg border border-[color:var(--border)]"
-             style="background: var(--panel2) url('{% static 'favicon/favicon-32x32.png' %}') center/85% no-repeat;"></div>
-        <h1 class="text-xl font-bold text-white">{% trans "Artonomy" %}</h1>
+      <a class="ux-usernav__item" href="{% url 'profile_dashboard' %}" role="menuitem">
+        <span>تنظیمات پروفایل</span>
       </a>
 
-      <div class="flex items-center gap-3">
+      <div class="ux-usernav__sep" aria-hidden="true"></div>
 
-{% if request.user.is_authenticated %}
-{% with active=request.LANGUAGE_CODE|default:LANGUAGE_CODE|default:'en' %}
-<form id="langFormMobile"
-      action="{% url 'account_set_language' %}"
-      method="post"
-      class="sm:hidden"
-      aria-label="{% trans 'Language' %}">
-  {% csrf_token %}
-  <input type="hidden" name="next" value="{{ request.get_full_path }}">
-  <input type="hidden" name="language" id="langField" value="{{ active|slice:":2" }}">
+      <a class="ux-usernav__item" href="{% url 'profile_dashboard' %}?tab=products" role="menuitem">
+        <span>محصولات من</span>
+      </a>
+      <a class="ux-usernav__item" href="{% url 'profile_dashboard' %}?tab=services" role="menuitem">
+        <span>خدمات من</span>
+      </a>
+      <a class="ux-usernav__item" href="{% url 'profile_dashboard' %}?tab=social" role="menuitem">
+        <span>شبکه‌های اجتماعی</span>
+      </a>
 
-  <details class="lang-dd" dir="{% if active|slice:":2" == 'fa' %}rtl{% else %}ltr{% endif %}">
-    <summary class="lang-dd__btn">
-      <span class="abbr">{{ active|slice:":2"|upper }}</span>
-      <span class="chev" aria-hidden="true">▾</span>
-    </summary>
+      <div class="ux-usernav__sep" aria-hidden="true"></div>
 
-    <ul class="lang-dd__menu" role="listbox">
-      <li>
-        <button type="button"
-                class="lang-dd__item {% if active|slice:":2" == 'fa' %}is-active{% endif %}"
-                data-lang="fa" role="option"
-                aria-selected="{% if active|slice:":2" == 'fa' %}true{% else %}false{% endif %}">
-          FA
-        </button>
-      </li>
-      <li>
-        <button type="button"
-                class="lang-dd__item {% if active|slice:":2" == 'en' %}is-active{% endif %}"
-                data-lang="en" role="option"
-                aria-selected="{% if active|slice:":2" == 'en' %}true{% else %}false{% endif %}">
-          EN
-        </button>
-      </li>
-    </ul>
-  </details>
-</form>
-
-<script>
-(function () {
-  const form  = document.getElementById('langFormMobile');
-  if (!form) return;
-  const field = form.querySelector('#langField');
-  form.querySelectorAll('.lang-dd__item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      field.value = btn.dataset.lang;
-      form.submit();
-    });
-  });
-})();
-</script>
-{% endwith %}
+      <a class="ux-usernav__item ux-usernav__item--danger" href="{% url 'logout' %}" role="menuitem">
+        <span>خروج</span>
+      </a>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="share-btn account-slot">
+  <div class="ux-usernav ux-usernav--guest" dir="rtl">
+    <a class="ux-usernav__link" href="{% url 'login' %}">ورود</a>
+    <span class="ux-usernav__divider">/</span>
+    <a class="ux-usernav__link" href="{% url 'signup' %}">ثبت‌نام</a>
+  </div>
+</div>
 {% endif %}
 
-        <!-- {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-          <a href="{% url 'post_new_start' %}" class="text-xl text-gray-500 opacity-60 cursor-not-allowed pointer-events-none" title="{% trans 'New Post' %}">
-            <i class="fa-solid fa-square-plus"></i>
-          </a>
-        {% endif %} -->
-
-        {% if request.user.is_authenticated %}
-          {% with unread=notif_unread_count %}
-          <a href="{% url 'collab:notifications' %}" class="relative inline-flex items-center justify-center" id="notifBellMobile" title="{% trans 'Notifications' %}" aria-label="{% trans 'Notifications' %}">
-            <i class="fa-solid fa-bell text-xl"></i>
-            {% if unread %}
-              <span id="notifBadgeMobile" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1.5 rounded-full bg-[#7C3AED] text-white text-[10px] font-bold grid place-items-center">{{ unread }}</span>
-            {% else %}
-              <span id="notifBadgeMobile" class="hidden"></span>
-            {% endif %}
-          </a>
-          {% endwith %}
-        {% else %}
-          <a href="{% url 'landing' %}" class="text-sm underline">{% trans "Login" %}</a>
-        {% endif %}
-
-        {% if request.user.is_authenticated %}
-          <div class="relative">
-            <button id="userMenuBtnM">
-              {% if request.user.profile and request.user.profile.avatar %}
-                <img src="{{ request.user.profile.avatar.url }}" class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
-              {% else %}
-                <img src="https://placehold.co/100x100/7C3AED/FFFFFF?text=A" class="w-8 h-8 rounded-full object-cover border-2 border-purple-400" alt="User">
-              {% endif %}
-            </button>
-            <div id="userMenuM" class="hidden absolute {% if LANGUAGE_CODE == 'fa' %}left-0{% else %}right-0{% endif %} mt-3 w-56 menu-card p-2">
-              <div class="px-2 pb-2 text-sm text-[color:var(--muted)]">
-                {% trans "Signed in as" %} <span class="text-white font-semibold">{{ request.user.username }}</span>
-              </div>
-              <a class="menu-item" href="{% url 'profile_view' request.user.username %}">
-                <i class="fa-regular fa-user"></i><span>{% trans "Profile" %}</span>
-              </a>
-              <a class="menu-item" href="{% url 'settings_profile' %}">
-                <i class="fa-solid fa-sliders"></i><span>{% trans "Settings" %}</span>
-              </a>
-              <form method="post" action="{% url 'logout' %}">{% csrf_token %}
-                <button class="menu-item w-full text-left" type="submit">
-                  <i class="fa-solid fa-right-from-bracket"></i><span>{% trans "Logout" %}</span>
-                </button>
-              </form>
-            </div>
-          </div>
-        {% endif %}
-      </div>
-    </header>
-
-    {% block content %}{% endblock content %}
-
-    <!-- Mobile Bottom Dock -->
-    <!-- <nav class="sm:hidden fixed inset-x-0 bottom-0 z-40 m-fab-wrap px-4 pb-3">
-      {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-        <a href="{% url 'post_new_start' %}" aria-label="{% trans 'New post' %}" class="m-fab text-gray-500 opacity-60 cursor-not-allowed pointer-events-none">
-          <i class="fa-solid fa-plus text-2xl"></i>
+<div class="nav-holder main-menu">
+  <nav>
+    <ul>
+      <!-- خانه -->
+      <li>
+        <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}act-link{% endif %}">
+          خانه
         </a>
-        <div class="m-dock max-w-screen-md mx-auto">
-          <ul class="m-dock-list">
-            <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li>
-            <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
-            <li><a href="{% url 'explore' %}" class="m-dock-item {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
-            <li aria-hidden="true"></li>
-            <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
-            <li><a href="{% url 'marketplace:home' %}" class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
-          </ul>
-        </div>
-      {% else %}
-        <div class="m-dock max-w-screen-md mx-auto">
-          <ul class="m-dock-list" style="grid-template-columns: repeat(4, minmax(0,1fr));">
-            <li><a href="{% url 'home' %}" class="m-dock-item {% if nav_active == 'home' %}active{% endif %}" aria-label="{% trans 'Home' %}"><i class="ico fa-solid fa-house"></i><span>{% trans "Home" %}</span></a></li>
-            <li><a href="{% url 'portfolio:theme_gallery' %}" class="m-dock-item {% if nav_active == 'portfolio' %}active{% endif %}" aria-label="{% trans 'Portfolio' %}"><i class="ico fa-solid fa-user-tie"></i><span>{% trans "Portfolio" %}</span></a></li>
-            <li><a href="{% url 'explore' %}" class="m-dock-item  {% if nav_active == 'explore' %}active{% endif %}" aria-label="{% trans 'Explore' %}"><i class="ico fa-solid fa-compass"></i><span>{% trans "Explore" %}</span></a></li>
-            <li><a href="{% url 'categories:index' %}" class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" aria-label="{% trans 'Artists' %}"><i class="ico fa-solid fa-th-large"></i><span>{% trans "Artists" %}</span></a></li>
-            <li><a href="{% url 'marketplace:home' %}" class="m-dock-item" aria-label="{% trans 'Marketplace' %}"><i class="ico fa-solid fa-store"></i><span>{% trans "Marketplace" %}</span></a></li>
-          </ul>
-        </div>
+      </li>
+
+      <!-- اکتشاف هنرمندان (شبکه دسته‌ها) -->
+      <li>
+        <a href="{% url 'category_grid' %}" class="{% if request.resolver_match.url_name in 'category_grid subcategory_grid subcat_artists_grid' %}act-link{% endif %}">
+          هنرمندان
+        </a>
+      </li>
+
+      <!-- آثار هنری (Marketplace / Artpieces) -->
+      <li>
+        <a href="{% url 'artpieces' %}" class="{% if request.resolver_match.url_name in 'artpieces artpiece_detail' %}act-link{% endif %}">
+          آثار هنری
+        </a>
+      </li>
+
+      <!-- خدمات (Marketplace / Services) -->
+      <li>
+        <a href="{% url 'services' %}" class="{% if request.resolver_match.url_name in 'services service_detail' %}act-link{% endif %}">
+          خدمات
+        </a>
+      </li>
+
+      <!-- درباره -->
+      <li>
+        <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}act-link{% endif %}">
+          درباره
+        </a>
+      </li>
+
+      <!-- تماس‌ها -->
+      <li>
+        <a href="{% url 'contacts' %}" class="{% if request.resolver_match.url_name == 'contacts' %}act-link{% endif %}">
+          تماس‌ها
+        </a>
+      </li>
+
+      <!-- حساب کاربری (نمایش فقط برای مهمان؛ برای لاگین‌کرده‌ها، همون دراپ‌دان اکانت بالا هست) -->
+      {% if not request.user.is_authenticated %}
+      <li>
+        <a href="{% url 'login' %}">
+          ورود
+        </a>
+        <ul>
+          <li><a href="{% url 'signup' %}">ثبت‌نام</a></li>
+          <li><a href="{% url 'password_reset' %}">فراموشی رمز</a></li>
+        </ul>
+      </li>
       {% endif %}
-    </nav> -->
-<!-- Mobile Bottom Dock -->
-<nav class="sm:hidden fixed inset-x-0 bottom-0 z-40 m-fab-wrap px-4 pb-3">
-  <style>
-    /* Mobile dock layout */
-    .m-dock { 
-      background: rgba(17, 17, 17, .6);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 14px;
-      padding: 6px 8px;
-      /* Safe area for iOS home indicator */
-      padding-bottom: calc(6px + env(safe-area-inset-bottom, 0));
-    }
-    .m-dock-list{
-      display:flex;
-      align-items:center;
-      justify-content: space-evenly; /* ✅ distributes 2, 3, or 4 items nicely */
-      gap: 6px;
-      width:100%;
-    }
-    .m-dock-item{
-      flex: 1 1 0;              /* ✅ items grow evenly */
-      max-width: 140px;         /* keeps them from getting too wide with 2 items */
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:4px;
-      padding: 8px 6px;
-      border-radius: 10px;
-      text-decoration:none;
-      color:#d1d5db;
-      font-size: 11px;
-      line-height: 1;
-    }
-    .m-dock-item .ico{ font-size: 18px; line-height: 1; }
-    .m-dock-item span{ white-space: nowrap; }
-    .m-dock-item.active{ 
-      background: rgba(125,92,255,.12);
-      color: #ffffff;
-      outline: 1px solid rgba(125,92,255,.35);
-    }
-    /* Ultra-small phones: hide labels, keep clean icons */
-    @media (max-width: 360px){
-      .m-dock-item span{ display:none; }
-      .m-dock-item{ padding:10px 8px; }
-    }
-  </style>
+    </ul>
+  </nav>
+</div>
 
-  {% if request.user.is_authenticated and request.user.role == 'ARTIST' %}
-    <div class="m-dock max-w-screen-md mx-auto">
-      <ul class="m-dock-list">
-        <!-- Leave this empty li out; flex handles spacing now -->
-        <li>
-          <a href="{% url 'categories:index' %}" 
-             class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" 
-             aria-label="{% trans 'Artists' %}">
-            <i class="ico fa-solid fa-th-large"></i>
-            <span>{% trans "Artists" %}</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'marketplace:home' %}" 
-             class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" 
-             aria-label="{% trans 'Marketplace' %}">
-            <i class="ico fa-solid fa-store"></i>
-            <span>{% trans "Marketplace" %}</span>
-          </a>
-        </li>
+
+      <!-- share wrapper required by theme -->
+      <div class="share-wrapper">
+        <div class="share-inner"><div class="share-container"></div></div>
+      </div>
+    </div>
+  </header>
+
+  {% block content %}{% endblock content %}
+
+  <!-- footer -->
+  <!-- <footer class="main-footer">
+    <div class="footer_contacts">
+      <ul>
+        <li><span>ایمیل:</span><a href="#" target="_blank">yourmail@eltheme.ir</a></li>
+        <li><span>تلفن:</span><a href="#">+98(912)3456789</a></li>
       </ul>
     </div>
-  {% else %}
-    <div class="m-dock max-w-screen-md mx-auto">
-      <ul class="m-dock-list">
-        <li>
-          <a href="{% url 'categories:index' %}" 
-             class="m-dock-item {% if nav_active == 'category' %}active{% endif %}" 
-             aria-label="{% trans 'Artists' %}">
-            <i class="ico fa-solid fa-th-large"></i>
-            <span>{% trans "Artists" %}</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'marketplace:home' %}" 
-             class="m-dock-item {% if nav_active == 'marketplace' %}active{% endif %}" 
-             aria-label="{% trans 'Marketplace' %}">
-            <i class="ico fa-solid fa-store"></i>
-            <span>{% trans "Marketplace" %}</span>
-          </a>
-        </li>
-      </ul>
-    </div>
-  {% endif %}
-</nav>
+    <div class="policy-box">فتوگام ۱۴۰۳. تمام حقوق محفوظ است.</div>
+  </footer> -->
+  <div class="to-top-btn to-top"><i class="fal fa-long-arrow-up"></i></div>
 
+  <div class="aside_dec"></div>
+
+  <!-- sidebar -->
+  <div class="sidebar-wrap">
+    <div class="sidebar-wrap-container">
+      <div class="sb-widget-wrap fl-wrap">
+  <h3>برترین آثار</h3>
+  <div class="sb-widget fl-wrap">
+    <div class="categories_widget-wrap">
+
+      {% for post in sidebar_top_artposts %}
+        <a class="categories_widget_item" href="{{ post.get_absolute_url }}">
+          <div class="categories_widget_item_img">
+            {% if post.cover_image and post.cover_image.image %}
+              <img src="{{ post.cover_image.image.url }}" class="respimg" alt="{{ post.title }}">
+            {% elif post.image %}
+              <img src="{{ post.image.url }}" class="respimg" alt="{{ post.title }}">
+            {% else %}
+              <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" class="respimg" alt="{{ post.title }}">
+            {% endif %}
+          </div>
+          <span class="categories_widget_title">
+            {{ post.title }}
+          </span>
+        </a>
+      {% empty %}
+        <p class="muted" style="padding:10px 0;text-align:center;">هنوز اثری ثبت نشده است.</p>
+      {% endfor %}
+
+    </div>
   </div>
 </div>
 
-<!-- Feed toggle memory -->
+
+      <!-- <div class="sb-widget-wrap fl-wrap">
+        <h3>اشتراک در خبرنامه</h3>
+        <div class="sb-widget fl-wrap">
+          <p>یک متن نمونه دیگر برای توضیحات بیشتر.</p>
+          <div class="subcribe-form fl-wrap">
+            <form id="subscribe">
+              <input class="enteremail" name="email" id="subscribe-email" placeholder="ایمیل شما" spellcheck="false" type="text">
+              <button type="submit" id="subscribe-button" class="subscribe-button">ارسال</button>
+              <label for="subscribe-email" class="subscribe-message"></label>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="sb-widget-wrap fl-wrap">
+        <h3>لینک‌های اجتماعی</h3>
+        <div class="sb-widget fl-wrap">
+          <div class="sidebar-social fl-wrap">
+            <ul>
+              <li><a href="#" target="_blank">فیسبوک</a></li>
+              <li><a href="#" target="_blank">توییتر</a></li>
+              <li><a href="#" target="_blank">اینستاگرام</a></li>
+              <li><a href="#" target="_blank">تیک</a></li>
+            </ul>
+          </div>
+        </div>
+      </div> -->
+    </div>
+  </div>
+  <div class="sb-overlay"></div>
+</div>
+
+<!-- Scripts -->
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const feedSwitch = document.getElementById('globalFeedSwitch');
-    if (!feedSwitch) return;
-    feedSwitch.addEventListener('click', (e) => {
-      const button = e.target.closest('.seg');
-      if (!button) return;
-      feedSwitch.querySelectorAll('.seg').forEach(seg => seg.classList.remove('active'));
-      button.classList.add('active');
-      localStorage.setItem('artonomy_feed_mode', button.dataset.value);
-    });
-    const saved = localStorage.getItem('artonomy_feed_mode');
-    if (saved) {
-      feedSwitch.querySelectorAll('.seg').forEach(seg => seg.classList.toggle('active', seg.dataset.value === saved));
+(() => {
+  const slot = document.querySelector('.share-btn.account-slot');
+  if (!slot) return;
+
+  const nav  = slot.querySelector('.ux-usernav');
+  const btn  = slot.querySelector('.ux-usernav__toggle');
+  const menu = slot.querySelector('.ux-usernav__menu');
+
+  const open  = () => { nav.classList.add('is-open');  btn.setAttribute('aria-expanded','true');  menu.setAttribute('aria-hidden','false'); };
+  const close = () => { nav.classList.remove('is-open'); btn.setAttribute('aria-expanded','false'); menu.setAttribute('aria-hidden','true'); };
+  const isOpen = () => nav.classList.contains('is-open');
+
+  // 1) Toggle on button (use capture to beat theme), but still run our handler.
+  document.addEventListener('click', function(e){
+    const insideButton = e.target.closest('.ux-usernav__toggle');
+    if (insideButton && slot.contains(insideButton)) {
+      e.stopImmediatePropagation();   // don't let theme handlers run
+      e.preventDefault();
+      isOpen() ? close() : open();
     }
-  });
-</script>
+  }, true); // capture
 
-<!-- Horizontal category scroller -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const scrollContainer = document.getElementById("catScroll");
-    const btnLeft = document.getElementById("scrollLeft");
-    const btnRight = document.getElementById("scrollRight");
-    if (!scrollContainer || !btnLeft || !btnRight) return;
-    function updateButtons() {
-      btnLeft.style.display = scrollContainer.scrollLeft > 0 ? "flex" : "none";
-      const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
-      btnRight.style.display = scrollContainer.scrollLeft < maxScroll - 5 ? "flex" : "none";
+  // 2) Click inside our menu: allow links to navigate, but prevent theme overlay.
+  document.addEventListener('click', function(e){
+    const insideMenu = e.target.closest('.ux-usernav__menu');
+    if (insideMenu && slot.contains(insideMenu)) {
+      e.stopPropagation();            // block theme overlay
+      // Close just before navigation (keeps UI tidy)
+      const link = e.target.closest('a');
+      if (link && link.href) { setTimeout(close, 0); }
     }
-    btnLeft.addEventListener("click", () => scrollContainer.scrollBy({ left: -300, behavior: "smooth" }));
-    btnRight.addEventListener("click", () => scrollContainer.scrollBy({ left: 300, behavior: "smooth" }));
-    scrollContainer.addEventListener("scroll", updateButtons);
-    window.addEventListener("resize", updateButtons);
-    updateButtons();
+  }, true);
+
+  // 3) Click outside closes.
+  document.addEventListener('click', function(e){
+    if (isOpen() && !slot.contains(e.target)) close();
   });
-</script>
 
-<!-- User menu dropdowns -->
-<script>
-  (function(){
-    const pairs = [["userMenuBtn","userMenu"],["userMenuBtnM","userMenuM"]];
-    pairs.forEach(([btnId, menuId])=>{
-      const btn = document.getElementById(btnId);
-      const menu = document.getElementById(menuId);
-      if (!btn || !menu) return;
-      function closeAll(ev){
-        if (!menu.contains(ev.target) && !btn.contains(ev.target)){
-          menu.classList.add("hidden");
-          document.removeEventListener("click", closeAll);
-        }
-      }
-      btn.addEventListener("click", (e)=>{
-        e.stopPropagation();
-        menu.classList.toggle("hidden");
-        if (!menu.classList.contains("hidden")){
-          setTimeout(()=>document.addEventListener("click", closeAll), 0);
-        }
-      });
-    });
-  })();
-</script>
-
-<!-- (Optional) notifications polling stub kept commented -->
-<script>
-(function(){
-  const desk = document.getElementById('notifBadgeDesk');
-  const mob  = document.getElementById('notifBadgeMobile');
-  if(!desk && !mob) return;
-  // function refresh(){/* your AJAX here */ }
-  // setInterval(refresh, 30000);
+  // 4) ESC closes.
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isOpen()) close(); });
 })();
 </script>
 <script>
-(function(){
-  const sel = document.getElementById('langSelect');
-  // set current selection
-  sel.value = (document.documentElement.lang || 'fa').slice(0,2);
-
-  sel.addEventListener('change', async function(){
-    const lang = sel.value;
-    const {pathname, search, hash} = window.location;
-    let newPath = pathname;
-
-    // add/remove '/en' prefix
-    if (lang === 'en' && !pathname.startsWith('/en/')) {
-      newPath = '/en' + (pathname === '/' ? '' : pathname);
-    } else if (lang === 'fa' && pathname.startsWith('/en/')) {
-      newPath = pathname.replace(/^\/en(\/|$)/, '/');
-    }
-
-    // fire-and-forget save to DB (optional)
-    try {
-      await fetch('/account/set-language/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-CSRFToken': (document.cookie.match(/csrftoken=([^;]+)/)||[])[1] || ''
-        },
-        body: new URLSearchParams({language: lang})
-      });
-    } catch(e) {}
-
-    // navigate to translated URL
-    window.location.assign(newPath + search + hash);
-  });
-})();
+window.addEventListener('load', function () {
+  try {
+    sessionStorage.setItem('seenLoader', '1');
+    // همین الان هم مخفیش کن تا رفرش‌های بعدی بی‌لودر باشد
+    document.documentElement.classList.add('suppress-loader');
+  } catch (e) {}
+});
 </script>
+<script>
+document.addEventListener('click', function (e) {
+  const a = e.target.closest('.tabs a');
+  if (a) {
+    try { sessionStorage.setItem('seenLoader', '1'); } catch (e) {}
+  }
+});
+</script>
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/plugins.js' %}"></script>
+<script src="{% static 'js/scripts.js' %}"></script>
+
+
+
+
+
+
+
+
+
+
+
+
 
 </body>
 </html>

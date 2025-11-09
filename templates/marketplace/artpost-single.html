@@ -1,0 +1,325 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<style>
+.btn-like, .btn-share{
+  border:none;
+  cursor:pointer;
+  padding:8px 14px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+  background:#f3f4f6;
+}
+.btn-like.is-liked{
+  background:#fee2e2;
+  color:#b91c1c;
+}
+.btn-like .like-icon{
+  margin-left:6px;
+}
+</style>
+
+<div id="wrapper">
+  <div class="content-holder" data-pagetitle="{{ obj.title }}">
+
+    {% with gallery=obj.images.all %}
+      {% if gallery|length %}
+        {% with hero=gallery.0 %}
+          <div class="column-image">
+            <div class="bg" data-bg="{{ hero.image.url }}"></div>
+            <div class="overlay"></div>
+            <div class="column-title">
+              <h2>{{ obj.title }}</h2>
+              <h3>
+                {% if obj.description %}
+                  {{ obj.description|truncatechars:140 }}
+                {% else %}
+                  جزئیات اثر
+                {% endif %}
+              </h3>
+            </div>
+            <div class="ci_dec"><span></span></div>
+          </div>
+        {% endwith %}
+      {% else %}
+        <div class="column-image">
+          {% if obj.image %}
+            <div class="bg" data-bg="{{ obj.image.url }}"></div>
+          {% else %}
+            <div class="bg" data-bg="{% static 'images/placeholder/cover-16x9-dark.png' %}"></div>
+          {% endif %}
+          <div class="overlay"></div>
+          <div class="column-title">
+            <h2>{{ obj.title }}</h2>
+            <h3>
+              {% if obj.description %}
+                {{ obj.description|truncatechars:140 }}
+              {% else %}
+                جزئیات اثر
+              {% endif %}
+            </h3>
+          </div>
+          <div class="ci_dec"><span></span></div>
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="column-wrapper">
+      <section id="sec1">
+        <div class="container small-container">
+          <div class="section-title fl-wrap">
+            <h3>{{ obj.title }}</h3>
+<h4 style="font-weight:600;">
+  وضعیت:
+  {% if obj.condition == 'new' %}نو{% else %}کارکرده{% endif %}
+  {% if obj.quantity %}
+    &nbsp;|&nbsp; تعداد/سری: {{ obj.quantity }}
+  {% endif %}
+  &nbsp;|&nbsp; بازدید: {{ obj.views }}
+  &nbsp;|&nbsp; پسندها:
+  <span data-like-count>{{ obj.total_likes }}</span>
+</h4>
+
+<div class="btn-wrap" style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+  <button
+    type="button"
+    class="btn-like {% if liked_by_me %}is-liked{% endif %}"
+    data-post-id="{{ obj.pk }}"
+  >
+    <span class="like-icon">♥</span>
+    <span class="like-text">
+      {% if liked_by_me %}پسندیده شده{% else %}پسندیدن{% endif %}
+    </span>
+  </button>
+
+  <button
+    type="button"
+    class="btn-share"
+    data-share-url="{{ request.build_absolute_uri }}"
+  >
+    اشتراک‌گذاری
+  </button>
+</div>
+
+            <div class="section-number">01.</div>
+          </div>
+        </div>
+
+        <!-- GALLERY -->
+        <div class="container small-container">
+          <div class="gallery-items lightgallery two-column big-padding sg_items scale_anim">
+            {% with gallery=obj.images.all %}
+              {% if gallery|length %}
+                {% for gi in gallery %}
+                  <div class="gallery-item">
+                    <div class="grid-item-holder hov_zoom">
+                      <a href="{{ gi.image.url }}" class="box-media-zoom popup-image">
+                        <i class="fal fa-search"></i>
+                      </a>
+                      <img src="{{ gi.image.url }}" alt="{{ gi.alt_text|default:obj.title }}">
+                    </div>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div class="gallery-item">
+                  <div class="grid-item-holder hov_zoom">
+                    {% if obj.image %}
+                      <a href="{{ obj.image.url }}" class="box-media-zoom popup-image">
+                        <i class="fal fa-search"></i>
+                      </a>
+                      <img src="{{ obj.image.url }}" alt="{{ obj.title }}">
+                    {% else %}
+                      <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="{{ obj.title }}">
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+
+        <div class="container small-container">
+          <div class="single_det_wrap">
+            {% if obj.description %}
+              <p style="white-space:pre-line">{{ obj.description }}</p>
+            {% else %}
+              <p>بدون توضیحات.</p>
+            {% endif %}
+
+            <div class="caption-wrap det-anim">
+              <ul>
+                <li>
+                  <span>هنرمند/پروفایل</span>
+                  <a href="{% url 'public_profile' obj.profile.user.username %}">
+                    {{ obj.profile.user.get_full_name|default:obj.profile.user.username }}
+                  </a>
+                </li>
+                <li>
+                  <span>نوع محتوا</span>
+                  <a href="#">محتوای هنری</a>
+                </li>
+                <li>
+                  <span>بازدید</span>
+                  <a href="#">{{ obj.views }}</a>
+                </li>
+                <li>
+                  <span>ثبت</span>
+                  <a href="#">{{ obj.created_at|date:"Y/m/d" }}</a>
+                </li>
+                <li>
+                  <span>به‌روزرسانی</span>
+                  <a href="#">{{ obj.updated_at|date:"Y/m/d" }}</a>
+                </li>
+              </ul>
+            </div>
+
+            <a href="{% url 'contacts' %}" class="btn">
+              تماس برای همکاری
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {% if related %}
+      <section id="sec2">
+        <div class="container small-container">
+          <div class="section-title fl-wrap">
+            <h3>دیگر محتواها</h3>
+            <div class="section-number">02.</div>
+          </div>
+          <div class="gallery-items two-column big-padding sg_items">
+            {% for r in related %}
+              <div class="gallery-item">
+                <div class="grid-item-holder hov_zoom">
+                  {% with rg=r.images.all %}
+                    {% if rg|length %}
+                      <img src="{{ rg.0.image.url }}" alt="{{ r.title }}">
+                    {% elif r.image %}
+                      <img src="{{ r.image.url }}" alt="{{ r.title }}">
+                    {% else %}
+                      <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="{{ r.title }}">
+                    {% endif %}
+                  {% endwith %}
+                  <div class="grid-item-info">
+                    <h3>
+                      <a href="{{ r.get_absolute_url }}" class="ajax">{{ r.title }}</a>
+                    </h3>
+                    <p>محتوای هنری</p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+      {% endif %}
+
+      <div class="order-wrap">
+        <div class="container small-container">
+          <h4>آیا آماده شروع یک همکاری خلاقانه هستید؟</h4>
+        </div>
+        <a href="{% url 'contacts' %}" class="order_btn">تماس بگیرید</a>
+      </div>
+    </div>
+
+    <div class="fixed-bottom-container">
+      <div class="scroll-down-wrap">
+        <div class="mousey"><div class="scroller"></div></div>
+      </div>
+      <div class="aside_icon_wrap hbn_vis">
+        <div class="list">
+          <a href="{% url 'artpieces' %}">
+            <span>
+              <i class="b1 c1"></i><i class="b1 c2"></i><i class="b1 c3"></i>
+              <i class="b2 c1"></i><i class="b2 c2"></i><i class="b2 c3"></i>
+              <i class="b3 c1"></i><i class="b3 c2"></i><i class="b3 c3"></i>
+            </span>
+          </a>
+        </div>
+        <strong>بازگشت به آثار</strong>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar color-bg"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+// ------- CSRF helper -------
+function getCookie(name) {
+  const value = document.cookie.split('; ').find(row => row.startsWith(name + '='));
+  return value ? decodeURIComponent(value.split('=')[1]) : '';
+}
+
+// ------- Like / Unlike -------
+(function () {
+  const btn = document.querySelector('.btn-like');
+  if (!btn) return;
+
+  btn.addEventListener('click', function () {
+    const postId = this.dataset.postId;
+    if (!postId) return;
+
+    fetch("{% url 'artpost_toggle_like' pk=obj.pk %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Bad response');
+      return res.json();
+    })
+    .then(data => {
+      if (!data || typeof data.liked === "undefined") return;
+
+      // toggle UI state
+      if (data.liked) {
+        btn.classList.add('is-liked');
+        btn.querySelector('.like-text').textContent = 'پسندیده شده';
+      } else {
+        btn.classList.remove('is-liked');
+        btn.querySelector('.like-text').textContent = 'پسندیدن';
+      }
+
+      // update counters (header & anywhere else)
+      document.querySelectorAll('[data-like-count]').forEach(function (el) {
+        el.textContent = data.total_likes;
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      alert("برای پسندیدن باید وارد حساب کاربری خود شوید.");
+    });
+  });
+})();
+
+// ------- Share button -------
+(function () {
+  const shareBtn = document.querySelector('.btn-share');
+  if (!shareBtn) return;
+
+  shareBtn.addEventListener('click', async function () {
+    const url = this.dataset.shareUrl;
+    const title = "{{ obj.title|escapejs }}";
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+        alert("لینک این پست در کلیپ‌بورد کپی شد.");
+      } else {
+        prompt("این لینک را کپی کنید:", url);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  });
+})();
+</script>
+
+{% endblock content %}

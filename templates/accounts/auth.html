@@ -1,0 +1,462 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ورود / ثبت‌نام | فنوگام</title>
+
+    <style>
+        /* --- 🎨 Artistic & Dark Theme Variables --- */
+        :root{
+            --bg: #09090b; /* پس‌زمینه خیلی تیره */
+            --panel: #141416; /* رنگ پنل اصلی */
+            --panel-2: #1c1c1e; /* رنگ پنل فرم */
+            --text-1: #f3f3f5;
+            --text-2: #bdbdc5;
+            --muted: #8a8a92;
+            --accent: #9d80ff; /* رنگ بنفش هنری (مانند طرح) */
+            --accent-light: #b49eff;
+            --ring: rgba(157, 128, 255, .35);
+            --radius: 30px; /* شعاع بیشتر برای نرمی */
+            --shadow: 0 15px 35px rgba(0,0,0,.5);
+        }
+
+        /* --- Page Base Styles --- */
+        * { box-sizing: border-box; }
+        html,body { height: 100%; }
+        body{
+            margin: 0;
+            background: var(--bg);
+            color: var(--text-1);
+            font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, "Vazirmatn", "IRANSans", sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Custom Background: Bubbles/Abstract Effect --- */
+        .bg {
+            position: fixed; inset: 0;
+            z-index: -2;
+            /* گرادیانت رادیال تیره با حباب‌های محو */
+            background: 
+                radial-gradient(circle 350px at 75% 20%, rgba(157, 128, 255, .07), transparent),
+                radial-gradient(circle 280px at 20% 90%, rgba(101, 200, 17, .05), transparent),
+                var(--bg);
+        }
+        
+        /* --- Layout: Centering and Card Structure --- */
+        .wrap{
+            min-height: 100svh;
+            padding: clamp(20px, 4vw, 50px);
+            display: grid;
+            place-items: center;
+        }
+        .card{
+            width: min(1100px, 100%);
+            display: grid;
+            grid-template-columns: 1.1fr .9fr; /* توازن بیشتر برای بخش ویژوال */
+            gap: 30px;
+            background: transparent;
+            border-radius: var(--radius);
+        }
+        
+        /* --- Visual Panel (Artistic Side) --- */
+        .visual{
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+            min-height: 600px;
+            display: grid;
+            align-content: end;
+            isolation: isolate;
+        }
+        /* Image Layer */
+        .visual::before{
+            content:"";
+            position:absolute; inset:0;
+            /* تصویر زمینه تاریک‌تر و مودی‌تر */
+            background: url("https://images.unsplash.com/photo-1470770903676-69b98201ea1c?q=80&w=1920&auto=format&fit=crop") center/cover no-repeat;
+            opacity:1;
+            transform: scale(1.02);
+            filter: grayscale(10%) contrast(1.1) brightness(.8); /* تیره و مودی */
+            z-index:-2;
+        }
+        /* Gradient Overlay */
+        .visual::after{
+            content:"";
+            position:absolute; inset:0;
+            background:
+                linear-gradient(180deg, rgba(0,0,0,.0) 10%, rgba(0,0,0,.75) 70%, rgba(0,0,0,.95));
+            z-index:-1;
+        }
+        .v-content{
+            padding: 40px;
+        }
+        .tag{
+            display:inline-block;
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,.2);
+            border-radius: 999px;
+            font-size: 13px;
+            color: var(--accent-light);
+            background: rgba(0,0,0,.3);
+            backdrop-filter: blur(5px);
+            font-weight: 600;
+        }
+        .v-title{
+            margin: 16px 0 12px;
+            font-size: clamp(28px, 2.8vw, 38px);
+            font-weight: 900;
+            letter-spacing: .2px;
+            text-shadow: 0 4px 8px rgba(0,0,0,.6);
+        }
+        .v-desc{
+            color: var(--text-2);
+            max-width: 48ch;
+            margin-bottom: 24px;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        /* --- Form Panel (The artistic container for the form) --- */
+        .panel{
+            border-radius: var(--radius);
+            background: var(--panel-2);
+            border: 1px solid rgba(255,255,255,.12); /* مرز روشن‌تر */
+            box-shadow: var(--shadow);
+            padding: clamp(24px, 3.5vw, 40px);
+            /* حاشیه موج‌دار (تزیین هنری) */
+            background-image: 
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cpattern id='a' width='.2' height='.2' patternUnits='objectBoundingBox'%3E%3Cpath fill='%239d80ff' fill-opacity='0.03' d='M50 0 L100 0 L50 100 L0 100 Z'/%3E%3C/pattern%3E%3C/defs%3E%3Crect width='100' height='100' fill='url(%23a)'/%3E%3C/svg%3E");
+        }
+
+        .brand{
+            display:flex; align-items:center; gap:14px; margin-bottom: 24px;
+        }
+        .logo{
+            width: 42px; height: 42px; border-radius: 14px;
+            background: linear-gradient(135deg, var(--accent), #e0aaff);
+            box-shadow: 0 8px 20px var(--ring);
+        }
+        .brand h1{ font-size: 24px; margin:0; font-weight: 900; letter-spacing:.5px; }
+
+        /* --- Tabs: Login/Signup Switch --- */
+        .tabs{
+            display:flex; gap:10px; background: rgba(255,255,255,.06);
+            padding: 8px; border-radius: 14px; width:max-content; margin: 16px 0 30px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
+        }
+        .tab{
+            border: 0; background: transparent; color: var(--text-2);
+            padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight:800;
+            font-size: 15px;
+            transition: all .2s;
+        }
+        .tab[aria-selected="true"]{
+            color: var(--text-1); 
+            background: var(--panel);
+            box-shadow: 0 4px 12px rgba(0,0,0,.3), inset 0 0 0 1px rgba(255,255,255,.1);
+        }
+
+        /* --- Form Elements --- */
+        form{ display:grid; gap:16px; }
+        .field{
+            display:grid; gap:8px;
+        }
+        label{ font-size: 14px; color: var(--text-2); font-weight: 600; }
+        .control{
+            position:relative;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"]{
+            width: 100%;
+            background: #0f0f11;
+            color: var(--text-1);
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 14px;
+            padding: 14px 18px;
+            outline: none;
+            font-size: 15px;
+            transition: box-shadow .3s, border-color .3s, background .3s;
+        }
+        input:focus{
+            border-color: var(--accent-light);
+            box-shadow: 0 0 0 5px var(--ring);
+            background: #111113;
+        }
+        .toggle-eye{
+            position:absolute; inset-inline-end: 14px; top: 50%;
+            transform: translateY(-50%);
+            background: transparent; border: 0; color: var(--muted);
+            cursor: pointer; font-size: 16px;
+            transition: color .2s;
+        }
+        .toggle-eye:hover{ color: var(--text-1); }
+        .row{
+            display:flex; gap:12px;
+        }
+        .row > * { flex: 1; }
+
+        /* --- Buttons --- */
+        .actions{ display:grid; gap:12px; margin-top: 20px; }
+        .btn{
+            appearance: none; border:0; cursor:pointer;
+            padding: 14px 18px; border-radius: 14px; font-weight:800;
+            font-size: 16px;
+            transition: all .3s;
+        }
+        .btn-primary{
+            /* گرادیانت بنفش جذاب */
+            background: linear-gradient(90deg, var(--accent), #d19fff); 
+            color:#fff; 
+            box-shadow: 0 10px 25px var(--ring);
+        }
+        .btn-primary:hover{
+            box-shadow: 0 12px 30px var(--ring);
+            transform: translateY(-2px);
+        }
+        .btn-ghost{
+            background: rgba(255,255,255,.08); 
+            color: var(--text-2);
+            border: 1px solid rgba(255,255,255,.1);
+        }
+        .btn-ghost:hover{
+            background: rgba(255,255,255,.12);
+            color: var(--text-1);
+        }
+        
+        /* --- Meta/Links --- */
+        .meta{
+            display:flex; justify-content:space-between; align-items: center; gap:10px;
+            font-size: 14px; color: var(--muted);
+        }
+        .meta label{ font-weight: 400; color: var(--muted); cursor: pointer; }
+        .meta input[type="checkbox"]{ transform: scale(1.1); margin-inline-end: 6px; }
+        a{ color: var(--accent-light); text-decoration: none; font-weight: 600; }
+        a:hover{ text-decoration: underline; }
+
+        .small{
+            font-size: 13px; color: var(--muted); margin-top: 15px; text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 980px){
+            .card{ grid-template-columns: 1fr; }
+            .visual{ min-height: 350px; }
+            .v-content{ padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg" aria-hidden="true"></div>
+
+    <main class="wrap">
+        <section class="card" role="region" aria-label="فرم احراز هویت">
+            <aside class="visual">
+                <div class="v-content">
+                    <span class="tag">پروژه نمونه - آرتیستیک</span>
+                    <h2 class="v-title">تنها در قلمرو من</h2>
+                    <p class="v-desc">اینجا محل پیوند طبیعت و تکنولوژی است. فضایی برای کسانی که می‌خواهند فراتر از مرزها حرکت کنند.</p>
+                    <a class="btn btn-ghost" href="/">بازگشت به خانه</a>
+                </div>
+            </aside>
+
+            <div class="panel" id="panel">
+                <div class="brand">
+                    <div class="logo" aria-hidden="true"></div>
+                    <h1>فنـوگام</h1>
+                </div>
+
+                <div class="tabs" role="tablist" aria-label="انتخاب فرم">
+                    <button class="tab" role="tab" aria-selected="true"  id="t-login"  aria-controls="p-login">ورود</button>
+                    <button class="tab" role="tab" aria-selected="false" id="t-signup" aria-controls="p-signup">ثبت‌نام</button>
+                </div>
+
+                <!-- LOGIN -->
+                <section id="p-login" role="tabpanel" aria-labelledby="t-login">
+                    <form method="post" action="/accounts/login/">
+                        {% csrf_token %}
+                        <div class="field">
+                            <label for="login-user">نام کاربری یا ایمیل</label>
+                            <div class="control">
+                                <input id="login-user" name="username_or_email" type="text"
+                                       placeholder="نام کاربری یا you@example.com" required autocomplete="username"
+                                       value="{{ login_form.data.username_or_email|default_if_none:'' }}">
+                            </div>
+                            {% if login_form and login_form.errors and login_form.errors.username_or_email %}
+                              <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                {{ login_form.errors.username_or_email.0 }}
+                              </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="field">
+                            <label for="login-pass">گذرواژه</label>
+                            <div class="control">
+                                <input id="login-pass" name="password" type="password" placeholder="••••••••" required autocomplete="current-password">
+                                <button class="toggle-eye" type="button" data-target="login-pass" aria-label="نمایش/مخفی گذرواژه">👁️</button>
+                            </div>
+                            {% if login_form and login_form.errors and login_form.errors.password %}
+                              <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                {{ login_form.errors.password.0 }}
+                              </div>
+                            {% endif %}
+                            {% if login_form and login_form.non_field_errors %}
+                              <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                {{ login_form.non_field_errors.0 }}
+                              </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="meta">
+                            <label>
+                                <input type="checkbox" name="remember" {% if login_form.data.remember %}checked{% endif %}>
+                                من را به خاطر بسپار
+                            </label>
+                            <a href="/accounts/password-reset/">فراموش کردید؟</a>
+                        </div>
+
+                        <div class="actions">
+                            <button class="btn btn-primary" type="submit">ورود به حساب</button>
+                            <button class="btn btn-ghost" type="button" id="go-signup">هنوز عضو نیستید؟ ثبت‌نام</button>
+                        </div>
+                        
+                        <p class="small">با ورود، قوانین و حریم خصوصی فنوگام را می‌پذیرید.</p>
+                    </form>
+                </section>
+
+                <!-- SIGNUP -->
+                <section id="p-signup" role="tabpanel" aria-labelledby="t-signup" hidden>
+                    <form method="post" action="/accounts/signup/">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="field">
+                                <label for="su-first">نام</label>
+                                <input id="su-first" name="first_name" type="text" placeholder="نام شما" required autocomplete="given-name"
+                                       value="{{ signup_form.data.first_name|default_if_none:'' }}">
+                                {% if signup_form and signup_form.errors.first_name %}
+                                  <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                    {{ signup_form.errors.first_name.0 }}
+                                  </div>
+                                {% endif %}
+                            </div>
+                            <div class="field">
+                                <label for="su-last">نام خانوادگی</label>
+                                <input id="su-last" name="last_name" type="text" placeholder="نام خانوادگی" required autocomplete="family-name"
+                                       value="{{ signup_form.data.last_name|default_if_none:'' }}">
+                                {% if signup_form and signup_form.errors.last_name %}
+                                  <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                    {{ signup_form.errors.last_name.0 }}
+                                  </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label for="su-username">نام کاربری</label>
+                            <input id="su-username" name="username" type="text" placeholder="مثلا: FanogamUser" required autocomplete="username"
+                                   value="{{ signup_form.data.username|default_if_none:'' }}">
+                            {% if signup_form and signup_form.errors.username %}
+                              <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                {{ signup_form.errors.username.0 }}
+                              </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="field">
+                            <label for="su-email">ایمیل</label>
+                            <input id="su-email" name="email" type="email" placeholder="you@example.com" required autocomplete="email"
+                                   value="{{ signup_form.data.email|default_if_none:'' }}">
+                            {% if signup_form and signup_form.errors.email %}
+                              <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                {{ signup_form.errors.email.0 }}
+                              </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="field">
+                                <label for="su-pass">گذرواژه</label>
+                                <div class="control">
+                                    <input id="su-pass" name="password" type="password" placeholder="حداقل ۸ کاراکتر" required autocomplete="new-password" minlength="8">
+                                    <button class="toggle-eye" type="button" data-target="su-pass" aria-label="نمایش/مخفی گذرواژه">👁️</button>
+                                </div>
+                                {% if signup_form and signup_form.errors.password %}
+                                  <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                    {{ signup_form.errors.password.0 }}
+                                  </div>
+                                {% endif %}
+                            </div>
+                            <div class="field">
+                                <label for="su-pass2">تکرار گذرواژه</label>
+                                <div class="control">
+                                    <input id="su-pass2" name="password2" type="password" placeholder="تکرار گذرواژه" required autocomplete="new-password" minlength="8">
+                                    <button class="toggle-eye" type="button" data-target="su-pass2" aria-label="نمایش/مخفی گذرواژه">👁️</button>
+                                </div>
+                                {% if signup_form and signup_form.errors.password2 %}
+                                  <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                    {{ signup_form.errors.password2.0 }}
+                                  </div>
+                                {% endif %}
+                                {% if signup_form and signup_form.non_field_errors %}
+                                  <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+                                    {{ signup_form.non_field_errors.0 }}
+                                  </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="actions">
+                            <button class="btn btn-primary" type="submit">ایجاد حساب</button>
+                            <button class="btn btn-ghost" type="button" id="go-login">حساب دارید؟ ورود</button>
+                        </div>
+                        
+                        <p class="small">با ثبت‌نام، تمامی قوانین سایت فنوگام را می‌پذیرید.</p>
+                    </form>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tab switching logic
+        const tLogin  = document.getElementById('t-login');
+        const tSignup = document.getElementById('t-signup');
+        const pLogin  = document.getElementById('p-login');
+        const pSignup = document.getElementById('p-signup');
+
+        function show(tab){
+            const isSignup = tab === 'signup';
+            tLogin.setAttribute('aria-selected', String(!isSignup));
+            tSignup.setAttribute('aria-selected', String(isSignup));
+            pLogin.hidden  = isSignup;
+            pSignup.hidden = !isSignup;
+        }
+        
+        tLogin.addEventListener('click',  () => show('login'));
+        tSignup.addEventListener('click', () => show('signup'));
+        document.getElementById('go-signup').addEventListener('click', () => show('signup'));
+        document.getElementById('go-login').addEventListener('click',  () => show('login'));
+
+        // Initial tab from backend
+        (function(){
+          const initialTab = "{{ active_tab|default:'login' }}";
+          if (initialTab === "signup") { show('signup'); }
+          else { show('login'); }
+        })();
+
+        // Password visibility toggles
+        document.querySelectorAll('.toggle-eye').forEach(btn=>{
+            btn.addEventListener('click', ()=>{
+                const id = btn.dataset.target;
+                const input = document.getElementById(id);
+                input.type = input.type === 'password' ? 'text' : 'password';
+            });
+        });
+    </script>
+</body>
+</html>

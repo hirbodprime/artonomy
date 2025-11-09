@@ -1,91 +1,63 @@
 # marketplace/forms.py
 from django import forms
-from django.utils.translation import gettext_lazy as _
-from .models import BusinessProfile, JoinRequest, Product,SubscriptionPayment
-from .utils.images import compress_image  # keep your compressor helper
+from django.forms import inlineformset_factory
+from .models import Product, ProductImage, Service, ServiceImage, ArtPost, ArtPostImage
 
+
+# Parent editors (if you already have them, keep yours)
 class ProductForm(forms.ModelForm):
-    # Show as radios: Service / Physical Product
-    is_service = forms.TypedChoiceField(
-        label=_("Listing Type"),
-        choices=[(True, _("Service")), (False, _("Physical Product"))],
-        coerce=lambda v: v in (True, "True", "true", "1", 1),
-        widget=forms.RadioSelect
-    )
-
     class Meta:
         model = Product
-        fields = ["title", "description", "category", "price", "currency",
-                  "is_service", "image", "status"]
-        widgets = {
-            "description": forms.Textarea(attrs={"rows": 5}),
-        }
-
-
-class JoinPickKindForm(forms.Form):
-    """
-    Step 1: Are you a solo artist or some kind of business?
-    We normalize all options into BusinessProfile.Kind.
-    """
-    kind = forms.ChoiceField(
-        choices=[
-            ("SOLO_ARTIST",   _("I'm a solo artist")),
-            ("GALLERY",       _("Gallery")),
-            ("STUDIO",        _("Studio")),
-            ("CONCEPT_STORE", _("Concept store")),
-            ("OTHER",         _("Other creative business")),
-        ],
-        widget=forms.RadioSelect
-    )
-
-
-class ProfileSetupForm(forms.ModelForm):
-    """
-    Step 2: dramatic public profile (with server-side image compression).
-    """
-    class Meta:
-        model = BusinessProfile
         fields = [
-            "display_name",
-            "tagline",
-            "bio_long",
-            "location",
-            "avatar",
-            "cover",
+            "title", "description", "price_type", "price_amount", "currency",
+            "quantity", "condition", "is_active", "order"
         ]
-        widgets = {
-            "display_name": forms.TextInput(attrs={
-                "placeholder": _("Your public / artist / studio name")
-            }),
-            "tagline": forms.TextInput(attrs={
-                "placeholder": _("Example: Brutalist ceramics with Persian soul")
-            }),
-            "bio_long": forms.Textarea(attrs={
-                "rows": 6,
-                "placeholder": _(
-                    "Tell your story. Be dramatic. What do you create, "
-                    "what do you believe, what makes you different?"
-                )
-            }),
-            "location": forms.TextInput(attrs={
-                "placeholder": _("City, Country")
-            }),
-        }
 
-    # --- image compression hooks ---
-    def clean_avatar(self):
-        f = self.cleaned_data.get("avatar")
-        if not f:
-            return f
-        return compress_image(f, max_side=800, webp=True, quality=82)
-
-    def clean_cover(self):
-        f = self.cleaned_data.get("cover")
-        if not f:
-            return f
-        return compress_image(f, max_side=2560, webp=True, quality=80)
-class SubscriptionPaymentForm(forms.ModelForm):
+class ServiceForm(forms.ModelForm):
     class Meta:
-        model = SubscriptionPayment
-        fields = ["payment_image"]  # 👈 image only
-        labels = {"payment_image": _("Upload Payment Screenshot")}
+        model = Service
+        fields = [
+            "title", "description", "tags", "pricing_model",
+            "currency", "min_price", "max_price", "is_active", "order"
+        ]
+
+class ArtPostForm(forms.ModelForm):
+    class Meta:
+        model = ArtPost
+        fields = [
+            "title",
+            "description",
+            "quantity",
+            "condition",
+            "is_active",
+            "order",
+            "image",
+        ]
+
+
+ArtPostImageFormSet = inlineformset_factory(
+    parent_model=ArtPost,
+    model=ArtPostImage,
+    fields=["image", "alt_text", "order", "is_primary"],
+    extra=1,
+    max_num=5,
+    can_delete=True,
+)
+
+ProductImageFormSet = inlineformset_factory(
+    parent_model=Product,
+    model=ProductImage,
+    fields=["image", "alt_text", "order", "is_primary"],
+    extra=5,           # we will add more on the fly in the UI
+    max_num=5,
+    can_delete=True
+)
+
+ServiceImageFormSet = inlineformset_factory(
+    parent_model=Service,
+    model=ServiceImage,
+    fields=["image", "alt_text", "order", "is_primary"],
+    extra=1,
+    max_num=5,
+    can_delete=True
+)

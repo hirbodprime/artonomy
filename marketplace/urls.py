@@ -1,33 +1,19 @@
+# marketplace/urls.py
 from django.urls import path
 from . import views
 
-app_name = "marketplace"
-
 urlpatterns = [
-    path("", views.marketplace_home, name="home"),
+    # Artpieces
+    path("art/", views.artpieces_list, name="artpieces"),
+    path("u/<str:username>/art/", views.artpieces_list, name="user_artpieces"),
+    path("art/<str:slug>/<int:pk>/", views.artpiece_detail, name="artpiece_detail"),
 
-    # public
-    path("profile/<slug:slug>/", views.profile_public, name="profile"),
-    path("product/<int:pk>/", views.product_detail, name="product_detail"),
+    # NEW: Art posts (content)
+    path("post/<str:slug>/<int:pk>/", views.artpost_detail, name="artpost_detail"),
+    path("post/<int:pk>/like/", views.artpost_toggle_like, name="artpost_toggle_like"),
 
-    # join flow
-    path("join/", views.join_marketplace_entry, name="join_entry"),
-    path("join/step/", views.join_marketplace_steps, name="join_steps"),
-
-    # dashboard (for approved members)
-    path("dashboard/", views.studio_dashboard, name="dashboard"),
-
-    # 💳 user payment page
-    path("payments/", views.subscription_pay, name="subscription_pay"),
-
-    # admin review
-    path("payments/review/", views.payments_inbox, name="payments_inbox"),
-    path("payments/<int:pk>/decide/approve/", views.payment_approve, name="payment_approve"),
-    path("payments/<int:pk>/decide/reject/", views.payment_reject, name="payment_reject"),
-    path("payments/<int:pk>/review/<str:action>/", views.payment_review, name="payment_review"),
-
-    # studio products
-    path("studio/products/add/", views.product_create, name="product_add"),
-    path("studio/products/<int:pk>/edit/", views.product_edit, name="product_edit"),
-    path("studio/products/<int:pk>/delete/", views.product_delete, name="product_delete"),
+    # Services
+    path("services/", views.services_list, name="services"),
+    path("u/<str:username>/services/", views.services_list, name="user_services"),
+    path("services/<str:slug>/<int:pk>/", views.service_detail, name="service_detail"),
 ]

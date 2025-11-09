@@ -1,0 +1,1646 @@
+{% extends "base.html" %}
+{% load static dict_extras %}
+{% block content %}
+<script>
+(function () {
+  try {
+    if (sessionStorage.getItem('seenLoader') === '1') {
+      document.documentElement.classList.add('suppress-loader');
+    }
+  } catch (e) {}
+})();
+</script>
+
+<style>
+/* ============ پایه (Mobile-first) ============ */
+:root{
+  --bg-0:#f4f6fa;--page-bg:#f4f6fa;--panel:#fff;--panel-2:#f8f9fa;
+  --text:#1f2733;--muted:#6b7a90;--accent:#1e3a8a;--accent-2:#3b82f6;
+  --border:1px solid #e2e8f0;--radius:10px;--shadow:0 4px 12px rgba(0,0,0,.04);
+  --header-h:72px;--footer-h:120px;--sidebar-w:240px;
+  --container-max:1400px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--page-bg);color:var(--text);line-height:1.5}
+
+/* تایپوگرافی و ورودی‌ها */
+body,input,select,textarea,button{font-size:clamp(14px,1.8vw,15px)}
+label{font-weight:600;display:block;margin-bottom:6px}
+input[type="text"],input[type="url"],input[type="number"],input[type="file"],select,textarea{
+  width:100%;background:var(--panel-2);color:var(--text);
+  border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;outline:none;font-size:14px
+}
+input:focus,textarea:focus,select:focus{border-color:var(--accent-2);box-shadow:0 0 0 1px var(--accent-2)}
+textarea{resize:vertical}
+input[type="checkbox"][name$="-DELETE"]{display:none!important}
+
+/* دکمه‌ها */
+.btn{appearance:none;border:1px solid transparent;cursor:pointer;padding:12px 20px;border-radius:8px;font-weight:700;color:#fff;background:var(--accent)}
+.btn:hover{background:color-mix(in srgb,var(--accent),black 10%)}
+.btn-ghost{background:none;color:var(--muted);border:1px solid #e2e8f0;font-weight:600}
+.btn-ghost:hover{background:var(--panel-2);color:var(--text)}
+
+/* تراشه‌ها */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--panel-2);border:1px solid #e2e8f0;color:var(--muted);font-size:13px;font-weight:600}
+.del-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;color:#ef4444;background:#fee2e2;border:1px solid #fecaca;cursor:pointer;font-weight:700;font-size:14px;margin-top:2px}
+.row-deleting{opacity:.6;filter:saturate(.6);background:#fef2f2;border-radius:8px;padding:10px;margin:-10px -10px 10px}
+
+/* پنل/کارت */
+.panel{background:var(--panel);border:var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.panel h3{margin:0 0 14px;font-size:clamp(16px,2.4vw,18px);font-weight:800;color:var(--text)}
+.muted{color:var(--muted);font-size:12px}
+
+/* نوار پیشرفت */
+.progress-wrap{margin-top:12px}
+.progress-outer{width:100%;height:10px;border-radius:999px;background:var(--panel-2);border:1px solid #e2e8f0;overflow:hidden}
+.progress-inner{height:100%;border-radius:999px;background:var(--accent-2);transition:width .4s ease}
+
+/* پیش‌نمایش‌ها */
+.preview{width:100%;max-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;display:block;margin-top:8px}
+.preview--logo{width:auto;max-width:120px;aspect-ratio:auto;border-radius:8px}
+
+/* شبکه عمومی (mobile-first) */
+.row{display:grid;gap:16px;margin-bottom:16px;grid-template-columns:1fr}
+.row-3{display:grid;gap:16px;margin-bottom:16px;grid-template-columns:1fr}
+.row-4{display:grid;gap:16px;margin-bottom:16px;grid-template-columns:1fr}
+@media (min-width:560px){ .row{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (min-width:1200px){ .row-3{grid-template-columns:repeat(3,minmax(0,1fr))} .row-4{grid-template-columns:repeat(4,minmax(220px,1fr))} }
+
+/* گالری */
+.gallery-wrapper,.gallery-forms,.gallery-item{width:100%}
+.gallery-item{display:grid;grid-template-columns:1fr;gap:16px;border:1px dashed #e2e8f0;padding:16px;border-radius:10px;margin-bottom:12px}
+@media (min-width:900px){ .gallery-item{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)} }
+
+/* --------- لایه‌بندی داشبورد و سایدبار --------- */
+/* موبایل: تک‌ستونه */
+/* ====== لایه‌بندی و سایدبار ====== */
+/* موبایل: تک‌ستونه */
+.dash{
+  display:grid;gap:16px;padding:16px;
+  margin-top:calc(var(--header-h) + 12px);
+  padding-bottom:calc(var(--footer-h) + 24px);
+  max-width:var(--container-max);margin-inline:auto;
+  grid-template-columns:1fr;grid-template-areas:"main";
+}
+.side{grid-area:side}
+.main{grid-area:main}
+
+/* دسکتاپ (>=900px): ساید «چپ» + مین «راست» */
+@media (min-width:900px){
+  .dash{
+    grid-template-columns:var(--sidebar-w) 1fr;
+    grid-template-areas:"side main";
+    gap:24px;
+  }
+}
+
+/* دکمه همبرگر: فقط موبایل، بالای راست */
+.side-toggle{
+  position:fixed;
+  top:12px;
+  inset-inline-end:12px;        /* همیشه «راست منطقی» */
+  z-index:105;
+  display:flex;align-items:center;justify-content:flex-end;
+}
+.side-toggle .btn-ghost{padding:10px 14px;border-radius:10px}
+@media (min-width:900px){ .side-toggle{display:none} }
+
+/* سایدبار موبایل: از راست باز شود و در حالت بسته کاملاً بیرون باشد */
+.side{
+  position:fixed; top:0; bottom:0; inset-inline-end:0;
+  width:min(86vw,320px);
+  background:var(--panel);
+  /* ✨ بسته: مرز و سایه حذف شود تا لبه دیده نشود */
+  border-inline-start:none;
+  box-shadow:none;
+
+  padding:16px 12px;
+  /* ✨ کمی بیشتر از 100% تا روی همه‌ی گوشی‌ها کامل پنهان شود */
+  transform:translateX(calc(100% + 16px));
+  transition:transform .25s ease, border .0s, box-shadow .0s;
+  z-index:110; overflow:auto;
+  will-change:transform;
+}
+
+/* فقط وقتی باز است مرز/سایه داشته باشد */
+.side.is-open{
+  transform:translateX(0);
+  border-inline-start:var(--border);
+  box-shadow:0 10px 30px rgba(0,0,0,.14);
+}
+/* دسکتاپ: ساید sticky داخل گرید (چپ) */
+@media (min-width:900px){
+  .side{
+    position:sticky;inset:auto;top:calc(var(--header-h) + 24px);
+    height:auto;width:auto;transform:none;box-shadow:none;z-index:1;
+    border-inline-start:none;border-inline-end:1px solid #e2e8f0; /* خط جداکننده سمت راست در دسکتاپ */
+  }
+}
+
+/* اوورلی (فقط موبایل) */
+.scrim{
+  position:fixed;inset:0;background:rgba(0,0,0,.42);
+  backdrop-filter:saturate(110%) blur(1px);
+  opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:109;
+}
+.scrim.is-open{opacity:1;pointer-events:auto}
+@media (min-width:900px){ .scrim{display:none} }
+
+/* تب‌های ساید */
+.side h4{margin:8px 10px 16px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.tabs{display:flex;flex-direction:column;padding:0;margin:0;list-style:none}
+.tabs a{display:flex;gap:10px;align-items:center;padding:10px 14px;margin:2px 0;border-radius:8px;color:var(--text);text-decoration:none;border:1px solid transparent;font-size:14px;font-weight:600;transition:background-color .2s}
+.tabs a:hover{background:var(--panel-2)}
+.tabs a[aria-current="page"]{background:var(--panel-2);color:var(--accent)}
+
+/* فرم‌ست‌ها */
+.formset{border:var(--border);border-radius:12px;padding:16px;background:var(--panel-2);margin-bottom:20px}
+.formset .hr{height:2px;background:#94a3b8;opacity:1;margin:18px 0;position:relative}
+.formset .hr::after{content:"";display:block;height:0;border-top:1px solid #cbd5e1;transform:translateY(-2px)}
+.formset .hr.hr-accent{height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-2));opacity:.7}
+.actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+.actions .btn{min-width:140px}
+@media (max-width:560px){ .actions .btn{width:100%} }
+html, body{ overflow-x:hidden }
+
+/* همبرگر همیشه گوشه‌ی راست بالای موبایل */
+.side-toggle{
+  position:fixed;
+  top:12px;
+  right:12px;      /* ← به‌جای inset-inline-end چون RTL هستیم */
+  left:auto;
+  z-index:105;
+}
+
+/* سایدبار موبایل: کاملاً بیرونِ راست وقتی بسته است (بدون مرز/سایه) */
+.side{
+  position:fixed;
+  top:0; bottom:0;
+  right:-120vw;    /* ← بدون transform، خارج از کادر */
+  left:auto;
+  width:min(86vw,320px);
+  background:var(--panel);
+  border-left:none;
+  box-shadow:none;
+  padding:16px 12px;
+  transition:right .25s ease;
+  z-index:110;
+  overflow:auto;
+}
+
+/* وقتی باز است از راست صفر شود و مرز/سایه بگیرد */
+.side.is-open{
+  right:0;
+  border-left:1px solid #e2e8f0;
+  box-shadow:0 10px 30px rgba(0,0,0,.14);
+}
+
+/* دسکتاپ: برگرد به حالت sticky و توی گرید (ستون چپ) */
+@media (min-width:900px){
+  .side{
+    position:sticky;
+    top:calc(var(--header-h) + 24px);
+    right:auto; left:auto;   /* داخل گرید */
+    height:auto; width:auto;
+    box-shadow:none;
+    border-left:none;
+  }
+}
+/* فاصله لوگو – اگر لوگوت بزرگ‌تر بود این مقدار را تغییر بده */
+:root{ --logo-space: 90px; }
+
+/* موقعیت دقیق دکمه همبرگر */
+.side-toggle{
+  position:fixed;
+  top:calc(var(--header-h)/2 + 14px); /* ۶px پایین‌تر برای هم‌ترازی با لوگو */
+  transform:translateY(-50%);
+  right:calc(var(--logo-space) + 22px);  /* کمی چپ‌تر (۸px) */
+  left:auto;
+
+  z-index:105;
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+}
+
+.side-toggle .btn-ghost{
+  padding:10px 14px;
+  border-radius:10px;
+}
+
+@media (min-width:900px){
+  .side-toggle{ display:none; }
+}
+/* دکمه بستن داخل منو (فقط موبایل) */
+.side-close-btn{
+  position:absolute;
+  top:12px;
+  left:12px;        /* چون منو از راست باز میشه، دکمه سمت چپ داخلش قرار می‌گیرد */
+  z-index:120;
+  padding:8px 12px;
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+
+  background:var(--panel-2);
+  border:1px solid #e2e8f0;
+  border-radius:8px;
+}
+
+@media (min-width:900px){
+  .side-close-btn{ display:none; }
+}
+/* ---- یکدست‌سازی منوی راست: فقط مدل right/left، مدل transform را خنثی کن ---- */
+.side{
+  transform:none !important;                 /* خنثی کردن نسخه قدیمی */
+  right:-120vw; transition:right .25s ease !important;
+}
+.side.is-open{ right:0; }
+
+/* ---- دسکتاپ: منو sticky با ارتفاع محدود، زیرِ فوتر قرار بگیرد ---- */
+@media (min-width:900px){
+  .dash{ align-items:start; }                /* گرید را از بالا چینش کن */
+  .side{
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+    right:auto; left:auto;                  /* داخل گرید */
+    max-height: calc(100vh - (var(--header-h) + 32px));
+    overflow: auto;                         /* اسکرول داخلی برای آیتم‌های زیاد */
+    z-index: 0;                             /* زیرِ فوتر/هدر */
+    box-shadow: none;
+  }
+  /* اگر فوتر fixed/چسبان داری، مطمئن شو بالاتر از منو باشد */
+  footer{ position:relative; z-index:2; }
+}
+
+/* احتیاط: اوورلی همیشه زیر فوتر باشد */
+.scrim{ z-index:109; }
+/* نوار ذخیره بالای هر سکشن */
+.actions--top{
+  position: sticky;
+  top: calc(var(--header-h) + 8px);
+  z-index: 3;
+  background: var(--panel);
+  padding: 10px 0 12px;
+  margin: -6px -2px 12px;          /* کمی فشرده‌تر */
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+@media (max-width:560px){
+  .actions--top .btn{ width:100%; }
+}
+
+/* دکمه‌های پایینی مثل قبل بمانند */
+.panel > .actions:last-child{ margin-top:16px; }
+.sub-banner{
+  margin-bottom:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  font-size:13px;
+}
+.sub-banner strong{font-weight:800;}
+.sub-banner--trial{
+  background:#ecfdf3;
+  border:1px solid #bbf7d0;
+  color:#166534;
+}
+.sub-banner--paid{
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+  color:#1d4ed8;
+}
+.sub-banner--expired{
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  color:#b91c1c;
+}
+.sub-banner .btn-mini{
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid currentColor;
+  background:transparent;
+  font-size:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* Tabs disabled state when premium is not available */
+.tabs a.is-disabled{
+  opacity:.4;
+  pointer-events:none;
+  cursor:not-allowed;
+}
+.panel-security .password-field{
+  background: var(--panel-2);
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel-security .password-label-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:4px;
+}
+
+.panel-security .password-label-row label{
+  margin:0;
+  font-weight:700;
+  font-size:13px;
+}
+
+.field-tag{
+  font-size:11px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(148,163,184,.1);
+  color:#64748b;
+  border:1px solid rgba(148,163,184,.4);
+}
+
+.field-tag--accent{
+  background:rgba(59,130,246,.05);
+  color:#1d4ed8;
+  border-color:rgba(59,130,246,.4);
+}
+
+.password-wrapper{
+  position:relative;
+  display:flex;
+  align-items:center;
+  border-radius:10px;
+  border:1px solid #e2e8f0;
+  background:#fff;
+  padding-inline:10px;
+  transition:border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+
+/* اینجا استایل input اصلی رو داخل این کارت تمیز می‌کنیم */
+.panel-security .password-wrapper input{
+  border:none;
+  background:transparent;
+  padding:10px 0;
+  width:100%;
+  outline:none;
+  box-shadow:none;
+}
+
+/* فوکِس روی wrapper نه خود input */
+.password-wrapper:focus-within{
+  border-color:var(--accent-2);
+  box-shadow:0 0 0 1px rgba(59,130,246,.25);
+  background:#f9fbff;
+}
+
+.toggle-password{
+  position:absolute;
+  inset-inline-end:6px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  color:var(--muted);
+  font-size:16px;
+  padding:4px 6px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  transition:background-color .15s ease, color .15s ease, transform .1s ease;
+}
+
+.toggle-password:hover{
+  background:rgba(148,163,184,.2);
+  color:var(--text);
+}
+
+.toggle-password:active{
+  transform:scale(.94);
+}
+
+.field-error{
+  color:#b91c1c;
+  font-size:12px;
+  margin-top:4px;
+}
+
+.field-help{
+  color:var(--muted);
+  font-size:11px;
+  margin-top:4px;
+}
+
+.alert-error{
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  color:#b91c1c;
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:12px;
+  margin-bottom:10px;
+}
+.alert-success {
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  animation: fadeIn 0.5s ease;
+}
+
+.alert-success i {
+  color: #059669;
+  font-size: 15px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* ──────────────────────────────── */
+/* 🎨 فرم‌ست‌ها و پنل‌های محصولات / پست‌ها / خدمات */
+/* ──────────────────────────────── */
+.panel h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.panel .muted {
+  color: var(--muted, #6b7280);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* باکس اصلی هر فرم محصول/پست/سرویس */
+.formset {
+  background: var(--panel-2, #f9fafb);
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.04);
+  transition: all .2s ease;
+}
+
+.formset:hover {
+  border-color: var(--accent-2, #3b82f6);
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+}
+
+/* فاصله بین فرم‌ست‌ها */
+.formset + .formset {
+  margin-top: 24px;
+}
+
+/* عنوان هر بخش داخل فرم‌ست */
+.formset h4 {
+  font-weight: 700;
+  font-size: 15px;
+  margin: 10px 0 8px;
+  color: var(--text, #111827);
+}
+
+/* خطوط جداکننده */
+.hr-accent {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(59,130,246,.15), rgba(59,130,246,.05) 80%);
+  margin: 16px 0;
+}
+
+/* ردیف‌های ورودی */
+.fsrow {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.row {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.row-4 {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+/* لیبل‌ها و ورودی‌ها */
+.formset label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text, #111827);
+}
+
+.formset input[type="text"],
+.formset input[type="number"],
+.formset select,
+.formset textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 13px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.formset input:focus,
+.formset select:focus,
+.formset textarea:focus {
+  border-color: var(--accent-2, #3b82f6);
+  box-shadow: 0 0 0 1px rgba(59,130,246,.2);
+  outline: none;
+}
+
+/* دکمه حذف */
+.del-chip {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.del-chip:hover {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+/* بخش گالری تصاویر */
+.gallery-wrapper {
+  margin-top: 10px;
+  background: #fff;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.gallery-item {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 14px;
+}
+
+.gallery-item img.preview {
+  width: 100%;
+  max-width: 200px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-top: 6px;
+}
+
+/* دکمه افزودن تصویر */
+.gallery-wrapper .btn-ghost {
+  margin-top: 8px;
+  background: rgba(59,130,246,.08);
+  border: 1px dashed var(--accent-2, #3b82f6);
+  color: var(--accent-2, #3b82f6);
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: all .2s ease;
+}
+
+.gallery-wrapper .btn-ghost:hover {
+  background: var(--accent-2, #3b82f6);
+  color: #fff;
+  border-style: solid;
+}
+
+/* دکمه ذخیره پایین */
+.actions {
+  margin-top: 24px;
+  text-align: left;
+}
+
+.actions .btn {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.actions .btn:hover {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  transform: translateY(-1px);
+}
+/* مسیر طولانی فایل توی inputهای گالری محصولات/پست‌ها/خدمات */
+.gallery-item span.clearable-file-input {
+  display: block;
+  max-width: 100%;
+  font-size: 11px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;   /* مهم‌ترین خط: هرجا شد، بشکن */
+  word-break: break-word;
+  white-space: normal;
+  direction: ltr;            /* مسیر فایل رو چپ‌به‌راست کن که خوانا باشه */
+  text-align: left;
+}
+
+/* نذار هیچ‌چیزی از خود کارت بزنه بیرون */
+.gallery-item {
+  overflow: hidden;
+}
+
+</style>
+
+<div class="dash">
+
+  <!-- دکمه باز/بستن سایدبار در موبایل -->
+  <div class="side-toggle">
+    <button type="button" class="btn-ghost" id="openSide"
+            aria-controls="sideNav" aria-expanded="false"
+            aria-label="باز کردن منو">☰ منو</button>
+  </div>
+  <aside class="side" id="sideNav" aria-hidden="true">
+<button type="button" class="side-close-btn" id="closeSide"
+        aria-label="بستن منو">✕</button>
+    <h4>مدیریت پروفایل</h4>
+    <nav class="tabs" role="navigation">
+      <a href="?tab=role" aria-current="{% if active_tab == 'role' %}page{% else %}false{% endif %}">نقش و دسته‌بندی</a>
+      <a href="?tab=profile"      aria-current="{% if active_tab == 'profile' %}page{% else %}false{% endif %}">ویرایش پروفایل</a>
+      <a href="?tab=counters"     aria-current="{% if active_tab == 'counters' %}page{% else %}false{% endif %}">آمارها (کاردهای ۴تایی)</a>
+      <a href="?tab=skills"       aria-current="{% if active_tab == 'skills' %}page{% else %}false{% endif %}">مهارت‌ها</a>
+      <a href="?tab=testimonials" aria-current="{% if active_tab == 'testimonials' %}page{% else %}false{% endif %}">مشتریان و نظرات</a>
+      <a href="?tab=social"       aria-current="{% if active_tab == 'social' %}page{% else %}false{% endif %}">شبکه‌های اجتماعی</a>
+      <a href="?tab=clients"      aria-current="{% if active_tab == 'clients' %}page{% else %}false{% endif %}">لوگو مشتریان</a>
+            <a
+        href="{% if can_use_premium %}?tab=products{% else %}#{% endif %}"
+        class="{% if not can_use_premium %}is-disabled{% endif %}"
+        aria-disabled="{% if not can_use_premium %}true{% else %}false{% endif %}"
+        aria-current="{% if active_tab == 'products' %}page{% else %}false{% endif %}"
+      >
+        محصولات
+      </a>
+
+      <a
+        href="{% if can_use_premium %}?tab=services{% else %}#{% endif %}"
+        class="{% if not can_use_premium %}is-disabled{% endif %}"
+        aria-disabled="{% if not can_use_premium %}true{% else %}false{% endif %}"
+        aria-current="{% if active_tab == 'services' %}page{% else %}false{% endif %}"
+      >
+        خدمات
+      </a>
+<a
+  href="?tab=content"
+  aria-current="{% if active_tab == 'content' %}page{% else %}false{% endif %}"
+>
+  محتوای هنری
+</a>
+      <a
+        href="?tab=security"
+        aria-current="{% if active_tab == 'security' %}page{% else %}false{% endif %}"
+      >
+        امنیت حساب / تغییر رمز
+      </a>
+
+      <!-- <a href="?tab=products"  aria-current="{% if active_tab == 'products' %}page{% else %}false{% endif %}">محصولات</a>
+      <a href="?tab=services"  aria-current="{% if active_tab == 'services' %}page{% else %}false{% endif %}">خدمات</a> -->
+    </nav>
+  </aside>
+  <div class="scrim" id="sideScrim"></div>
+
+  <main class="main" style="display:flex;flex-direction:column;gap:16px">
+        {% if has_subscription %}
+      <div class="sub-banner sub-banner--paid">
+        <span>
+          <strong>{{ subscription_status_label }}</strong> –
+          {{ premium_days_left }} روز تا پایان اشتراک شما باقی مانده است.
+        </span>
+        <button type="button" class="btn-mini">
+          مدیریت اشتراک
+        </button>
+      </div>
+    {% elif is_trial %}
+      <div class="sub-banner sub-banner--trial">
+        <span>
+          <strong>شما در دوره آزمایشی ۷ روزه هستید</strong> –
+          {{ premium_days_left }} روز دیگر می‌توانید از «محصولات» و «خدمات» استفاده کنید.
+        </span>
+        <button type="button" class="btn-mini">
+          ارتقا به اشتراک ماهانه (۱ دلار)
+        </button>
+      </div>
+    {% elif not can_use_premium %}
+      <div class="sub-banner sub-banner--expired">
+        <span>
+          <strong>دوره آزمایشی شما به پایان رسیده است</strong> –
+          برای استفاده از «محصولات» و «خدمات» اشتراک ماهانه (۱ دلار) را فعال کنید.
+        </span>
+        <button type="button" class="btn-mini">
+          فعال‌سازی اشتراک
+        </button>
+      </div>
+    {% endif %}
+
+    <section class="panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <h3 style="margin:0">درصد تکمیل پروفایل</h3>
+        <h6 style="margin:0">وقتی 100 درصد تکمیل شود پروفایل شما در صفحه خانه نمایش داده میشود</h6>
+        <span class="chip">٪{{ completion }}</span>
+      </div>
+      <div class="muted" style="margin:6px 0 12px">
+        {% if profile.role == 'artist' %}
+          وضعیت شما: هنرمند{% if profile.category %} – {{ profile.category.name }}{% endif %}{% if profile.subcategory %} – {{ profile.subcategory.name }}{% endif %}
+        {% elif profile.role == 'business' %}
+          وضعیت شما: مالک کسب‌وکار{% if profile.business_kind == 'gallery' %} – گالری{% elif profile.business_kind == 'studio' %} – استودیو{% elif profile.business_kind == 'concept_store' %} – کانسپت استور{% endif %}
+        {% else %}
+          وضعیت شما: کاربر عادی
+        {% endif %}
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-outer">
+          <div class="progress-inner" style="width: {{ completion }}%"></div>
+        </div>
+      </div>
+    </section>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      {% if active_tab == 'profile' %}
+      <section class="panel">
+        <h3>پروفایل شخصی</h3>
+
+        <div class="row">
+          <div>
+            <label>تصویر پس‌زمینه هدر</label>
+            {{ form.header_background }}
+            {% if profile.header_background %}
+              <img class="preview" id="preview-header" src="{{ profile.header_background.url }}" alt="">
+            {% else %}
+              <img class="preview" id="preview-header" src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
+            {% endif %}
+            <div class="muted">jpg / png</div>
+          </div>
+          <div>
+            <label>زیرتیتر هدر</label>
+            {{ form.header_subtitle }}
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>زیرتیتر داستان</label>
+            {{ form.story_subtitle }}
+          </div>
+        </div>
+
+        <label>متن داستان - پاراگراف ۱</label>
+        {{ form.story_paragraph_1 }}
+        <label>متن داستان - پاراگراف ۲</label>
+        {{ form.story_paragraph_2 }}
+
+        <div class="hr"></div>
+        <h3 style="font-size:16px;margin-bottom:12px;font-weight: 800">نام و نام خانوادگی (از حساب کاربری)</h3>
+        <div class="row">
+          <div><label>نام</label>{{ user_form.first_name }}</div>
+          <div><label>نام خانوادگی</label>{{ user_form.last_name }}</div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="actions">
+          <button class="btn" type="submit">ذخیره تغییرات</button>
+        </div>
+      </section>
+      {% endif %}
+
+      {% if active_tab == 'counters' %}
+      <section class="panel">
+        <h3>آمارها (کاردهای ۴تایی)</h3>
+        <div class="formset">
+          {{ fs_counters.management_form }}
+          {% for f in fs_counters %}
+            <div class="row-4 fsrow">
+              <div><label>برچسب</label>{{ f.label }}</div>
+              <div><label>مقدار</label>{{ f.value }}</div>
+              <div><label>ترتیب</label>{{ f.order }}</div>
+              <div style="display:flex;align-items:center;margin-top: 12px">
+                {{ f.DELETE }}{{ f.id }}
+                <span class="del-chip" data-del>حذف</span>
+              </div>
+            </div>
+            {% if not forloop.last %}<div class="hr"></div>{% endif %}
+          {% endfor %}
+        </div>
+        <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
+      </section>
+      {% endif %}
+
+      {% if active_tab == 'skills' %}
+      <section class="panel">
+        <h3>مهارت‌ها</h3>
+        <div class="formset">
+          {{ fs_skills.management_form }}
+          {% for f in fs_skills %}
+            <div class="row-4 fsrow">
+              <div><label>نام مهارت</label>{{ f.name }}</div>
+              <div><label>درصد</label>{{ f.percent }}</div>
+              <div><label>ترتیب</label>{{ f.order }}</div>
+              <div style="display:flex;align-items:center;margin-top: 12px">
+                {{ f.DELETE }}{{ f.id }}
+                <span class="del-chip" data-del>حذف</span>
+              </div>
+            </div>
+            {% if not forloop.last %}<div class="hr"></div>{% endif %}
+          {% endfor %}
+        </div>
+        <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
+      </section>
+      {% endif %}
+
+      {% if active_tab == 'testimonials' %}
+      <section class="panel">
+        <h3>مشتریان و نظرات</h3>
+        <div class="formset">
+          {{ fs_tests.management_form }}
+          {% for f in fs_tests %}
+            <div class="row fsrow">
+              <div><label>نام</label>{{ f.person_name }}{{ f.id }}</div>
+              <div><label>ترتیب</label>{{ f.order }}</div>
+            </div>
+            <label>متن نظر</label>{{ f.quote }}
+            <div class="row">
+              <div><label>برچسب منبع</label>{{ f.source_label }}</div>
+              <div><label>لینک منبع</label>{{ f.source_url }}</div>
+            </div>
+            <div class="row fsrow">
+              <div>
+                <label>تصویر پس‌زمینه</label>
+                {{ f.background_image }}
+                {% if f.instance.pk and f.instance.background_image %}
+                  <img class="preview" src="{{ f.instance.background_image.url }}" alt="bg preview">
+                {% else %}
+                  <img class="preview" src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="bg preview">
+                {% endif %}
+              </div>
+              <div style="display:flex;align-items:center;margin-top: 24px">
+                {{ f.DELETE }}<span class="del-chip" data-del>حذف</span>
+              </div>
+            </div>
+            {% if not forloop.last %}<div class="hr"></div>{% endif %}
+          {% endfor %}
+        </div>
+        <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
+      </section>
+      {% endif %}
+
+      {% if active_tab == 'social' %}
+      <section class="panel">
+        <h3>شبکه‌های اجتماعی</h3>
+        <div class="formset">
+          {{ fs_social.management_form }}
+          {% for f in fs_social %}
+            <div class="row-4 fsrow">
+              <div><label>عنوان</label>{{ f.title }}</div>
+              <div><label>آدرس</label>{{ f.url }}</div>
+              <div><label>ترتیب</label>{{ f.order }}</div>
+              <div style="display:flex;align-items:center;margin-top: 12px">
+                {{ f.DELETE }}{{ f.id }}
+                <span class="del-chip" data-del>حذف</span>
+              </div>
+            </div>
+            {% if not forloop.last %}<div class="hr"></div>{% endif %}
+          {% endfor %}
+        </div>
+        <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
+      </section>
+      {% endif %}
+      {% if active_tab == 'role' %}
+      <section class="panel">
+        <h3>نقش و دسته‌بندی</h3>
+        <p class="muted">یک گزینه انتخاب کنید: «هنرمند مستقل» و سپس دسته/زیرشاخه، یا «صاحب کسب‌وکار» و نوع کسب‌وکار.</p>
+        <div class="row">
+          <div>
+            <label>نقش</label>
+            {{ role_form.role }}
+          </div>
+        </div>
+
+        <div id="artist-fields">
+          <div class="row">
+            <div><label>دسته هنری</label>{{ role_form.category }}</div>
+            <div><label>زیرشاخه</label>{{ role_form.subcategory }}</div>
+          </div>
+
+          {# ✅ این بلوک جدید: فقط برای هنرمند و وقتی زیرشاخه «سایر» است نمایش داده می‌شود #}
+          <div class="row" id="custom-subcat-row" style="margin-top:12px; display:none;">
+            <div>
+              <label>زیرشاخه دلخواه</label>
+              {{ role_form.custom_subcategory }}
+              <p class="muted">اگر زیرشاخه مدنظر در لیست نیست، «سایر / Other» را انتخاب کنید و اینجا نامش را بنویسید.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="business-fields">
+          <div class="row">
+            <div><label>نوع کسب‌وکار</label>{{ role_form.business_kind }}</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="actions">
+          <button class="btn" type="submit">ذخیره</button>
+        </div>
+      </section>
+      {% endif %}
+
+
+      {% if active_tab == 'products' %}
+      <section class="panel">
+        <h3>محصولات فیزیکی</h3>
+        <div class="muted">تا ۵ تصویر؛ یکی را «اصلی» علامت بزنید.</div>
+
+        {{ fs_products.management_form }}
+
+        {% for f in fs_products %}
+          {% with p=f.instance pk=f.instance.pk %}
+          <div class="formset" style="margin-top:16px">
+            <div class="row fsrow" style="align-items:flex-end">
+              <div><label>عنوان</label>{{ f.title }}{{ f.id }}</div>
+              <div><label>توضیح</label>{{ f.description }}</div>
+            </div>
+
+            <div class="row-4 fsrow" style="align-items:flex-end">
+              <div><label>نوع قیمت</label>{{ f.price_type }}</div>
+              <div><label>مبلغ</label>{{ f.price_amount }}</div>
+              <div><label>واحد پول</label>{{ f.currency }}</div>
+              <div><label>تعداد</label>{{ f.quantity }}</div>
+            </div>
+
+            <div class="row-4 fsrow" style="align-items:flex-end">
+              <div><label>وضعیت</label>{{ f.condition }}</div>
+              <div><label>ترتیب</label>{{ f.order }}</div>
+              <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
+                <label>فعال؟</label>{{ f.is_active }}
+                {% if f.DELETE %} {{ f.DELETE }} <span class="del-chip" data-del>حذف</span>{% endif %}
+              </div>
+            </div>
+
+            <div class="hr hr-accent"></div>
+
+            <h4 style="margin:0 0 8px">گالری تصاویر</h4>
+
+            {% if pk %}
+              {% with gfs=product_image_fsets|dict_get:pk %}
+                {% if gfs %}
+                  <div class="gallery-wrapper" data-formset-prefix="{{ gfs.prefix }}">
+                    {{ gfs.management_form }}
+
+                    <div class="gallery-forms" data-forms>
+                      {% for imgf in gfs.forms %}
+                        <div class="fsrow gallery-item">
+                          <div style="display:flex; flex-direction:column; gap:16px;">
+                            {{ imgf.id }}
+                            <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
+                            <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
+                              <div><label>ترتیب</label>{{ imgf.order }}</div>
+                              <div style="display:flex;flex-direction:column;">
+                                <label>اصلی؟</label>
+                                <div style="margin-top:8px">{{ imgf.is_primary }}</div>
+                              </div>
+                            </div>
+                            {% if imgf.DELETE %}
+                            <div style="display:flex;justify-content:flex-start; margin-top:6px;">
+                              {{ imgf.DELETE }}
+                              <span class="del-chip" data-del>حذف</span>
+                            </div>
+                            {% endif %}
+                          </div>
+                          <div style="text-align:right;">
+                            <label>تصویر</label>
+                            {{ imgf.image }}
+                            {% if imgf.instance.pk and imgf.instance.image %}
+                              <img class="preview" src="{{ imgf.instance.image.url }}" alt="" data-preview>
+                            {% else %}
+                              <img class="preview" src="" alt="" data-preview style="display:none">
+                            {% endif %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+
+                    <template data-empty-form>
+                      <div class="fsrow gallery-item">
+                        <div style="display:flex; flex-direction:column; gap:16px;">
+                          <div><label>متن جایگزین</label> __ALT__</div>
+                          <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
+                            <div><label>ترتیب</label> __ORDER__</div>
+                            <div style="display:flex;flex-direction:column;">
+                              <label>اصلی؟</label>
+                              <div style="margin-top:8px"> __PRIMARY__</div>
+                            </div>
+                          </div>
+                          <div style="display:flex;justify-content:flex-start; margin-top:6px;">
+                            <input type="checkbox" name="__PREFIX__-DELETE" id="id___PREFIX__-DELETE" style="display:none">
+                            <span class="del-chip" data-del>حذف</span>
+                          </div>
+                        </div>
+                        <div style="text-align:right;">
+                          <label>تصویر</label> __IMAGE__
+                          <img class="preview" src="" alt="" data-preview style="display:none">
+                        </div>
+                      </div>
+                    </template>
+
+                    <div data-empty-fields style="display:none">
+                      {{ gfs.empty_form.id }}
+                      {{ gfs.empty_form.image }}
+                      {{ gfs.empty_form.alt_text }}
+                      {{ gfs.empty_form.order }}
+                      {{ gfs.empty_form.is_primary }}
+                      {{ gfs.empty_form.DELETE }}
+                    </div>
+
+                    <div><button class="btn btn-ghost" type="button" data-add>افزودن تصویر</button></div>
+                  </div>
+                {% else %}
+                  <div class="muted">فرم گالری برای این محصول یافت نشد.</div>
+                {% endif %}
+              {% endwith %}
+            {% else %}
+              <div class="muted">بعد از ذخیره این محصول، بخش «گالری تصاویر» فعال می‌شود.</div>
+            {% endif %}
+          </div>
+          {% endwith %}
+        {% endfor %}
+
+        <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
+      </section>
+      {% endif %}
+{% if active_tab == 'content' %}
+<section class="panel">
+  <h3>محتوای هنری (پست‌ها)</h3>
+  <div class="muted">
+    مثل محصولات، اما بدون قیمت. برای هر پست می‌توانید تا ۵ تصویر پر کنید.
+  </div>
+
+  {{ fs_artposts.management_form }}
+
+  {% for f in fs_artposts %}
+    {% with post=f.instance pk=f.instance.pk %}
+    <div class="formset" style="margin-top:16px">
+      <div class="row fsrow" style="align-items:flex-end">
+        <div><label>عنوان پست</label>{{ f.title }}{{ f.id }}</div>
+        <div><label>توضیح</label>{{ f.description }}</div>
+      </div>
+
+      <div class="row-4 fsrow" style="align-items:flex-end">
+        <div><label>تعداد / سری</label>{{ f.quantity }}</div>
+        <div><label>وضعیت</label>{{ f.condition }}</div>
+        <div><label>ترتیب</label>{{ f.order }}</div>
+        <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
+          <label>فعال؟</label>{{ f.is_active }}
+          {% if f.DELETE %} {{ f.DELETE }} <span class="del-chip" data-del>حذف</span>{% endif %}
+        </div>
+      </div>
+
+      <div class="hr hr-accent"></div>
+      <h4 style="margin:0 0 8px">گالری تصاویر</h4>
+
+      {% if pk %}
+        {% with gfs=artpost_image_fsets|dict_get:pk %}
+          {% if gfs %}
+            {{ gfs.management_form }}
+
+            {% for imgf in gfs.forms %}
+              <div class="fsrow gallery-item">
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  {{ imgf.id }}
+                  <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
+                  <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
+                    <div><label>ترتیب</label>{{ imgf.order }}</div>
+                    <div style="display:flex;flex-direction:column;">
+                      <label>اصلی؟</label>
+                      <div style="margin-top:8px">{{ imgf.is_primary }}</div>
+                    </div>
+                  </div>
+                  {% if imgf.DELETE %}
+                  <div style="display:flex;justify-content:flex-start; margin-top:6px;">
+                    {{ imgf.DELETE }}
+                    <span class="del-chip" data-del>حذف</span>
+                  </div>
+                  {% endif %}
+                </div>
+                <div style="text-align:right;">
+                  <label>تصویر</label>
+                  {{ imgf.image }}
+                  {% if imgf.instance.pk and imgf.instance.image %}
+                    <img class="preview" src="{{ imgf.instance.image.url }}" alt="" data-preview>
+                  {% else %}
+                    <img class="preview" src="" alt="" data-preview style="display:none">
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="muted">فرم گالری برای این پست یافت نشد.</div>
+          {% endif %}
+        {% endwith %}
+      {% else %}
+        <div class="muted">بعد از ذخیره این پست، بخش «گالری تصاویر» فعال می‌شود.</div>
+      {% endif %}
+    </div>
+    {% endwith %}
+  {% endfor %}
+
+  <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
+</section>
+{% endif %}
+
+      {% if active_tab == 'services' %}
+      <section class="panel">
+        <h3>خدمات</h3>
+        <div class="muted">تا ۵ تصویر؛ یکی را «اصلی» علامت بزنید.</div>
+
+        {{ fs_services.management_form }}
+
+        {% for f in fs_services %}
+          {% with s=f.instance pk=f.instance.pk %}
+          <div class="formset" style="margin-top:16px">
+            <div class="row fsrow" style="align-items:flex-end">
+              <div><label>عنوان</label>{{ f.title }}{{ f.id }}</div>
+              <div><label>توضیح</label>{{ f.description }}</div>
+            </div>
+
+            <div class="row fsrow" style="align-items:flex-end">
+              <div><label>برچسب‌ها (با ویرگول)</label>{{ f.tags }}</div>
+            </div>
+
+            <div class="row-4 fsrow" style="align-items:flex-end">
+              <div><label>مدل قیمت</label>{{ f.pricing_model }}</div>
+              <div><label>واحد پول</label>{{ f.currency }}</div>
+              <div><label>حداقل/نرخ</label>{{ f.min_price }}</div>
+              <div><label>حداکثر</label>{{ f.max_price }}</div>
+            </div>
+
+            <div class="row-4 fsrow" style="align-items:flex-end">
+              <div><label>ترتیب</label>{{ f.order }}</div>
+              <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
+                <label>فعال؟</label>{{ f.is_active }}
+                {% if f.DELETE %} {{ f.DELETE }} <span class="del-chip" data-del>حذف</span>{% endif %}
+              </div>
+            </div>
+
+            <div class="hr hr-accent"></div>
+
+            <h4 style="margin:0 0 8px">گالری تصاویر</h4>
+
+            {% if pk %}
+              {% with gfs=service_image_fsets|dict_get:pk %}
+                {% if gfs %}
+                  <div class="gallery-wrapper" data-formset-prefix="{{ gfs.prefix }}">
+                    {{ gfs.management_form }}
+
+                    <div class="gallery-forms" data-forms>
+                      {% for imgf in gfs.forms %}
+                        <div class="fsrow gallery-item">
+                          <div style="display:flex; flex-direction:column; gap:16px;">
+                            {{ imgf.id }}
+                            <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
+                            <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
+                              <div><label>ترتیب</label>{{ imgf.order }}</div>
+                              <div style="display:flex;flex-direction:column;">
+                                <label>اصلی؟</label>
+                                <div style="margin-top:8px">{{ imgf.is_primary }}</div>
+                              </div>
+                            </div>
+                            {% if imgf.DELETE %}
+                            <div style="display:flex;justify-content:flex-start; margin-top:6px;">
+                              {{ imgf.DELETE }} 
+                              <span class="del-chip" data-del>حذف</span>
+                            </div>
+                            {% endif %}
+                          </div>
+                          <div style="text-align:right;">
+                            <label>تصویر</label>
+                            {{ imgf.image }}
+                            {% if imgf.instance.pk and imgf.instance.image %}
+                              <img class="preview" src="{{ imgf.instance.image.url }}" alt="" data-preview>
+                            {% else %}
+                              <img class="preview" src="" alt="" data-preview style="display:none">
+                            {% endif %}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+
+                    <template data-empty-form>
+                      <div class="fsrow gallery-item">
+                        <div style="display:flex; flex-direction:column; gap:16px;">
+                          <div><label>متن جایگزین</label> __ALT__</div>
+                          <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
+                            <div><label>ترتیب</label> __ORDER__</div>
+                            <div style="display:flex;flex-direction:column;">
+                              <label>اصلی؟</label>
+                              <div style="margin-top:8px"> __PRIMARY__</div>
+                            </div>
+                          </div>
+                          <div style="display:flex;justify-content:flex-start; margin-top:6px;">
+                            <input type="checkbox" name="__PREFIX__-DELETE" id="id___PREFIX__-DELETE" style="display:none">
+                            <span class="del-chip" data-del>حذف</span>
+                          </div>
+                        </div>
+                        <div style="text-align:right;">
+                          <label>تصویر</label> __IMAGE__
+                          <img class="preview" src="" alt="" data-preview style="display:none">
+                        </div>
+                      </div>
+                    </template>
+
+                    <div data-empty-fields style="display:none">
+                      {{ gfs.empty_form.id }}
+                      {{ gfs.empty_form.image }}
+                      {{ gfs.empty_form.alt_text }}
+                      {{ gfs.empty_form.order }}
+                      {{ gfs.empty_form.is_primary }}
+                      {{ gfs.empty_form.DELETE }}
+                    </div>
+
+                    <div><button class="btn btn-ghost" type="button" data-add>افزودن تصویر</button></div>
+                  </div>
+                {% else %}
+                  <div class="muted">فرم گالری برای این خدمت یافت نشد.</div>
+                {% endif %}
+              {% endwith %}
+            {% else %}
+              <div class="muted">بعد از ذخیره این خدمت، بخش «گالری تصاویر» فعال می‌شود.</div>
+            {% endif %}
+          </div>
+          {% endwith %}
+        {% endfor %}
+
+        <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
+      </section>
+      {% endif %}
+{% if active_tab == 'security' %}
+<section class="panel panel-security">
+  <h3>امنیت حساب و تغییر رمز عبور</h3>
+  {% if messages %}
+  {% for message in messages %}
+    {% if 'success' in message.tags %}
+      <div class="alert-success">
+        <i class="far fa-check-circle"></i> {{ message }}
+      </div>
+    {% elif 'error' in message.tags %}
+      <div class="alert-error">
+        <i class="far fa-times-circle"></i> {{ message }}
+      </div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+  <p class="muted">
+    برای حفظ امنیت حساب خود، یک رمز عبور قوی و منحصربه‌فرد انتخاب کنید.
+  </p>
+
+  {% if pwd_form.non_field_errors %}
+    <div class="alert-error">
+      {{ pwd_form.non_field_errors.0 }}
+    </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="password-field">
+      <div class="password-label-row">
+        <label>{{ pwd_form.old_password.label }}</label>
+        <span class="field-tag">رمز فعلی</span>
+      </div>
+      <div class="password-wrapper">
+        {{ pwd_form.old_password }}
+        <button type="button" class="toggle-password" aria-label="نمایش/مخفی کردن رمز">
+          <i class="far fa-eye"></i>
+        </button>
+      </div>
+      {% if pwd_form.old_password.errors %}
+        <div class="field-error">{{ pwd_form.old_password.errors.0 }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="password-field">
+      <div class="password-label-row">
+        <label>{{ pwd_form.new_password1.label }}</label>
+        <span class="field-tag field-tag--accent">رمز جدید</span>
+      </div>
+      <div class="password-wrapper">
+        {{ pwd_form.new_password1 }}
+        <button type="button" class="toggle-password" aria-label="نمایش/مخفی کردن رمز">
+          <i class="far fa-eye"></i>
+        </button>
+      </div>
+      {% if pwd_form.new_password1.errors %}
+        <div class="field-error">{{ pwd_form.new_password1.errors.0 }}</div>
+      {% else %}
+        <div class="field-help">
+          {{ pwd_form.new_password1.help_text|safe }}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="password-field">
+      <div class="password-label-row">
+        <label>{{ pwd_form.new_password2.label }}</label>
+        <span class="field-tag">تأیید رمز</span>
+      </div>
+      <div class="password-wrapper">
+        {{ pwd_form.new_password2 }}
+        <button type="button" class="toggle-password" aria-label="نمایش/مخفی کردن رمز">
+          <i class="far fa-eye"></i>
+        </button>
+      </div>
+      {% if pwd_form.new_password2.errors %}
+        <div class="field-error">{{ pwd_form.new_password2.errors.0 }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" type="submit">ذخیره تغییرات رمز عبور</button>
+  </div>
+</section>
+{% endif %}
+
+      {% if active_tab == 'clients' %}
+      <section class="panel">
+        <h3>لوگو مشتریان</h3>
+        <div class="formset">
+          {{ fs_clients.management_form }}
+          {% for f in fs_clients %}
+            <div class="row fsrow" style="align-items:end">
+              <div>
+                <label>تصویر لوگو</label>
+                {{ f.image }}
+                {% if f.instance.pk and f.instance.image %}
+                  <img class="preview preview--logo" src="{{ f.instance.image.url }}" alt="logo preview">
+                {% else %}
+                  <img class="preview preview--logo" src="{% static 'images/placeholder/logo-dark.png' %}" alt="logo preview">
+                {% endif %}
+              </div>
+              <div><label>عنوان</label>{{ f.title }}</div>
+              <div><label>آدرس (اختیاری)</label>{{ f.url }}</div>
+              <div><label>ترتیب</label>{{ f.order }}</div>
+              <div style="display:flex;align-items:center;margin-top: 12px">{{ f.DELETE }}<span class="del-chip" data-del>حذف</span></div>
+            </div>
+            {% if not forloop.last %}<div class="hr"></div>{% endif %}
+          {% endfor %}
+        </div>
+        <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
+      </section>
+      {% endif %}
+
+    </form>
+  </main>
+</div>
+
+<script>
+/* رنگ پیشرفت */
+(function(){
+  const el=document.querySelector('.progress-inner'); if(!el) return;
+  const pct=parseInt({{ completion|default:0 }}); 
+  el.style.background = pct<40 ? '#f87171' : (pct<80 ? '#facc15' : 'var(--accent-2)');
+})();
+
+/* منوی کناری موبایل */
+/* ---- Mobile sidebar: open/close + overlay + ESC + resize guard ---- */
+/* موبایل: باز/بستن سایدبار راست + اوورلی + ESC + تغییر اندازه */
+(function(){
+  const side   = document.getElementById('sideNav');
+  const scrim  = document.getElementById('sideScrim');
+  const openBtn= document.getElementById('openSide');
+  const DESKTOP = 900;
+  const closeBtn = document.getElementById('closeSide');
+
+  function setOpen(open){
+    side.classList.toggle('is-open', open);
+    scrim.classList.toggle('is-open', open);
+    side.setAttribute('aria-hidden', (!open).toString());
+    openBtn?.setAttribute('aria-expanded', open.toString());
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+  }
+  openBtn?.addEventListener('click', ()=> setOpen(!side.classList.contains('is-open')));
+  scrim?.addEventListener('click', ()=> setOpen(false));
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') setOpen(false); });
+  closeBtn?.addEventListener('click', ()=> setOpen(false));
+
+  let lastW = window.innerWidth;
+  window.addEventListener('resize', ()=>{
+    const w = window.innerWidth;
+    if (w >= DESKTOP && lastW < DESKTOP) setOpen(false);
+    lastW = w;
+  });
+  side?.addEventListener('click', e=>{
+    if (window.innerWidth < DESKTOP && e.target.closest('a')) setOpen(false);
+  });
+})();
+
+
+/* سوییچ بخش نقش */
+(function(){
+  function updateRoleUI(){
+    const role=document.querySelector('[name="role"]')?.value;
+    const artist=document.getElementById('artist-fields');
+    const business=document.getElementById('business-fields');
+    if(!artist||!business) return;
+    artist.style.display = (role==='artist')?'':'none';
+    business.style.display = (role==='business')?'':'none';
+  }
+  document.querySelector('[name="role"]')?.addEventListener('change',updateRoleUI);
+  updateRoleUI();
+})();
+
+/* فیلتر زیرشاخه */
+(function(){
+  const SUBCAT_MAP = {{ subcat_map|safe }};
+  const catSel=document.getElementById('id_category')||document.querySelector('[name="category"]');
+  const subSel=document.getElementById('id_subcategory')||document.querySelector('[name="subcategory"]');
+  function refill(){
+    if(!catSel||!subSel) return;
+    const items=SUBCAT_MAP[parseInt(catSel.value||'0')]||[];
+    const current=subSel.value; subSel.innerHTML='';
+    const o0=document.createElement('option'); o0.value=''; o0.textContent='— یک زیرشاخه را انتخاب کنید —'; subSel.appendChild(o0);
+    for(const it of items){ const o=document.createElement('option'); o.value=it.id; o.textContent=it.name; subSel.appendChild(o); }
+    if(items.some(x=>String(x.id)===current)) subSel.value=current;
+  }
+  catSel?.addEventListener('change',refill); refill();
+})();
+
+/* تَگ حذف ردیف‌ها */
+document.addEventListener('click',function(e){
+  const chip=e.target.closest('[data-del]'); if(!chip) return; e.preventDefault();
+  const row=chip.closest('.fsrow'); if(!row) return;
+  let chk=row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+  if(chk){ chk.checked=!chk.checked; row.classList.toggle('row-deleting',chk.checked); chip.textContent=chk.checked?'بازگردانی':'حذف'; return; }
+  const any=row.querySelector('input[name],select[name],textarea[name]'); if(!any) return;
+  const m=any.name.match(/^(.*-\d+)-/); if(!m) return; const base=m[1]; const delName=base+'DELETE';
+  let hidden=row.querySelector(`input[type="hidden"][name="${delName}"]`);
+  if(hidden){ hidden.remove(); row.classList.remove('row-deleting'); chip.textContent='حذف'; }
+  else { hidden=document.createElement('input'); hidden.type='hidden'; hidden.name=delName; hidden.value='on';
+         row.appendChild(hidden); row.classList.add('row-deleting'); chip.textContent='بازگردانی'; }
+});
+
+/* پیش‌نمایش زنده‌ی ورودی فایل */
+function attachLivePreview(scope=document){
+  scope.querySelectorAll('.gallery-item input[type="file"]').forEach(function(input){
+    input.addEventListener('change',function(){
+      const file=this.files && this.files[0];
+      const preview=this.closest('.gallery-item')?.querySelector('[data-preview]');
+      if(!preview) return;
+      if(file){ const url=URL.createObjectURL(file); preview.src=url; preview.style.display=''; }
+      else { preview.removeAttribute('src'); preview.style.display='none'; }
+    });
+  });
+}
+attachLivePreview();
+
+/* افزودن سطر جدید به فرم‌ست گالری (fixed selector bug) */
+document.addEventListener('click',function(e){
+  const btn=e.target.closest('[data-add]'); if(!btn) return;
+  const wrapper=btn.closest('.gallery-wrapper'); if(!wrapper) return;
+  const mgmt=wrapper.querySelector('[name$="-TOTAL_FORMS"]');
+  const formsBox=wrapper.querySelector('[data-forms]'); /* ← اینجا باگ کوت بود اصلاح شد */
+  const stash=wrapper.querySelector('[data-empty-fields]');
+  const tpl=wrapper.querySelector('template[data-empty-form]');
+  if(!mgmt||!formsBox||!stash||!tpl) return;
+
+  const total=parseInt(mgmt.value||'0',10);
+  const prefix=wrapper.getAttribute('data-formset-prefix')||'';
+
+  const inputs=Array.from(stash.querySelectorAll('input,textarea,select')).map(function(el){
+    const c=el.cloneNode(true);
+    const n=c.getAttribute('name')||'', id=c.getAttribute('id')||'';
+    if(n) c.name=n.replace(/__prefix__/g,total);
+    if(id) c.id=id.replace(/__prefix__/g,total);
+    if(c.tagName==='INPUT'||c.tagName==='TEXTAREA'){
+      if(c.type==='checkbox'||c.type==='radio'){ c.checked=false; }
+      else{ c.value=''; }
+    }
+    return c;
+  });
+  function pick(part){ return inputs.find(el=>(el.name||'').includes(part)) || document.createTextNode(''); }
+
+  let html=tpl.innerHTML
+    .replace('__IMAGE__','').replace('__ALT__','').replace('__ORDER__','').replace('__PRIMARY__','')
+    .replace(/__PREFIX__/g,`${prefix}-${total}`);
+  const container=document.createElement('div'); container.innerHTML=html.trim();
+  const newRow=container.firstElementChild;
+
+  const leftCol=newRow.querySelector('div:nth-child(1)');
+  const rightCol=newRow.querySelector('div:nth-child(2)');
+
+  if(rightCol) rightCol.querySelector('label+*')?.replaceWith(pick('-image'));
+
+  const altSlot=leftCol?.querySelector('div:nth-child(1)');
+  const orderSlot=leftCol?.querySelector('.row-4 > div:nth-child(1)');
+  const primaryInner=leftCol?.querySelector('.row-4 > div:nth-child(2) > div');
+  const deleteSlot=leftCol?.querySelector('div:nth-child(3)');
+
+  if(altSlot) altSlot.appendChild(pick('-alt_text'));
+  if(orderSlot) orderSlot.appendChild(pick('-order'));
+  if(primaryInner) primaryInner.appendChild(pick('-is_primary'));
+  if(deleteSlot) deleteSlot.appendChild(pick('-DELETE'));
+
+  formsBox.appendChild(newRow);
+  mgmt.value=String(total+1);
+
+  attachLivePreview(newRow);
+});
+(function(){
+  document.querySelectorAll('.panel').forEach(function(section){
+    const act = section.querySelector(':scope > .actions');
+    if(!act) return;
+
+    // ساخت نسخه چسبان بالا
+    const topBar = act.cloneNode(true);
+    topBar.classList.add('actions--top');
+    section.prepend(topBar);
+
+    // حذف نسخه پایینی
+    act.remove();
+  });
+})();
+</script>
+<script>
+/* نمایش فیلد «زیرشاخه دلخواه» وقتی زیرشاخه = سایر است */
+(function(){
+  const subSel    = document.getElementById('id_subcategory') || document.querySelector('[name="subcategory"]');
+  const customRow = document.getElementById('custom-subcat-row');
+
+  function syncCustomRow(){
+    if (!subSel || !customRow) return;
+    const opt = subSel.options[subSel.selectedIndex] || null;
+    const text = opt ? (opt.textContent || "").trim() : "";
+    const value = (opt ? opt.value : "") || "";
+    const isOther = text === "سایر" || text.toLowerCase() === "other";
+
+    customRow.style.display = isOther ? "" : "none";
+
+    // اگر دیگر سایر نیست و هنوز چیزی داخلش هست، خالی کن (اختیاری)
+    if (!isOther) {
+      const inp = customRow.querySelector('input, textarea');
+      if (inp && !{{ role_form.custom_subcategory.value|yesno:"true,false" }}) {
+        // فقط اگر از سرور مقدار اولیه دریافت نکردیم، پاک کن (برای فرم با خطا)
+        // inp.value = "";
+      }
+    }
+  }
+
+  subSel && subSel.addEventListener('change', syncCustomRow);
+  syncCustomRow();
+})();
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  document.querySelectorAll(".toggle-password").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const input = btn.parentElement.querySelector("input");
+      const icon  = btn.querySelector("i");
+      if (!input) return;
+
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    });
+  });
+});
+</script>
+
+{% endblock content %}
