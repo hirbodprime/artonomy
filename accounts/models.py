@@ -8,6 +8,7 @@ from django.db.models import Q
 
 User = get_user_model()
 
+PROFILE_CODE_PREFIX = "artonomy-"
 
 def upload_to_profile(instance, filename):
     return f"profiles/{instance.user_id}/{filename}"
@@ -40,6 +41,14 @@ class Profile(models.Model):
     )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    code = models.CharField(
+        max_length=50,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name=_("کد کاربر (آرتونومی)"),
+        help_text=_("مثال: artonomy-1, artonomy-2, ..."),
+    )
     # ستون سمت چپ (header/column-image)
     header_background = models.ImageField(
         upload_to=upload_to_profile, blank=True, null=True,
@@ -228,7 +237,42 @@ class Profile(models.Model):
                 trial_started_at__gte=trial_cutoff,
             )
         )
+    def generate_code(self) -> str:
+        """
+        تولید کد ثابت بر اساس id پروفایل.
+        مثال: art-1, art-2, ...
+        """
+        if not self.pk:
+            return None
+        from .models import PROFILE_CODE_PREFIX  # اگر بالا global گذاشتی، لازم نیست این خط
+        return f"{PROFILE_CODE_PREFIX}{self.pk}"
+
+    def ensure_code(self, save=True) -> str:
+        """
+        اگر پروفایل کد ندارد، آن را تولید و ذخیره می‌کند.
+        """
+        if self.code:
+            return self.code
+        if not self.pk:
+            # هنوز در دیتابیس ذخیره نشده، بعد از save اصلی دوباره صدا زده می‌شود
+            return None
+        self.code = self.generate_code()
+        if save:
+            self.save(update_fields=["code"])
+        return self.code
+
+    def save(self, *args, **kwargs):
+        # تشخیص اینکه این اولین بار ذخیره می‌شود یا نه
+        creating = self.pk is None
+        super().save(*args, **kwargs)
+        # بعد از ذخیره‌ی اولیه، اگر کد نداریم، بر اساس pk تولید کن
+        if creating and not self.code:
+            self.code = self.generate_code()
+            super(Profile, self).save(update_fields=["code"])
+
     def __str__(self):
+        if self.code:
+            return f"{self.code} ({self.user.username})"
         return f"Profile({self.user.username})"
 
     def get_absolute_url(self):
