@@ -661,12 +661,28 @@ html, body{ overflow-x:hidden }
     <!-- پنل بالایی ثابت: درصد تکمیل -->
 <section class="panel">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-    <h3 style="margin:0">درصد تکمیل پروفایل</h3>
-    <h6 style="margin:0">وقتی 100 درصد تکمیل شود پروفایل شما در صفحه خانه نمایش داده میشود</h6>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <h3 style="margin:0">درصد تکمیل پروفایل</h3>
+
+      {# 🔗 دکمه رفتن به پروفایل عمومی #}
+      <a href="{{ profile.get_absolute_url }}" class="btn-ghost"
+         style="padding:6px 12px;border-radius:999px;font-size:12px;">
+        مشاهده پروفایل
+      </a>
+    </div>
+
     <span class="chip">٪{{ completion }}</span>
   </div>
 
   <div class="muted" style="margin:6px 0 12px">
+    {% if completion == 100 %}
+      <span style="color:#16a34a;">
+        پروفایل شما کامل است و در صفحهٔ خانه نمایش داده می‌شود ✅
+      </span>
+    {% else %}
+      وقتی ۱۰۰٪ تکمیل شود پروفایل شما در صفحهٔ خانه نمایش داده می‌شود.
+    {% endif %}
+    <br>
     {% if profile.role == 'artist' %}
       وضعیت شما: هنرمند{% if profile.category %} – {{ profile.category.name }}{% endif %}{% if profile.subcategory %} – {{ profile.subcategory.name }}{% endif %}
     {% elif profile.role == 'business' %}

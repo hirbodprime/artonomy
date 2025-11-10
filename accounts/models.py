@@ -24,9 +24,9 @@ BUSINESS_KINDS = (
 )
 class Profile(models.Model):
     ROLE_CHOICES = [
-        ("normal", _("کاربر عادی")),
+        ("normal", _("مخاطب هنر")),
         ("artist", _("هنرمند")),
-        ("business", _("صاخب کسب و کار")),
+        ("business", _("کیوریتور")),
     ]
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True, null=True, blank=True)
@@ -141,7 +141,7 @@ class Profile(models.Model):
 
         # ----- فرم‌ست‌ها -----
         if not self.counters.exists():
-            items.append(("counters", "افزودن حداقل یک آمار (کارت ۴تایی)"))
+            items.append(("counters", "افزودن دستاوردهای هنری"))
         if not self.skills.exists():
             items.append(("skills", "افزودن حداقل یک مهارت"))
         # if not self.testimonials.exists():

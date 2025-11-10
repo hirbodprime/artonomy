@@ -2,14 +2,15 @@
 {% load static %}
 
 {% block page_content %}
+
     <!-- vertical-portfolio_wrap -->
     <div class="vertical-portfolio_wrap" id="port-scroll">
         <!-- portfolio start -->
-        <div class="gallery-items big-padding lightgallery gi_left_al">
+    <div class="home-gallery big-padding">
 
-            {% for profile in top_profiles %}
-                <div class="gallery-item models">
-                    <div class="grid-item-holder hov_zoom">
+        {% for profile in top_profiles %}
+            <div class="home-gallery-item">
+                <div class="home-gallery-card hov_zoom">
 
                         {# تصویر کاور پروفایل، یا placeholder اگر نبود #}
                         {% if profile.header_background %}

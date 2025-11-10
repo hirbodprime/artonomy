@@ -6,12 +6,13 @@
   <div class="content-holder">
 
     {# ───────────────── گرید آثار ───────────────── #}
-    <div class="vertical-portfolio_wrap" id="port-scroll">
-      <div class="gallery-items big-padding lightgallery gi_left_al">
+<div class="vertical-portfolio_wrap" id="port-scroll">
+    <!-- portfolio start -->
+    <div class="home-gallery big-padding">
 
         {% for p in page_obj %}
-          <div class="gallery-item">
-            <div class="grid-item-holder hov_zoom">
+            <div class="home-gallery-item">
+                <div class="home-gallery-card hov_zoom">
 
               {# Cover selection order: primary gallery → first gallery → legacy image → placeholder #}
               {% with cover=p.cover_image %}

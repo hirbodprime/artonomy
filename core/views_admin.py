@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Avg, Q
+from django.db.models import Count, Avg
 from django.shortcuts import render
 from django.utils import timezone
 
@@ -26,32 +26,13 @@ def admin_kpi_dashboard(request):
     completed_profiles = Profile.objects.filter(completion=100).count()
     avg_completion = Profile.objects.aggregate(avg=Avg("completion"))["avg"] or 0
 
-    premium_q = Profile.premium_q()
-    premium_profiles = Profile.objects.filter(premium_q).count()
-    trial_only_profiles = Profile.objects.filter(
-        premium_q,
-        subscription_expires_at__isnull=True,
-    ).count()
-    paid_sub_profiles = Profile.objects.filter(
-        subscription_expires_at__isnull=False,
-        subscription_expires_at__gte=now,
-    ).count()
-
     # new users / profiles
-    users_last_7 = User.objects.filter(date_joined__gte=week_ago).count() if hasattr(User, "date_joined") else None
+    users_last_7 = (
+        User.objects.filter(date_joined__gte=week_ago).count()
+        if hasattr(User, "date_joined")
+        else None
+    )
     profiles_last_7 = Profile.objects.filter(created_at__gte=week_ago).count()
-
-    # near expiry subs (next 7 days)
-    near_expiry_subs = Profile.objects.filter(
-        subscription_expires_at__isnull=False,
-        subscription_expires_at__gt=now,
-        subscription_expires_at__lte=now + timedelta(days=7),
-    ).count()
-
-    trial_expired = Profile.objects.filter(
-        trial_started_at__isnull=False,
-        subscription_expires_at__isnull=True,
-    ).exclude(trial_started_at__gte=now - timedelta(days=Profile.TRIAL_DAYS)).count()
 
     # Role distribution
     role_breakdown = (
@@ -114,13 +95,6 @@ def admin_kpi_dashboard(request):
     )
 
     # ───── Latest items for quick access ─────
-    latest_premium_profiles = (
-        Profile.objects
-        .filter(premium_q)
-        .select_related("user")
-        .order_by("-created_at")[:10]
-    )
-
     latest_products = (
         Product.objects
         .select_related("profile", "profile__user")
@@ -147,13 +121,8 @@ def admin_kpi_dashboard(request):
         "total_profiles": total_profiles,
         "completed_profiles": completed_profiles,
         "avg_completion": round(avg_completion, 1),
-        "premium_profiles": premium_profiles,
-        "trial_only_profiles": trial_only_profiles,
-        "paid_sub_profiles": paid_sub_profiles,
         "users_last_7": users_last_7,
         "profiles_last_7": profiles_last_7,
-        "near_expiry_subs": near_expiry_subs,
-        "trial_expired": trial_expired,
         "role_breakdown": role_breakdown,
         "top_categories": top_categories,
         "top_subcategories": top_subcategories,
@@ -179,7 +148,6 @@ def admin_kpi_dashboard(request):
         "top_profiles_by_artposts": top_profiles_by_artposts,
 
         # Latest items
-        "latest_premium_profiles": latest_premium_profiles,
         "latest_products": latest_products,
         "latest_services": latest_services,
         "latest_artposts": latest_artposts,
