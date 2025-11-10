@@ -22,6 +22,17 @@ from .forms import (
 User = get_user_model()
 
 
+def get_featured_artpost():
+    """
+    Returns the most viewed active ArtPost, newest first on ties.
+    """
+    return (
+        ArtPost.objects
+        .filter(is_active=True)
+        .order_by("-views", "-updated_at")
+        .select_related("profile", "profile__user")
+        .first()
+    )
 
 
 @login_required
@@ -323,6 +334,7 @@ def profile_dashboard_view(request):
     return render(request, "accounts/dashboard.html", ctx)
 
 
+
 @require_http_methods(["GET", "POST"])
 def login_view(request):
     if request.user.is_authenticated:
@@ -334,23 +346,16 @@ def login_view(request):
             user = form.cleaned_data["user"]
             login(request, user)
 
-            # remember me
-            remember = form.cleaned_data.get("remember")
-            if remember:
-                request.session.set_expiry(1209600)  # 14 روز
-            else:
-                request.session.set_expiry(0)        # تا بستن مرورگر
-
             next_url = request.GET.get("next") or "/"
             return redirect(next_url)
     else:
         form = LoginForm()
 
-    # همان auth.html را رندر می‌کنیم؛ تب «ورود» باز است
     return render(request, "accounts/auth.html", {
         "active_tab": "login",
         "login_form": form,
         "signup_form": SignupForm(),  # برای نمایش همزمان
+        "featured_artpost": get_featured_artpost(),  # ⭐️ این خط
     })
 
 
@@ -369,12 +374,13 @@ def signup_view(request):
     else:
         form = SignupForm()
 
-    # همان auth.html اما تب «ثبت‌نام» باز باشد
     return render(request, "accounts/auth.html", {
         "active_tab": "signup",
         "login_form": LoginForm(),
         "signup_form": form,
+        "featured_artpost": get_featured_artpost(),  # ⭐️ این خط
     })
+
 
 
 def logout_view(request):

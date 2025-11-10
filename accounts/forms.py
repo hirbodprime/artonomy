@@ -6,6 +6,7 @@ from .models import Profile, ProfileCounter, Skill, SocialLink, ClientLogo, Test
 from artists.models import Category, Subcategory
 from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChangeForm
 from django.utils.translation import gettext_lazy as _
+import re
 
 
 User = get_user_model()
@@ -200,9 +201,22 @@ class SignupForm(forms.Form):
     password2  = forms.CharField(min_length=8, widget=forms.PasswordInput)
 
     def clean_username(self):
-        username = self.cleaned_data["username"]
+        username = self.cleaned_data["username"].strip()
+
+        # فقط حروف کوچک
+        if username.lower() != username:
+            raise ValidationError("لطفاً فقط از حروف کوچک انگلیسی برای نام کاربری استفاده کنید.")
+
+        # الگوی مجاز: حروف کوچک، عدد، نقطه، زیرخط
+        if not re.fullmatch(r"[a-z0-9._]{3,30}", username):
+            raise ValidationError(
+                "نام کاربری فقط می‌تواند شامل حروف کوچک انگلیسی، اعداد، نقطه و زیرخط باشد (۳ تا ۳۰ کاراکتر)."
+            )
+
+        # یکتا بودن
         if User.objects.filter(username__iexact=username).exists():
             raise ValidationError("این نام کاربری قبلاً ثبت شده است.")
+
         return username
 
     def clean_email(self):
@@ -220,16 +234,14 @@ class SignupForm(forms.Form):
     def create_user(self):
         data = self.cleaned_data
         user = User.objects.create_user(
-            username=data["username"],
+            username=data["username"],   # اینجا الان قطعا lowercase و معتبره
             email=data["email"],
             password=data["password"],
             first_name=data["first_name"],
             last_name=data["last_name"],
         )
-
-        # ✅ ایجاد پروفایل با نقش normal
-
         return user
+
 
 from django.forms import inlineformset_factory
 from marketplace.models import Product, Service, ArtPost

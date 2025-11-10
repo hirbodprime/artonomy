@@ -74,16 +74,17 @@
             isolation: isolate;
         }
         /* Image Layer */
-        .visual::before{
-            content:"";
-            position:absolute; inset:0;
-            /* تصویر زمینه تاریک‌تر و مودی‌تر */
-            background: url("https://images.unsplash.com/photo-1470770903676-69b98201ea1c?q=80&w=1920&auto=format&fit=crop") center/cover no-repeat;
-            opacity:1;
-            transform: scale(1.02);
-            filter: grayscale(10%) contrast(1.1) brightness(.8); /* تیره و مودی */
-            z-index:-2;
-        }
+.visual::before{
+    content:"";
+    position:absolute; inset:0;
+    /* تصویر زمینه: یا از CSS variable می‌آید، یا این پیش‌فرض */
+    background: var(--hero-bg, url("https://images.unsplash.com/photo-1470770903676-69b98201ea1c?q=80&w=1920&auto=format&fit=crop")) center/cover no-repeat;
+    opacity:1;
+    transform: scale(1.02);
+    filter: grayscale(10%) contrast(1.1) brightness(.8);
+    z-index:-2;
+}
+
         /* Gradient Overlay */
         .visual::after{
             content:"";
@@ -249,6 +250,43 @@
             .visual{ min-height: 350px; }
             .v-content{ padding: 30px; }
         }
+.v-content .actions {
+  display: flex;
+  justify-content: center;     /* center them horizontally */
+  gap: 16px;                   /* <── space between buttons */
+  flex-wrap: wrap;             /* wrap on small screens */
+  margin-top: 20px;
+}
+
+.v-content .actions .btn {
+  text-align: center;      /* centers text horizontally */
+  padding-inline: 18px;    /* equal L/R padding for RTL */
+  direction: rtl;          /* fix subtle offset for Persian text */
+}
+.v-content .actions .btn {
+  min-width: 150px;
+  text-align: center;
+}
+
+.v-content .actions .btn-primary {
+  padding-inline: 20px 20px; /* equalize left/right precisely */
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* فاصله بین لوگو و متن */
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: contain; /* یا cover اگر می‌خوای پر بشه */
+  box-shadow: 0 0 12px rgba(125, 92, 255, 0.45);
+  background-color: transparent;
+}
+
+
     </style>
 </head>
 <body>
@@ -256,20 +294,57 @@
 
     <main class="wrap">
         <section class="card" role="region" aria-label="فرم احراز هویت">
-            <aside class="visual">
-                <div class="v-content">
-                    <span class="tag">پروژه نمونه - آرتیستیک</span>
-                    <h2 class="v-title">تنها در قلمرو من</h2>
-                    <p class="v-desc">اینجا محل پیوند طبیعت و تکنولوژی است. فضایی برای کسانی که می‌خواهند فراتر از مرزها حرکت کنند.</p>
-                    <a class="btn btn-ghost" href="/">بازگشت به خانه</a>
-                </div>
-            </aside>
+            {% comment %} پنل سمت چپ: پست هنری با بیشترین بازدید {% endcomment %}
+<aside class="visual"
+  {% if featured_artpost %}
+    {% if featured_artpost.cover_image %}
+      style="--hero-bg: url('{{ featured_artpost.cover_image.image.url }}')"
+    {% elif featured_artpost.image %}
+      style="--hero-bg: url('{{ featured_artpost.image.url }}')"
+    {% endif %}
+  {% endif %}
+>
+    <div class="v-content">
+        {% if featured_artpost %}
+            <span class="tag">
+                محبوب‌ترین اثر این روزها
+                · {{ featured_artpost.profile.user.username }}
+            </span>
+
+            <h2 class="v-title">{{ featured_artpost.title }}</h2>
+
+            <p class="v-desc">
+                {% if featured_artpost.description %}
+                    {{ featured_artpost.description|truncatechars:120 }}
+                {% else %}
+                    اثری از یک هنرمند آرتونومی که بازدید زیادی داشته است.
+                {% endif %}
+            </p>
+
+<div class="actions">
+  <a class="btn btn-primary" href="{{ featured_artpost.get_absolute_url }}">مشاهده اثر</a>
+  <a class="btn btn-ghost" href="/">بازگشت به خانه</a>
+</div>
+
+        {% else %}
+            {# اگر هنوز هیچ ArtPostی نداری، نسخه قدیمی را نشان بده #}
+            <span class="tag">پروژه نمونه - آرتیستیک</span>
+            <h2 class="v-title">تنها در قلمرو من</h2>
+            <p class="v-desc">
+                اینجا محل پیوند طبیعت و تکنولوژی است. فضایی برای کسانی که می‌خواهند فراتر از مرزها حرکت کنند.
+            </p>
+            <a class="btn btn-ghost" href="/">بازگشت به خانه</a>
+        {% endif %}
+    </div>
+</aside>
+
 
             <div class="panel" id="panel">
-                <div class="brand">
-                    <div class="logo" aria-hidden="true"></div>
-                    <h1>فنـوگام</h1>
-                </div>
+<div class="brand">
+    <img src="{% static 'images/logo/Artonomy.png' %}" alt="لوگوی آرتونومی" class="logo">
+    <h1>آرتونومی - کهکشان هنر</h1>
+</div>
+
 
                 <div class="tabs" role="tablist" aria-label="انتخاب فرم">
                     <button class="tab" role="tab" aria-selected="true"  id="t-login"  aria-controls="p-login">ورود</button>
@@ -325,7 +400,7 @@
                             <button class="btn btn-ghost" type="button" id="go-signup">هنوز عضو نیستید؟ ثبت‌نام</button>
                         </div>
                         
-                        <p class="small">با ورود، قوانین و حریم خصوصی فنوگام را می‌پذیرید.</p>
+                        <p class="small">با ورود، قوانین و حریم خصوصی آرتونومی را می‌پذیرید.</p>
                     </form>
                 </section>
 
@@ -358,8 +433,13 @@
                         
                         <div class="field">
                             <label for="su-username">نام کاربری</label>
-                            <input id="su-username" name="username" type="text" placeholder="مثلا: FanogamUser" required autocomplete="username"
-                                   value="{{ signup_form.data.username|default_if_none:'' }}">
+                           <input id="su-username" name="username" type="text"
+                                placeholder="مثلاً: artuser_01"
+                                required autocomplete="username"
+                                pattern="[a-z0-9._]{3,30}"
+                                title="فقط حروف کوچک انگلیسی، اعداد، نقطه و زیرخط (۳ تا ۳۰ کاراکتر)"
+                                value="{{ signup_form.data.username|default_if_none:'' }}">
+
                             {% if signup_form and signup_form.errors.username %}
                               <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
                                 {{ signup_form.errors.username.0 }}
@@ -415,13 +495,12 @@
                             <button class="btn btn-ghost" type="button" id="go-login">حساب دارید؟ ورود</button>
                         </div>
                         
-                        <p class="small">با ثبت‌نام، تمامی قوانین سایت فنوگام را می‌پذیرید.</p>
+                        <p class="small">با ثبت‌نام، تمامی قوانین سایت آرتونومی را می‌پذیرید.</p>
                     </form>
                 </section>
             </div>
         </section>
     </main>
-
     <script>
         // Tab switching logic
         const tLogin  = document.getElementById('t-login');
@@ -450,13 +529,87 @@
         })();
 
         // Password visibility toggles
-        document.querySelectorAll('.toggle-eye').forEach(btn=>{
-            btn.addEventListener('click', ()=>{
-                const id = btn.dataset.target;
-                const input = document.getElementById(id);
-                input.type = input.type === 'password' ? 'text' : 'password';
+        document.querySelectorAll('.toggle-eye').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const targetId = btn.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                if (!input) return;
+
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                // تغییر آیکون برای فهم بهتر
+                btn.textContent = isPassword ? '🙈' : '👁️';
             });
         });
     </script>
+<script>
+(function () {
+  const usernameInput = document.getElementById("su-username");
+  if (!usernameInput) return;
+
+  // پیام خطا زیر فیلد
+  const msg = document.createElement("div");
+  msg.style.fontSize = "12px";
+  msg.style.marginTop = "6px";
+  msg.style.color = "#ffb4b4";
+  usernameInput.parentNode.appendChild(msg);
+
+  // قوانین:
+  // فقط a-z, 0-9, . و _
+  // همه چیز lowercase
+  // طول 3 تا 30 کاراکتر
+  function sanitizeAndValidate() {
+    let v = usernameInput.value;
+
+    // همیشه lowercase
+    v = v.toLowerCase();
+
+    // حذف کاراکترهای غیرمجاز
+    v = v.replace(/[^a-z0-9._]/g, "");
+
+    // محدودیت طول
+    if (v.length > 30) {
+      v = v.slice(0, 30);
+    }
+
+    // مقدار اصلاح‌شده را برگردان به input
+    usernameInput.value = v;
+
+    // اعتبارسنجی ساده
+    if (!v) {
+      msg.textContent = "";
+      return false;
+    }
+    if (v.length < 3) {
+      msg.textContent = "نام کاربری باید حداقل ۳ کاراکتر باشد.";
+      return false;
+    }
+
+    // نهایی: فقط اگر کاملا مطابق الگو بود
+    const ok = /^[a-z0-9._]{3,30}$/.test(v);
+    if (!ok) {
+      msg.textContent = "فقط حروف کوچک انگلیسی، عدد، نقطه و زیرخط مجاز است.";
+      return false;
+    }
+
+    msg.textContent = ""; // اوکیه
+    return true;
+  }
+
+  usernameInput.addEventListener("input", sanitizeAndValidate);
+
+  // جلوگیری از ارسال فرم با یوزرنیم خراب
+  const signupForm = usernameInput.form;
+  if (signupForm) {
+    signupForm.addEventListener("submit", function (e) {
+      if (!sanitizeAndValidate()) {
+        e.preventDefault();
+        usernameInput.focus();
+      }
+    });
+  }
+})();
+</script>
+
 </body>
 </html>

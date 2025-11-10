@@ -383,7 +383,7 @@
       </li>
 
       <!-- حساب کاربری (نمایش فقط برای مهمان؛ برای لاگین‌کرده‌ها، همون دراپ‌دان اکانت بالا هست) -->
-      {% if not request.user.is_authenticated %}
+      <!-- {% if not request.user.is_authenticated %}
       <li>
         <a href="{% url 'login' %}">
           ورود
@@ -393,7 +393,7 @@
           <li><a href="{% url 'password_reset' %}">فراموشی رمز</a></li>
         </ul>
       </li>
-      {% endif %}
+      {% endif %} -->
     </ul>
   </nav>
 </div>
