@@ -27,11 +27,10 @@ class ArtPostForm(forms.ModelForm):
         fields = [
             "title",
             "description",
-            "quantity",
-            "condition",
             "is_active",
             "order",
             "image",
+            "video",
         ]
 
 

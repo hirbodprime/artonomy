@@ -3,15 +3,13 @@ from django.shortcuts import render, get_object_or_404,redirect
 from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from .models import Product, Service, CURRENCY_CHOICES, ArtPost
-from django.utils import timezone
-from datetime import timedelta
-from accounts.models import Profile
-from itertools import chain
 from django.db.models import Q, F
+from itertools import chain
 from django.db import models
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.db import models
 
 User = get_user_model()
 
@@ -37,21 +35,6 @@ def artpost_toggle_like(request, pk):
         "total_likes": post.total_likes(),
     })
 
-def premium_filter_q():
-    """
-    برمی‌گردونه Q برای: یا اشتراک فعال، یا تریال ۷ روزه فعال
-    """
-    now = timezone.now()
-    trial_cutoff = now - timedelta(days=Profile.TRIAL_DAYS)
-
-    return (
-        Q(profile__subscription_expires_at__gte=now) |  # ساب پولی فعال
-        Q(
-            profile__subscription_expires_at__isnull=True,  # هنوز سابی نخریده
-            profile__trial_started_at__gte=trial_cutoff,    # و داخل ۷ روز اخیر تریال شروع شده
-        )
-    )
-
 
 def services_list(request, username=None):
     qs = Service.objects.filter(is_active=True).select_related("profile__user").order_by(
@@ -62,8 +45,6 @@ def services_list(request, username=None):
         owner = get_object_or_404(User, username=username)
         qs = qs.filter(profile__user=owner)
 
-    # 🔐 هم ساب‌دار هم تریال‌دار
-    qs = qs.filter(premium_filter_q())
     # 🔹 اگر روی «حذف فیلترها» کلیک شد، ریدایرکت تمیز بدون کوئری‌استرینگ
     if request.GET.get("clear"):
         if username:
@@ -127,10 +108,11 @@ def services_list(request, username=None):
 
 def service_detail(request, slug, pk):
     obj = get_object_or_404(
-        Service.objects.prefetch_related('images').filter(
-            premium_filter_q()
+        Service.objects.prefetch_related('images').select_related("profile__user").filter(
+            is_active=True,
+            profile__user__is_active=True,
         ),
-        pk=pk, slug=slug, is_active=True
+        pk=pk, slug=slug
     )
     return render(request, "marketplace/service_single.html", {"service": obj})
 def artpieces_list(request, username=None):
@@ -139,9 +121,6 @@ def artpieces_list(request, username=None):
 
     if username:
         products_qs = products_qs.filter(profile__user__username=username)
-
-    # فقط پروفایل‌های پریمیوم (ساب یا تریال)
-    products_qs = products_qs.filter(premium_filter_q())
 
     # --- کوئری و فیلترها (برای محصولات) ---
     q = request.GET.get("q", "").strip()
@@ -190,9 +169,6 @@ def artpieces_list(request, username=None):
     if username:
         artposts_qs = artposts_qs.filter(profile__user__username=username)
 
-    # اگر می‌خوای فقط پریمیوم‌ها بتونن پست منتشر کنن:
-    # artposts_qs = artposts_qs.filter(premium_filter_q())
-
     if q:
         artposts_qs = artposts_qs.filter(
             Q(title__icontains=q) | Q(description__icontains=q)
@@ -232,13 +208,13 @@ def artpieces_list(request, username=None):
         "currency_choices": CURRENCY_CHOICES,
     }
     return render(request, "marketplace/artpieces.html", ctx)
-
 def artpiece_detail(request, slug, pk):
     obj = get_object_or_404(
         Product.objects.select_related("profile__user").filter(
-            premium_filter_q()
+            is_active=True,
+            profile__user__is_active=True,
         ),
-        pk=pk, slug=slug, is_active=True
+        pk=pk, slug=slug
     )
 
     related = (
@@ -246,13 +222,13 @@ def artpiece_detail(request, slug, pk):
             is_active=True,
             profile=obj.profile
         )
-        .filter(premium_filter_q())  # فقط اگر هنوز پریمیوم است
         .exclude(pk=obj.pk)
         .order_by("-updated_at")[:8]
     )
 
     ctx = {"obj": obj, "related": related}
     return render(request, "marketplace/artpiece-single.html", ctx)
+
 def artpost_detail(request, slug, pk):
     obj = get_object_or_404(
         ArtPost.objects.select_related("profile__user").filter(

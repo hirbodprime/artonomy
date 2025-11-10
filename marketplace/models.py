@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 User = get_user_model()
 from core.utils.images import compress_image_field
-
+from core.utils.videos import compress_video_field
 CURRENCY_CHOICES = (
     ("IRT", "تومان"),
     ("IRR", "ریال"),
@@ -227,7 +227,13 @@ class ArtPost(TimeStamped):
         blank=True,
     )
     views = models.PositiveIntegerField(default=0)
-
+    video = models.FileField(
+        upload_to="market/artposts/%Y/%m/videos/",
+        blank=True,
+        null=True,
+        verbose_name=_("ویدیو"),
+        help_text=_("فقط یک ویدیو برای هر پست"),
+    )
     class Meta:
         ordering = ["order", "-updated_at", "-id"]
 
@@ -238,7 +244,10 @@ class ArtPost(TimeStamped):
         if self.image:
             compress_image_field(self, "image", max_width=1600, quality=65)
 
-        super().save(*args, **kwargs)
+        super().save(*args, **kwargs)  # اول ذخیره کن تا فایل روی دیسک باشد
+
+        if self.video:
+            compress_video_field(self, "video", max_width=1280, video_bitrate="1500k")
 
     def __str__(self):
         return self.title

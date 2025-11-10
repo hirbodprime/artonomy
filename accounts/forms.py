@@ -117,6 +117,8 @@ class ProfileForm(forms.ModelForm):
             "story_subtitle",
             "story_paragraph_1",
             "story_paragraph_2",
+            "avatar",  # 🔹 NEW
+
         ]
         widgets = {
             "story_paragraph_1": forms.Textarea(attrs={"rows": 5}),
@@ -247,27 +249,27 @@ from django.forms import inlineformset_factory
 from marketplace.models import Product, Service, ArtPost
 
 # ... بقیه فایل بدون تغییر ...
+from marketplace.forms import ProductForm, ServiceForm
+
 
 ProductFormSet = inlineformset_factory(
-    Profile, Product,
-    fields=("title","description","price_type","price_amount","currency","quantity","condition","image","is_active","order"),
-    widgets={
-        "description": forms.Textarea(attrs={"rows":3}),
-    },
-    extra=1, can_delete=True
+    Profile,
+    Product,
+    form=ProductForm,   # ← به جای fields=...
+    extra=1,
+    can_delete=True,
 )
 
 ServiceFormSet = inlineformset_factory(
-    Profile, Service,
-    fields=("title","description","image","tags","pricing_model","currency","min_price","max_price","is_active","order"),
-    widgets={
-        "description": forms.Textarea(attrs={"rows":3}),
-    },
-    extra=1, can_delete=True
+    Profile,
+    Service,
+    form=ServiceForm,   # ← به جای fields=...
+    extra=1,
+    can_delete=True,
 )
 ArtPostFormSet = inlineformset_factory(
     Profile, ArtPost,
-    fields=("title", "description", "quantity", "condition", "image", "is_active", "order"),
+    fields=("title", "description", "image", "is_active", "order","video"),
     widgets={
         "description": forms.Textarea(attrs={"rows": 3}),
     },

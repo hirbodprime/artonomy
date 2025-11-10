@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+    <!-- vertical-portfolio_wrap -->
+    <div class="vertical-portfolio_wrap" id="port-scroll">
+        <!-- portfolio start -->
+        <div class="gallery-items big-padding lightgallery gi_left_al">
+
+            {% for profile in top_profiles %}
+                <div class="gallery-item models">
+                    <div class="grid-item-holder hov_zoom">
+
+                        {# تصویر کاور پروفایل، یا placeholder اگر نبود #}
+                        {% if profile.header_background %}
+                            <img src="{{ profile.header_background.url }}"
+                                 alt="{{ profile.user.get_full_name|default:profile.user.username }}">
+                        {% else %}
+                            <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}"
+                                 alt="{{ profile.user.get_full_name|default:profile.user.username }}">
+                        {% endif %}
+
+                        <div class="grid-item-info">
+                            <h3>
+                                <a href="{{ profile.get_absolute_url }}">
+                                    {{ profile.user.get_full_name|default:profile.user.username }}
+                                </a>
+                            </h3>
+                            <p>
+                                {% if profile.story_subtitle %}
+                                    {{ profile.story_subtitle }}
+                                {% elif profile.story_paragraph_1 %}
+                                    {{ profile.story_paragraph_1|truncatechars:80 }}
+                                {% else %}
+                                    هنرمند در آرتونومی
+                                {% endif %}
+                            </p>
+                        </div>
+
+                        <div class="pr_num"></div>
+
+                        {# زوم روی همان تصویر کاور #}
+                        {% if profile.header_background %}
+                            <a href="{{ profile.header_background.url }}"
+                               class="grid-media-zoom image-popup">
+                                <i class="far fa-search"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p style="padding:40px 0; text-align:center; width:100%; color:#ccc;">
+                    هنوز پروفایل تکمیل‌شده‌ای وجود ندارد.
+                </p>
+            {% endfor %}
+
+        </div>
+        <!-- portfolio end -->
+    </div>
+    <!--  vertical-portfolio_wrap end -->
+
+    <!-- fixed-bottom-container -->
+    <div class="fixed-bottom-container f_bc_vis">
+        <div class="scroll-down-wrap">
+            <div class="mousey">
+                <div class="scroller"></div>
+            </div>
+        </div>
+        <div class="filter-btn hid-filter">
+            <div class="filter-btn_container"></div>
+            <span class="filt-title">فیلترها</span>
+        </div>
+        <div class="folio-counter">
+            <div class="num-album"></div>
+            <div class="all-album"></div>
+        </div>
+    </div>
+    <!-- fixed-bottom-container  end-->
+
+    <!-- gallery-filters-wrap-->
+    <div class="gallery-filters-wrap">
+        <div class="gallery-filters">
+            <a href="#" class="gallery-filter gallery-filter-active" data-filter="*">همه موارد</a>
+            {# الان همه پروفایل‌ها کلاس models دارند؛ بعداً اگر دسته‌بندی خواستی، کلاس داینامیک بده #}
+            <a href="#" class="gallery-filter" data-filter=".models">هنرمندان</a>
+        </div>
+        <div class="gallery-filters-overlay"></div>
+    </div>
+    <!--gallery-filters-wrap end-->
+{% endblock content %}

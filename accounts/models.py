@@ -30,16 +30,7 @@ class Profile(models.Model):
     ]
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True, null=True, blank=True)
-    TRIAL_DAYS = 7
 
-    trial_started_at = models.DateTimeField(
-        null=True, blank=True,
-        help_text=_("شروع دوره آزمایشی ۷ روزه")
-    )
-    subscription_expires_at = models.DateTimeField(
-        null=True, blank=True,
-        help_text=_("تاریخ پایان اشتراک پولی (۱ دلاری در ماه)")
-    )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     code = models.CharField(
@@ -50,6 +41,14 @@ class Profile(models.Model):
         verbose_name=_("کد کاربر (آرتونومی)"),
         help_text=_("مثال: artonomy-1, artonomy-2, ..."),
     )
+    avatar = models.ImageField(
+        upload_to=upload_to_profile,
+        blank=True,
+        null=True,
+        verbose_name=_("عکس پروفایل"),
+        help_text=_("تصویری که در کنار نام شما نمایش داده می‌شود."),
+    )
+
     # ستون سمت چپ (header/column-image)
     header_background = models.ImageField(
         upload_to=upload_to_profile, blank=True, null=True,
@@ -58,7 +57,7 @@ class Profile(models.Model):
     header_subtitle = models.CharField(max_length=400, blank=True, default="")
 
     # داستان کوچک من
-    story_title = models.CharField(max_length=200, default="داستان کوچک من")
+    story_title = models.CharField(max_length=200, default="داستان من")
     story_subtitle = models.CharField(max_length=400, blank=True, default="")
     story_paragraph_1 = models.TextField(blank=True, default="")
     story_paragraph_2 = models.TextField(blank=True, default="")
@@ -89,12 +88,9 @@ class Profile(models.Model):
     COMPLETION_FIELDS = (
         "header_background",
         "header_subtitle",
-        "story_subtitle",
         "story_paragraph_1",
-        "story_paragraph_2",
-        # social links and counts will be added by view (see below)
+        "avatar",   
     )
-
     def clean(self):
         # consistency between role and fields
         from django.core.exceptions import ValidationError
@@ -139,11 +135,20 @@ class Profile(models.Model):
                     role_pts += 10
         score += role_pts
 
-        # counters (15), skills (20), testimonials (15), clients (15)
-        max_score += 15; score += 15 if self.counters.exists() else 0
-        max_score += 20; score += 20 if self.skills.exists() else 0
-        max_score += 15; score += 15 if self.testimonials.exists() else 0
-        max_score += 15; score += 15 if self.clients.exists() else 0
+        # ✅ ONLY counters and skills now
+
+        # counters (15)
+        max_score += 15
+        if self.counters.exists():
+            score += 15
+
+        # skills (20)
+        max_score += 20
+        if self.skills.exists():
+            score += 20
+
+        # ✅ testimonials & clients are NOT counted anymore
+        # (we removed the blocks that used self.testimonials.exists() / self.clients.exists())
 
         return min(100, round(score * 100 / max_score)) if max_score else 0
 
@@ -154,90 +159,7 @@ class Profile(models.Model):
             if save:
                 self.save(update_fields=["completion"])
         return self.completion
-    def ensure_trial_default(self, save=True):
-        """
-        Call this once when user hits dashboard for the first time.
-        If the user has neither trial nor paid subscription, start 7-day trial.
-        """
-        if self.trial_started_at is None and self.subscription_expires_at is None:
-            now = timezone.now()
-            self.trial_started_at = now
-            if save:
-                self.save(update_fields=["trial_started_at"])
-
-    @property
-    def trial_ends_at(self):
-        if not self.trial_started_at:
-            return None
-        return self.trial_started_at + timedelta(days=self.TRIAL_DAYS)
-
-    @property
-    def in_trial(self) -> bool:
-        """True while 7-day trial is active."""
-        end = self.trial_ends_at
-        if not end:
-            return False
-        return timezone.now() <= end and not self.has_subscription
-
-    @property
-    def has_subscription(self) -> bool:
-        """True if user has active paid subscription."""
-        if not self.subscription_expires_at:
-            return False
-        return timezone.now() <= self.subscription_expires_at
-
-    @property
-    def can_use_premium(self) -> bool:
-        """Can use products/services tabs."""
-        return self.in_trial or self.has_subscription
-
-    @property
-    def premium_days_left(self) -> int:
-        """
-        How many days left from either trial or paid subscription.
-        (rounds up; e.g. 0.4 day → 1)
-        """
-        # Paid subscription has priority
-        target = None
-        if self.has_subscription:
-            target = self.subscription_expires_at
-        elif self.trial_ends_at:
-            target = self.trial_ends_at
-
-        if not target:
-            return 0
-
-        delta = target - timezone.now()
-        days = delta.days
-        if delta.seconds > 0:
-            days += 1
-        return max(0, days)
-
-    @property
-    def subscription_status_label(self) -> str:
-        if self.has_subscription:
-            return "اشتراک ماهانه فعال"
-        if self.in_trial:
-            return "دوره آزمایشی ۷ روزه"
-        return "بدون اشتراک"
-
-    @property
-    def is_trial_expired(self) -> bool:
-        return (self.trial_ends_at is not None and
-                timezone.now() > self.trial_ends_at and
-                not self.has_subscription)
-    @staticmethod
-    def premium_q():
-        """Return Q for active paid sub OR active 7-day trial."""
-        now = timezone.now()
-        trial_cutoff = now - timedelta(days=Profile.TRIAL_DAYS)
-        return (
-            Q(subscription_expires_at__gte=now)
-            | Q(
-                subscription_expires_at__isnull=True,
-                trial_started_at__gte=trial_cutoff,
-            )
-        )
+   
     def generate_code(self) -> str:
         """
         تولید کد ثابت بر اساس id پروفایل.
@@ -263,10 +185,13 @@ class Profile(models.Model):
         return self.code
 
     def save(self, *args, **kwargs):
-        # ✅ قبل از ذخیره، تصویر هدر را فشرده کن
+        # ✅ قبل از ذخیره، تصویر هدر و آواتار را فشرده کن
         if self.header_background:
-            # برای کاور پروفایل منطقیه عرض بیشتر باشه
             compress_image_field(self, "header_background", max_width=1920, quality=70)
+
+        if self.avatar:
+            # برای آواتار، رزولوشن کوچکتر
+            compress_image_field(self, "avatar", max_width=600, quality=75)
 
         creating = self.pk is None
         super().save(*args, **kwargs)

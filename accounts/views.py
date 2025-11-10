@@ -35,85 +35,77 @@ def get_featured_artpost():
     )
 
 
+
 @login_required
 def profile_dashboard_view(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
-    # ✅ 1) Make sure every user has a 1-week trial by default
-    profile.ensure_trial_default(save=True)
-
-    tab = request.GET.get("tab", "profile")
     valid = {
         "profile","counters","skills","testimonials","social",
         "clients","role","products","services","content","security"
     }
 
+    # 👇 روی POST از hidden استفاده می‌کنیم، روی GET از querystring
+    if request.method == "POST":
+        tab = request.POST.get("active_tab") or request.GET.get("tab", "profile")
+    else:
+        tab = request.GET.get("tab", "profile")
+
     if tab not in valid:
         tab = "profile"
 
-    # ✅ 2) Gate premium tabs (products/services) for expired trial / no subscription
-    # This protects both GET & POST. If they try to access directly, redirect them.
-    if tab in {"products", "services"} and not profile.can_use_premium:
-        messages.warning(
-            request,
-            "دوره آزمایشی شما تمام شده است. برای استفاده از «محصولات» و «خدمات» "
-            "اشتراک ماهانه (۱ دلار) را فعال کنید."
-        )
-        return redirect(f"{request.path}?tab=role")
-
-    # --- helper to construct your original forms/formsets (unchanged) ---
+    # --- helper to construct all forms/formsets ---
     def build_forms(bound: bool):
         kw = (request.POST, request.FILES) if bound else (None, None)
-        forms = dict(
-            user_form = UserForm(*(kw if bound else ()), instance=request.user),
-            form      = ProfileForm(*(kw if bound else ()), instance=profile),
 
-            fs_counters = CounterFormSet(
-                *(((request.POST,)) if bound and tab=="counters" else ()),
+        forms = dict(
+            user_form=UserForm(*(kw if bound else ()), instance=request.user),
+            form=ProfileForm(*(kw if bound else ()), instance=profile),
+
+            fs_counters=CounterFormSet(
+                *(((request.POST,)) if bound and tab == "counters" else ()),
                 instance=profile, prefix="cnt"
             ),
-            fs_skills   = SkillFormSet(
-                *(((request.POST,)) if bound and tab=="skills" else ()),
+            fs_skills=SkillFormSet(
+                *(((request.POST,)) if bound and tab == "skills" else ()),
                 instance=profile, prefix="sk"
             ),
-            fs_social   = SocialLinkFormSet(
-                *(((request.POST,)) if bound and tab=="social" else ()),
+            fs_social=SocialLinkFormSet(
+                *(((request.POST,)) if bound and tab == "social" else ()),
                 instance=profile, prefix="soc"
             ),
-            fs_clients  = ClientLogoFormSet(
-                *(((request.POST, request.FILES)) if bound and tab=="clients" else ()),
+            fs_clients=ClientLogoFormSet(
+                *(((request.POST, request.FILES)) if bound and tab == "clients" else ()),
                 instance=profile, prefix="cl"
             ),
-            fs_tests    = TestimonialFormSet(
-                *(((request.POST, request.FILES)) if bound and tab=="testimonials" else ()),
+            fs_tests=TestimonialFormSet(
+                *(((request.POST, request.FILES)) if bound and tab == "testimonials" else ()),
                 instance=profile, prefix="ts"
             ),
-            role_form   = RoleCategoryForm(
-                *(kw if bound and tab=="role" else (None, None)),
+            role_form=RoleCategoryForm(
+                *(kw if bound and tab == "role" else (None, None)),
                 instance=profile
             ),
 
-            # parent formsets (profile -> products / services)
-            fs_products = ProductFormSet(
-                *(((request.POST, request.FILES)) if bound and tab=="products" else ()),
+            fs_products=ProductFormSet(
+                *(((request.POST, request.FILES)) if bound and tab == "products" else ()),
                 instance=profile, prefix="prd"
             ),
-            fs_services = ServiceFormSet(
-                *(((request.POST, request.FILES)) if bound and tab=="services" else ()),
+            fs_services=ServiceFormSet(
+                *(((request.POST, request.FILES)) if bound and tab == "services" else ()),
                 instance=profile, prefix="srv"
             ),
-            fs_artposts = ArtPostFormSet(
-                *(((request.POST, request.FILES)) if bound and tab=="content" else ()),
+            fs_artposts=ArtPostFormSet(
+                *(((request.POST, request.FILES)) if bound and tab == "content" else ()),
                 instance=profile, prefix="art"
             ),
         )
-        if tab == "security":
-            if bound:
-                forms["pwd_form"] = PasswordChangeForm(user=request.user, data=request.POST)
-            else:
-                forms["pwd_form"] = PasswordChangeForm(user=request.user)
+
+        # ✅ PasswordChangeForm را همیشه بساز، فقط برای tab=security بایندش کن
+        if bound and tab == "security":
+            forms["pwd_form"] = PasswordChangeForm(user=request.user, data=request.POST)
         else:
-            forms["pwd_form"] = None
+            forms["pwd_form"] = PasswordChangeForm(user=request.user)
 
         return forms
 
@@ -122,7 +114,6 @@ def profile_dashboard_view(request):
         f = build_forms(True)
         ok = False
 
-        # اینها را اینجا تعریف می‌کنیم تا در صورت نیاز در ctx بگذاریم
         product_image_fsets = None
         service_image_fsets = None
         artpost_image_fsets = None
@@ -136,90 +127,120 @@ def profile_dashboard_view(request):
 
             elif tab == "counters":
                 ok = f["fs_counters"].is_valid()
-                if ok: f["fs_counters"].save()
+                if ok:
+                    f["fs_counters"].save()
 
             elif tab == "skills":
                 ok = f["fs_skills"].is_valid()
-                if ok: f["fs_skills"].save()
+                if ok:
+                    f["fs_skills"].save()
 
             elif tab == "social":
                 ok = f["fs_social"].is_valid()
-                if ok: f["fs_social"].save()
+                if ok:
+                    f["fs_social"].save()
 
             elif tab == "clients":
                 ok = f["fs_clients"].is_valid()
-                if ok: f["fs_clients"].save()
+                if ok:
+                    f["fs_clients"].save()
 
             elif tab == "testimonials":
                 ok = f["fs_tests"].is_valid()
-                if ok: f["fs_tests"].save()
+                if ok:
+                    f["fs_tests"].save()
 
             elif tab == "role":
                 ok = f["role_form"].is_valid()
-                if ok: f["role_form"].save()
+                if ok:
+                    f["role_form"].save()
 
-            # ---------- PRODUCTS: save parent rows, then per-item gallery ----------
+            # ---------- PRODUCTS ----------
             elif tab == "products":
                 ok = f["fs_products"].is_valid()
-                product_image_fsets = {}  # بایندهای همین درخواست را نگه می‌داریم
+                product_image_fsets = {}
 
                 if ok:
-                    # 1) والدها را ذخیره کن (محصول‌های جدید PK می‌گیرند)
                     f["fs_products"].save()
 
-                    # 2) فرم‌ست گالری برای هر محصول (بایند و ذخیره)
                     products_qs = Product.objects.filter(profile=profile)
                     for p in products_qs:
-                        imgs_fs = ProductImageFormSet(
-                            request.POST, request.FILES,
-                            instance=p,
-                            prefix=f"prdimg-{p.pk}",
-                        )
-                        product_image_fsets[p.pk] = imgs_fs
-                        if imgs_fs.is_valid():
-                            imgs_fs.save()
+                        prefix = f"prdimg-{p.pk}"
+                        mgmt_key = f"{prefix}-TOTAL_FORMS"
+
+                        # فقط اگر این فرم‌ست واقعاً تو POST بوده، bind کن
+                        if mgmt_key in request.POST:
+                            imgs_fs = ProductImageFormSet(
+                                request.POST, request.FILES,
+                                instance=p,
+                                prefix=prefix,
+                            )
+                            if imgs_fs.is_valid():
+                                imgs_fs.save()
+                            else:
+                                ok = False
                         else:
-                            ok = False
+                            # برای محصولی که گالری‌اش هنوز ارسال نشده (مثلاً تازه ساخته شده)
+                            # فقط یک فرم‌ست خالی برای نمایش در قالب بساز
+                            imgs_fs = ProductImageFormSet(
+                                instance=p,
+                                prefix=prefix,
+                            )
+
+                        product_image_fsets[p.pk] = imgs_fs
+
                 else:
-                    # اگر والد نامعتبر بود، باز هم فرم‌ست‌های تصاویر را بایند کن تا ورودی از دست نرود
+                    # اگر خود فرم‌ست محصولات مشکل داشت، فقط برای نمایش، گالری‌ها را unbound بساز
                     products_qs = Product.objects.filter(profile=profile)
                     for p in products_qs:
+                        prefix = f"prdimg-{p.pk}"
                         imgs_fs = ProductImageFormSet(
-                            request.POST, request.FILES,
                             instance=p,
-                            prefix=f"prdimg-{p.pk}",
+                            prefix=prefix,
                         )
                         product_image_fsets[p.pk] = imgs_fs
 
-            # ---------- SERVICES: save parent rows, then per-item gallery ----------
+            # ---------- SERVICES ----------
             elif tab == "services":
                 ok = f["fs_services"].is_valid()
-                service_image_fsets = {}  # مشابه بالا
+                service_image_fsets = {}
 
                 if ok:
                     f["fs_services"].save()
 
                     services_qs = Service.objects.filter(profile=profile)
                     for s in services_qs:
-                        imgs_fs = ServiceImageFormSet(
-                            request.POST, request.FILES,
-                            instance=s,
-                            prefix=f"srvimg-{s.pk}",
-                        )
-                        service_image_fsets[s.pk] = imgs_fs
-                        if imgs_fs.is_valid():
-                            imgs_fs.save()
+                        prefix = f"srvimg-{s.pk}"
+                        mgmt_key = f"{prefix}-TOTAL_FORMS"
+
+                        if mgmt_key in request.POST:
+                            imgs_fs = ServiceImageFormSet(
+                                request.POST, request.FILES,
+                                instance=s,
+                                prefix=prefix,
+                            )
+                            if imgs_fs.is_valid():
+                                imgs_fs.save()
+                            else:
+                                ok = False
                         else:
-                            ok = False
+                            imgs_fs = ServiceImageFormSet(
+                                instance=s,
+                                prefix=prefix,
+                            )
+
+                        service_image_fsets[s.pk] = imgs_fs
                 else:
                     services_qs = Service.objects.filter(profile=profile)
                     for s in services_qs:
+                        prefix = f"srvimg-{s.pk}"
                         imgs_fs = ServiceImageFormSet(
-                            request.POST, request.FILES,
                             instance=s,
-                            prefix=f"srvimg-{s.pk}",
+                            prefix=prefix,
                         )
                         service_image_fsets[s.pk] = imgs_fs
+
+            # ---------- CONTENT (ART POSTS) ----------
             elif tab == "content":
                 ok = f["fs_artposts"].is_valid()
                 artpost_image_fsets = {}
@@ -229,33 +250,44 @@ def profile_dashboard_view(request):
 
                     posts_qs = ArtPost.objects.filter(profile=profile)
                     for post in posts_qs:
-                        imgs_fs = ArtPostImageFormSet(
-                            request.POST, request.FILES,
-                            instance=post,
-                            prefix=f"artimg-{post.pk}",   # ✅ prefix دقیقا همین
-                        )
-                        artpost_image_fsets[post.pk] = imgs_fs
-                        if imgs_fs.is_valid():
-                            imgs_fs.save()
+                        prefix = f"artimg-{post.pk}"
+                        mgmt_key = f"{prefix}-TOTAL_FORMS"
+
+                        if mgmt_key in request.POST:
+                            imgs_fs = ArtPostImageFormSet(
+                                request.POST, request.FILES,
+                                instance=post,
+                                prefix=prefix,
+                            )
+                            if imgs_fs.is_valid():
+                                imgs_fs.save()
+                            else:
+                                ok = False
                         else:
-                            ok = False
+                            imgs_fs = ArtPostImageFormSet(
+                                instance=post,
+                                prefix=prefix,
+                            )
+
+                        artpost_image_fsets[post.pk] = imgs_fs
                 else:
                     posts_qs = ArtPost.objects.filter(profile=profile)
                     for post in posts_qs:
+                        prefix = f"artimg-{post.pk}"
                         imgs_fs = ArtPostImageFormSet(
-                            request.POST, request.FILES,
                             instance=post,
-                            prefix=f"artimg-{post.pk}",
+                            prefix=prefix,
                         )
                         artpost_image_fsets[post.pk] = imgs_fs
+
+            # ---------- SECURITY (password change) ----------
             elif tab == "security":
                 pwd_form = f["pwd_form"]
                 ok = pwd_form is not None and pwd_form.is_valid()
                 if ok:
-                    user = pwd_form.save()              # رمز جدید ست می‌کند
-                    update_session_auth_hash(request, user)  # لاگین را نگه می‌دارد
+                    user = pwd_form.save()
+                    update_session_auth_hash(request, user)
                     messages.success(request, "رمز عبور شما با موفقیت تغییر کرد.")
-
 
         # ✅ refresh cached percent after any change
         profile.refresh_completion(save=True)
@@ -263,11 +295,10 @@ def profile_dashboard_view(request):
         if ok:
             if tab != "security":
                 messages.success(request, "تغییرات ذخیره شد.")
+            # NOTE: برای سوییچ تب‌ها از JS استفاده می‌کنیم، ولی بعد submit می‌تونی همین تب را دوباره لود کنی
             return redirect(f"{request.path}?tab={tab}")
-
         else:
             messages.error(request, "لطفاً خطاها را بررسی کنید.")
-            # برای رندر مجدد با خطاها، فرم‌ها + فرم‌ست‌های بایندشده را بفرست
             ctx = f
             if tab == "products" and product_image_fsets is not None:
                 ctx["product_image_fsets"] = product_image_fsets
@@ -280,57 +311,44 @@ def profile_dashboard_view(request):
     else:
         ctx = build_forms(False)
 
-    # ✅ also refresh on GET (cheap and safe)
+    # ✅ always refresh on GET too
     profile.refresh_completion(save=True)
 
-    # Build subcategory map (unchanged)
+    # Build subcategory map (هنرمند / زیرشاخه)
     try:
         from artists.models import Category, Subcategory
         subcat_map = {
-            c.id: list(Subcategory.objects.filter(category=c).values("id", "name"))
+            c.id: list(
+                Subcategory.objects.filter(category=c).values("id", "name")
+            )
             for c in Category.objects.all()
         }
     except Exception:
         subcat_map = {}
 
-    # ----- Attach UNBOUND gallery formsets for GET (and for POST when ok==False) -----
+    # ----- Attach UNBOUND gallery formsets for GET (برای همه تب‌ها) -----
     if request.method == "GET":
-        if tab == "products":
-            product_image_fsets = {
-                p.pk: ProductImageFormSet(instance=p, prefix=f"prdimg-{p.pk}")
-                for p in Product.objects.filter(profile=profile)
-            }
-            ctx["product_image_fsets"] = product_image_fsets
+        ctx["product_image_fsets"] = {
+            p.pk: ProductImageFormSet(instance=p, prefix=f"prdimg-{p.pk}")
+            for p in Product.objects.filter(profile=profile)
+        }
+        ctx["service_image_fsets"] = {
+            s.pk: ServiceImageFormSet(instance=s, prefix=f"srvimg-{s.pk}")
+            for s in Service.objects.filter(profile=profile)
+        }
+        ctx["artpost_image_fsets"] = {
+            post.pk: ArtPostImageFormSet(instance=post, prefix=f"artimg-{post.pk}")
+            for post in ArtPost.objects.filter(profile=profile)
+        }
 
-        if tab == "services":
-            service_image_fsets = {
-                s.pk: ServiceImageFormSet(instance=s, prefix=f"srvimg-{s.pk}")
-                for s in Service.objects.filter(profile=profile)
-            }
-            ctx["service_image_fsets"] = service_image_fsets
-        if tab == "content":
-            artpost_image_fsets = {
-                post.pk: ArtPostImageFormSet(instance=post, prefix=f"artimg-{post.pk}")
-                for post in ArtPost.objects.filter(profile=profile)
-            }
-            ctx["artpost_image_fsets"] = artpost_image_fsets
-
-    # وقتی POST انجام شده و ok==False بود، بالاتر already ست شده بود؛
-    # اگر POST بود و ok==True، ریدایرکت کردیم و به اینجا نمی‌رسیم.
-
-    ctx.update(dict(
-        profile=profile,
-        active_tab=tab,
-        subcat_map=subcat_map,
-        completion=profile.completion,
-
-        # ✅ NEW: subscription / trial info for the template
-        can_use_premium=profile.can_use_premium,
-        is_trial=profile.in_trial,
-        has_subscription=profile.has_subscription,
-        subscription_status_label=profile.subscription_status_label,
-        premium_days_left=profile.premium_days_left,
-    ))
+    ctx.update(
+        dict(
+            profile=profile,
+            active_tab=tab,
+            subcat_map=subcat_map,
+            completion=profile.completion,
+        )
+    )
     return render(request, "accounts/dashboard.html", ctx)
 
 

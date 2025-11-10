@@ -72,7 +72,7 @@
             <section id="sec1">
                 <div class="container small-container">
                     <div class="section-title fl-wrap">
-                        <h3>{{ profile.story_title|default:"داستان کوچک من" }}</h3>
+                        <h3>{{ profile.story_title|default:"داستان من" }}</h3>
                         <h4>{{ profile.story_subtitle|default:"" }}</h4>
                         <div class="section-number">01.</div>
                     </div>
@@ -137,7 +137,7 @@
 {% endif %}
 
                             {# لینک پورتفولیو: اگر صفحه‌ای داری رفرنس بده، فعلاً به route ثابت #}
-                            <a href="{% url 'public_profile' user.username %}#portfolio" class="btn fl-btn">پرتفولیوی من</a>
+                            <!-- <a href="{% url 'public_profile' user.username %}#portfolio" class="btn fl-btn">پرتفولیوی من</a> -->
                         </div>
                     </div>
                 </div>
@@ -251,8 +251,8 @@
 <section id="sec3">
   <div class="container small-container">
     <div class="section-title fl-wrap">
-      <h3>مهارت‌ها و دستاوردها</h3>
-      <h4>اما زمان، توده‌ای از خاردارها و تسهیلات را فراهم می‌آورد. در تخمیر، تسهیل‌های توده‌ای</h4>
+      <h3>دستاوردهای هنری</h3>
+      <!-- <h4>اما زمان، توده‌ای از خاردارها و تسهیلات را فراهم می‌آورد. در تخمیر، تسهیل‌های توده‌ای</h4> -->
       <div class="section-number">03.</div>
     </div>
 

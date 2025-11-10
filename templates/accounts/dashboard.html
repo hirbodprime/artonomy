@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static dict_extras %}
-{% block content %}
+{% block page_content %}
 <script>
 (function () {
   try {
@@ -73,9 +73,6 @@ input[type="checkbox"][name$="-DELETE"]{display:none!important}
 @media (min-width:900px){ .gallery-item{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)} }
 
 /* --------- لایه‌بندی داشبورد و سایدبار --------- */
-/* موبایل: تک‌ستونه */
-/* ====== لایه‌بندی و سایدبار ====== */
-/* موبایل: تک‌ستونه */
 .dash{
   display:grid;gap:16px;padding:16px;
   margin-top:calc(var(--header-h) + 12px);
@@ -86,7 +83,6 @@ input[type="checkbox"][name$="-DELETE"]{display:none!important}
 .side{grid-area:side}
 .main{grid-area:main}
 
-/* دسکتاپ (>=900px): ساید «چپ» + مین «راست» */
 @media (min-width:900px){
   .dash{
     grid-template-columns:var(--sidebar-w) 1fr;
@@ -95,46 +91,40 @@ input[type="checkbox"][name$="-DELETE"]{display:none!important}
   }
 }
 
-/* دکمه همبرگر: فقط موبایل، بالای راست */
+/* دکمه همبرگر: فقط موبایل */
 .side-toggle{
   position:fixed;
   top:12px;
-  inset-inline-end:12px;        /* همیشه «راست منطقی» */
+  inset-inline-end:12px;
   z-index:105;
   display:flex;align-items:center;justify-content:flex-end;
 }
 .side-toggle .btn-ghost{padding:10px 14px;border-radius:10px}
 @media (min-width:900px){ .side-toggle{display:none} }
 
-/* سایدبار موبایل: از راست باز شود و در حالت بسته کاملاً بیرون باشد */
+/* سایدبار موبایل: از راست باز شود */
 .side{
   position:fixed; top:0; bottom:0; inset-inline-end:0;
   width:min(86vw,320px);
   background:var(--panel);
-  /* ✨ بسته: مرز و سایه حذف شود تا لبه دیده نشود */
   border-inline-start:none;
   box-shadow:none;
-
   padding:16px 12px;
-  /* ✨ کمی بیشتر از 100% تا روی همه‌ی گوشی‌ها کامل پنهان شود */
   transform:translateX(calc(100% + 16px));
   transition:transform .25s ease, border .0s, box-shadow .0s;
   z-index:110; overflow:auto;
   will-change:transform;
 }
-
-/* فقط وقتی باز است مرز/سایه داشته باشد */
 .side.is-open{
   transform:translateX(0);
   border-inline-start:var(--border);
   box-shadow:0 10px 30px rgba(0,0,0,.14);
 }
-/* دسکتاپ: ساید sticky داخل گرید (چپ) */
 @media (min-width:900px){
   .side{
     position:sticky;inset:auto;top:calc(var(--header-h) + 24px);
     height:auto;width:auto;transform:none;box-shadow:none;z-index:1;
-    border-inline-start:none;border-inline-end:1px solid #e2e8f0; /* خط جداکننده سمت راست در دسکتاپ */
+    border-inline-start:none;border-inline-end:1px solid #e2e8f0;
   }
 }
 
@@ -150,7 +140,7 @@ input[type="checkbox"][name$="-DELETE"]{display:none!important}
 /* تب‌های ساید */
 .side h4{margin:8px 10px 16px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
 .tabs{display:flex;flex-direction:column;padding:0;margin:0;list-style:none}
-.tabs a{display:flex;gap:10px;align-items:center;padding:10px 14px;margin:2px 0;border-radius:8px;color:var(--text);text-decoration:none;border:1px solid transparent;font-size:14px;font-weight:600;transition:background-color .2s}
+.tabs a{display:flex;gap:10px;align-items:center;padding:10px 14px;margin:2px 0;border-radius:8px;color:var(--text);text-decoration:none;border:1px solid.transparent;font-size:14px;font-weight:600;transition:background-color .2s}
 .tabs a:hover{background:var(--panel-2)}
 .tabs a[aria-current="page"]{background:var(--panel-2);color:var(--accent)}
 
@@ -164,118 +154,67 @@ input[type="checkbox"][name$="-DELETE"]{display:none!important}
 @media (max-width:560px){ .actions .btn{width:100%} }
 html, body{ overflow-x:hidden }
 
-/* همبرگر همیشه گوشه‌ی راست بالای موبایل */
-.side-toggle{
-  position:fixed;
-  top:12px;
-  right:12px;      /* ← به‌جای inset-inline-end چون RTL هستیم */
-  left:auto;
-  z-index:105;
-}
-
-/* سایدبار موبایل: کاملاً بیرونِ راست وقتی بسته است (بدون مرز/سایه) */
-.side{
-  position:fixed;
-  top:0; bottom:0;
-  right:-120vw;    /* ← بدون transform، خارج از کادر */
-  left:auto;
-  width:min(86vw,320px);
-  background:var(--panel);
-  border-left:none;
-  box-shadow:none;
-  padding:16px 12px;
-  transition:right .25s ease;
-  z-index:110;
-  overflow:auto;
-}
-
-/* وقتی باز است از راست صفر شود و مرز/سایه بگیرد */
-.side.is-open{
-  right:0;
-  border-left:1px solid #e2e8f0;
-  box-shadow:0 10px 30px rgba(0,0,0,.14);
-}
-
-/* دسکتاپ: برگرد به حالت sticky و توی گرید (ستون چپ) */
-@media (min-width:900px){
-  .side{
-    position:sticky;
-    top:calc(var(--header-h) + 24px);
-    right:auto; left:auto;   /* داخل گرید */
-    height:auto; width:auto;
-    box-shadow:none;
-    border-left:none;
-  }
-}
-/* فاصله لوگو – اگر لوگوت بزرگ‌تر بود این مقدار را تغییر بده */
+/* همبرگر – جای دقیق */
 :root{ --logo-space: 90px; }
-
-/* موقعیت دقیق دکمه همبرگر */
 .side-toggle{
   position:fixed;
-  top:calc(var(--header-h)/2 + 14px); /* ۶px پایین‌تر برای هم‌ترازی با لوگو */
+  top:calc(var(--header-h)/2 + 14px);
   transform:translateY(-50%);
-  right:calc(var(--logo-space) + 22px);  /* کمی چپ‌تر (۸px) */
+  right:calc(var(--logo-space) + 22px);
   left:auto;
-
   z-index:105;
   display:flex;
   align-items:center;
   justify-content:flex-end;
 }
-
 .side-toggle .btn-ghost{
   padding:10px 14px;
   border-radius:10px;
 }
-
 @media (min-width:900px){
   .side-toggle{ display:none; }
 }
+
 /* دکمه بستن داخل منو (فقط موبایل) */
 .side-close-btn{
   position:absolute;
   top:12px;
-  left:12px;        /* چون منو از راست باز میشه، دکمه سمت چپ داخلش قرار می‌گیرد */
+  left:12px;
   z-index:120;
   padding:8px 12px;
   font-size:18px;
   line-height:1;
   cursor:pointer;
-
   background:var(--panel-2);
   border:1px solid #e2e8f0;
   border-radius:8px;
 }
-
 @media (min-width:900px){
   .side-close-btn{ display:none; }
 }
-/* ---- یکدست‌سازی منوی راست: فقط مدل right/left، مدل transform را خنثی کن ---- */
+
+/* خنثی‌سازی transform قدیمی و استفاده از right */
 .side{
-  transform:none !important;                 /* خنثی کردن نسخه قدیمی */
-  right:-120vw; transition:right .25s ease !important;
+  transform:none !important;
+  right:-120vw; transition:right .25s.ease !important;
 }
 .side.is-open{ right:0; }
 
-/* ---- دسکتاپ: منو sticky با ارتفاع محدود، زیرِ فوتر قرار بگیرد ---- */
 @media (min-width:900px){
-  .dash{ align-items:start; }                /* گرید را از بالا چینش کن */
+  .dash{ align-items:start; }
   .side{
     position: sticky;
     top: calc(var(--header-h) + 24px);
-    right:auto; left:auto;                  /* داخل گرید */
+    right:auto; left:auto;
     max-height: calc(100vh - (var(--header-h) + 32px));
-    overflow: auto;                         /* اسکرول داخلی برای آیتم‌های زیاد */
-    z-index: 0;                             /* زیرِ فوتر/هدر */
+    overflow: auto;
+    z-index: 0;
     box-shadow: none;
   }
-  /* اگر فوتر fixed/چسبان داری، مطمئن شو بالاتر از منو باشد */
   footer{ position:relative; z-index:2; }
 }
-
-/* احتیاط: اوورلی همیشه زیر فوتر باشد */
 .scrim{ z-index:109; }
+
 /* نوار ذخیره بالای هر سکشن */
 .actions--top{
   position: sticky;
@@ -283,7 +222,7 @@ html, body{ overflow-x:hidden }
   z-index: 3;
   background: var(--panel);
   padding: 10px 0 12px;
-  margin: -6px -2px 12px;          /* کمی فشرده‌تر */
+  margin: -6px -2px 12px;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: flex-end;
@@ -292,9 +231,9 @@ html, body{ overflow-x:hidden }
 @media (max-width:560px){
   .actions--top .btn{ width:100%; }
 }
-
-/* دکمه‌های پایینی مثل قبل بمانند */
 .panel > .actions:last-child{ margin-top:16px; }
+
+/* بنر وضعیت ساب/تریال */
 .sub-banner{
   margin-bottom:12px;
   padding:10px 12px;
@@ -338,6 +277,8 @@ html, body{ overflow-x:hidden }
   pointer-events:none;
   cursor:not-allowed;
 }
+
+/* پنل امنیت + فیلد رمز */
 .panel-security .password-field{
   background: var(--panel-2);
   border-radius: 12px;
@@ -347,7 +288,6 @@ html, body{ overflow-x:hidden }
   flex-direction: column;
   gap: 6px;
 }
-
 .panel-security .password-label-row{
   display:flex;
   align-items:center;
@@ -355,13 +295,11 @@ html, body{ overflow-x:hidden }
   gap:8px;
   margin-bottom:4px;
 }
-
 .panel-security .password-label-row label{
   margin:0;
   font-weight:700;
   font-size:13px;
 }
-
 .field-tag{
   font-size:11px;
   padding:4px 8px;
@@ -370,13 +308,11 @@ html, body{ overflow-x:hidden }
   color:#64748b;
   border:1px solid rgba(148,163,184,.4);
 }
-
 .field-tag--accent{
   background:rgba(59,130,246,.05);
   color:#1d4ed8;
   border-color:rgba(59,130,246,.4);
 }
-
 .password-wrapper{
   position:relative;
   display:flex;
@@ -385,10 +321,8 @@ html, body{ overflow-x:hidden }
   border:1px solid #e2e8f0;
   background:#fff;
   padding-inline:10px;
-  transition:border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+  transition:border-color .2s.ease, box-shadow .2s.ease, background-color .2s.ease;
 }
-
-/* اینجا استایل input اصلی رو داخل این کارت تمیز می‌کنیم */
 .panel-security .password-wrapper input{
   border:none;
   background:transparent;
@@ -397,14 +331,11 @@ html, body{ overflow-x:hidden }
   outline:none;
   box-shadow:none;
 }
-
-/* فوکِس روی wrapper نه خود input */
 .password-wrapper:focus-within{
   border-color:var(--accent-2);
   box-shadow:0 0 0 1px rgba(59,130,246,.25);
   background:#f9fbff;
 }
-
 .toggle-password{
   position:absolute;
   inset-inline-end:6px;
@@ -418,30 +349,25 @@ html, body{ overflow-x:hidden }
   align-items:center;
   justify-content:center;
   border-radius:999px;
-  transition:background-color .15s ease, color .15s ease, transform .1s ease;
+  transition:background-color .15s.ease, color .15s.ease, transform .1s.ease;
 }
-
 .toggle-password:hover{
   background:rgba(148,163,184,.2);
   color:var(--text);
 }
-
 .toggle-password:active{
   transform:scale(.94);
 }
-
 .field-error{
   color:#b91c1c;
   font-size:12px;
   margin-top:4px;
 }
-
 .field-help{
   color:var(--muted);
   font-size:11px;
   margin-top:4px;
 }
-
 .alert-error{
   background:#fef2f2;
   border:1px solid #fecaca;
@@ -464,32 +390,26 @@ html, body{ overflow-x:hidden }
   margin-bottom: 12px;
   animation: fadeIn 0.5s ease;
 }
-
 .alert-success i {
   color: #059669;
   font-size: 15px;
 }
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
 }
-/* ──────────────────────────────── */
-/* 🎨 فرم‌ست‌ها و پنل‌های محصولات / پست‌ها / خدمات */
-/* ──────────────────────────────── */
+
+/* 🎨 فرم‌ست‌ها و گالری */
 .panel h3 {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 10px;
 }
-
 .panel .muted {
   color: var(--muted, #6b7280);
   font-size: 13px;
   margin-bottom: 16px;
 }
-
-/* باکس اصلی هر فرم محصول/پست/سرویس */
 .formset {
   background: var(--panel-2, #f9fafb);
   border: 1px solid #e5e7eb;
@@ -498,49 +418,36 @@ html, body{ overflow-x:hidden }
   box-shadow: 0 2px 6px rgba(0,0,0,.04);
   transition: all .2s ease;
 }
-
 .formset:hover {
   border-color: var(--accent-2, #3b82f6);
   box-shadow: 0 4px 12px rgba(0,0,0,.06);
 }
-
-/* فاصله بین فرم‌ست‌ها */
 .formset + .formset {
   margin-top: 24px;
 }
-
-/* عنوان هر بخش داخل فرم‌ست */
 .formset h4 {
   font-weight: 700;
   font-size: 15px;
   margin: 10px 0 8px;
   color: var(--text, #111827);
 }
-
-/* خطوط جداکننده */
 .hr-accent {
   border: none;
   height: 1px;
   background: linear-gradient(90deg, rgba(59,130,246,.15), rgba(59,130,246,.05) 80%);
   margin: 16px 0;
 }
-
-/* ردیف‌های ورودی */
 .fsrow {
   display: grid;
   gap: 14px;
   margin-bottom: 12px;
 }
-
 .row {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
-
 .row-4 {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
-
-/* لیبل‌ها و ورودی‌ها */
 .formset label {
   display: block;
   font-size: 13px;
@@ -548,7 +455,6 @@ html, body{ overflow-x:hidden }
   margin-bottom: 6px;
   color: var(--text, #111827);
 }
-
 .formset input[type="text"],
 .formset input[type="number"],
 .formset select,
@@ -561,7 +467,6 @@ html, body{ overflow-x:hidden }
   font-size: 13px;
   transition: border-color .2s ease, box-shadow .2s ease;
 }
-
 .formset input:focus,
 .formset select:focus,
 .formset textarea:focus {
@@ -569,8 +474,6 @@ html, body{ overflow-x:hidden }
   box-shadow: 0 0 0 1px rgba(59,130,246,.2);
   outline: none;
 }
-
-/* دکمه حذف */
 .del-chip {
   background: #fee2e2;
   border: 1px solid #fecaca;
@@ -579,14 +482,12 @@ html, body{ overflow-x:hidden }
   padding: 4px 8px;
   border-radius: 8px;
   cursor: pointer;
-  transition: all .2s ease;
+  transition: all .2s.ease;
 }
 .del-chip:hover {
   background: #fecaca;
   color: #7f1d1d;
 }
-
-/* بخش گالری تصاویر */
 .gallery-wrapper {
   margin-top: 10px;
   background: #fff;
@@ -594,7 +495,6 @@ html, body{ overflow-x:hidden }
   border-radius: 10px;
   padding: 14px;
 }
-
 .gallery-item {
   background: #f9fafb;
   border: 1px solid #e5e7eb;
@@ -605,7 +505,6 @@ html, body{ overflow-x:hidden }
   grid-template-columns: 1fr 220px;
   gap: 14px;
 }
-
 .gallery-item img.preview {
   width: 100%;
   max-width: 200px;
@@ -613,8 +512,6 @@ html, body{ overflow-x:hidden }
   border: 1px solid #e5e7eb;
   margin-top: 6px;
 }
-
-/* دکمه افزودن تصویر */
 .gallery-wrapper .btn-ghost {
   margin-top: 8px;
   background: rgba(59,130,246,.08);
@@ -623,21 +520,17 @@ html, body{ overflow-x:hidden }
   font-size: 13px;
   padding: 6px 10px;
   border-radius: 8px;
-  transition: all .2s ease;
+  transition: all .2s.ease;
 }
-
 .gallery-wrapper .btn-ghost:hover {
   background: var(--accent-2, #3b82f6);
   color: #fff;
   border-style: solid;
 }
-
-/* دکمه ذخیره پایین */
 .actions {
   margin-top: 24px;
   text-align: left;
 }
-
 .actions .btn {
   background: linear-gradient(90deg, #3b82f6, #2563eb);
   color: #fff;
@@ -647,31 +540,28 @@ html, body{ overflow-x:hidden }
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all .2s ease;
+  transition: all .2s.ease;
 }
-
 .actions .btn:hover {
   background: linear-gradient(90deg, #2563eb, #1d4ed8);
   transform: translateY(-1px);
 }
-/* مسیر طولانی فایل توی inputهای گالری محصولات/پست‌ها/خدمات */
+
+/* مسیر طولانی فایل در گالری‌ها */
 .gallery-item span.clearable-file-input {
   display: block;
   max-width: 100%;
   font-size: 11px;
   line-height: 1.4;
-  overflow-wrap: anywhere;   /* مهم‌ترین خط: هرجا شد، بشکن */
+  overflow-wrap: anywhere;
   word-break: break-word;
   white-space: normal;
-  direction: ltr;            /* مسیر فایل رو چپ‌به‌راست کن که خوانا باشه */
+  direction: ltr;
   text-align: left;
 }
-
-/* نذار هیچ‌چیزی از خود کارت بزنه بیرون */
 .gallery-item {
   overflow: hidden;
 }
-
 </style>
 
 <div class="dash">
@@ -682,87 +572,76 @@ html, body{ overflow-x:hidden }
             aria-controls="sideNav" aria-expanded="false"
             aria-label="باز کردن منو">☰ منو</button>
   </div>
+
   <aside class="side" id="sideNav" aria-hidden="true">
-<button type="button" class="side-close-btn" id="closeSide"
-        aria-label="بستن منو">✕</button>
+    <button type="button" class="side-close-btn" id="closeSide"
+            aria-label="بستن منو">✕</button>
     <h4>مدیریت پروفایل</h4>
     <nav class="tabs" role="navigation">
-      <a href="?tab=role" aria-current="{% if active_tab == 'role' %}page{% else %}false{% endif %}">نقش و دسته‌بندی</a>
-      <a href="?tab=profile"      aria-current="{% if active_tab == 'profile' %}page{% else %}false{% endif %}">ویرایش پروفایل</a>
-      <a href="?tab=counters"     aria-current="{% if active_tab == 'counters' %}page{% else %}false{% endif %}">آمارها (کاردهای ۴تایی)</a>
-      <a href="?tab=skills"       aria-current="{% if active_tab == 'skills' %}page{% else %}false{% endif %}">مهارت‌ها</a>
-      <a href="?tab=testimonials" aria-current="{% if active_tab == 'testimonials' %}page{% else %}false{% endif %}">مشتریان و نظرات</a>
-      <a href="?tab=social"       aria-current="{% if active_tab == 'social' %}page{% else %}false{% endif %}">شبکه‌های اجتماعی</a>
-      <a href="?tab=clients"      aria-current="{% if active_tab == 'clients' %}page{% else %}false{% endif %}">لوگو مشتریان</a>
-            <a
-        href="{% if can_use_premium %}?tab=products{% else %}#{% endif %}"
-        class="{% if not can_use_premium %}is-disabled{% endif %}"
-        aria-disabled="{% if not can_use_premium %}true{% else %}false{% endif %}"
-        aria-current="{% if active_tab == 'products' %}page{% else %}false{% endif %}"
-      >
+      <a href="?tab=role"
+         data-tab="role"
+         aria-current="{% if active_tab == 'role' %}page{% else %}false{% endif %}">
+        نقش و دسته‌بندی
+      </a>
+      <a href="?tab=profile"
+         data-tab="profile"
+         aria-current="{% if active_tab == 'profile' %}page{% else %}false{% endif %}">
+        ویرایش پروفایل
+      </a>
+      <a href="?tab=counters"
+         data-tab="counters"
+         aria-current="{% if active_tab == 'counters' %}page{% else %}false{% endif %}">
+        دستواردهای هنری
+      </a>
+      <a href="?tab=skills"
+         data-tab="skills"
+         aria-current="{% if active_tab == 'skills' %}page{% else %}false{% endif %}">
+        مهارت‌ها
+      </a>
+      <a href="?tab=testimonials"
+         data-tab="testimonials"
+         aria-current="{% if active_tab == 'testimonials' %}page{% else %}false{% endif %}">
+        مشتریان و نظرات
+      </a>
+      <a href="?tab=social"
+         data-tab="social"
+         aria-current="{% if active_tab == 'social' %}page{% else %}false{% endif %}">
+        شبکه‌های اجتماعی
+      </a>
+      <!-- <a href="?tab=clients"
+         data-tab="clients"
+         aria-current="{% if active_tab == 'clients' %}page{% else %}false{% endif %}">
+        لوگو مشتریان
+      </a> -->
+      <a href="?tab=products"
+         data-tab="products"
+         aria-disabled="false"
+         aria-current="{% if active_tab == 'products' %}page{% else %}false{% endif %}">
         محصولات
       </a>
-
-      <a
-        href="{% if can_use_premium %}?tab=services{% else %}#{% endif %}"
-        class="{% if not can_use_premium %}is-disabled{% endif %}"
-        aria-disabled="{% if not can_use_premium %}true{% else %}false{% endif %}"
-        aria-current="{% if active_tab == 'services' %}page{% else %}false{% endif %}"
-      >
+      <a href="?tab=services"
+         data-tab="services"
+         aria-disabled="false"
+         aria-current="{% if active_tab == 'services' %}page{% else %}false{% endif %}">
         خدمات
       </a>
-<a
-  href="?tab=content"
-  aria-current="{% if active_tab == 'content' %}page{% else %}false{% endif %}"
->
-  محتوای هنری
-</a>
-      <a
-        href="?tab=security"
-        aria-current="{% if active_tab == 'security' %}page{% else %}false{% endif %}"
-      >
+      <a href="?tab=content"
+         data-tab="content"
+         aria-current="{% if active_tab == 'content' %}page{% else %}false{% endif %}">
+        محتوای هنری
+      </a>
+      <a href="?tab=security"
+         data-tab="security"
+         aria-current="{% if active_tab == 'security' %}page{% else %}false{% endif %}">
         امنیت حساب / تغییر رمز
       </a>
-
-      <!-- <a href="?tab=products"  aria-current="{% if active_tab == 'products' %}page{% else %}false{% endif %}">محصولات</a>
-      <a href="?tab=services"  aria-current="{% if active_tab == 'services' %}page{% else %}false{% endif %}">خدمات</a> -->
     </nav>
   </aside>
   <div class="scrim" id="sideScrim"></div>
 
   <main class="main" style="display:flex;flex-direction:column;gap:16px">
-        {% if has_subscription %}
-      <div class="sub-banner sub-banner--paid">
-        <span>
-          <strong>{{ subscription_status_label }}</strong> –
-          {{ premium_days_left }} روز تا پایان اشتراک شما باقی مانده است.
-        </span>
-        <button type="button" class="btn-mini">
-          مدیریت اشتراک
-        </button>
-      </div>
-    {% elif is_trial %}
-      <div class="sub-banner sub-banner--trial">
-        <span>
-          <strong>شما در دوره آزمایشی ۷ روزه هستید</strong> –
-          {{ premium_days_left }} روز دیگر می‌توانید از «محصولات» و «خدمات» استفاده کنید.
-        </span>
-        <button type="button" class="btn-mini">
-          ارتقا به اشتراک ماهانه (۱ دلار)
-        </button>
-      </div>
-    {% elif not can_use_premium %}
-      <div class="sub-banner sub-banner--expired">
-        <span>
-          <strong>دوره آزمایشی شما به پایان رسیده است</strong> –
-          برای استفاده از «محصولات» و «خدمات» اشتراک ماهانه (۱ دلار) را فعال کنید.
-        </span>
-        <button type="button" class="btn-mini">
-          فعال‌سازی اشتراک
-        </button>
-      </div>
-    {% endif %}
 
+    <!-- پنل بالایی ثابت: درصد تکمیل -->
     <section class="panel">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <h3 style="margin:0">درصد تکمیل پروفایل</h3>
@@ -787,57 +666,82 @@ html, body{ overflow-x:hidden }
 
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
+      <input type="hidden" name="active_tab" id="active_tab_input" value="{{ active_tab }}">
 
-      {% if active_tab == 'profile' %}
-      <section class="panel">
-        <h3>پروفایل شخصی</h3>
+      <!-- PROFILE TAB -->
+   <!-- PROFILE TAB -->
+<section class="panel tab-panel" data-tab="profile" {% if active_tab != 'profile' %}style="display:none"{% endif %}>
+  <h3>پروفایل شخصی</h3>
 
-        <div class="row">
-          <div>
-            <label>تصویر پس‌زمینه هدر</label>
-            {{ form.header_background }}
-            {% if profile.header_background %}
-              <img class="preview" id="preview-header" src="{{ profile.header_background.url }}" alt="">
-            {% else %}
-              <img class="preview" id="preview-header" src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
-            {% endif %}
-            <div class="muted">jpg / png</div>
-          </div>
-          <div>
-            <label>زیرتیتر هدر</label>
-            {{ form.header_subtitle }}
-          </div>
-        </div>
+  {# 1) نام و نام خانوادگی #}
+  <div class="row">
+    <div>
+      <label>نام</label>
+      {{ user_form.first_name }}
+    </div>
+    <div>
+      <label>نام خانوادگی</label>
+      {{ user_form.last_name }}
+    </div>
+  </div>
 
-        <div class="row">
-          <div>
-            <label>زیرتیتر داستان</label>
-            {{ form.story_subtitle }}
-          </div>
-        </div>
+  <div class="hr"></div>
 
-        <label>متن داستان - پاراگراف ۱</label>
-        {{ form.story_paragraph_1 }}
-        <label>متن داستان - پاراگراف ۲</label>
-        {{ form.story_paragraph_2 }}
-
-        <div class="hr"></div>
-        <h3 style="font-size:16px;margin-bottom:12px;font-weight: 800">نام و نام خانوادگی (از حساب کاربری)</h3>
-        <div class="row">
-          <div><label>نام</label>{{ user_form.first_name }}</div>
-          <div><label>نام خانوادگی</label>{{ user_form.last_name }}</div>
-        </div>
-
-        <div class="hr"></div>
-        <div class="actions">
-          <button class="btn" type="submit">ذخیره تغییرات</button>
-        </div>
-      </section>
+  {# 2) عکس پروفایل #}
+  <div class="row">
+    <div>
+      <label>عکس پروفایل</label>
+      {{ form.avatar }}
+      {% if profile.avatar %}
+        <img class="preview preview--logo" src="{{ profile.avatar.url }}" alt="عکس پروفایل">
+      {% else %}
+        <img class="preview preview--logo" src="{% static 'images/placeholder/avatar.png' %}" alt="عکس پروفایل">
       {% endif %}
+      <div class="muted">jpg / png – پیشنهاد می‌شود تصویر مربعی باشد.</div>
+    </div>
+  </div>
 
-      {% if active_tab == 'counters' %}
-      <section class="panel">
-        <h3>آمارها (کاردهای ۴تایی)</h3>
+  <div class="hr"></div>
+
+  {# 3) عکس هدر + بایو کوتاه #}
+  <div class="row">
+    <div>
+      <label>تصویر هدر (کاور پروفایل)</label>
+      {{ form.header_background }}
+      {% if profile.header_background %}
+        <img class="preview" src="{{ profile.header_background.url }}" alt="">
+      {% else %}
+        <img class="preview" src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
+      {% endif %}
+      <div class="muted">نسبت پیشنهادی 16:9</div>
+    </div>
+    <div>
+      <label>بایو کوتاه</label>
+      {{ form.header_subtitle }}
+      <div class="muted">یک جمله درباره خودتان (مثلاً: طراح گرافیک و تصویرگر)</div>
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  {# 4) داستان من #}
+  <div>
+    <label>داستان من</label>
+    {{ form.story_paragraph_1 }}
+    <div class="muted">در چند خط بنویسید که چطور وارد مسیر هنری خود شدید.</div>
+  </div>
+
+  <div class="hr"></div>
+
+  <div class="actions">
+    <button class="btn" type="submit">ذخیره تغییرات</button>
+  </div>
+</section>
+
+
+      <!-- COUNTERS TAB -->
+      <section class="panel tab-panel" data-tab="counters" {% if active_tab != 'counters' %}style="display:none"{% endif %}>
+        <h3>دستواردهای هنری</h3>
         <div class="formset">
           {{ fs_counters.management_form }}
           {% for f in fs_counters %}
@@ -855,10 +759,9 @@ html, body{ overflow-x:hidden }
         </div>
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
-      {% endif %}
 
-      {% if active_tab == 'skills' %}
-      <section class="panel">
+      <!-- SKILLS TAB -->
+      <section class="panel tab-panel" data-tab="skills" {% if active_tab != 'skills' %}style="display:none"{% endif %}>
         <h3>مهارت‌ها</h3>
         <div class="formset">
           {{ fs_skills.management_form }}
@@ -877,10 +780,9 @@ html, body{ overflow-x:hidden }
         </div>
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
-      {% endif %}
 
-      {% if active_tab == 'testimonials' %}
-      <section class="panel">
+      <!-- TESTIMONIALS TAB -->
+      <section class="panel tab-panel" data-tab="testimonials" {% if active_tab != 'testimonials' %}style="display:none"{% endif %}>
         <h3>مشتریان و نظرات</h3>
         <div class="formset">
           {{ fs_tests.management_form }}
@@ -913,10 +815,9 @@ html, body{ overflow-x:hidden }
         </div>
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
-      {% endif %}
 
-      {% if active_tab == 'social' %}
-      <section class="panel">
+      <!-- SOCIAL TAB -->
+      <section class="panel tab-panel" data-tab="social" {% if active_tab != 'social' %}style="display:none"{% endif %}>
         <h3>شبکه‌های اجتماعی</h3>
         <div class="formset">
           {{ fs_social.management_form }}
@@ -935,10 +836,10 @@ html, body{ overflow-x:hidden }
         </div>
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
-      {% endif %}
-      {% if active_tab == 'role' %}
-      <section class="panel">
-        <h3>نقش و دسته‌بندی</h3>
+
+      <!-- ROLE TAB -->
+      <section class="panel tab-panel" data-tab="role" {% if active_tab != 'role' %}style="display:none"{% endif %}>
+        <h3>دسته بندی</h3>
         <p class="muted">یک گزینه انتخاب کنید: «هنرمند مستقل» و سپس دسته/زیرشاخه، یا «صاحب کسب‌وکار» و نوع کسب‌وکار.</p>
         <div class="row">
           <div>
@@ -953,7 +854,6 @@ html, body{ overflow-x:hidden }
             <div><label>زیرشاخه</label>{{ role_form.subcategory }}</div>
           </div>
 
-          {# ✅ این بلوک جدید: فقط برای هنرمند و وقتی زیرشاخه «سایر» است نمایش داده می‌شود #}
           <div class="row" id="custom-subcat-row" style="margin-top:12px; display:none;">
             <div>
               <label>زیرشاخه دلخواه</label>
@@ -974,11 +874,9 @@ html, body{ overflow-x:hidden }
           <button class="btn" type="submit">ذخیره</button>
         </div>
       </section>
-      {% endif %}
 
-
-      {% if active_tab == 'products' %}
-      <section class="panel">
+      <!-- PRODUCTS TAB -->
+      <section class="panel tab-panel" data-tab="products" {% if active_tab != 'products' %}style="display:none"{% endif %}>
         <h3>محصولات فیزیکی</h3>
         <div class="muted">تا ۵ تصویر؛ یکی را «اصلی» علامت بزنید.</div>
 
@@ -1098,12 +996,12 @@ html, body{ overflow-x:hidden }
 
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
-      {% endif %}
-{% if active_tab == 'content' %}
-<section class="panel">
+
+      <!-- CONTENT (ART POSTS) TAB -->
+<section class="panel tab-panel" data-tab="content" {% if active_tab != 'content' %}style="display:none"{% endif %}>
   <h3>محتوای هنری (پست‌ها)</h3>
   <div class="muted">
-    مثل محصولات، اما بدون قیمت. برای هر پست می‌توانید تا ۵ تصویر پر کنید.
+    پست‌های هنری بدون قیمت. برای هر پست می‌توانید یک ویدیو و چند تصویر اضافه کنید.
   </div>
 
   {{ fs_artposts.management_form }}
@@ -1111,14 +1009,14 @@ html, body{ overflow-x:hidden }
   {% for f in fs_artposts %}
     {% with post=f.instance pk=f.instance.pk %}
     <div class="formset" style="margin-top:16px">
+      {# عنوان + توضیح #}
       <div class="row fsrow" style="align-items:flex-end">
         <div><label>عنوان پست</label>{{ f.title }}{{ f.id }}</div>
         <div><label>توضیح</label>{{ f.description }}</div>
       </div>
 
+      {# ترتیب + فعال بودن #}
       <div class="row-4 fsrow" style="align-items:flex-end">
-        <div><label>تعداد / سری</label>{{ f.quantity }}</div>
-        <div><label>وضعیت</label>{{ f.condition }}</div>
         <div><label>ترتیب</label>{{ f.order }}</div>
         <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
           <label>فعال؟</label>{{ f.is_active }}
@@ -1127,60 +1025,125 @@ html, body{ overflow-x:hidden }
       </div>
 
       <div class="hr hr-accent"></div>
+
+      {# 🔹 ویدیو (اختیاری) - همیشه فعال #}
+      <h4 style="margin:0 0 8px">ویدیو (اختیاری)</h4>
+      <div class="row fsrow">
+        <div>
+          <label>فایل ویدیو</label>
+          {{ f.video }}
+          {% if post.video %}
+            <video controls style="width:100%;max-width:340px;border-radius:8px;margin-top:8px">
+              <source src="{{ post.video.url }}">
+              مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+            </video>
+          {% endif %}
+          <div class="muted">
+            فرمت‌های پیشنهادی: mp4, mov. بعد از ذخیره، ویدیو فشرده می‌شود.
+          </div>
+        </div>
+      </div>
+
+      <div class="hr hr-accent"></div>
+
+      {# 🔹 گالری تصاویر - شبیه محصولات/خدمات، با دکمه «افزودن تصویر» #}
       <h4 style="margin:0 0 8px">گالری تصاویر</h4>
 
       {% if pk %}
         {% with gfs=artpost_image_fsets|dict_get:pk %}
           {% if gfs %}
-            {{ gfs.management_form }}
+            <div class="gallery-wrapper" data-formset-prefix="{{ gfs.prefix }}">
+              {{ gfs.management_form }}
 
-            {% for imgf in gfs.forms %}
-              <div class="fsrow gallery-item">
-                <div style="display:flex; flex-direction:column; gap:16px;">
-                  {{ imgf.id }}
-                  <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
-                  <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
-                    <div><label>ترتیب</label>{{ imgf.order }}</div>
-                    <div style="display:flex;flex-direction:column;">
-                      <label>اصلی؟</label>
-                      <div style="margin-top:8px">{{ imgf.is_primary }}</div>
+              <div class="gallery-forms" data-forms>
+                {% for imgf in gfs.forms %}
+                  <div class="fsrow gallery-item">
+                    <div style="display:flex; flex-direction:column; gap:16px;">
+                      {{ imgf.id }}
+                      <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
+                      <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
+                        <div><label>ترتیب</label>{{ imgf.order }}</div>
+                        <div style="display:flex;flex-direction:column;">
+                          <label>اصلی؟</label>
+                          <div style="margin-top:8px">{{ imgf.is_primary }}</div>
+                        </div>
+                      </div>
+                      {% if imgf.DELETE %}
+                      <div style="display:flex;justify-content:flex-start; margin-top:6px;">
+                        {{ imgf.DELETE }}
+                        <span class="del-chip" data-del>حذف</span>
+                      </div>
+                      {% endif %}
+                    </div>
+                    <div style="text-align:right;">
+                      <label>تصویر</label>
+                      {{ imgf.image }}
+                      {% if imgf.instance.pk and imgf.instance.image %}
+                        <img class="preview" src="{{ imgf.instance.image.url }}" alt="" data-preview>
+                      {% else %}
+                        <img class="preview" src="" alt="" data-preview style="display:none">
+                      {% endif %}
                     </div>
                   </div>
-                  {% if imgf.DELETE %}
-                  <div style="display:flex;justify-content:flex-start; margin-top:6px;">
-                    {{ imgf.DELETE }}
-                    <span class="del-chip" data-del>حذف</span>
-                  </div>
-                  {% endif %}
-                </div>
-                <div style="text-align:right;">
-                  <label>تصویر</label>
-                  {{ imgf.image }}
-                  {% if imgf.instance.pk and imgf.instance.image %}
-                    <img class="preview" src="{{ imgf.instance.image.url }}" alt="" data-preview>
-                  {% else %}
-                    <img class="preview" src="" alt="" data-preview style="display:none">
-                  {% endif %}
-                </div>
+                {% endfor %}
               </div>
-            {% endfor %}
+
+              {# فرم خالی برای add با JS (مثل محصولات/خدمات) #}
+              <template data-empty-form>
+                <div class="fsrow gallery-item">
+                  <div style="display:flex; flex-direction:column; gap:16px;">
+                    <div><label>متن جایگزین</label> __ALT__</div>
+                    <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
+                      <div><label>ترتیب</label> __ORDER__</div>
+                      <div style="display:flex;flex-direction:column;">
+                        <label>اصلی؟</label>
+                        <div style="margin-top:8px"> __PRIMARY__</div>
+                      </div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-start; margin-top:6px;">
+                      <input type="checkbox" name="__PREFIX__-DELETE" id="id___PREFIX__-DELETE" style="display:none">
+                      <span class="del-chip" data-del>حذف</span>
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <label>تصویر</label> __IMAGE__
+                    <img class="preview" src="" alt="" data-preview style="display:none">
+                  </div>
+                </div>
+              </template>
+
+              <div data-empty-fields style="display:none">
+                {{ gfs.empty_form.id }}
+                {{ gfs.empty_form.image }}
+                {{ gfs.empty_form.alt_text }}
+                {{ gfs.empty_form.order }}
+                {{ gfs.empty_form.is_primary }}
+                {{ gfs.empty_form.DELETE }}
+              </div>
+
+              <div>
+                <button class="btn btn-ghost" type="button" data-add>افزودن تصویر</button>
+              </div>
+            </div>
           {% else %}
             <div class="muted">فرم گالری برای این پست یافت نشد.</div>
           {% endif %}
         {% endwith %}
       {% else %}
-        <div class="muted">بعد از ذخیره این پست، بخش «گالری تصاویر» فعال می‌شود.</div>
+        <div class="muted">
+          برای این پست، ابتدا آن را ذخیره کنید تا گالری تصاویر فعال شود.
+        </div>
       {% endif %}
     </div>
     {% endwith %}
   {% endfor %}
 
-  <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
+  <div class="actions">
+    <button class="btn" type="submit">ذخیره</button>
+  </div>
 </section>
-{% endif %}
-
-      {% if active_tab == 'services' %}
-      <section class="panel">
+      <!-- SERVICES TAB -->
+      <section class="panel tab-panel" data-tab="services" {% if active_tab != 'services' %}style="display:none"{% endif %}>
         <h3>خدمات</h3>
         <div class="muted">تا ۵ تصویر؛ یکی را «اصلی» علامت بزنید.</div>
 
@@ -1303,98 +1266,97 @@ html, body{ overflow-x:hidden }
 
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
-      {% endif %}
-{% if active_tab == 'security' %}
-<section class="panel panel-security">
-  <h3>امنیت حساب و تغییر رمز عبور</h3>
-  {% if messages %}
-  {% for message in messages %}
-    {% if 'success' in message.tags %}
-      <div class="alert-success">
-        <i class="far fa-check-circle"></i> {{ message }}
-      </div>
-    {% elif 'error' in message.tags %}
-      <div class="alert-error">
-        <i class="far fa-times-circle"></i> {{ message }}
-      </div>
-    {% endif %}
-  {% endfor %}
-{% endif %}
 
-  <p class="muted">
-    برای حفظ امنیت حساب خود، یک رمز عبور قوی و منحصربه‌فرد انتخاب کنید.
-  </p>
+      <!-- SECURITY TAB -->
+      <section class="panel panel-security tab-panel" data-tab="security" {% if active_tab != 'security' %}style="display:none"{% endif %}>
+        <h3>امنیت حساب و تغییر رمز عبور</h3>
+        {% if messages %}
+          {% for message in messages %}
+            {% if 'success' in message.tags %}
+              <div class="alert-success">
+                <i class="far fa-check-circle"></i> {{ message }}
+              </div>
+            {% elif 'error' in message.tags %}
+              <div class="alert-error">
+                <i class="far fa-times-circle"></i> {{ message }}
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
 
-  {% if pwd_form.non_field_errors %}
-    <div class="alert-error">
-      {{ pwd_form.non_field_errors.0 }}
-    </div>
-  {% endif %}
+        <p class="muted">
+          برای حفظ امنیت حساب خود، یک رمز عبور قوی و منحصربه‌فرد انتخاب کنید.
+        </p>
 
-  <div class="row">
-    <div class="password-field">
-      <div class="password-label-row">
-        <label>{{ pwd_form.old_password.label }}</label>
-        <span class="field-tag">رمز فعلی</span>
-      </div>
-      <div class="password-wrapper">
-        {{ pwd_form.old_password }}
-        <button type="button" class="toggle-password" aria-label="نمایش/مخفی کردن رمز">
-          <i class="far fa-eye"></i>
-        </button>
-      </div>
-      {% if pwd_form.old_password.errors %}
-        <div class="field-error">{{ pwd_form.old_password.errors.0 }}</div>
-      {% endif %}
-    </div>
-  </div>
+        {% if pwd_form.non_field_errors %}
+          <div class="alert-error">
+            {{ pwd_form.non_field_errors.0 }}
+          </div>
+        {% endif %}
 
-  <div class="row">
-    <div class="password-field">
-      <div class="password-label-row">
-        <label>{{ pwd_form.new_password1.label }}</label>
-        <span class="field-tag field-tag--accent">رمز جدید</span>
-      </div>
-      <div class="password-wrapper">
-        {{ pwd_form.new_password1 }}
-        <button type="button" class="toggle-password" aria-label="نمایش/مخفی کردن رمز">
-          <i class="far fa-eye"></i>
-        </button>
-      </div>
-      {% if pwd_form.new_password1.errors %}
-        <div class="field-error">{{ pwd_form.new_password1.errors.0 }}</div>
-      {% else %}
-        <div class="field-help">
-          {{ pwd_form.new_password1.help_text|safe }}
+        <div class="row">
+          <div class="password-field">
+            <div class="password-label-row">
+              <label>{{ pwd_form.old_password.label }}</label>
+              <span class="field-tag">رمز فعلی</span>
+            </div>
+            <div class="password-wrapper">
+              {{ pwd_form.old_password }}
+              <button type="button" class="toggle-password" aria-label="نمایش/مخفی کردن رمز">
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+            {% if pwd_form.old_password.errors %}
+              <div class="field-error">{{ pwd_form.old_password.errors.0 }}</div>
+            {% endif %}
+          </div>
         </div>
-      {% endif %}
-    </div>
 
-    <div class="password-field">
-      <div class="password-label-row">
-        <label>{{ pwd_form.new_password2.label }}</label>
-        <span class="field-tag">تأیید رمز</span>
-      </div>
-      <div class="password-wrapper">
-        {{ pwd_form.new_password2 }}
-        <button type="button" class="toggle-password" aria-label="نمایش/مخفی کردن رمز">
-          <i class="far fa-eye"></i>
-        </button>
-      </div>
-      {% if pwd_form.new_password2.errors %}
-        <div class="field-error">{{ pwd_form.new_password2.errors.0 }}</div>
-      {% endif %}
-    </div>
-  </div>
+        <div class="row">
+          <div class="password-field">
+            <div class="password-label-row">
+              <label>{{ pwd_form.new_password1.label }}</label>
+              <span class="field-tag field-tag--accent">رمز جدید</span>
+            </div>
+            <div class="password-wrapper">
+              {{ pwd_form.new_password1 }}
+              <button type="button" class="toggle-password" aria-label="نمایش/مخفی کردن رمز">
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+            {% if pwd_form.new_password1.errors %}
+              <div class="field-error">{{ pwd_form.new_password1.errors.0 }}</div>
+            {% else %}
+              <div class="field-help">
+                {{ pwd_form.new_password1.help_text|safe }}
+              </div>
+            {% endif %}
+          </div>
 
-  <div class="actions">
-    <button class="btn" type="submit">ذخیره تغییرات رمز عبور</button>
-  </div>
-</section>
-{% endif %}
+          <div class="password-field">
+            <div class="password-label-row">
+              <label>{{ pwd_form.new_password2.label }}</label>
+              <span class="field-tag">تأیید رمز</span>
+            </div>
+            <div class="password-wrapper">
+              {{ pwd_form.new_password2 }}
+              <button type="button" class="toggle-password" aria-label="نمایش/مخفی کردن رمز">
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+            {% if pwd_form.new_password2.errors %}
+              <div class="field-error">{{ pwd_form.new_password2.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
 
-      {% if active_tab == 'clients' %}
-      <section class="panel">
+        <div class="actions">
+          <button class="btn" type="submit">ذخیره تغییرات رمز عبور</button>
+        </div>
+      </section>
+
+      <!-- CLIENTS TAB -->
+      <!-- <section class="panel tab-panel" data-tab="clients" {% if active_tab != 'clients' %}style="display:none"{% endif %}>
         <h3>لوگو مشتریان</h3>
         <div class="formset">
           {{ fs_clients.management_form }}
@@ -1418,15 +1380,14 @@ html, body{ overflow-x:hidden }
           {% endfor %}
         </div>
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
-      </section>
-      {% endif %}
+      </section> -->
 
     </form>
   </main>
 </div>
 
 <script>
-/* رنگ پیشرفت */
+/* رنگ نوار پیشرفت */
 (function(){
   const el=document.querySelector('.progress-inner'); if(!el) return;
   const pct=parseInt({{ completion|default:0 }}); 
@@ -1434,8 +1395,6 @@ html, body{ overflow-x:hidden }
 })();
 
 /* منوی کناری موبایل */
-/* ---- Mobile sidebar: open/close + overlay + ESC + resize guard ---- */
-/* موبایل: باز/بستن سایدبار راست + اوورلی + ESC + تغییر اندازه */
 (function(){
   const side   = document.getElementById('sideNav');
   const scrim  = document.getElementById('sideScrim');
@@ -1466,8 +1425,7 @@ html, body{ overflow-x:hidden }
   });
 })();
 
-
-/* سوییچ بخش نقش */
+/* سوییچ بخش نقش artist/business */
 (function(){
   function updateRoleUI(){
     const role=document.querySelector('[name="role"]')?.value;
@@ -1481,7 +1439,7 @@ html, body{ overflow-x:hidden }
   updateRoleUI();
 })();
 
-/* فیلتر زیرشاخه */
+/* فیلتر زیرشاخه بر اساس دسته */
 (function(){
   const SUBCAT_MAP = {{ subcat_map|safe }};
   const catSel=document.getElementById('id_category')||document.querySelector('[name="category"]');
@@ -1497,18 +1455,26 @@ html, body{ overflow-x:hidden }
   catSel?.addEventListener('change',refill); refill();
 })();
 
-/* تَگ حذف ردیف‌ها */
+/* تگ حذف ردیف‌ها */
 document.addEventListener('click',function(e){
   const chip=e.target.closest('[data-del]'); if(!chip) return; e.preventDefault();
   const row=chip.closest('.fsrow'); if(!row) return;
   let chk=row.querySelector('input[type="checkbox"][name$="-DELETE"]');
-  if(chk){ chk.checked=!chk.checked; row.classList.toggle('row-deleting',chk.checked); chip.textContent=chk.checked?'بازگردانی':'حذف'; return; }
+  if(chk){
+    chk.checked=!chk.checked;
+    row.classList.toggle('row-deleting',chk.checked);
+    chip.textContent=chk.checked?'بازگردانی':'حذف';
+    return;
+  }
   const any=row.querySelector('input[name],select[name],textarea[name]'); if(!any) return;
   const m=any.name.match(/^(.*-\d+)-/); if(!m) return; const base=m[1]; const delName=base+'DELETE';
   let hidden=row.querySelector(`input[type="hidden"][name="${delName}"]`);
-  if(hidden){ hidden.remove(); row.classList.remove('row-deleting'); chip.textContent='حذف'; }
-  else { hidden=document.createElement('input'); hidden.type='hidden'; hidden.name=delName; hidden.value='on';
-         row.appendChild(hidden); row.classList.add('row-deleting'); chip.textContent='بازگردانی'; }
+  if(hidden){
+    hidden.remove(); row.classList.remove('row-deleting'); chip.textContent='حذف';
+  } else {
+    hidden=document.createElement('input'); hidden.type='hidden'; hidden.name=delName; hidden.value='on';
+    row.appendChild(hidden); row.classList.add('row-deleting'); chip.textContent='بازگردانی';
+  }
 });
 
 /* پیش‌نمایش زنده‌ی ورودی فایل */
@@ -1518,19 +1484,23 @@ function attachLivePreview(scope=document){
       const file=this.files && this.files[0];
       const preview=this.closest('.gallery-item')?.querySelector('[data-preview]');
       if(!preview) return;
-      if(file){ const url=URL.createObjectURL(file); preview.src=url; preview.style.display=''; }
-      else { preview.removeAttribute('src'); preview.style.display='none'; }
+      if(file){
+        const url=URL.createObjectURL(file);
+        preview.src=url; preview.style.display='';
+      } else {
+        preview.removeAttribute('src'); preview.style.display='none';
+      }
     });
   });
 }
 attachLivePreview();
 
-/* افزودن سطر جدید به فرم‌ست گالری (fixed selector bug) */
+/* افزودن سطر جدید به فرم‌ست گالری */
 document.addEventListener('click',function(e){
   const btn=e.target.closest('[data-add]'); if(!btn) return;
   const wrapper=btn.closest('.gallery-wrapper'); if(!wrapper) return;
   const mgmt=wrapper.querySelector('[name$="-TOTAL_FORMS"]');
-  const formsBox=wrapper.querySelector('[data-forms]'); /* ← اینجا باگ کوت بود اصلاح شد */
+  const formsBox=wrapper.querySelector('[data-forms]');
   const stash=wrapper.querySelector('[data-empty-fields]');
   const tpl=wrapper.querySelector('template[data-empty-form]');
   if(!mgmt||!formsBox||!stash||!tpl) return;
@@ -1577,23 +1547,20 @@ document.addEventListener('click',function(e){
 
   attachLivePreview(newRow);
 });
+
+/* ساخت نوار ذخیره چسبان بالا برای هر پنل */
 (function(){
-  document.querySelectorAll('.panel').forEach(function(section){
+  document.querySelectorAll('.panel.tab-panel').forEach(function(section){
     const act = section.querySelector(':scope > .actions');
     if(!act) return;
-
-    // ساخت نسخه چسبان بالا
     const topBar = act.cloneNode(true);
     topBar.classList.add('actions--top');
     section.prepend(topBar);
-
-    // حذف نسخه پایینی
     act.remove();
   });
 })();
-</script>
-<script>
-/* نمایش فیلد «زیرشاخه دلخواه» وقتی زیرشاخه = سایر است */
+
+/* نمایش فیلد زیرشاخه دلخواه وقتی "سایر/Other" است */
 (function(){
   const subSel    = document.getElementById('id_subcategory') || document.querySelector('[name="subcategory"]');
   const customRow = document.getElementById('custom-subcat-row');
@@ -1606,22 +1573,13 @@ document.addEventListener('click',function(e){
     const isOther = text === "سایر" || text.toLowerCase() === "other";
 
     customRow.style.display = isOther ? "" : "none";
-
-    // اگر دیگر سایر نیست و هنوز چیزی داخلش هست، خالی کن (اختیاری)
-    if (!isOther) {
-      const inp = customRow.querySelector('input, textarea');
-      if (inp && !{{ role_form.custom_subcategory.value|yesno:"true,false" }}) {
-        // فقط اگر از سرور مقدار اولیه دریافت نکردیم، پاک کن (برای فرم با خطا)
-        // inp.value = "";
-      }
-    }
   }
 
   subSel && subSel.addEventListener('change', syncCustomRow);
   syncCustomRow();
 })();
-</script>
-<script>
+
+/* دکمه نمایش/مخفی کردن رمز عبور */
 document.addEventListener("DOMContentLoaded", function() {
   document.querySelectorAll(".toggle-password").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -1641,6 +1599,65 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 });
+/* ========= تب‌ها بدون رفرش + غیرفعال کردن فیلدهای تب‌های مخفی ========= */
+(function(){
+  const tabs   = document.querySelectorAll('.tabs a[data-tab]');
+  const panels = document.querySelectorAll('.tab-panel[data-tab]');
+  const hidden = document.getElementById('active_tab_input');
+
+  if (!tabs.length || !panels.length) return;
+
+  // همه کنترل‌های یک پنل را فعال/غیرفعال می‌کند
+  function setPanelEnabled(panel, enabled) {
+    panel.querySelectorAll('input, select, textarea, button').forEach(ctrl => {
+      // اگر خواستی چیزی همیشه فعال باشد، بهش data-always-enabled بده
+      if (ctrl.hasAttribute('data-always-enabled')) return;
+      ctrl.disabled = !enabled;
+    });
+  }
+
+  function activate(tabName, updateUrl) {
+    panels.forEach(p => {
+      const isActive = (p.dataset.tab === tabName);
+
+      // نمایش/مخفی‌سازی
+      p.style.display = isActive ? '' : 'none';
+
+      // فعال/غیرفعال کردن فیلدها
+      setPanelEnabled(p, isActive);
+    });
+
+    // لینک‌های تب
+    tabs.forEach(a => {
+      const isActive = (a.dataset.tab === tabName);
+      a.setAttribute('aria-current', isActive ? 'page' : 'false');
+    });
+
+    // hidden input برای ویو
+    if (hidden) hidden.value = tabName;
+
+    // آپدیت URL بدون رفرش
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', tabName);
+      history.replaceState(null, '', url);
+    }
+  }
+
+  // کلیک روی تب‌ها
+  tabs.forEach(a => {
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      const tabName = this.dataset.tab;
+      if (!tabName) return;
+      activate(tabName, true);
+    });
+  });
+
+  // فعال‌سازی اولیه با تب فعلی از سرور
+  activate('{{ active_tab }}', false);
+})();
 </script>
 
-{% endblock content %}
+
+{% endblock page_content %}
