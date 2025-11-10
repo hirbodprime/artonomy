@@ -562,6 +562,23 @@ html, body{ overflow-x:hidden }
 .gallery-item {
   overflow: hidden;
 }
+  .todo-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:8px;
+  }
+  .chip--todo{
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+    color:#1d4ed8;
+    cursor:pointer;
+    text-decoration:none;
+  }
+  .chip--todo:hover{
+    background:#dbeafe;
+  }
+
 </style>
 
 <div class="dash">
@@ -581,7 +598,7 @@ html, body{ overflow-x:hidden }
       <a href="?tab=role"
          data-tab="role"
          aria-current="{% if active_tab == 'role' %}page{% else %}false{% endif %}">
-        نقش و دسته‌بندی
+        دسته بندی
       </a>
       <a href="?tab=profile"
          data-tab="profile"
@@ -598,11 +615,11 @@ html, body{ overflow-x:hidden }
          aria-current="{% if active_tab == 'skills' %}page{% else %}false{% endif %}">
         مهارت‌ها
       </a>
-      <a href="?tab=testimonials"
+      <!-- <a href="?tab=testimonials"
          data-tab="testimonials"
          aria-current="{% if active_tab == 'testimonials' %}page{% else %}false{% endif %}">
         مشتریان و نظرات
-      </a>
+      </a> -->
       <a href="?tab=social"
          data-tab="social"
          aria-current="{% if active_tab == 'social' %}page{% else %}false{% endif %}">
@@ -642,27 +659,42 @@ html, body{ overflow-x:hidden }
   <main class="main" style="display:flex;flex-direction:column;gap:16px">
 
     <!-- پنل بالایی ثابت: درصد تکمیل -->
-    <section class="panel">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <h3 style="margin:0">درصد تکمیل پروفایل</h3>
-        <h6 style="margin:0">وقتی 100 درصد تکمیل شود پروفایل شما در صفحه خانه نمایش داده میشود</h6>
-        <span class="chip">٪{{ completion }}</span>
-      </div>
-      <div class="muted" style="margin:6px 0 12px">
-        {% if profile.role == 'artist' %}
-          وضعیت شما: هنرمند{% if profile.category %} – {{ profile.category.name }}{% endif %}{% if profile.subcategory %} – {{ profile.subcategory.name }}{% endif %}
-        {% elif profile.role == 'business' %}
-          وضعیت شما: مالک کسب‌وکار{% if profile.business_kind == 'gallery' %} – گالری{% elif profile.business_kind == 'studio' %} – استودیو{% elif profile.business_kind == 'concept_store' %} – کانسپت استور{% endif %}
-        {% else %}
-          وضعیت شما: کاربر عادی
-        {% endif %}
-      </div>
-      <div class="progress-wrap">
-        <div class="progress-outer">
-          <div class="progress-inner" style="width: {{ completion }}%"></div>
-        </div>
-      </div>
-    </section>
+<section class="panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <h3 style="margin:0">درصد تکمیل پروفایل</h3>
+    <h6 style="margin:0">وقتی 100 درصد تکمیل شود پروفایل شما در صفحه خانه نمایش داده میشود</h6>
+    <span class="chip">٪{{ completion }}</span>
+  </div>
+
+  <div class="muted" style="margin:6px 0 12px">
+    {% if profile.role == 'artist' %}
+      وضعیت شما: هنرمند{% if profile.category %} – {{ profile.category.name }}{% endif %}{% if profile.subcategory %} – {{ profile.subcategory.name }}{% endif %}
+    {% elif profile.role == 'business' %}
+      وضعیت شما: مالک کسب‌وکار{% if profile.business_kind == 'gallery' %} – گالری{% elif profile.business_kind == 'studio' %} – استودیو{% elif profile.business_kind == 'concept_store' %} – کانسپت استور{% endif %}
+    {% else %}
+      وضعیت شما: کاربر عادی
+    {% endif %}
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-outer">
+      <div class="progress-inner" style="width: {{ completion }}%"></div>
+    </div>
+  </div>
+
+  {% if completion < 100 and missing_items %}
+    <div class="muted" style="margin-top:10px">
+      برای رسیدن به ۱۰۰٪ این موارد را تکمیل کنید:
+    </div>
+    <div class="todo-chips">
+      {% for tab, label in missing_items %}
+        <a href="?tab={{ tab }}" class="chip chip--todo">
+          {{ label }}
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
 
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
@@ -874,6 +906,7 @@ html, body{ overflow-x:hidden }
           <button class="btn" type="submit">ذخیره</button>
         </div>
       </section>
+{% if profile.completion == 100 %}
 
       <!-- PRODUCTS TAB -->
       <section class="panel tab-panel" data-tab="products" {% if active_tab != 'products' %}style="display:none"{% endif %}>
@@ -996,6 +1029,24 @@ html, body{ overflow-x:hidden }
 
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
+{% else %}
+  <!-- 🔒 نسخه قفل شده برای کاربران ناقص -->
+  <section class="panel tab-panel" data-tab="products" {% if active_tab != 'products' %}style="display:none"{% endif %}>
+    <h3>محصولات فیزیکی</h3>
+    <div class="locked-section" style="
+        text-align:center;
+        padding:60px 20px;
+        border:2px dashed rgba(0,0,0,.1);
+        border-radius:16px;
+        background:rgba(250,250,250,.6);
+        ">
+      <p style="font-size:1.2rem; font-weight:600; margin-bottom:12px;">🔒 این بخش هنوز برای شما فعال نشده است.</p>
+      <p style="color:#6b7280;">برای افزودن محصولات، ابتدا پروفایل خود را تکمیل کنید.</p>
+      <p style="margin:10px 0;">درصد تکمیل فعلی: <strong>{{ profile.completion }}٪</strong></p>
+      <a href="?tab=profile" class="btn" style="margin-top:16px;">تکمیل پروفایل</a>
+    </div>
+  </section>
+{% endif %}
 
       <!-- CONTENT (ART POSTS) TAB -->
 <section class="panel tab-panel" data-tab="content" {% if active_tab != 'content' %}style="display:none"{% endif %}>
@@ -1141,6 +1192,9 @@ html, body{ overflow-x:hidden }
   <div class="actions">
     <button class="btn" type="submit">ذخیره</button>
   </div>
+  </section>
+{% if profile.completion == 100 %}
+
 </section>
       <!-- SERVICES TAB -->
       <section class="panel tab-panel" data-tab="services" {% if active_tab != 'services' %}style="display:none"{% endif %}>
@@ -1266,7 +1320,24 @@ html, body{ overflow-x:hidden }
 
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
-
+{% else %}
+  <!-- 🔒 نسخه قفل شده برای کاربران ناقص -->
+  <section class="panel tab-panel" data-tab="services" {% if active_tab != 'services' %}style="display:none"{% endif %}>
+    <h3>خدمات</h3>
+    <div class="locked-section" style="
+        text-align:center;
+        padding:60px 20px;
+        border:2px dashed rgba(0,0,0,.1);
+        border-radius:16px;
+        background:rgba(250,250,250,.6);
+        ">
+      <p style="font-size:1.2rem; font-weight:600; margin-bottom:12px;">🔒 این بخش هنوز برای شما فعال نشده است.</p>
+      <p style="color:#6b7280;">برای افزودن خدمات، ابتدا پروفایل خود را تکمیل کنید.</p>
+      <p style="margin:10px 0;">درصد تکمیل فعلی: <strong>{{ profile.completion }}٪</strong></p>
+      <a href="?tab=profile" class="btn" style="margin-top:16px;">تکمیل پروفایل</a>
+    </div>
+  </section>
+{% endif %}
       <!-- SECURITY TAB -->
       <section class="panel panel-security tab-panel" data-tab="security" {% if active_tab != 'security' %}style="display:none"{% endif %}>
         <h3>امنیت حساب و تغییر رمز عبور</h3>

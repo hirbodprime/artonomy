@@ -1,86 +1,90 @@
 {% extends "base.html" %}
 {% load static %}
-{% block content %}
 
-<div id="wrapper">
-  <div class="content-holder">
+{% block page_content %}
+    <!-- vertical-portfolio_wrap -->
+    <div class="vertical-portfolio_wrap" id="port-scroll">
+        <!-- portfolio start -->
+        <div class="gallery-items big-padding lightgallery gi_left_al">
 
-    <!-- hero-carousel-wrapper (همان ساختار اوریجینال) -->
-    <div class="hero-carousel-wrapper hfs_wrap">
-      <div class="fs-slider fw-carousel2 lightgallery fw-carousel_hight full-height fs-anim-t"
-           data-mousecontrol2="true">
-        <div class="swiper-container">
-          <div class="swiper-wrapper">
-            {% for p in top_profiles %}
-              <div class="swiper-slide hov_zoom">
-                <div class="anim-fw">
-                  {% if p.header_background %}
-                    <img src="{{ p.header_background.url }}" alt="{{ p.user.get_full_name|default:p.user.username }}">
-                    <a href="{{ p.header_background.url }}" class="box-media-zoom popup-image">
-                      <i class="fal fa-search"></i>
-                    </a>
-                  {% else %}
-                    <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="{{ p.user.username }}">
-                  {% endif %}
+            {% for profile in top_profiles %}
+                <div class="gallery-item models">
+                    <div class="grid-item-holder hov_zoom">
 
-                  <div class="overlay"></div>
+                        {# تصویر کاور پروفایل، یا placeholder اگر نبود #}
+                        {% if profile.header_background %}
+                            <img src="{{ profile.header_background.url }}"
+                                 alt="{{ profile.user.get_full_name|default:profile.user.username }}">
+                        {% else %}
+                            <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}"
+                                 alt="{{ profile.user.get_full_name|default:profile.user.username }}">
+                        {% endif %}
 
-                  <div class="thumb-info_main">
-                    <h3>
-                      <a href="{{ p.get_absolute_url }}">{{ p.user.get_full_name|default:p.user.username }}</a>
-                    </h3>
-                    <p>
-                      {% if p.role == 'artist' %}
-                        هنرمند{% if p.category %} – {{ p.category.name }}{% endif %}{% if p.subcategory %} – {{ p.subcategory.name }}{% endif %}
-                      {% elif p.role == 'business' %}
-                        مالک کسب‌وکار{% if p.business_kind == 'gallery' %} – گالری{% elif p.business_kind == 'studio' %} – استودیو{% elif p.business_kind == 'concept_store' %} – کانسپت استور{% endif %}
-                      {% else %}
-                        کاربر عادی
-                      {% endif %}
-                    </p>
-                    <a href="{{ p.get_absolute_url }}" class="fs-slider-item_btn">مشاهده پروفایل</a>
-                  </div>
+                        <div class="grid-item-info">
+                            <h3>
+                                <a href="{{ profile.get_absolute_url }}">
+                                    {{ profile.user.get_full_name|default:profile.user.username }}
+                                </a>
+                            </h3>
+                            <p>
+                                {% if profile.story_subtitle %}
+                                    {{ profile.story_subtitle }}
+                                {% elif profile.story_paragraph_1 %}
+                                    {{ profile.story_paragraph_1|truncatechars:80 }}
+                                {% else %}
+                                    هنرمند در آرتونومی
+                                {% endif %}
+                            </p>
+                        </div>
 
-                  <div class="sc_num">{{ forloop.counter|stringformat:"02d" }}</div>
+                        <div class="pr_num"></div>
+
+                        {# زوم روی همان تصویر کاور #}
+                        {% if profile.header_background %}
+                            <a href="{{ profile.header_background.url }}"
+                               class="grid-media-zoom image-popup">
+                                <i class="far fa-search"></i>
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
-              </div>
             {% empty %}
-              <div class="swiper-slide">
-                <div class="anim-fw">
-                  <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
-                  <div class="overlay"></div>
-                  <div class="thumb-info_main">
-                    <h3>هنوز پروفایل کاملی ثبت نشده</h3>
-                    <p>کاربران با تکمیل ۱۰۰٪ پروفایل‌شان اینجا نمایش داده می‌شوند.</p>
-                  </div>
-                  <div class="sc_num">01</div>
-                </div>
-              </div>
+                <p style="padding:40px 0; text-align:center; width:100%; color:#ccc;">
+                    هنوز پروفایل تکمیل‌شده‌ای وجود ندارد.
+                </p>
             {% endfor %}
-          </div>
+
         </div>
-      </div>
-
-      <!-- دکمه‌های ناوبری اسلایدر (مثل نسخه قبل) -->
-      <div class="ccsw fwc_btn fwc_btn2 fwc_btn_prev ccsw-prev"><i class="fal fa-angle-left"></i></div>
-      <div class="ccsw fwc_btn fwc_btn2 fwc_btn_next ccsw-next"><i class="fal fa-angle-right"></i></div>
+        <!-- portfolio end -->
     </div>
+    <!--  vertical-portfolio_wrap end -->
 
-    <!-- نوار پایین ثابت (طبق تم) -->
-    <div class="fixed-bottom-container hid-mob">
-      <a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=669926&Code=RWOJUou8DQ9wbUZ7ZFxHfYBejv0qnfrt'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=669926&Code=RWOJUou8DQ9wbUZ7ZFxHfYBejv0qnfrt' alt='' style='cursor:pointer' code='RWOJUou8DQ9wbUZ7ZFxHfYBejv0qnfrt'></a>
-
-      <!-- <div class="scroll-down-wrap"><div class="mousey"><div class="scroller"></div></div></div> -->
-      <div class="hero-slider-wrap_pagination-wrap">
-        <div class="hero-slider-wrap_pagination hero-slider-pag"></div>
-      </div>
-      <div class="fw-carousel_number_wrap">
-        <div class="fw-carousel_contr_counter current">01</div>
-        <div class="fw-carousel_contr_counter total"></div>
-      </div>
+    <!-- fixed-bottom-container -->
+    <div class="fixed-bottom-container f_bc_vis">
+        <div class="scroll-down-wrap">
+            <div class="mousey">
+                <div class="scroller"></div>
+            </div>
+        </div>
+        <div class="filter-btn hid-filter">
+            <div class="filter-btn_container"></div>
+            <span class="filt-title">فیلترها</span>
+        </div>
+        <div class="folio-counter">
+            <div class="num-album"></div>
+            <div class="all-album"></div>
+        </div>
     </div>
+    <!-- fixed-bottom-container  end-->
 
-  </div>
-</div>
-
-{% endblock content %}
+    <!-- gallery-filters-wrap-->
+    <div class="gallery-filters-wrap">
+        <div class="gallery-filters">
+            <a href="#" class="gallery-filter gallery-filter-active" data-filter="*">همه موارد</a>
+            {# الان همه پروفایل‌ها کلاس models دارند؛ بعداً اگر دسته‌بندی خواستی، کلاس داینامیک بده #}
+            <a href="#" class="gallery-filter" data-filter=".models">هنرمندان</a>
+        </div>
+        <div class="gallery-filters-overlay"></div>
+    </div>
+    <!--gallery-filters-wrap end-->
+{% endblock page_content %}

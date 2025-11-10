@@ -157,6 +157,10 @@ def profile_dashboard_view(request):
 
             # ---------- PRODUCTS ----------
             elif tab == "products":
+                if profile.completion < 100:
+                    messages.error(request, "برای افزودن یا ویرایش محصولات، ابتدا پروفایل خود را کامل کنید.")
+                    return redirect(f"{request.path}?tab=profile")
+
                 ok = f["fs_products"].is_valid()
                 product_image_fsets = {}
 
@@ -202,6 +206,9 @@ def profile_dashboard_view(request):
 
             # ---------- SERVICES ----------
             elif tab == "services":
+                if profile.completion < 100:
+                    messages.error(request, "برای افزودن یا ویرایش خدمات ابتدا پروفایل خود را کامل کنید.")
+                    return redirect(f"{request.path}?tab=profile")
                 ok = f["fs_services"].is_valid()
                 service_image_fsets = {}
 
@@ -313,7 +320,7 @@ def profile_dashboard_view(request):
 
     # ✅ always refresh on GET too
     profile.refresh_completion(save=True)
-
+    missing_items = profile.missing_completion_items()
     # Build subcategory map (هنرمند / زیرشاخه)
     try:
         from artists.models import Category, Subcategory
@@ -347,6 +354,7 @@ def profile_dashboard_view(request):
             active_tab=tab,
             subcat_map=subcat_map,
             completion=profile.completion,
+            missing_items=missing_items,   # 👈 این
         )
     )
     return render(request, "accounts/dashboard.html", ctx)

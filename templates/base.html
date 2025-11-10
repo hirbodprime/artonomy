@@ -262,6 +262,42 @@
     width: 120px;
   }
 }
+/* 3-column gallery for the home page */
+.vertical-portfolio_wrap .gallery-items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;               /* space between cards – adjust if you want */
+}
+
+/* let grid handle the width, cancel theme’s floats/margins */
+/* ---- Desktop: 3 cards per row ---- */
+.vertical-portfolio_wrap .gallery-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;              /* space between cards */
+}
+
+.vertical-portfolio_wrap .gallery-item {
+  float: none !important; /* override theme */
+  margin: 0 !important;
+  width: calc(33.333% - 22px);  /* 3 in a row */
+}
+
+/* ---- Tablet / small laptop: 2 per row ---- */
+@media (max-width: 1024px) {
+  .vertical-portfolio_wrap .gallery-item {
+    width: calc(50% - 16px);
+  }
+}
+
+/* ---- Mobile narrow: 1 per row ---- */
+@media (max-width: 640px) {
+  .vertical-portfolio_wrap .gallery-item {
+    width: 100%;
+  }
+}
+
+
 </style>
 
 <body>

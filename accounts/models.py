@@ -110,7 +110,46 @@ class Profile(models.Model):
             # (optional) clear them:
             # self.category = None
             # self.subcategory = None
+    def missing_completion_items(self):
+        """
+        لیست بخش‌های ناقص پروفایل را برمی‌گرداند.
+        هر آیتم یک tuple به شکل (tab_name, label) است.
+        """
+        items = []
 
+        # ----- فیلدهای تب «پروفایل» -----
+        if not self.avatar:
+            items.append(("profile", "عکس پروفایل"))
+        if not self.header_background:
+            items.append(("profile", "تصویر هدر (کاور پروفایل)"))
+        if not (self.header_subtitle or "").strip():
+            items.append(("profile", "بایو کوتاه"))
+        if not (self.story_paragraph_1 or "").strip():
+            items.append(("profile", "داستان من - پاراگراف اول"))
+
+        # ----- نقش / دسته‌بندی -----
+        if self.role == "normal":
+            items.append(("role", "انتخاب نقش (هنرمند / صاحب کسب‌وکار)"))
+        elif self.role == "artist":
+            if not self.category:
+                items.append(("role", "انتخاب دسته هنری"))
+            if not self.subcategory:
+                items.append(("role", "انتخاب زیرشاخه هنری"))
+        elif self.role == "business":
+            if not self.business_kind:
+                items.append(("role", "انتخاب نوع کسب‌وکار"))
+
+        # ----- فرم‌ست‌ها -----
+        if not self.counters.exists():
+            items.append(("counters", "افزودن حداقل یک آمار (کارت ۴تایی)"))
+        if not self.skills.exists():
+            items.append(("skills", "افزودن حداقل یک مهارت"))
+        # if not self.testimonials.exists():
+        #     items.append(("testimonials", "افزودن حداقل یک نظر مشتری"))
+        # if not self.clients.exists():
+        #     items.append(("clients", "افزودن حداقل یک لوگوی مشتری"))
+
+        return items
     def compute_completion(self) -> int:
         score = 0
         max_score = 0
@@ -135,22 +174,16 @@ class Profile(models.Model):
                     role_pts += 10
         score += role_pts
 
-        # ✅ ONLY counters and skills now
-
-        # counters (15)
+        # فقط این دو تا در درصد حساب بشن:
+        # counters (15), skills (20)
         max_score += 15
-        if self.counters.exists():
-            score += 15
+        score += 15 if self.counters.exists() else 0
 
-        # skills (20)
         max_score += 20
-        if self.skills.exists():
-            score += 20
-
-        # ✅ testimonials & clients are NOT counted anymore
-        # (we removed the blocks that used self.testimonials.exists() / self.clients.exists())
+        score += 20 if self.skills.exists() else 0
 
         return min(100, round(score * 100 / max_score)) if max_score else 0
+
 
     def refresh_completion(self, save=True):
         new_val = self.compute_completion()
