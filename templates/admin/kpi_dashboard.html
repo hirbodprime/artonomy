@@ -136,6 +136,61 @@ document.addEventListener("DOMContentLoaded",()=>document.body.classList.add("da
   </div>
 
   ---
+<div class="adm-section-title">
+  <h2>👀 بازدید سایت</h2>
+  <span>بازدید کلی، QR و مستقیم</span>
+</div>
+
+<div class="adm-grid">
+  <div class="adm-card">
+    <h3>کل بازدیدها</h3>
+    <div class="adm-kpi-main">{{ total_visits }}</div>
+    <div class="adm-kpi-sub">
+      {{ visits_last_7 }} بازدید در ۷ روز اخیر<br>
+      {{ visits_last_30 }} بازدید در ۳۰ روز اخیر
+    </div>
+  </div>
+
+  <div class="adm-card">
+    <h3>بازدیدکننده یکتا</h3>
+    <div class="adm-kpi-main">{{ unique_visitors_all }}</div>
+    <div class="adm-kpi-sub">
+      {{ unique_visitors_30 }} یکتا در ۳۰ روز اخیر
+    </div>
+  </div>
+
+<div class="adm-card">
+  <h3>بازدید از QR</h3>
+  <div class="adm-kpi-main">{{ qr_visits_total }}</div>
+  <div class="adm-kpi-sub">
+    کل اسکن‌ها تا امروز<br>
+    <span class="adm-pill good">{{ qr_visits_30 }}</span> در ۳۰ روز اخیر<br><br>
+
+    پوستر هنرمندان 🎨<br>
+    ▸ کل: {{ artists_poster_total }}<br>
+    ▸ ۳۰ روز اخیر: {{ artists_poster_30 }}<br><br>
+
+    پوستر مخاطبان 👥<br>
+    ▸ کل: {{ audience_poster_total }}<br>
+    ▸ ۳۰ روز اخیر: {{ audience_poster_30 }}<br><br>
+
+    کارت ویزیت 💳<br>
+    ▸ کل: {{ visitcard_total }}<br>
+    ▸ ۳۰ روز اخیر: {{ visitcard_30 }}
+  </div>
+</div>
+
+
+
+<div class="adm-card">
+  <h3>بازدید مستقیم (بدون referrer)</h3>
+  <div class="adm-kpi-main">{{ direct_visits_total }}</div>
+  <div class="adm-kpi-sub">
+    کل تا امروز – {{ direct_visits_30 }} در ۳۰ روز گذشته
+  </div>
+</div>
+
+---
 
   <div class="adm-section-title">
     <h2>🎯 تقسیم‌بندی کاربران</h2>

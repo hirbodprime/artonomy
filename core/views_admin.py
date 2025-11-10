@@ -10,6 +10,7 @@ from django.utils import timezone
 from accounts.models import Profile
 from artists.models import Category, Subcategory
 from marketplace.models import Product, Service, ArtPost
+from core.models import Visit
 
 User = get_user_model()
 
@@ -71,6 +72,70 @@ def admin_kpi_dashboard(request):
     artposts_last_7 = ArtPost.objects.filter(created_at__gte=week_ago).count()
     artposts_last_30 = ArtPost.objects.filter(created_at__gte=month_ago).count()
     artposts_with_likes = ArtPost.objects.filter(likes__isnull=False).distinct().count()
+    # ───── Visit KPIs ─────
+    # ───── Visit KPIs ─────
+    total_visits = Visit.objects.count()
+    visits_last_7 = Visit.objects.filter(created_at__gte=week_ago).count()
+    visits_last_30 = Visit.objects.filter(created_at__gte=month_ago).count()
+
+    # Unique visitors
+    unique_visitors_all = Visit.objects.values("visitor_id").distinct().count()
+    unique_visitors_30 = (
+        Visit.objects
+        .filter(created_at__gte=month_ago)
+        .values("visitor_id")
+        .distinct()
+        .count()
+    )
+
+    # All QR scans (lifetime + 30 days)
+    qr_visits_total = Visit.objects.filter(utm_source="qr").count()
+    qr_visits_30 = Visit.objects.filter(
+        utm_source="qr",
+        created_at__gte=month_ago,
+    ).count()
+
+    # Breakdown per campaign – lifetime
+    artists_poster_total = Visit.objects.filter(
+        utm_source="qr",
+        utm_campaign="artists",
+    ).count()
+    audience_poster_total = Visit.objects.filter(
+        utm_source="qr",
+        utm_campaign="audience",
+    ).count()
+    visitcard_total = Visit.objects.filter(
+        utm_source="qr",
+        utm_campaign="visitcard",
+    ).count()
+
+    # Breakdown per campaign – last 30 days
+    artists_poster_30 = Visit.objects.filter(
+        utm_source="qr",
+        utm_campaign="artists",
+        created_at__gte=month_ago,
+    ).count()
+    audience_poster_30 = Visit.objects.filter(
+        utm_source="qr",
+        utm_campaign="audience",
+        created_at__gte=month_ago,
+    ).count()
+    visitcard_30 = Visit.objects.filter(
+        utm_source="qr",
+        utm_campaign="visitcard",
+        created_at__gte=month_ago,
+    ).count()
+
+    # direct = بدون utm_source و بدون referrer
+    direct_visits_total = Visit.objects.filter(
+        utm_source="",
+        referrer="",
+    ).count()
+    direct_visits_30 = Visit.objects.filter(
+        created_at__gte=month_ago,
+        utm_source="",
+        referrer="",
+    ).count()
 
     # Top creators by products/services/artposts
     top_profiles_by_products = (
@@ -151,6 +216,32 @@ def admin_kpi_dashboard(request):
         "latest_products": latest_products,
         "latest_services": latest_services,
         "latest_artposts": latest_artposts,
+
+
+        # Visits (overall)
+        "total_visits": total_visits,
+        "visits_last_7": visits_last_7,
+        "visits_last_30": visits_last_30,
+        "unique_visitors_all": unique_visitors_all,
+        "unique_visitors_30": unique_visitors_30,
+
+        # QR totals
+        "qr_visits_total": qr_visits_total,
+        "qr_visits_30": qr_visits_30,
+
+        # Direct visits
+        "direct_visits_total": direct_visits_total,
+        "direct_visits_30": direct_visits_30,
+
+        # QR breakdown
+        "artists_poster_total": artists_poster_total,
+        "audience_poster_total": audience_poster_total,
+        "visitcard_total": visitcard_total,
+        "artists_poster_30": artists_poster_30,
+        "audience_poster_30": audience_poster_30,
+        "visitcard_30": visitcard_30,
+
+
     }
 
     return render(request, "admin/kpi_dashboard.html", context)
