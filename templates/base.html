@@ -332,6 +332,29 @@
     column-count: 1;
   }
 }
+/* === BIGGER MAIN MENU LINKS (خانه، هنرمندان، ...) === */
+.nav-holder.main-menu nav ul li a {
+  font-size: 17px !important;   /* بزرگ‌ترش کن */
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  padding: 10px 18px;           /* کلیک‌پذیری بیشتر */
+  line-height: 1.6;
+}
+
+/* اگه روی دسکتاپ می‌خوای حتی بزرگ‌تر باشه */
+@media (min-width: 1024px) {
+  .nav-holder.main-menu nav ul li a {
+    font-size: 18px !important;
+  }
+}
+
+/* برای موبایل، منو توی کشویی هم خواناتر باشه */
+@media (max-width: 768px) {
+  .nav-holder.main-menu nav ul li a {
+    font-size: 16px !important;
+    padding: 12px 20px;
+  }
+}
 
 </style>
 

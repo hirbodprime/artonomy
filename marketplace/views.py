@@ -117,10 +117,20 @@ def service_detail(request, slug, pk):
     return render(request, "marketplace/service_single.html", {"service": obj})
 def artpieces_list(request, username=None):
     # ---- محصولات (برای فروش) ----
-    products_qs = Product.objects.filter(is_active=True).select_related("profile__user")
+    products_qs = (
+        Product.objects
+        .filter(is_active=True)
+        .select_related("profile__user")
+    )
 
     if username:
         products_qs = products_qs.filter(profile__user__username=username)
+
+    # ✅ فقط محصولاتی که عکس دارند (یا در گالری‌شون عکس دارند)
+    products_qs = products_qs.filter(
+        Q(image__isnull=False) & ~Q(image="") |
+        Q(images__isnull=False)
+    ).distinct()
 
     # --- کوئری و فیلترها (برای محصولات) ---
     q = request.GET.get("q", "").strip()
@@ -165,9 +175,23 @@ def artpieces_list(request, username=None):
     price_filters_active = any([price_type, currency, min_price, max_price])
 
     # ---- پست‌های محتوایی (ArtPost) ----
-    artposts_qs = ArtPost.objects.filter(is_active=True).select_related("profile__user")
+    artposts_qs = (
+        ArtPost.objects
+        .filter(is_active=True)
+        .select_related("profile__user")
+    )
     if username:
         artposts_qs = artposts_qs.filter(profile__user__username=username)
+
+    # ✅ فقط آرت‌پست‌هایی که حداقل یکی از این‌ها را دارند:
+    # - image (legacy تک‌عکس)
+    # - images (گالری)
+    # - video
+    artposts_qs = artposts_qs.filter(
+        Q(image__isnull=False) & ~Q(image="") |
+        Q(images__isnull=False) |
+        Q(video__isnull=False) & ~Q(video="")
+    ).distinct()
 
     if q:
         artposts_qs = artposts_qs.filter(
@@ -208,6 +232,9 @@ def artpieces_list(request, username=None):
         "currency_choices": CURRENCY_CHOICES,
     }
     return render(request, "marketplace/artpieces.html", ctx)
+
+
+
 def artpiece_detail(request, slug, pk):
     obj = get_object_or_404(
         Product.objects.select_related("profile__user").filter(
