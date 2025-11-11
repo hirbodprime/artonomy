@@ -582,6 +582,212 @@ html, body{ overflow-x:hidden }
   .chip--todo:hover{
     background:#dbeafe;
   }
+/* ==== Advertisement tab v2 ==== */
+.ad-wrap{
+  margin-top:12px;
+  border-radius:20px;
+  background:linear-gradient(135deg,#eef2ff,#f9fafb);
+  border:1px solid #e5e7eb;
+  box-shadow:0 10px 30px rgba(15,23,42,.05);
+  padding:18px 18px 20px;
+}
+
+.ad-meta-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+}
+.ad-badge-main{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 12px;
+  border-radius:999px;
+  background:#111827;
+  color:#f9fafb;
+  font-size:11px;
+  font-weight:700;
+}
+.ad-badge-main i{
+  font-size:12px;
+}
+
+.ad-chip-group{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.ad-chip{
+  padding:4px 10px;
+  border-radius:999px;
+  background:rgba(15,23,42,.04);
+  border:1px solid rgba(148,163,184,.5);
+  font-size:11px;
+  color:#4b5563;
+}
+
+/* main layout */
+.ad-layout{
+  display:grid;
+  grid-template-columns:1.4fr 1.3fr;
+  gap:18px;
+}
+@media (max-width:900px){
+  .ad-layout{
+    grid-template-columns:1fr;
+  }
+}
+
+/* left: benefits */
+.ad-benefits{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.ad-benefit-card{
+  display:flex;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:#ffffff;
+  border:1px dashed #d1d5db;
+  align-items:flex-start;
+}
+.ad-benefit-icon{
+  width:32px;
+  height:32px;
+  border-radius:999px;
+  background:#2563eb;
+  color:#f9fafb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  flex-shrink:0;
+}
+.ad-benefit-body strong{
+  display:block;
+  margin-bottom:3px;
+  font-size:13px;
+}
+.ad-benefit-body span{
+  font-size:12px;
+  color:#6b7280;
+}
+
+/* right: CTA card */
+.ad-cta{
+  background:#ffffff;
+  border-radius:18px;
+  padding:16px 16px 14px;
+  border:1px solid #d1d5db;
+  position:relative;
+  overflow:hidden;
+}
+.ad-cta::before{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background:radial-gradient(circle at top left,rgba(37,99,235,.12),transparent 60%);
+  opacity:.8;
+  pointer-events:none;
+}
+.ad-cta-inner{
+  position:relative;
+  z-index:1;
+}
+.ad-cta-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.ad-cta-title{
+  font-weight:800;
+  font-size:15px;
+}
+.ad-cta-sub{
+  font-size:12px;
+  color:#6b7280;
+}
+.ad-cta-icon{
+  width:40px;
+  height:40px;
+  border-radius:14px;
+  background:#2563eb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#f9fafb;
+  font-size:20px;
+}
+
+.ad-cta-contact{
+  margin-top:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+}
+.ad-cta-phone{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 14px;
+  border-radius:999px;
+  background:#020617;
+  color:#f9fafb;
+  font-weight:700;
+  font-size:13px;
+  direction:ltr;
+  text-decoration:none;
+}
+.ad-cta-phone i{
+  font-size:14px;
+}
+.ad-cta-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.ad-cta-actions .btn{
+  padding:8px 14px;
+  border-radius:999px;
+  font-size:12px;
+}
+.ad-cta-actions .btn-ghost{
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:12px;
+}
+.ad-cta-email-pill{
+  margin-top:8px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 12px;
+  border-radius:999px;
+  background:#f3f4ff;
+  border:1px solid #c7d2fe;
+  font-size:12px;
+  color:#1d4ed8;
+  direction:ltr;
+}
+.ad-cta-email-pill a{
+  color:inherit;
+  text-decoration:none;
+}
+
+/* footnote */
+.ad-footnote{
+  margin-top:8px;
+  font-size:11px;
+  color:#6b7280;
+}
 
 </style>
 
@@ -651,6 +857,10 @@ html, body{ overflow-x:hidden }
          aria-current="{% if active_tab == 'clients' %}page{% else %}false{% endif %}">
         لوگو مشتریان
       </a> -->
+          <a href="?tab=advertisement" data-tab="advertisement"
+       aria-current="{% if active_tab == 'advertisement' %}page{% else %}false{% endif %}">
+      تبلیغات در آرتونومی
+    </a>
         <a href="?tab=security"
            data-tab="security"
            aria-current="{% if active_tab == 'security' %}page{% else %}false{% endif %}">
@@ -1405,6 +1615,105 @@ html, body{ overflow-x:hidden }
   </section>
 {% endif %}
     {% endif %}
+<section class="panel tab-panel" data-tab="advertisement"
+         {% if active_tab != 'advertisement' %}style="display:none"{% endif %}>
+  <h3>تبلیغات در صفحهٔ اصلی آرتونومی</h3>
+  <p class="muted" style="margin-bottom:8px;">
+    اگر می‌خواهید برند، محصول یا رویداد هنری خود را در صفحهٔ اصلی آرتونومی نمایش بدهید،
+    از این بخش می‌توانید اطلاعات تماس و شرایط کلی را ببینید.
+  </p>
+
+  <div class="ad-wrap">
+    <div class="ad-meta-row">
+      <div class="ad-badge-main">
+        <i class="fas fa-bullhorn"></i>
+        جایگاه‌های تبلیغ در صفحهٔ اصلی
+      </div>
+      <div class="ad-chip-group">
+        <span class="ad-chip">برندها و گالری‌ها</span>
+        <span class="ad-chip">رویدادهای هنری</span>
+        <span class="ad-chip">کارگاه‌ها و دوره‌ها</span>
+      </div>
+    </div>
+
+    <div class="ad-layout">
+      {# ستون مزایا #}
+      <div class="ad-benefits">
+        <div class="ad-benefit-card">
+          <div class="ad-benefit-icon">1</div>
+          <div class="ad-benefit-body">
+            <strong>جایگاه‌های ویژه در صفحهٔ اصلی</strong>
+            <span>نمایش بین پروفایل‌های برتر؛ مناسب برای برندسازی و معرفی خدمات یا محصولات هنری.</span>
+          </div>
+        </div>
+
+        <div class="ad-benefit-card">
+          <div class="ad-benefit-icon">
+            <i class="far fa-clock"></i>
+          </div>
+          <div class="ad-benefit-body">
+            <strong>رزرو هفتگی یا ماهانه</strong>
+            <span>بسته به بودجه و اهداف کمپین، می‌توانید بازهٔ زمانی مناسب خود را انتخاب کنید.</span>
+          </div>
+        </div>
+
+        <div class="ad-benefit-card">
+          <div class="ad-benefit-icon">
+            <i class="far fa-eye"></i>
+          </div>
+          <div class="ad-benefit-body">
+            <strong>مخاطبان دقیق و علاقه‌مند به هنر</strong>
+            <span>تبلیغ شما در کنار آثار هنرمندان و محتوای هنری، به مخاطبان هدف نمایش داده می‌شود.</span>
+          </div>
+        </div>
+      </div>
+
+      {# ستون CTA #}
+      <div class="ad-cta">
+        <div class="ad-cta-inner">
+          <div class="ad-cta-header">
+            <div>
+              <div class="ad-cta-title">رزرو جایگاه تبلیغ در صفحهٔ اصلی</div>
+              <div class="ad-cta-sub">
+                جایگاه‌های ثابت بین پروفایل هنرمندان، مخصوص تبلیغ‌های منتخب.
+              </div>
+            </div>
+            <div class="ad-cta-icon">
+              <i class="fas fa-bullhorn"></i>
+            </div>
+          </div>
+
+          <div class="ad-cta-contact">
+            <a href="tel:+989924026216" class="ad-cta-phone">
+              <i class="fas fa-phone"></i>
+              +98&nbsp;912&nbsp;123&nbsp;4567
+            </a>
+            <div class="ad-cta-actions">
+              <a href="tel:+989924026216" class="btn">
+                تماس برای رزرو تبلیغ
+              </a>
+              <a href="mailto:hirbodprime@gmail.com" class="btn-ghost">
+                هماهنگی از طریق ایمیل
+              </a>
+            </div>
+          </div>
+
+          <div class="ad-cta-email-pill">
+            <i class="far fa-envelope"></i>
+            <span>hirbodprime@gmail.com</span>
+          </div>
+
+          <p class="ad-footnote">
+            برای دریافت فایل تعرفه و جزئیات دقیق هر جایگاه، کافی است در تماس تلفنی یا ایمیل،
+            عبارت <strong>«تبلیغ در صفحهٔ اصلی آرتونومی»</strong> را ذکر کنید.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
       <!-- SECURITY TAB -->
       <section class="panel panel-security tab-panel" data-tab="security" {% if active_tab != 'security' %}style="display:none"{% endif %}>
         <h3>امنیت حساب و تغییر رمز عبور</h3>

@@ -41,8 +41,9 @@ def profile_dashboard_view(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
 
     valid = {
-        "profile","counters","skills","testimonials","social",
-        "clients","role","products","services","content","security"
+        "profile", "counters", "skills", "testimonials", "social",
+        "clients", "role", "products", "services", "content",
+        "security", "advertisement",      # 👈 جدید
     }
 
     # 👇 روی POST از hidden استفاده می‌کنیم، روی GET از querystring
@@ -55,7 +56,8 @@ def profile_dashboard_view(request):
         tab = "profile"
     # 🔒 Normal users (not artist/business) may only access the security tab
     if profile.role not in ("artist", "business"):
-        tab = "security"
+        if tab not in ("security", "advertisement"):
+            tab = "security"
     # --- helper to construct all forms/formsets ---
     def build_forms(bound: bool):
         kw = (request.POST, request.FILES) if bound else (None, None)
