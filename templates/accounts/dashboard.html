@@ -598,71 +598,83 @@ html, body{ overflow-x:hidden }
     <button type="button" class="side-close-btn" id="closeSide"
             aria-label="بستن منو">✕</button>
     <h4>مدیریت پروفایل</h4>
-    <nav class="tabs" role="navigation">
-      <a href="?tab=role"
-         data-tab="role"
-         aria-current="{% if active_tab == 'role' %}page{% else %}false{% endif %}">
-        دسته بندی
-      </a>
-      <a href="?tab=profile"
-         data-tab="profile"
-         aria-current="{% if active_tab == 'profile' %}page{% else %}false{% endif %}">
-        ویرایش پروفایل
-      </a>
-      <a href="?tab=counters"
-         data-tab="counters"
-         aria-current="{% if active_tab == 'counters' %}page{% else %}false{% endif %}">
-        دستواردهای هنری
-      </a>
-      <a href="?tab=skills"
-         data-tab="skills"
-         aria-current="{% if active_tab == 'skills' %}page{% else %}false{% endif %}">
-        مهارت‌ها
-      </a>
-      <!-- <a href="?tab=testimonials"
+      <nav class="tabs" role="navigation">
+      {% if profile.role == 'artist' or profile.role == 'business' %}
+        <a href="?tab=role"
+           data-tab="role"
+           aria-current="{% if active_tab == 'role' %}page{% else %}false{% endif %}">
+          دسته بندی
+        </a>
+        <a href="?tab=profile"
+           data-tab="profile"
+           aria-current="{% if active_tab == 'profile' %}page{% else %}false{% endif %}">
+          ویرایش پروفایل
+        </a>
+        <a href="?tab=counters"
+           data-tab="counters"
+           aria-current="{% if active_tab == 'counters' %}page{% else %}false{% endif %}">
+          دستواردهای هنری
+        </a>
+        <a href="?tab=skills"
+           data-tab="skills"
+           aria-current="{% if active_tab == 'skills' %}page{% else %}false{% endif %}">
+          مهارت‌ها
+        </a>
+        <a href="?tab=social"
+           data-tab="social"
+           aria-current="{% if active_tab == 'social' %}page{% else %}false{% endif %}">
+          شبکه‌های اجتماعی
+        </a>
+        <a href="?tab=products"
+           data-tab="products"
+           aria-current="{% if active_tab == 'products' %}page{% else %}false{% endif %}">
+          محصولات
+        </a>
+        <a href="?tab=services"
+           data-tab="services"
+           aria-current="{% if active_tab == 'services' %}page{% else %}false{% endif %}">
+          خدمات
+        </a>
+        <a href="?tab=content"
+           data-tab="content"
+           aria-current="{% if active_tab == 'content' %}page{% else %}false{% endif %}">
+          محتوای هنری
+        </a>
+              <!-- <a href="?tab=testimonials"
          data-tab="testimonials"
          aria-current="{% if active_tab == 'testimonials' %}page{% else %}false{% endif %}">
         مشتریان و نظرات
       </a> -->
-      <a href="?tab=social"
-         data-tab="social"
-         aria-current="{% if active_tab == 'social' %}page{% else %}false{% endif %}">
-        شبکه‌های اجتماعی
-      </a>
+
       <!-- <a href="?tab=clients"
          data-tab="clients"
          aria-current="{% if active_tab == 'clients' %}page{% else %}false{% endif %}">
         لوگو مشتریان
       </a> -->
-      <a href="?tab=products"
-         data-tab="products"
-         aria-disabled="false"
-         aria-current="{% if active_tab == 'products' %}page{% else %}false{% endif %}">
-        محصولات
-      </a>
-      <a href="?tab=services"
-         data-tab="services"
-         aria-disabled="false"
-         aria-current="{% if active_tab == 'services' %}page{% else %}false{% endif %}">
-        خدمات
-      </a>
-      <a href="?tab=content"
-         data-tab="content"
-         aria-current="{% if active_tab == 'content' %}page{% else %}false{% endif %}">
-        محتوای هنری
-      </a>
-      <a href="?tab=security"
-         data-tab="security"
-         aria-current="{% if active_tab == 'security' %}page{% else %}false{% endif %}">
-        امنیت حساب / تغییر رمز
-      </a>
+        <a href="?tab=security"
+           data-tab="security"
+           aria-current="{% if active_tab == 'security' %}page{% else %}false{% endif %}">
+          امنیت حساب / تغییر رمز
+        </a>
+      {% else %}
+        {# 👇 کاربر عادی: فقط تب امنیت #}
+        <a href="?tab=security"
+           data-tab="security"
+           aria-current="page">
+          امنیت حساب / تغییر رمز
+        </a>
+      {% endif %}
     </nav>
   </aside>
+
+
   <div class="scrim" id="sideScrim"></div>
 
   <main class="main" style="display:flex;flex-direction:column;gap:16px">
 
     <!-- پنل بالایی ثابت: درصد تکمیل -->
+      {% if profile.role == 'artist' or profile.role == 'business' %}
+
 <section class="panel">
   <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -715,10 +727,12 @@ html, body{ overflow-x:hidden }
     </div>
   {% endif %}
 </section>
+  {% endif %}
 
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="active_tab" id="active_tab_input" value="{{ active_tab }}">
+      {% if profile.role == 'artist' or profile.role == 'business' %}
 
       <!-- PROFILE TAB -->
    <!-- PROFILE TAB -->
@@ -1390,6 +1404,7 @@ html, body{ overflow-x:hidden }
     </div>
   </section>
 {% endif %}
+    {% endif %}
       <!-- SECURITY TAB -->
       <section class="panel panel-security tab-panel" data-tab="security" {% if active_tab != 'security' %}style="display:none"{% endif %}>
         <h3>امنیت حساب و تغییر رمز عبور</h3>

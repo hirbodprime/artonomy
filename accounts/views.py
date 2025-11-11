@@ -53,7 +53,9 @@ def profile_dashboard_view(request):
 
     if tab not in valid:
         tab = "profile"
-
+    # 🔒 Normal users (not artist/business) may only access the security tab
+    if profile.role not in ("artist", "business"):
+        tab = "security"
     # --- helper to construct all forms/formsets ---
     def build_forms(bound: bool):
         kw = (request.POST, request.FILES) if bound else (None, None)
