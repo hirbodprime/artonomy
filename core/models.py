@@ -3,6 +3,25 @@ import uuid
 from django.db import models
 from django.conf import settings
 
+class SiteSettings(models.Model):
+    show_homepage_ads = models.BooleanField(
+        "نمایش جایگاه‌های تبلیغ در صفحه اصلی",
+        default=True,
+    )
+
+    class Meta:
+        verbose_name = "تنظیمات سایت"
+        verbose_name_plural = "تنظیمات سایت"
+
+    def __str__(self):
+        return "تنظیمات سایت"
+
+    @classmethod
+    def get_solo(cls):
+        # همیشه یک رکورد با pk=1 داشته باشیم
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
 class Visit(models.Model):
     visitor_id   = models.CharField(max_length=64, db_index=True)  # از روی کوکی
     path         = models.CharField(max_length=500)
