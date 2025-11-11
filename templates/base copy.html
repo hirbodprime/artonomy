@@ -1,0 +1,601 @@
+{% load static %}
+<!DOCTYPE HTML>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>آرتونومی - کهکشان هنر</title>
+
+  <!-- Fonts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@33.003/misc/Farsi-Digits/Vazirmatn-FD-font-face.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta+Mahee:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" />
+
+  <!-- Theme css -->
+  <link rel="stylesheet" href="{% static 'css/plugins.css' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "u4155fd7ld");
+</script>
+</head>
+
+<style>
+/* همه‌ی استایل‌هایی که خودت گذاشتی، بدون تغییر */
+.share-btn.isShare.show-share { position: relative; display: inline-block; }
+.share-btn.account-slot { position: relative; display: inline-block; }
+
+.share-btn.account-slot { margin-inline-start: -6px; }
+
+.ux-usernav__label{
+  font-size: 26px;
+  font-weight: 1000;
+  letter-spacing: -0.3px;
+  line-height: 1;
+}
+
+.share-btn.isShare.show-share { top: 1px; }
+.header-account-slot{
+  position: relative;
+  display: inline-block;
+  align-self: center;
+  margin-inline-start: 18px;
+  top: 2px;
+  z-index: 1200;
+}
+
+.ux-usernav{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  --ux-panel: var(--panel, #121420);
+  --ux-panel-2: var(--bg-2, #181b2a);
+  --ux-text: var(--text, #eef1ff);
+  --ux-muted: var(--muted, #b7bdd3);
+  --ux-border: var(--border, 1px solid rgba(255,255,255,.10));
+  --ux-shadow: var(--shadow, 0 8px 24px rgba(0,0,0,.35));
+  --ux-radius: 16px;
+}
+
+.ux-usernav__toggle{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: var(--ux-text);
+  font: inherit;
+}
+.ux-usernav__toggle:hover{ background: rgba(255,255,255,.06); }
+
+.ux-usernav__label{
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.ux-usernav__caret{ transition: transform .18s ease; }
+
+.ux-usernav__menu{
+  position: absolute;
+  top: calc(100% + 12px);
+  inset-inline-end: 0;
+  min-width: 280px;
+  background: var(--ux-panel);
+  color: var(--ux-text);
+  border: var(--ux-border);
+  border-radius: var(--ux-radius);
+  box-shadow: var(--ux-shadow);
+  padding: 12px;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.ux-usernav__item{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 15px;
+}
+.ux-usernav__item:hover{ background: var(--ux-panel-2); }
+
+.ux-usernav__item--danger{ color:#ff9898; }
+.ux-usernav__item--danger:hover{ background: rgba(255,0,0,.08); }
+
+.ux-usernav__icon{ font-size: 16px; width: 20px; text-align: center; opacity:.95; }
+.ux-usernav__sep{ height:1px; background: rgba(255,255,255,.14); margin: 8px 6px; border-radius:1px; }
+
+.ux-usernav.is-open .ux-usernav__menu{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.ux-usernav.is-open .ux-usernav__caret{ transform: rotate(180deg); }
+
+.ux-usernav--guest{ color: var(--ux-text); }
+.ux-usernav__link{ color: var(--ux-text); text-decoration: none; font-size: 15px; }
+.ux-usernav__link:hover{ text-decoration: underline; }
+.ux-usernav__divider{ opacity:.7; margin: 0 2px; }
+
+@media (max-width: 480px){
+  .ux-usernav__menu{ min-width: 220px; }
+}
+
+.share-btn.account-slot { position: relative; display: inline-block; }
+.share-btn.account-slot { margin-inline-start: -4px; }
+
+.ux-usernav{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  --ux-panel: var(--panel, #121420);
+  --ux-panel-2: var(--bg-2, #181b2a);
+  --ux-text: var(--text, #eef1ff);
+  --ux-muted: var(--muted, #b7bdd3);
+  --ux-border: var(--border, 1px solid rgba(255,255,255,.10));
+  --ux-shadow: var(--shadow, 0 12px 32px rgba(0,0,0,.45));
+  --ux-radius: 16px;
+  z-index: 4000;
+}
+
+.ux-usernav__toggle{
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; border: 0; cursor: pointer;
+  padding: 8px 10px; border-radius: 10px; color: var(--ux-text); font: inherit;
+}
+.ux-usernav__toggle:hover{ background: rgba(255,255,255,.06); }
+
+.ux-usernav__label{ font-size: 18px; font-weight: 800; letter-spacing: -0.2px; }
+.ux-usernav__caret{ font-size: 16px; transform-origin: center; margin-inline-start: 2px; }
+
+.ux-usernav__menu{
+  position: absolute; top: calc(100% + 12px); inset-inline-end: 0;
+  min-width: 280px; background: var(--ux-panel); color: var(--ux-text);
+  border: var(--ux-border); border-radius: var(--ux-radius);
+  box-shadow: var(--ux-shadow); padding: 12px; opacity: 0;
+  transform: translateY(-6px); pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease;
+}
+
+.ux-usernav__item{
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: 12px; color: inherit; text-decoration: none; font-size: 15px;
+}
+.ux-usernav__item:hover{ background: var(--ux-panel-2); }
+.ux-usernav__item--danger{ color: #ff9898; }
+.ux-usernav__item--danger:hover{ background: rgba(255,0,0,.08); }
+
+.ux-usernav__icon{ font-size: 16px; width: 20px; text-align: center; opacity: .95; }
+.ux-usernav__sep{ height: 1px; background: rgba(255,255,255,.14); margin: 8px 6px; border-radius: 1px; }
+
+.ux-usernav.is-open .ux-usernav__menu{ opacity: 1; transform: translateY(0); pointer-events: auto; }
+.ux-usernav.is-open .ux-usernav__caret{ transform: rotate(180deg); }
+
+.ux-usernav--guest{ color: var(--ux-text); }
+.ux-usernav__link{ color: var(--ux-text); text-decoration: none; font-size: 16px; font-weight: 700; }
+.ux-usernav__link:hover{ text-decoration: underline; }
+.ux-usernav__divider{ opacity: .7; margin: 0 2px; }
+.ux-usernav__label{
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+}
+
+.ux-usernav__caret{ display:none !important; }
+
+.ux-usernav{
+  --ux-shift: 28px;
+}
+
+.ux-usernav__menu{
+  right: 0;
+  left: auto;
+  min-width: 260px;
+  transform: translate(calc(-1 * var(--ux-shift)), -6px);
+}
+
+.ux-usernav.is-open .ux-usernav__menu{
+  transform: translate(calc(-1 * var(--ux-shift)), 0);
+}
+
+.ux-usernav__toggle{ gap: 4px; padding: 8px 10px; }
+
+.share-btn.account-slot .ux-usernav .ux-usernav__toggle .ux-usernav__label{
+  font-size: 18px !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.3px;
+  line-height: 1;
+}
+
+.share-btn.account-slot .ux-usernav,
+.share-btn.account-slot .ux-usernav *,
+.share-btn.account-slot .ux-usernav__toggle,
+.share-btn.account-slot .ux-usernav__label {
+    color: #ffffff !important;
+}
+
+.share-btn.account-slot .ux-usernav__icon {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+.share-btn.account-slot .ux-usernav__menu {
+    background: #121420 !important;
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,.18) !important;
+}
+.main-loader {
+  transition: opacity .4s ease;
+}
+
+.main-loader.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.main-loader .ml-wrap img {
+  width: 100px;
+  height: auto;
+  max-width: none;
+  transition: transform .4s ease;
+}
+
+.main-loader .ml-wrap img {
+  transform: scale(1.05);
+}
+
+.main-header .logo-holder img {
+  width: 150px;
+  height: auto;
+  max-width: none;
+}
+@media (max-width: 768px) {
+  .main-header .logo-holder img {
+    width: 120px;
+  }
+}
+
+/* === ARTONOMY HOME GALLERY – CUSTOM GRID, NO THEME JS === */
+/* === ARTONOMY HOME – FLEXIBLE / MASONRY GALLERY === */
+
+/* container as multi-column layout */
+.home-gallery {
+  column-count: 3;         /* desktop: 3 columns */
+  column-gap: 32px;
+}
+
+/* each item is a block that can't be split between columns */
+.home-gallery-item {
+  break-inside: avoid;
+  margin-bottom: 32px;
+}
+
+/* card just fills its available width */
+.home-gallery-card {
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* image keeps its natural aspect, but scales to width */
+.home-gallery-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;  /* prevents distortion, still shows tall images fully */
+}
+
+/* ---------- breakpoints ---------- */
+
+/* tablets / small laptops: 2 columns */
+@media (max-width: 1024px) {
+  .home-gallery {
+    column-count: 2;
+    column-gap: 24px;
+  }
+
+  .home-gallery-item {
+    margin-bottom: 24px;
+  }
+}
+
+/* phones: still 2 columns */
+@media (max-width: 600px) {
+  .home-gallery {
+    column-count: 2;
+    column-gap: 16px;
+  }
+
+  .home-gallery-item {
+    margin-bottom: 16px;
+  }
+}
+
+/* very tiny phones: 1 column */
+@media (max-width: 380px) {
+  .home-gallery {
+    column-count: 1;
+  }
+}
+/* === BIGGER MAIN MENU LINKS (خانه، هنرمندان، ...) === */
+.nav-holder.main-menu nav ul li a {
+  font-size: 17px !important;   /* بزرگ‌ترش کن */
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  padding: 10px 18px;           /* کلیک‌پذیری بیشتر */
+  line-height: 1.6;
+}
+
+/* اگه روی دسکتاپ می‌خوای حتی بزرگ‌تر باشه */
+@media (min-width: 1024px) {
+  .nav-holder.main-menu nav ul li a {
+    font-size: 18px !important;
+  }
+}
+
+/* برای موبایل، منو توی کشویی هم خواناتر باشه */
+@media (max-width: 768px) {
+  .nav-holder.main-menu nav ul li a {
+    font-size: 16px !important;
+    padding: 12px 20px;
+  }
+}
+
+</style>
+
+<body>
+<!--loader-->
+<div class="main-loader">
+  <div class="ml-wrap">
+    <div class="ml-mask"></div>
+    <img src="{% static 'images/logo-w.svg' %}" alt="">
+  </div>
+  <div class="ml_images-wrap">
+    <div class="ml_bg-item" style="top:-30px; inset-inline-start: 0">
+      <div class="bg"
+           data-bg="{% static 'images/folio/2.jpg' %}"
+           style="background-image:url('{% static 'images/folio/2.jpg' %}');">
+      </div>
+    </div>
+
+    <div class="ml_bg-item" style="bottom:-20px; inset-inline-start:50px">
+      <div class="bg"
+           data-bg="{% static 'images/folio/6.jpg' %}"
+           style="background-image:url('{% static 'images/folio/6.jpg' %}');">
+      </div>
+    </div>
+
+    <div class="ml_bg-item" style="top:30px; inset-inline-end:-120px">
+      <div class="bg"
+           data-bg="{% static 'images/folio/18.jpg' %}"
+           style="background-image:url('{% static 'images/folio/18.jpg' %}');">
+      </div>
+    </div>
+  </div>
+</div>
+<!--loader end-->
+
+<div id="main">
+  <header class="main-header">
+    <div class="main-inner">
+      <!-- logo -->
+      <a href="{% url 'home' %}" class="logo-holder">
+        <img src="{% static 'images/logo-png.png' %}" alt="">
+      </a>
+
+      <!-- sb-button -->
+      <div class="sb-button c_sb"><span></span></div>
+
+      <!-- mobile nav -->
+      <div class="nav-button-wrap">
+        <div class="nav-button"><span></span><span></span><span></span></div>
+      </div>
+
+      <!-- account dropdown -->
+      {% if request.user.is_authenticated %}
+      <div class="share-btn account-slot">
+        <div class="ux-usernav" dir="rtl">
+          <button class="ux-usernav__toggle" type="button" aria-haspopup="true" aria-expanded="false">
+            <span class="ux-usernav__label">اکانت من</span>
+          </button>
+
+          <div class="ux-usernav__menu" role="menu" aria-hidden="true">
+            <a class="ux-usernav__item" href="{% url 'public_profile' request.user.username %}" role="menuitem">
+              <span>پروفایل من</span>
+            </a>
+            <a class="ux-usernav__item" href="{% url 'profile_dashboard' %}?tab=role" role="menuitem">
+              <span>تنظیمات پروفایل</span>
+            </a>
+
+            <div class="ux-usernav__sep" aria-hidden="true"></div>
+
+            <a class="ux-usernav__item" href="{% url 'profile_dashboard' %}?tab=products" role="menuitem">
+              <span>محصولات من</span>
+            </a>
+            <a class="ux-usernav__item" href="{% url 'profile_dashboard' %}?tab=services" role="menuitem">
+              <span>خدمات من</span>
+            </a>
+            <a class="ux-usernav__item" href="{% url 'profile_dashboard' %}?tab=social" role="menuitem">
+              <span>شبکه‌های اجتماعی</span>
+            </a>
+
+            <div class="ux-usernav__sep" aria-hidden="true"></div>
+
+            <a class="ux-usernav__item ux-usernav__item--danger" href="{% url 'logout' %}" role="menuitem">
+              <span>خروج</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="share-btn account-slot">
+        <div class="ux-usernav ux-usernav--guest" dir="rtl">
+          <a class="ux-usernav__link" href="{% url 'login' %}">ورود</a>
+          <span class="ux-usernav__divider">/</span>
+          <a class="ux-usernav__link" href="{% url 'signup' %}">ثبت‌نام</a>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="nav-holder main-menu">
+        <nav>
+          <ul>
+            <li>
+              <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}act-link{% endif %}">
+                خانه
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'category_grid' %}" class="{% if request.resolver_match.url_name in 'category_grid subcategory_grid subcat_artists_grid' %}act-link{% endif %}">
+                هنرمندان
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'artpieces' %}" class="{% if request.resolver_match.url_name in 'artpieces artpiece_detail' %}act-link{% endif %}">
+                آثار هنری
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'services' %}" class="{% if request.resolver_match.url_name in 'services service_detail' %}act-link{% endif %}">
+                خدمات
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}act-link{% endif %}">
+                درباره ما
+              </a>
+            </li>
+            <li>
+              <a href="{% url 'contacts' %}" class="{% if request.resolver_match.url_name == 'contacts' %}act-link{% endif %}">
+                تماس با ما
+              </a>
+            </li>
+      {% if request.user.is_authenticated %}
+
+                        <li>
+              <a href="{% url 'profile_dashboard' %}?tab=role">
+                داشبورد
+              </a>
+            </li>
+            {% endif%}
+          </ul>
+        </nav>
+      </div>
+
+      <!-- share wrapper required by theme -->
+      <div class="share-wrapper">
+        <div class="share-inner">
+          <div class="share-container"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {# این‌جا رَپِر اصلی تم را می‌گذاریم و فقط محتوای داخلی را در بلاک بعدی عوض می‌کنیم #}
+  {% block content %}
+    <div id="wrapper">
+      <div class="content-holder">
+        {% block page_content %}{% endblock page_content %}
+      </div>
+    </div>
+  {% endblock content %}
+
+  <div class="to-top-btn to-top"><i class="fal fa-long-arrow-up"></i></div>
+  <div class="aside_dec"></div>
+
+  <!-- sidebar -->
+  <div class="sidebar-wrap">
+    <div class="sidebar-wrap-container">
+      <div class="sb-widget-wrap fl-wrap">
+        <h3>برترین آثار</h3>
+        <div class="sb-widget fl-wrap">
+          <div class="categories_widget-wrap">
+            {% for post in sidebar_top_artposts %}
+              <a class="categories_widget_item" href="{{ post.get_absolute_url }}">
+                <div class="categories_widget_item_img">
+                  {% if post.cover_image and post.cover_image.image %}
+                    <img src="{{ post.cover_image.image.url }}" class="respimg" alt="{{ post.title }}">
+                  {% elif post.image %}
+                    <img src="{{ post.image.url }}" class="respimg" alt="{{ post.title }}">
+                  {% else %}
+                    <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" class="respimg" alt="{{ post.title }}">
+                  {% endif %}
+                </div>
+                <span class="categories_widget_title">{{ post.title }}</span>
+              </a>
+            {% empty %}
+              <p class="muted" style="padding:10px 0;text-align:center;">هنوز اثری ثبت نشده است.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sb-overlay"></div>
+</div>
+
+<!-- Scripts -->
+<script>
+(() => {
+  const slot = document.querySelector('.share-btn.account-slot');
+  if (!slot) return;
+
+  const nav  = slot.querySelector('.ux-usernav');
+  const btn  = slot.querySelector('.ux-usernav__toggle');
+  const menu = slot.querySelector('.ux-usernav__menu');
+
+  if (!nav || !btn || !menu) return;
+
+  const open  = () => { nav.classList.add('is-open');  btn.setAttribute('aria-expanded','true');  menu.setAttribute('aria-hidden','false'); };
+  const close = () => { nav.classList.remove('is-open'); btn.setAttribute('aria-expanded','false'); menu.setAttribute('aria-hidden','true'); };
+  const isOpen = () => nav.classList.contains('is-open');
+
+  document.addEventListener('click', function(e){
+    const insideButton = e.target.closest('.ux-usernav__toggle');
+    if (insideButton && slot.contains(insideButton)) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      isOpen() ? close() : open();
+    }
+  }, true);
+
+  document.addEventListener('click', function(e){
+    const insideMenu = e.target.closest('.ux-usernav__menu');
+    if (insideMenu && slot.contains(insideMenu)) {
+      e.stopPropagation();
+      const link = e.target.closest('a');
+      if (link && link.href) { setTimeout(close, 0); }
+    }
+  }, true);
+
+  document.addEventListener('click', function(e){
+    if (isOpen() && !slot.contains(e.target)) close();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen()) close();
+  });
+})();
+</script>
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/plugins.js' %}"></script>
+<script src="{% static 'js/scripts.js' %}"></script>
+
+</body>
+</html>

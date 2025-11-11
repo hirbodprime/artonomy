@@ -355,12 +355,101 @@
     padding: 12px 20px;
   }
 }
+/* ==== MOBILE BOTTOM NAV (ONLY ON SMALL SCREENS) ==== */
+
+/* پیش‌فرض: روی دسکتاپ مخفی است */
+.mobile-bottom-nav {
+  display: none;
+}
+
+/* فقط روی موبایل/تبلت ظاهر شود */
+@media (max-width: 768px) {
+  /* اکانت بالا در موبایل مخفی شود */
+  .share-btn.account-slot {
+    display: none !important;
+  }
+
+  /* جا برای نوار پایین باز کنیم که محتوا زیرش نره */
+  #main {
+    padding-bottom: 72px;  /* ارتفاع نوار پایین + کمی فاصله */
+  }
+
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    inset-inline: 0;
+    height: 64px;
+    background: rgba(10, 11, 20, 0.96);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 5000;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .mobile-bottom-nav__item {
+    flex: 1;
+    text-align: center;
+    color: #d7ddff;
+    text-decoration: none;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .mobile-bottom-nav__item i {
+    font-size: 18px;
+  }
+
+  .mobile-bottom-nav__item span {
+    line-height: 1.2;
+  }
+
+  .mobile-bottom-nav__item.is-active {
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  .mobile-bottom-nav__item.is-active i {
+    transform: translateY(-1px);
+  }
+}
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    inset-inline: 0;
+    height: 64px;
+    background: #050713;         /* رنگ ثابت؛ بدون بلور */
+    /* backdrop-filter: blur(10px);  این رو حذف کن */
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 5000;
+    align-items: center;
+    justify-content: space-around;
+  }
+}
 
 </style>
 
 <body>
 <!--loader-->
 <div class="main-loader">
+  <!--loader end-->
+
+<script>
+  // مخفی کردن لودر بعد از لود شدن کامل صفحه
+  window.addEventListener('load', function() {
+    var loader = document.querySelector('.main-loader');
+    if (loader) {
+      loader.classList.add('is-hidden');
+    }
+  });
+</script>
+
   <div class="ml-wrap">
     <div class="ml-mask"></div>
     <img src="{% static 'images/logo-w.svg' %}" alt="">
@@ -592,6 +681,55 @@
   });
 })();
 </script>
+{# ---- MOBILE BOTTOM NAV (ONLY VISIBLE VIA CSS ON MOBILE) ---- #}
+<nav class="mobile-bottom-nav">
+  {# خانه #}
+  <a href="{% url 'home' %}"
+     class="mobile-bottom-nav__item {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">
+    <i class="fal fa-home"></i>
+    <span>خانه</span>
+  </a>
+
+  {# آثار هنری #}
+  <a href="{% url 'artpieces' %}"
+     class="mobile-bottom-nav__item {% if request.resolver_match.url_name in 'artpieces artpiece_detail' %}is-active{% endif %}">
+    <i class="fal fa-images"></i>
+    <span>آثار</span>
+  </a>
+
+  {# خدمات #}
+  <a href="{% url 'services' %}"
+     class="mobile-bottom-nav__item {% if request.resolver_match.url_name in 'services service_detail' %}is-active{% endif %}">
+    <i class="fal fa-briefcase"></i>
+    <span>خدمات</span>
+  </a>
+
+  {% if request.user.is_authenticated %}
+    {# پروفایل عمومی کاربر #}
+    <a href="{% url 'public_profile' request.user.username %}"
+       class="mobile-bottom-nav__item {% if request.resolver_match.url_name == 'public_profile' %}is-active{% endif %}">
+      <i class="fal fa-user"></i>
+      <span>پروفایل</span>
+    </a>
+
+    {# داشبورد #}
+    <a href="{% url 'profile_dashboard' %}?tab=role"
+       class="mobile-bottom-nav__item {% if request.resolver_match.url_name == 'profile_dashboard' %}is-active{% endif %}">
+      <i class="fal fa-tachometer-alt-fast"></i>
+      <span>داشبورد</span>
+    </a>
+  {% else %}
+    {# اگر لاگین نیست: به‌جای پروفایل/داشبورد → ورود / ثبت‌نام #}
+    <a href="{% url 'login' %}" class="mobile-bottom-nav__item">
+      <i class="fal fa-sign-in-alt"></i>
+      <span>ورود</span>
+    </a>
+    <a href="{% url 'signup' %}" class="mobile-bottom-nav__item">
+      <i class="fal fa-user-plus"></i>
+      <span>ثبت‌نام</span>
+    </a>
+  {% endif %}
+</nav>
 
 <script src="{% static 'js/jquery.min.js' %}"></script>
 <script src="{% static 'js/plugins.js' %}"></script>
