@@ -22,7 +22,6 @@ def subcategory_grid(request, cat_slug):
                 filter=Q(profiles__role="artist", profiles__completion=100),
             )
         )
-        .order_by("order", "name")
     )
     return render(
         request,
