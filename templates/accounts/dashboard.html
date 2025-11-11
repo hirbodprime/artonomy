@@ -159,42 +159,34 @@ input[type="checkbox"][name$="-DELETE"]{display:none!important}
 html, body{ overflow-x:hidden }
 
 /* همبرگر – جای دقیق */
-:root{ --logo-space: 90px; }
-.side-toggle{
-  position:fixed;
-  top:calc(var(--header-h)/2 + 14px);
-  transform:translateY(-50%);
-  right:calc(var(--logo-space) + 22px);
-  left:auto;
-  z-index:105;
-  display:flex;
-  align-items:center;
-  justify-content:flex-end;
-}
-.side-toggle .btn-ghost{
-  padding:10px 14px;
-  border-radius:10px;
-}
-@media (min-width:900px){
-  .side-toggle{ display:none; }
+
+/* ========== Sidebar close button fix ========== */
+.side-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;          /* ensure it's on the visible edge */
+  left: auto;
+  z-index: 999999;      /* bring above everything inside sidebar */
+  
+  background: #ffffff;  /* visible against white/gray panels */
+  border: 1px solid #d1d5db;
+  color: #111827;       /* dark X */
+  
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 8px 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-/* دکمه بستن داخل منو (فقط موبایل) */
-.side-close-btn{
-  position:absolute;
-  top:12px;
-  left:12px;
-  z-index:120;
-  padding:8px 12px;
-  font-size:18px;
-  line-height:1;
-  cursor:pointer;
-  background:var(--panel-2);
-  border:1px solid #e2e8f0;
-  border-radius:8px;
+.side.is-open .side-close-btn {
+  display: block !important;  /* make sure it appears when sidebar is open */
 }
-@media (min-width:900px){
-  .side-close-btn{ display:none; }
+
+@media (min-width: 901px) {
+  .side-close-btn { display: none !important; } /* hide on desktop */
 }
 
 /* خنثی‌سازی transform قدیمی و استفاده از right */
@@ -788,6 +780,139 @@ html, body{ overflow-x:hidden }
   font-size:11px;
   color:#6b7280;
 }
+/* ===== Force dashboard mobile side menu button visible ===== */
+/* ===== FINAL: Dashboard mobile side menu button ===== */
+/* ===== FINAL: dashboard mobile side menu button ===== */
+@media (max-width: 900px) {
+  .side-toggle{
+    position: fixed;
+    top: calc(var(--header-h) + 36px);  /* ⬅️ moved lower */
+    right: 16px;
+    left: auto;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+
+    z-index: 99999;
+    pointer-events: auto;
+  }
+
+  .side-toggle .btn-ghost{
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    padding: 10px 16px;
+    min-width: 80px;
+
+    font-size: 14px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1;
+    box-shadow: 0 8px 24px rgba(15,23,42,.18);
+  }
+}
+
+
+/* hide the button on desktop (we keep sidebar always visible there) */
+@media (min-width: 901px) {
+  .side-toggle{
+    display: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .side-close-btn{
+    top: calc(var(--header-h) + 12px); /* 72px header + 12px gap */
+  }
+}
+/* === FINAL override for mobile close button === */
+/* === FINAL: close X aligned with first tab (mobile) === */
+@media (max-width: 900px) {
+  .side-close-btn {
+    position: absolute !important;
+    /* vertical: roughly at the first tab row */
+    top: 56px !important;                 /* tweak 50–70px if needed */
+
+    /* put it on the opposite side of tabs */
+    inset-inline-start: 12px !important;  /* in RTL: left side */
+    inset-inline-end: auto !important;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    box-shadow: 0 4px 10px rgba(0,0,0,.12);
+    z-index: 999999;
+  }
+
+  /* hide X while menu is closed */
+  .side:not(.is-open) .side-close-btn {
+    display: none !important;
+  }
+}
+
+/* still hide completely on desktop */
+@media (min-width: 901px) {
+  .side-close-btn {
+    display: none !important;
+  }
+}
+/* === Sidebar position fix (avoid header overlap) === */
+@media (max-width: 900px) {
+  .side {
+    position: fixed;
+    top: var(--header-h);                 /* start below the header */
+    height: calc(100vh - var(--header-h));/* fill rest of screen */
+    z-index: 99990;
+    background: var(--panel, #fff);
+    box-shadow: 0 4px 24px rgba(0,0,0,.1);
+  }
+
+  /* make sure sidebar content is scrollable */
+  .side nav.tabs {
+    padding-top: 8px; /* small breathing room below header */
+    overflow-y: auto;
+    max-height: calc(100vh - var(--header-h) - 40px);
+  }
+}
+/* === Move X to the opposite side (right side, aligned with first tab) === */
+@media (max-width: 900px) {
+  .side-close-btn {
+    position: absolute !important;
+    top: 36px !important;                /* aligns with first tab */
+    inset-inline-end: 12px !important;  /* move to right side */
+    inset-inline-start: auto !important;
+
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    box-shadow: 0 4px 10px rgba(0,0,0,.12);
+    z-index: 999999;
+  }
+}
+
 
 </style>
 
@@ -1849,12 +1974,20 @@ html, body{ overflow-x:hidden }
   const DESKTOP = 900;
   const closeBtn = document.getElementById('closeSide');
 
+  const toggleWrap = document.querySelector('.side-toggle');
+
   function setOpen(open){
     side.classList.toggle('is-open', open);
     scrim.classList.toggle('is-open', open);
     side.setAttribute('aria-hidden', (!open).toString());
     openBtn?.setAttribute('aria-expanded', open.toString());
     document.documentElement.style.overflow = open ? 'hidden' : '';
+
+    // 🔹 hide hamburger while menu is open
+    if (toggleWrap) {
+      toggleWrap.style.opacity = open ? '0' : '1';
+      toggleWrap.style.pointerEvents = open ? 'none' : 'auto';
+    }
   }
   openBtn?.addEventListener('click', ()=> setOpen(!side.classList.contains('is-open')));
   scrim?.addEventListener('click', ()=> setOpen(false));
