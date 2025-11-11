@@ -20,7 +20,7 @@ def upload_to_profile_misc(instance, filename):
 BUSINESS_KINDS = (
     ("gallery", "گالری"),
     ("studio", "استودیو"),
-    ("concept_store", "کانسپت استور"),
+    ("concept_store", "استور"),
 )
 class Profile(models.Model):
     ROLE_CHOICES = [

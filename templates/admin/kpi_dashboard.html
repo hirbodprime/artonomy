@@ -3,392 +3,791 @@
 
 {% block content %}
 <style>
-  :root {
-    --adm-bg: #121212;
-    --adm-card: #1e1e1e;
-    --adm-border: rgba(255, 193, 7, 0.2);
-    --adm-text: #F5F5F5;
-    --adm-muted: #BDBDBD;
-    --adm-accent: #FFC107;
-    --adm-accent-light: #FFD54F;
-    --adm-bad: #FF5252;
-    --adm-good: #4CAF50;
-    --adm-shadow: rgba(0, 0, 0, 0.5);
+  body.dashboard-admin {
+    background: #e5e7eb;
+    font-family: "Vazirmatn","Tahoma",sans-serif;
   }
-
-  body.dashboard-admin { background-color: var(--adm-bg); }
 
   .adm-wrapper {
-    max-width: 1400px;
-    margin: 100px auto 64px;
-    padding: 0 24px 64px;
-    color: var(--adm-text);
-    font-family: 'Tahoma', 'Vazirmatn', sans-serif;
+    max-width: 1200px;
+    margin: 80px auto 40px;
+    padding: 0 20px 40px;
+    direction: rtl;
+    text-align: right;
   }
 
-  .adm-title {
-    display: flex; align-items: center; gap: 1rem;
-    margin-bottom: 2.5rem; padding-bottom: 0.5rem;
-    direction: rtl;
+  /* Top bar – neutral dark */
+  .adm-topbar {
+    background: #111827;
+    color: #f9fafb;
+    padding: 14px 18px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
   }
-  .adm-title h1 {
-    font-size: 2.5rem; font-weight: 800;
-    color: var(--adm-accent);
-    text-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
+
+  .adm-topbar-title {
+    font-weight: 800;
+    font-size: 15px;
   }
-  .adm-title span { font-size: 1rem; color: var(--adm-muted); font-weight: 300; }
+
+  .adm-topbar-date {
+    opacity: .9;
+    font-size: 12px;
+  }
+
+  .adm-panel {
+    background: #f9fafb;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 8px 20px rgba(15,23,42,.25);
+    padding: 20px 20px 28px;
+  }
+
+  .adm-section {
+    margin-top: 24px;
+  }
+
+  .adm-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #d1d5db;
+    padding-bottom: 4px;
+  }
+
+  .adm-section-header h2 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+  }
+
+  .adm-section-header span {
+    font-size: 12px;
+    color: #6b7280;
+  }
 
   .adm-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem; margin-bottom: 3rem;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 16px;
+  }
+
+  .adm-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 16px;
   }
 
   .adm-card {
-    background: var(--adm-card); border-radius: .75rem;
-    border: 1px solid var(--adm-border); padding: 1.5rem;
-    box-shadow: 0 4px 15px var(--adm-shadow);
-    transition: box-shadow .3s, border-color .3s;
-  }
-  .adm-card:hover { box-shadow: 0 6px 20px var(--adm-shadow); border-color: var(--adm-accent); }
-
-  .adm-card h3 {
-    font-size: 1rem; font-weight: 600; color: var(--adm-muted);
-    margin-bottom: .75rem; border-bottom: 1px solid rgba(255,193,7,.1); padding-bottom: .5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 130px;
   }
 
-  .adm-kpi-main { font-size: 2.5rem; font-weight: 900; color: var(--adm-text); }
-  .adm-kpi-sub { font-size: .9rem; color: var(--adm-muted); margin-top: .5rem; line-height: 1.6; }
-
-  .adm-pill {
-    display: inline-flex; align-items: center; gap: .5rem;
-    padding: .2rem .7rem; border-radius: .5rem;
-    font-size: .75rem; font-weight: 600;
-    background: rgba(255,193,7,.1); border: 1px solid rgba(255,193,7,.3);
-    color: var(--adm-accent-light);
+  .adm-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
   }
 
-  .adm-pill.good { background: rgba(76,175,80,.1); border-color: rgba(76,175,80,.3); color: var(--adm-good); }
-  .adm-pill.bad  { background: rgba(255,82,82,.1); border-color: rgba(255,82,82,.3); color: var(--adm-bad); }
-
-  .adm-section-title {
-    display: flex; align-items: flex-end; justify-content: space-between;
-    margin: 4rem 0 1.5rem; border-bottom: 2px solid var(--adm-accent);
-    padding-bottom: .5rem;
+  .adm-card-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #6b7280;
+    letter-spacing: .06em;
+    font-weight: 600;
   }
-  .adm-section-title h2 { font-size: 1.5rem; font-weight: 700; color: var(--adm-text); }
-  .adm-section-title span { font-size: .9rem; color: var(--adm-muted); }
 
+  .adm-kpi-number {
+    font-size: 30px;
+    font-weight: 900;
+    color: #111827;
+    margin-top: 4px;
+  }
+
+  .adm-kpi-label {
+    font-size: 12px;
+    color: #4b5563;
+    margin-top: 6px;
+    line-height: 1.7;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    font-size: 11px;
+    color: #374151;
+    margin-left: 4px;
+  }
+
+  .pill-good {
+    background: #d1fae5;
+    color: #047857;
+    font-weight: 600;
+  }
+
+  .pill-bad {
+    background: #fee2e2;
+    color: #b91c1c;
+    font-weight: 600;
+  }
+
+  .adm-card-chart {
+    margin-top: 8px;
+    flex-grow: 1;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: 120px !important;
+  }
+
+  /* Tables */
   .adm-table {
-    width: 100%; border-collapse: collapse; margin-top: 1rem;
-    font-size: .9rem; text-align: right;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
   }
-  .adm-table th, .adm-table td { padding: .75rem .5rem; border-bottom: 1px solid rgba(255,255,255,.1); }
-  .adm-table th { color: var(--adm-muted); font-weight: 400; font-size: .8rem; text-transform: uppercase; }
-  .adm-table tbody tr:hover { background: rgba(255,193,7,.05); }
 
-  .adm-link-small { font-size: .8rem; color: var(--adm-accent); text-decoration: none; }
-  .adm-link-small:hover { color: var(--adm-accent-light); text-decoration: underline; }
+  .adm-table th,
+  .adm-table td {
+    padding: 7px 6px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: right;
+  }
 
-  .adm-wrapper, .adm-card h3, .adm-table { text-align: right; }
+  .adm-table th {
+    background: #f3f4f6;
+    font-weight: 700;
+    color: #4b5563;
+  }
 
-  @media (max-width:768px){
-    .adm-wrapper{margin-top:72px;padding:0 16px 64px}
-    .adm-title h1{font-size:2rem}
-    .adm-section-title{flex-direction:column;align-items:flex-start;gap:.5rem}
+  .adm-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: #e5e7eb;
+    font-size: 11px;
+  }
+
+  .adm-separator {
+    margin: 22px 0;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  @media (max-width: 900px) {
+    .adm-grid,
+    .adm-grid-2 {
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .adm-grid,
+    .adm-grid-2 {
+      grid-template-columns: 1fr;
+    }
+    .adm-wrapper {
+      margin-top: 70px;
+    }
+    .adm-kpi-number {
+      font-size: 26px;
+    }
   }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded",()=>document.body.classList.add("dashboard-admin"));
+  document.addEventListener("DOMContentLoaded", function () {
+    document.body.classList.add("dashboard-admin");
+  });
 </script>
 
 <div class="adm-wrapper">
-  <div class="adm-title">
-    <h1>📈 داشبورد KPI آرتونومی</h1>
-    <span>فقط برای ادمین‌ها – {{ now|date:"Y-m-d H:i" }}</span>
-  </div>
-
-  <div class="adm-grid">
-    <div class="adm-card">
-      <h3>کاربران ثبت‌نامی</h3>
-      <div class="adm-kpi-main">{{ total_users }}</div>
-      <div class="adm-kpi-sub">
-        {% if users_last_7 != None %}
-          <span class="adm-pill good">+{{ users_last_7 }}</span> کاربر جدید در ۷ روز اخیر
-        {% else %}بدون فیلد date_joined{% endif %}
-      </div>
+  <div class="adm-topbar">
+    <div class="adm-topbar-title">
+      Overview – داشبورد KPI آرتونومی
     </div>
-
-    <div class="adm-card">
-      <h3>پروفایل‌های ایجاد شده</h3>
-      <div class="adm-kpi-main">{{ total_profiles }}</div>
-      <div class="adm-kpi-sub">
-        <span class="adm-pill">{{ completed_profiles }}</span> با تکمیل ۱۰۰٪
-      </div>
-    </div>
-
-    <div class="adm-card">
-      <h3>میانگین تکمیل پروفایل</h3>
-      <div class="adm-kpi-main">{{ avg_completion }}%</div>
-      <div class="adm-kpi-sub">{{ profiles_last_7 }} پروفایل جدید در ۷ روز اخیر</div>
+    <div class="adm-topbar-date">
+      آخرین بروزرسانی: {{ now|date:"Y-m-d H:i" }}
     </div>
   </div>
 
-  ---
-<div class="adm-section-title">
-  <h2>👀 بازدید سایت</h2>
-  <span>بازدید کلی، QR و مستقیم</span>
+  <div class="adm-panel">
+
+    <!-- ===== SECTION: VISITS & FUNNEL (with charts) ===== -->
+    <div class="adm-section">
+      <div class="adm-section-header">
+        <h2>👀 بازدید و قیف تبدیل</h2>
+        <span>Visitor → Signup → Profile 100%</span>
+      </div>
+
+      <div class="adm-grid">
+        <!-- Visits card (line chart) -->
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div>
+              <div class="adm-card-title">SITE VISITS</div>
+              <div class="adm-kpi-number">{{ total_visits }}</div>
+              <div class="adm-kpi-label">
+                {{ visits_last_7 }} در ۷ روز اخیر · {{ visits_last_30 }} در ۳۰ روز
+              </div>
+            </div>
+          </div>
+          <div class="adm-card-chart">
+            <canvas id="chartVisits"></canvas>
+          </div>
+        </div>
+
+        <!-- Conversion funnel (doughnut) -->
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div>
+              <div class="adm-card-title">VISITOR → SIGNUP</div>
+              <div class="adm-kpi-number">{{ conversion_signup_rate }}%</div>
+              <div class="adm-kpi-label">
+                از {{ conversion_visitors }} بازدیدکننده یکتا، {{ total_users }} کاربر ثبت‌نام کرده‌اند.
+              </div>
+            </div>
+          </div>
+          <div class="adm-card-chart">
+            <canvas id="chartConversion"></canvas>
+          </div>
+          <div class="adm-kpi-label" style="margin-top:6px;">
+            <span class="pill pill-good">پروفایل ۱۰۰٪ بین یوزرها: {{ conversion_completion_from_users }}%</span>
+            <span class="pill">پروفایل ۱۰۰٪ نسبت به کل ویزیتورها: {{ conversion_completion_from_visitors }}%</span>
+          </div>
+        </div>
+
+        <!-- Traffic sources (bar) -->
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div>
+              <div class="adm-card-title">TRAFFIC SOURCES</div>
+              <div class="adm-kpi-label">
+                QR, Direct, Other + جزئیات کمپین‌ها
+              </div>
+            </div>
+          </div>
+          <div class="adm-card-chart">
+            <canvas id="chartTraffic"></canvas>
+          </div>
+          <div class="adm-kpi-label" style="margin-top:6px; font-size:11px;">
+            QR کل: {{ qr_visits_total }} · مستقیم: {{ direct_visits_total }}<br>
+            هنرمندان: {{ artists_poster_total }} · مخاطبان: {{ audience_poster_total }} · کارت ویزیت: {{ visitcard_total }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="adm-separator">
+
+    <!-- ===== SECTION: USERS & PROFILES (cards only) ===== -->
+    <div class="adm-section">
+      <div class="adm-section-header">
+        <h2>👤 کاربران و پروفایل‌ها</h2>
+        <span>تصویر کلی از رشد و وضعیت پروفایل‌ها</span>
+      </div>
+
+      <div class="adm-grid">
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div>
+              <div class="adm-card-title">REGISTERED USERS</div>
+              <div class="adm-kpi-number">{{ total_users }}</div>
+            </div>
+          </div>
+          <div class="adm-kpi-label">
+            {% if users_last_7 != None %}
+              <span class="pill pill-good">+{{ users_last_7 }}</span> کاربر جدید در ۷ روز اخیر
+            {% else %}
+              بدون فیلد date_joined
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div>
+              <div class="adm-card-title">PROFILES</div>
+              <div class="adm-kpi-number">{{ total_profiles }}</div>
+            </div>
+          </div>
+          <div class="adm-kpi-label">
+            <span class="pill">{{ completed_profiles }}</span> پروفایل با تکمیل ۱۰۰٪
+          </div>
+          <div class="adm-kpi-label">
+            <span class="pill">{{ profiles_last_7 }}</span> پروفایل جدید در ۷ روز اخیر
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div>
+              <div class="adm-card-title">AVG PROFILE COMPLETION</div>
+              <div class="adm-kpi-number">{{ avg_completion }}%</div>
+            </div>
+          </div>
+          <div class="adm-kpi-label">
+            میانگین تکمیل همه پروفایل‌ها در سیستم
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="adm-separator">
+
+    <!-- ===== SECTION: VISITS – DETAIL (plain cards) ===== -->
+    <div class="adm-section">
+      <div class="adm-section-header">
+        <h2>📡 جزئیات بازدیدها</h2>
+        <span>بازدید یکتا، QR و مستقیم</span>
+      </div>
+
+      <div class="adm-grid-2">
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div>
+              <div class="adm-card-title">UNIQUE VISITORS</div>
+              <div class="adm-kpi-number">{{ unique_visitors_all }}</div>
+            </div>
+          </div>
+          <div class="adm-kpi-label">
+            در ۳۰ روز اخیر: <span class="pill">{{ unique_visitors_30 }}</span>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div>
+              <div class="adm-card-title">QR & DIRECT (LAST 30 DAYS)</div>
+            </div>
+          </div>
+          <div class="adm-kpi-label">
+            مجموع اسکن‌های QR در ۳۰ روز: <span class="pill pill-good">{{ qr_visits_30 }}</span><br>
+            بازدید مستقیم در ۳۰ روز: <span class="pill">{{ direct_visits_30 }}</span>
+          </div>
+          <div class="adm-kpi-label" style="margin-top:4px; font-size:11px;">
+            هنرمندان: {{ artists_poster_30 }} · مخاطبان: {{ audience_poster_30 }} · کارت ویزیت: {{ visitcard_30 }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="adm-separator">
+
+    <!-- ===== SECTION: SEGMENTATION (tables) ===== -->
+    <div class="adm-section">
+      <div class="adm-section-header">
+        <h2>🎯 تقسیم‌بندی کاربران</h2>
+        <span>بر اساس Role و Category</span>
+      </div>
+
+      <div class="adm-grid-2">
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">ROLE BREAKDOWN</div>
+          </div>
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>نقش</th>
+                <th>تعداد</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in role_breakdown %}
+                <tr>
+                  <td>
+                    {% if r.role == "normal" %}کاربر عادی
+                    {% elif r.role == "artist" %}هنرمند
+                    {% elif r.role == "business" %}صاحب کسب‌وکار
+                    {% else %}{{ r.role }}{% endif %}
+                  </td>
+                  <td><span class="pill">{{ r.c }}</span></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="2">هیچ پروفایلی ثبت نشده است.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">TOP CATEGORIES</div>
+          </div>
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>دسته</th>
+                <th>پروفایل</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in top_categories %}
+                <tr>
+                  <td>{{ c.name }}</td>
+                  <td><span class="pill">{{ c.profile_count }}</span></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="2">دسته‌ای وجود ندارد.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-card" style="margin-top:14px;">
+        <div class="adm-card-header">
+          <div class="adm-card-title">TOP SUBCATEGORIES</div>
+        </div>
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>دسته → زیرشاخه</th>
+              <th>پروفایل</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for s in top_subcategories %}
+              <tr>
+                <td>{{ s.category.name }} → {{ s.name }}</td>
+                <td><span class="pill">{{ s.profile_count }}</span></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="2">زیرشاخه‌ای وجود ندارد.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="adm-separator">
+
+    <!-- ===== SECTION: MARKETPLACE (cards) ===== -->
+    <div class="adm-section">
+      <div class="adm-section-header">
+        <h2>🛍️ مارکت‌پلیس و محتوا</h2>
+        <span>محصولات، خدمات، پست‌های هنری</span>
+      </div>
+
+      <div class="adm-grid">
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">PRODUCTS</div>
+          </div>
+          <div class="adm-kpi-number">{{ total_products }}</div>
+          <div class="adm-kpi-label">
+            <span class="pill pill-good">{{ active_products }} فعال</span><br>
+            {{ products_last_7 }} جدید (۷ روز) – {{ products_last_30 }} در ۳۰ روز
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">SERVICES</div>
+          </div>
+          <div class="adm-kpi-number">{{ total_services }}</div>
+          <div class="adm-kpi-label">
+            <span class="pill pill-good">{{ active_services }} فعال</span><br>
+            {{ services_last_7 }} جدید (۷ روز) – {{ services_last_30 }} در ۳۰ روز
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">ART POSTS</div>
+          </div>
+          <div class="adm-kpi-number">{{ total_artposts }}</div>
+          <div class="adm-kpi-label">
+            <span class="pill pill-good">{{ active_artposts }} فعال</span><br>
+            {{ artposts_last_7 }} جدید (۷ روز) – {{ artposts_last_30 }} در ۳۰ روز<br>
+            <span class="pill">{{ artposts_with_likes }} پست دارای لایک</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="adm-separator">
+
+    <!-- ===== SECTION: TOP CREATORS ===== -->
+    <div class="adm-section">
+      <div class="adm-section-header">
+        <h2>🔥 فعال‌ترین سازندگان محتوا</h2>
+        <span>بر اساس تعداد لیستینگ‌ها</span>
+      </div>
+
+      <div class="adm-grid-2">
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">بر اساس محصولات</div>
+          </div>
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>کاربر</th>
+                <th>محصول</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in top_profiles_by_products %}
+                <tr>
+                  <td>{{ p.user.username }}</td>
+                  <td><span class="pill">{{ p.products_count }}</span></td>
+                  <td><a href="/admin/accounts/profile/{{ p.id }}/change/" target="_blank">مدیریت</a></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3">هنوز محصولی ثبت نشده.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">بر اساس خدمات</div>
+          </div>
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>کاربر</th>
+                <th>خدمت</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in top_profiles_by_services %}
+                <tr>
+                  <td>{{ p.user.username }}</td>
+                  <td><span class="pill">{{ p.services_count }}</span></td>
+                  <td><a href="/admin/accounts/profile/{{ p.id }}/change/" target="_blank">مدیریت</a></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3">هیچ خدمتی ثبت نشده.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="adm-card" style="margin-top:14px;">
+        <div class="adm-card-header">
+          <div class="adm-card-title">بر اساس پست هنری</div>
+        </div>
+        <table class="adm-table">
+          <thead>
+            <tr>
+              <th>کاربر</th>
+              <th>پست هنری</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in top_profiles_by_artposts %}
+              <tr>
+                <td>{{ p.user.username }}</td>
+                <td><span class="pill">{{ p.artposts_count }}</span></td>
+                <td><a href="/admin/accounts/profile/{{ p.id }}/change/" target="_blank">مدیریت</a></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3">هیچ پست هنری ثبت نشده.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="adm-separator">
+
+    <!-- ===== SECTION: LATEST ITEMS ===== -->
+    <div class="adm-section">
+      <div class="adm-section-header">
+        <h2>⚡ آخرین فعالیت‌ها</h2>
+        <span>آخرین محصولات، خدمات و پست‌های هنری</span>
+      </div>
+
+      <div class="adm-grid">
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">آخرین محصولات</div>
+          </div>
+          <table class="adm-table">
+            <thead>
+            <tr>
+              <th>عنوان</th>
+              <th>کاربر</th>
+              <th>وضعیت</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for p in latest_products %}
+              <tr>
+                <td>{{ p.title|truncatechars:18 }}</td>
+                <td>{{ p.profile.user.username }}</td>
+                <td>
+                  {% if p.is_active %}
+                    <span class="pill pill-good">فعال</span>
+                  {% else %}
+                    <span class="pill pill-bad">غیرفعال</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3">محصولی وجود ندارد.</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">آخرین خدمات</div>
+          </div>
+          <table class="adm-table">
+            <thead>
+            <tr>
+              <th>عنوان</th>
+              <th>کاربر</th>
+              <th>وضعیت</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for s in latest_services %}
+              <tr>
+                <td>{{ s.title|truncatechars:18 }}</td>
+                <td>{{ s.profile.user.username }}</td>
+                <td>
+                  {% if s.is_active %}
+                    <span class="pill pill-good">فعال</span>
+                  {% else %}
+                    <span class="pill pill-bad">غیرفعال</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3">خدمتی وجود ندارد.</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-header">
+            <div class="adm-card-title">آخرین پست‌های هنری</div>
+          </div>
+          <table class="adm-table">
+            <thead>
+            <tr>
+              <th>عنوان</th>
+              <th>کاربر</th>
+              <th>لایک</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for a in latest_artposts %}
+              <tr>
+                <td>{{ a.title|truncatechars:18 }}</td>
+                <td>{{ a.profile.user.username }}</td>
+                <td><span class="pill">{{ a.total_likes }}</span></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3">پست هنری ثبت نشده.</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<div class="adm-grid">
-  <div class="adm-card">
-    <h3>کل بازدیدها</h3>
-    <div class="adm-kpi-main">{{ total_visits }}</div>
-    <div class="adm-kpi-sub">
-      {{ visits_last_7 }} بازدید در ۷ روز اخیر<br>
-      {{ visits_last_30 }} بازدید در ۳۰ روز اخیر
-    </div>
-  </div>
+<script>
+  const totalVisits   = {{ total_visits|default:"0" }};
+  const visits7       = {{ visits_last_7|default:"0" }};
+  const visits30      = {{ visits_last_30|default:"0" }};
+  const uniqueVisitors = {{ unique_visitors_all|default:"0" }};
+  const totalUsers    = {{ total_users|default:"0" }};
 
-  <div class="adm-card">
-    <h3>بازدیدکننده یکتا</h3>
-    <div class="adm-kpi-main">{{ unique_visitors_all }}</div>
-    <div class="adm-kpi-sub">
-      {{ unique_visitors_30 }} یکتا در ۳۰ روز اخیر
-    </div>
-  </div>
+  const qrTotal       = {{ qr_visits_total|default:"0" }};
+  const directTotal   = {{ direct_visits_total|default:"0" }};
+  const otherVisits   = Math.max(totalVisits - qrTotal - directTotal, 0);
 
-<div class="adm-card">
-  <h3>بازدید از QR</h3>
-  <div class="adm-kpi-main">{{ qr_visits_total }}</div>
-  <div class="adm-kpi-sub">
-    کل اسکن‌ها تا امروز<br>
-    <span class="adm-pill good">{{ qr_visits_30 }}</span> در ۳۰ روز اخیر<br><br>
+  // 1) Visits – simple line
+  new Chart(document.getElementById('chartVisits'), {
+    type: 'line',
+    data: {
+      labels: ['۳۰ روز', '۷ روز', 'امروز'],
+      datasets: [{
+        data: [visits30, visits7, visits7],
+        borderWidth: 2,
+        tension: 0.3,
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {legend: {display:false}},
+      scales: {
+        x: {grid:{display:false}, ticks:{font:{size:10}}},
+        y: {grid:{color:'#e5e7eb'}, ticks:{font:{size:10}, beginAtZero:true}}
+      }
+    }
+  });
 
-    پوستر هنرمندان 🎨<br>
-    ▸ کل: {{ artists_poster_total }}<br>
-    ▸ ۳۰ روز اخیر: {{ artists_poster_30 }}<br><br>
+  // 2) Conversion funnel doughnut
+  new Chart(document.getElementById('chartConversion'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Signups','Only visitors'],
+      datasets: [{
+        data: [totalUsers, Math.max(uniqueVisitors - totalUsers, 0)],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {legend:{display:false}},
+      cutout: '65%'
+    }
+  });
 
-    پوستر مخاطبان 👥<br>
-    ▸ کل: {{ audience_poster_total }}<br>
-    ▸ ۳۰ روز اخیر: {{ audience_poster_30 }}<br><br>
+  // 3) Traffic sources bar
+  new Chart(document.getElementById('chartTraffic'), {
+    type: 'bar',
+    data: {
+      labels: ['QR','Direct','Other'],
+      datasets: [{
+        data: [qrTotal, directTotal, otherVisits],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:10}}},
+        y:{grid:{color:'#e5e7eb'}, ticks:{font:{size:10}, beginAtZero:true}}
+      }
+    }
+  });
+</script>
 
-    کارت ویزیت 💳<br>
-    ▸ کل: {{ visitcard_total }}<br>
-    ▸ ۳۰ روز اخیر: {{ visitcard_30 }}
-  </div>
-</div>
-
-
-
-<div class="adm-card">
-  <h3>بازدید مستقیم (بدون referrer)</h3>
-  <div class="adm-kpi-main">{{ direct_visits_total }}</div>
-  <div class="adm-kpi-sub">
-    کل تا امروز – {{ direct_visits_30 }} در ۳۰ روز گذشته
-  </div>
-</div>
-
----
-
-  <div class="adm-section-title">
-    <h2>🎯 تقسیم‌بندی کاربران</h2>
-    <span>بر اساس Role و Category</span>
-  </div>
-
-  <div class="adm-grid">
-    <div class="adm-card">
-      <h3>نقش پروفایل (Role)</h3>
-      <table class="adm-table">
-        <thead><tr><th>نقش</th><th>تعداد</th></tr></thead>
-        <tbody>
-          {% for r in role_breakdown %}
-          <tr>
-            <td>
-              {% if r.role == "normal" %}کاربر عادی{% elif r.role == "artist" %}هنرمند{% elif r.role == "business" %}صاحب کسب‌وکار{% else %}{{ r.role }}{% endif %}
-            </td>
-            <td><span class="adm-pill">{{ r.c }}</span></td>
-          </tr>
-          {% empty %}<tr><td colspan="2">هیچ پروفایلی ثبت نشده است.</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="adm-card">
-      <h3>محبوب‌ترین دسته‌ها (Category)</h3>
-      <table class="adm-table">
-        <thead><tr><th>دسته</th><th>پروفایل</th></tr></thead>
-        <tbody>
-          {% for c in top_categories %}
-          <tr><td>{{ c.name }}</td><td><span class="adm-pill">{{ c.profile_count }}</span></td></tr>
-          {% empty %}<tr><td colspan="2">دسته‌ای وجود ندارد.</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="adm-card">
-      <h3>محبوب‌ترین زیرشاخه‌ها (Subcategory)</h3>
-      <table class="adm-table">
-        <thead><tr><th>دسته → زیرشاخه</th><th>پروفایل</th></tr></thead>
-        <tbody>
-          {% for s in top_subcategories %}
-          <tr><td>{{ s.category.name }} → {{ s.name }}</td><td><span class="adm-pill">{{ s.profile_count }}</span></td></tr>
-          {% empty %}<tr><td colspan="2">زیرشاخه‌ای وجود ندارد.</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  ---
-
-  <div class="adm-section-title">
-    <h2>🛍️ مارکت‌پلیس و محتوا</h2>
-    <span>محصولات، خدمات، پست‌های هنری</span>
-  </div>
-
-  <div class="adm-grid">
-    <div class="adm-card">
-      <h3>محصولات فیزیکی</h3>
-      <div class="adm-kpi-main">{{ total_products }}</div>
-      <div class="adm-kpi-sub">
-        <span class="adm-pill good">{{ active_products }} فعال</span><br>
-        {{ products_last_7 }} جدید (۷ روز) – {{ products_last_30 }} در ۳۰ روز
-      </div>
-    </div>
-
-    <div class="adm-card">
-      <h3>خدمات / سرویس‌ها</h3>
-      <div class="adm-kpi-main">{{ total_services }}</div>
-      <div class="adm-kpi-sub">
-        <span class="adm-pill good">{{ active_services }} فعال</span><br>
-        {{ services_last_7 }} جدید (۷ روز) – {{ services_last_30 }} در ۳۰ روز
-      </div>
-    </div>
-
-    <div class="adm-card">
-      <h3>پست‌های هنری (ArtPosts)</h3>
-      <div class="adm-kpi-main">{{ total_artposts }}</div>
-      <div class="adm-kpi-sub">
-        <span class="adm-pill good">{{ active_artposts }} فعال</span><br>
-        {{ artposts_last_7 }} جدید (۷ روز) – {{ artposts_last_30 }} در ۳۰ روز<br>
-        <span class="adm-pill">{{ artposts_with_likes }} پست دارای لایک</span>
-      </div>
-    </div>
-  </div>
-
-  ---
-
-  <div class="adm-section-title">
-    <h2>🚀 فعال‌ترین سازندگان محتوا</h2>
-    <span>بر اساس تعداد لیستینگ‌ها</span>
-  </div>
-
-  <div class="adm-grid">
-    <div class="adm-card">
-      <h3>پروفایل‌ها بر اساس تعداد محصولات</h3>
-      <table class="adm-table">
-        <thead><tr><th>کاربر</th><th>محصول</th><th></th></tr></thead>
-        <tbody>
-          {% for p in top_profiles_by_products %}
-          <tr>
-            <td>{{ p.user.username }}</td>
-            <td><span class="adm-pill">{{ p.products_count }}</span></td>
-            <td><a class="adm-link-small" href="/admin/accounts/profile/{{ p.id }}/change/" target="_blank">مدیریت ↗️</a></td>
-          </tr>
-          {% empty %}<tr><td colspan="3">هنوز محصولی ثبت نشده.</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="adm-card">
-      <h3>پروفایل‌ها بر اساس تعداد خدمات</h3>
-      <table class="adm-table">
-        <thead><tr><th>کاربر</th><th>خدمت</th><th></th></tr></thead>
-        <tbody>
-          {% for p in top_profiles_by_services %}
-          <tr>
-            <td>{{ p.user.username }}</td>
-            <td><span class="adm-pill">{{ p.services_count }}</span></td>
-            <td><a class="adm-link-small" href="/admin/accounts/profile/{{ p.id }}/change/" target="_blank">مدیریت ↗️</a></td>
-          </tr>
-          {% empty %}<tr><td colspan="3">هیچ خدمتی ثبت نشده.</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="adm-card">
-      <h3>پروفایل‌ها بر اساس تعداد پست هنری</h3>
-      <table class="adm-table">
-        <thead><tr><th>کاربر</th><th>پست هنری</th><th></th></tr></thead>
-        <tbody>
-          {% for p in top_profiles_by_artposts %}
-          <tr>
-            <td>{{ p.user.username }}</td>
-            <td><span class="adm-pill">{{ p.artposts_count }}</span></td>
-            <td><a class="adm-link-small" href="/admin/accounts/profile/{{ p.id }}/change/" target="_blank">مدیریت ↗️</a></td>
-          </tr>
-          {% empty %}<tr><td colspan="3">هیچ پست هنری ثبت نشده.</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  ---
-
-  <div class="adm-section-title">
-    <h2>⚡ آخرین فعالیت‌های مهم</h2>
-    <span>آخرین لیستینگ‌ها</span>
-  </div>
-
-  <div class="adm-grid">
-    <div class="adm-card">
-      <h3>آخرین محصولات</h3>
-      <table class="adm-table">
-        <thead><tr><th>عنوان</th><th>کاربر</th><th>وضعیت</th></tr></thead>
-        <tbody>
-          {% for p in latest_products %}
-          <tr>
-            <td>{{ p.title|truncatechars:18 }}</td>
-            <td>{{ p.profile.user.username }}</td>
-            <td>{% if p.is_active %}<span class="adm-pill good">فعال</span>{% else %}<span class="adm-pill bad">غیرفعال</span>{% endif %}</td>
-          </tr>
-          {% empty %}<tr><td colspan="3">محصولی وجود ندارد.</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="adm-card">
-      <h3>آخرین خدمات</h3>
-      <table class="adm-table">
-        <thead><tr><th>عنوان</th><th>کاربر</th><th>وضعیت</th></tr></thead>
-        <tbody>
-          {% for s in latest_services %}
-          <tr>
-            <td>{{ s.title|truncatechars:18 }}</td>
-            <td>{{ s.profile.user.username }}</td>
-            <td>{% if s.is_active %}<span class="adm-pill good">فعال</span>{% else %}<span class="adm-pill bad">غیرفعال</span>{% endif %}</td>
-          </tr>
-          {% empty %}<tr><td colspan="3">خدمتی وجود ندارد.</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="adm-card">
-      <h3>آخرین پست‌های هنری</h3>
-      <table class="adm-table">
-        <thead><tr><th>عنوان</th><th>کاربر</th><th>لایک</th></tr></thead>
-        <tbody>
-          {% for a in latest_artposts %}
-          <tr>
-            <td>{{ a.title|truncatechars:18 }}</td>
-            <td>{{ a.profile.user.username }}</td>
-            <td><span class="adm-pill">{{ a.total_likes }}</span></td>
-          </tr>
-          {% empty %}<tr><td colspan="3">پست هنری ثبت نشده.</td></tr>{% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
 {% endblock %}

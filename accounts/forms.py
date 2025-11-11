@@ -12,10 +12,21 @@ import re
 User = get_user_model()
 
 class RoleCategoryForm(forms.ModelForm):
-    role          = forms.ChoiceField(choices=Profile.ROLE_CHOICES)
-    category      = forms.ModelChoiceField(queryset=Category.objects.all(), required=False)
-    subcategory   = forms.ModelChoiceField(queryset=Subcategory.objects.none(), required=False)
-    business_kind = forms.ChoiceField(choices=(("", "— انتخاب کنید —"),) + BUSINESS_KINDS, required=False)
+    category      = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        required=False,
+        label="دسته هنری",
+    )
+    subcategory   = forms.ModelChoiceField(
+        queryset=Subcategory.objects.none(),
+        required=False,
+        label="زیرشاخه",
+    )
+    business_kind = forms.ChoiceField(
+        choices=(("", "— انتخاب کنید —"),) + BUSINESS_KINDS,
+        required=False,
+        label="نوع کسب‌وکار",
+    )
     custom_subcategory = forms.CharField(
         required=False,
         max_length=120,
@@ -27,12 +38,14 @@ class RoleCategoryForm(forms.ModelForm):
 
     class Meta:
         model  = Profile
-        fields = ("role", "category", "subcategory", "business_kind", "custom_subcategory")
+        fields = ("category", "subcategory", "business_kind", "custom_subcategory")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # preload subcategory queryset based on bound/instance category
+
         cat = None
+
+        # اگر فرم POST شده، دسته را از data بخوان
         if self.is_bound:
             try:
                 cat_id = int(self.data.get(self.add_prefix("category")) or 0)
@@ -40,57 +53,58 @@ class RoleCategoryForm(forms.ModelForm):
                     cat = Category.objects.filter(id=cat_id).first()
             except (TypeError, ValueError):
                 pass
+
+        # اگر هنوز cat پیدا نشده، از instance بگیر
         if not cat and self.instance and self.instance.category_id:
             cat = self.instance.category
 
-        self.fields["subcategory"].queryset = Subcategory.objects.filter(category=cat) if cat else Subcategory.objects.none()
+        # کوئری‌ست زیرشاخه‌ها
+        if cat:
+            self.fields["subcategory"].queryset = Subcategory.objects.filter(category=cat)
+        else:
+            self.fields["subcategory"].queryset = Subcategory.objects.none()
+
         if self.instance and self.instance.pk:
             self.fields["custom_subcategory"].initial = self.instance.custom_subcategory
 
     def clean(self):
         cleaned = super().clean()
-        role = cleaned.get("role")
-        cat  = cleaned.get("category")
-        sub  = cleaned.get("subcategory")
-        biz  = cleaned.get("business_kind")
+        role   = self.instance.role  # نقش از خود پروفایل
+        cat    = cleaned.get("category")
+        sub    = cleaned.get("subcategory")
+        biz    = cleaned.get("business_kind")
         custom = (cleaned.get("custom_subcategory") or "").strip()
 
         if role == "artist":
             if not cat:
-                self.add_error("category", "دسته‌بندی هنری را انتخاب کنید.")
+                self.add_error("category", "دسته هنری را انتخاب کنید.")
             if not sub:
                 self.add_error("subcategory", "زیرشاخه مرتبط را انتخاب کنید.")
             if cat and sub and sub.category_id != cat.id:
                 self.add_error("subcategory", "این زیرشاخه متعلق به دسته انتخاب‌شده نیست.")
 
-            # ✅ اگر زیرشاخه «سایر / Other» بود، custom_subcategory لازم است
             if sub:
                 name = (sub.name or "").strip()
                 slug = (sub.slug or "").strip().lower()
                 is_other = (name == "سایر") or (name.lower() == "other") or (slug == "other")
-                if is_other:
-                    if not custom:
-                        self.add_error(
-                            "custom_subcategory",
-                            "وقتی «سایر» را انتخاب می‌کنید، لطفاً نام زیرشاخه دلخواه را وارد کنید.",
-                        )
-                else:
-                    # اگر زیرشاخه معمولی است، متن دلخواه را خالی کن
+                if is_other and not custom:
+                    self.add_error(
+                        "custom_subcategory",
+                        "وقتی «سایر» را انتخاب می‌کنید، لطفاً نام زیرشاخه دلخواه را وارد کنید.",
+                    )
+                elif not is_other:
                     cleaned["custom_subcategory"] = ""
 
-            # business fields not required
             cleaned["business_kind"] = ""
 
         elif role == "business":
             if not biz:
                 self.add_error("business_kind", "نوع کسب‌وکار را انتخاب کنید.")
-            # clear artist fields
             cleaned["category"] = None
             cleaned["subcategory"] = None
             cleaned["custom_subcategory"] = ""
 
-        else:
-            # normal user: clear both
+        else:  # normal
             cleaned["category"] = None
             cleaned["subcategory"] = None
             cleaned["business_kind"] = ""
@@ -98,6 +112,13 @@ class RoleCategoryForm(forms.ModelForm):
 
         return cleaned
 
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        if profile.role == "artist" and self.cleaned_data.get("subcategory"):
+            profile.category = self.cleaned_data["subcategory"].category
+        if commit:
+            profile.save()
+        return profile
 
 class UserForm(forms.ModelForm):
     class Meta:
@@ -195,10 +216,17 @@ class LoginForm(forms.Form):
 
 
 class SignupForm(forms.Form):
+    ROLE_CHOICES = (
+        ("artist",   "هنرمند"),
+        ("business", "صاحب کسب و کار(گالری،استودیو،استور)"),
+        ("normal",   "مخاظب هنر"),
+    )
+
     first_name = forms.CharField(max_length=150)
     last_name  = forms.CharField(max_length=150)
     username   = forms.CharField(max_length=150)
     email      = forms.EmailField()
+    role       = forms.ChoiceField(choices=ROLE_CHOICES, initial="artist")
     password   = forms.CharField(min_length=8, widget=forms.PasswordInput)
     password2  = forms.CharField(min_length=8, widget=forms.PasswordInput)
 
@@ -234,15 +262,24 @@ class SignupForm(forms.Form):
         return cleaned
 
     def create_user(self):
+        from .models import Profile  # already imported at top but safe
+
         data = self.cleaned_data
         user = User.objects.create_user(
-            username=data["username"],   # اینجا الان قطعا lowercase و معتبره
+            username=data["username"],
             email=data["email"],
             password=data["password"],
             first_name=data["first_name"],
             last_name=data["last_name"],
         )
+
+        # پروفایل اتوماتیک با سیگنال ساخته می‌شود؛ اینجا نقش را ست می‌کنیم
+        profile, created = Profile.objects.get_or_create(user=user)
+        profile.role = data.get("role", "normal")
+        profile.save(update_fields=["role"])
+
         return user
+
 
 
 from django.forms import inlineformset_factory

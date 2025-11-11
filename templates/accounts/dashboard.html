@@ -884,44 +884,60 @@ html, body{ overflow-x:hidden }
         </div>
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
+<section class="panel tab-panel" data-tab="role" {% if active_tab != 'role' %}style="display:none"{% endif %}>
+  <h3>دسته‌بندی</h3>
 
-      <!-- ROLE TAB -->
-      <section class="panel tab-panel" data-tab="role" {% if active_tab != 'role' %}style="display:none"{% endif %}>
-        <h3>دسته بندی</h3>
-        <p class="muted">یک گزینه انتخاب کنید: «هنرمند مستقل» و سپس دسته/زیرشاخه، یا «صاحب کسب‌وکار» و نوع کسب‌وکار.</p>
-        <div class="row">
-          <div>
-            <label>نقش</label>
-            {{ role_form.role }}
-          </div>
+  <p class="muted">
+    نوع عضویت:
+    <strong>{{ profile.get_role_display }}</strong>
+  </p>
+
+  {% if profile.role == "artist" %}
+    <p class="muted">اول دسته هنری را انتخاب کنید، سپس زیرشاخه مناسب آن ظاهر می‌شود.</p>
+
+    <div id="artist-fields">
+      <div class="row">
+        <div style="flex:1;">
+          <label>دسته هنری</label>
+          {{ role_form.category }}
         </div>
-
-        <div id="artist-fields">
-          <div class="row">
-            <div><label>دسته هنری</label>{{ role_form.category }}</div>
-            <div><label>زیرشاخه</label>{{ role_form.subcategory }}</div>
-          </div>
-
-          <div class="row" id="custom-subcat-row" style="margin-top:12px; display:none;">
-            <div>
-              <label>زیرشاخه دلخواه</label>
-              {{ role_form.custom_subcategory }}
-              <p class="muted">اگر زیرشاخه مدنظر در لیست نیست، «سایر / Other» را انتخاب کنید و اینجا نامش را بنویسید.</p>
-            </div>
-          </div>
+        <div style="flex:1;" id="subcat-wrapper" {% if not profile.category and not role_form.data.category %}style="display:none"{% endif %}>
+          <label>زیرشاخه</label>
+          {{ role_form.subcategory }}
         </div>
+      </div>
 
-        <div id="business-fields">
-          <div class="row">
-            <div><label>نوع کسب‌وکار</label>{{ role_form.business_kind }}</div>
-          </div>
+      <div class="row" id="custom-subcat-row" style="margin-top:12px;">
+        <div>
+          <label>زیرشاخه دلخواه</label>
+          {{ role_form.custom_subcategory }}
+          <p class="muted">
+            اگر زیرشاخه مدنظر در لیست نیست، «سایر / Other» را انتخاب کنید و اینجا نامش را بنویسید.
+          </p>
         </div>
+      </div>
+    </div>
+  {% elif profile.role == "business" %}
+    <p class="muted">نوع کسب‌وکار هنری خود را انتخاب کنید.</p>
+    <div id="business-fields">
+      <div class="row">
+        <div style="flex:1;">
+          <label>نوع کسب‌وکار</label>{{ role_form.business_kind }}
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <p class="muted">
+      شما به عنوان مخاطب هنر ثبت‌نام کرده‌اید.
+    </p>
+  {% endif %}
 
-        <div class="hr"></div>
-        <div class="actions">
-          <button class="btn" type="submit">ذخیره</button>
-        </div>
-      </section>
+  <div class="hr"></div>
+  <div class="actions">
+    <button class="btn" type="submit">ذخیره</button>
+  </div>
+</section>
+
 {% if profile.completion == 100 %}
 
       <!-- PRODUCTS TAB -->

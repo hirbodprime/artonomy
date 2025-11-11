@@ -87,6 +87,26 @@ def admin_kpi_dashboard(request):
         .distinct()
         .count()
     )
+    # نسبت و قیف تبدیل: Visitor -> Signup -> Profile 100%
+    visitors_total = unique_visitors_all or 0
+    users_total = total_users or 0
+    completed_total = completed_profiles or 0
+
+    if visitors_total > 0:
+        signup_conversion = round(users_total / visitors_total * 100, 1)
+        completion_from_visitors = round(
+            completed_total / visitors_total * 100, 1
+        )
+    else:
+        signup_conversion = 0
+        completion_from_visitors = 0
+
+    if users_total > 0:
+        completion_from_users = round(
+            completed_total / users_total * 100, 1
+        )
+    else:
+        completion_from_users = 0
 
     # All QR scans (lifetime + 30 days)
     qr_visits_total = Visit.objects.filter(utm_source="qr").count()
@@ -240,6 +260,11 @@ def admin_kpi_dashboard(request):
         "artists_poster_30": artists_poster_30,
         "audience_poster_30": audience_poster_30,
         "visitcard_30": visitcard_30,
+        # Conversion funnel (Visitor -> Signup -> Profile)
+        "conversion_visitors": visitors_total,
+        "conversion_signup_rate": signup_conversion,
+        "conversion_completion_from_users": completion_from_users,
+        "conversion_completion_from_visitors": completion_from_visitors,
 
 
     }

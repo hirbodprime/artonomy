@@ -457,6 +457,30 @@
                               </div>
                             {% endif %}
                         </div>
+<div class="field">
+<label>نوع عضویت</label>
+  <div style="display:grid; gap:8px; font-size:14px; color:var(--text-2);">
+    {% for value, label in signup_form.fields.role.choices %}
+      <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+
+        {% with current_role=signup_form.data.role|default:signup_form.fields.role.initial %}
+          <input type="radio"
+                 name="role"
+                 value="{{ value }}"
+                 {% if current_role == value %}checked{% endif %}>
+        {% endwith %}
+
+        <span>{{ label }}</span>
+      </label>
+    {% endfor %}
+  </div>
+
+  {% if signup_form and signup_form.errors.role %}
+    <div style="color:#ffb4b4;font-size:12px;margin-top:6px;">
+      {{ signup_form.errors.role.0 }}
+    </div>
+  {% endif %}
+</div>
 
                         <div class="row">
                             <div class="field">
