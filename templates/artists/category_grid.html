@@ -3,52 +3,83 @@
 {% block page_content %}
 
 <style>
-  /* متن همیشه دیده باشد و چیزی جلوی کلیک را نگیرد */
-  .gallery-items .grid-item-holder{ position:relative; display:block; overflow:hidden; filter:none !important; }
-  .gallery-items .grid-item-holder img{ width:100%; height:auto; display:block; transform:none !important; }
-  .gallery-items .grid-item-holder::before,
-  .gallery-items .grid-item-holder::after{ pointer-events:none !important; }
+  /* Card container (uses home-gallery grid from base.css) */
+  .home-gallery-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    display: block;
+  }
 
-  .gallery-items .grid-item-holder .grid-item-info{
-    position:absolute; inset-inline:0; bottom:0;
-    padding:16px 18px;
-    background:linear-gradient(to top, rgba(0,0,0,.65), rgba(0,0,0,0));
-    color:#fff; z-index:3;
-    opacity:1 !important; visibility:visible !important;
-    transform:none !important; max-height:none !important; height:auto !important;
-    transition:none !important;
+  /* New overlay box – our own classes, no conflict */
+  .art-card-info {
+    position: absolute;
+    inset-inline: 16px;
+    bottom: 16px;
+    padding: 10px 14px;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 14px;
+    color: #fff;
+    z-index: 5;
+    pointer-events: none;   /* کل کارت لینک بماند */
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: 0 8px 18px rgba(0,0,0,.35);
+    transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
   }
-  .gallery-items .grid-item-holder .grid-item-info *{
-    opacity:1 !important; transform:none !important; filter:none !important;
+
+  .art-card-title {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.25;
   }
-  .gallery-items .grid-item-info h3{ margin:0 0 6px 0; font-size:18px; font-weight:800; line-height:1.15; }
-  .gallery-items .grid-item-info p{ margin:0; font-size:14px; opacity:.95; }
+
+  .art-card-meta {
+    font-size: 13px;
+    opacity: .9;
+  }
+
+  .home-gallery-card:hover .art-card-info {
+    background: rgba(0,0,0,0.82);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(0,0,0,.5);
+  }
+
+  @media (max-width: 768px) {
+    .art-card-info {
+      inset-inline: 12px;
+      bottom: 12px;
+      padding: 8px 12px;
+      max-width: 90%;
+    }
+  }
 </style>
 
 <div id="wrapper"><div class="content-holder">
   <div class="vertical-portfolio_wrap" id="port-scroll">
-    <div class="gallery-items big-padding gi_left_al">
+    <div class="home-gallery big-padding">
       {% for c in items %}
-      <div class="gallery-item">
-        <a class="grid-item-holder hov_zoom" href="{% url 'subcategory_grid' c.slug %}">
-          <img
-            src="{% if c.image %}{{ c.image.url }}{% else %}{% static 'images/placeholder/cover-16x9-dark.png' %}{% endif %}"
-            alt="{{ c.name }}">
-          <div class="grid-item-info">
-            <h3>{{ c.name }}</h3>
-            <p>{{ c.subcategories.count }} زیر‌دسته</p>
-          </div>
-        </a>
-      </div>
+        <div class="home-gallery-item">
+          <a class="home-gallery-card hov_zoom"
+             href="{% url 'subcategory_grid' c.slug %}">
+            <img
+              src="{% if c.image %}{{ c.image.url }}{% else %}{% static 'images/placeholder/cover-16x9-dark.png' %}{% endif %}"
+              alt="{{ c.name }}">
+
+            <div class="art-card-info">
+              <div class="art-card-title">{{ c.name }}</div>
+              <div class="art-card-meta">
+                {{ c.subcategories.count }} زیر‌دسته
+              </div>
+            </div>
+          </a>
+        </div>
       {% empty %}
-      <p class="muted" style="padding:2rem">هنوز دسته‌ای ثبت نشده.</p>
+        <p class="muted" style="padding:2rem">هنوز دسته‌ای ثبت نشده.</p>
       {% endfor %}
     </div>
   </div>
 </div></div>
 
-<script>
-  // هر چیزی از تم که پاپ‌آپ/زوم راه می‌اندازد را خنثی کن
-  document.querySelectorAll('.grid-media-zoom, .image-popup, .box-media-zoom').forEach(el => el.remove());
-</script>
 {% endblock page_content %}
