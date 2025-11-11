@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from core.utils.images import compress_image_field
 from core.utils.videos import compress_video_field
+from core.utils.validators import validate_file_size_1mb
 CURRENCY_CHOICES = (
     ("IRT", "تومان"),
     ("IRR", "ریال"),
@@ -37,7 +38,8 @@ class Product(TimeStamped):
     quantity = models.PositiveIntegerField(default=1)
     condition = models.CharField(max_length=8, choices=Condition.choices, default=Condition.NEW)
     # (optional legacy single image; safe to keep)
-    image = models.ImageField(upload_to="market/products/%Y/%m/", blank=True, null=True)
+    image = models.ImageField(validators=[validate_file_size_1mb],
+upload_to="market/products/%Y/%m/", blank=True, null=True)
     is_active = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
 
@@ -84,7 +86,8 @@ class Product(TimeStamped):
 
 class ProductImage(TimeStamped):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to="market/products/%Y/%m/gallery/")
+    image = models.ImageField(validators=[validate_file_size_1mb],
+upload_to="market/products/%Y/%m/gallery/")
     alt_text = models.CharField(max_length=200, blank=True, default="")
     order = models.PositiveIntegerField(default=0, help_text=_("ترتیب نمایش"))
     is_primary = models.BooleanField(default=False, help_text=_("کاور/تصویر اصلی"))
@@ -114,7 +117,8 @@ class Service(TimeStamped):
     title = models.CharField(max_length=180)
     slug = models.SlugField(max_length=220, blank=True)
     description = models.TextField(blank=True, default="")
-    image = models.ImageField(upload_to="market/services/%Y/%m/", blank=True, null=True)  # legacy single
+    image = models.ImageField(validators=[validate_file_size_1mb],
+upload_to="market/services/%Y/%m/", blank=True, null=True)  # legacy single
     tags = models.CharField(max_length=200, blank=True, default="", help_text=_("لیست برچسب‌ها با ویرگول"))
     pricing_model = models.CharField(max_length=10, choices=PricingModel.choices, default=PricingModel.QUOTE)
     currency = models.CharField(max_length=3, choices=CURRENCY_CHOICES, default="IRT")
@@ -170,7 +174,8 @@ class Service(TimeStamped):
 
 class ServiceImage(TimeStamped):
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name="images")
-    image = models.ImageField(upload_to="market/services/%Y/%m/gallery/")
+    image = models.ImageField(validators=[validate_file_size_1mb],
+upload_to="market/services/%Y/%m/gallery/")
     alt_text = models.CharField(max_length=200, blank=True, default="")
     order = models.PositiveIntegerField(default=0)
     is_primary = models.BooleanField(default=False)
@@ -212,7 +217,8 @@ class ArtPost(TimeStamped):
         choices=Condition.choices,
         default=Condition.NEW,
     )
-    image = models.ImageField(
+    image = models.ImageField(validators=[validate_file_size_1mb],
+
         upload_to="market/artposts/%Y/%m/",
         blank=True,
         null=True,
@@ -227,7 +233,7 @@ class ArtPost(TimeStamped):
         blank=True,
     )
     views = models.PositiveIntegerField(default=0)
-    video = models.FileField(
+    video = models.FileField(validators=[validate_file_size_1mb],
         upload_to="market/artposts/%Y/%m/videos/",
         blank=True,
         null=True,
@@ -288,7 +294,8 @@ class ArtPostImage(TimeStamped):
         on_delete=models.CASCADE,
         related_name="images"
     )
-    image = models.ImageField(upload_to="market/artposts/%Y/%m/gallery/")
+    image = models.ImageField(validators=[validate_file_size_1mb],
+upload_to="market/artposts/%Y/%m/gallery/")
     alt_text = models.CharField(max_length=200, blank=True, default="")
     order = models.PositiveIntegerField(default=0, help_text=_("ترتیب نمایش"))
     is_primary = models.BooleanField(default=False, help_text=_("کاور/تصویر اصلی"))

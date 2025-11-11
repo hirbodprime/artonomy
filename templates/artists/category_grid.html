@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block content %}
+{% block page_content %}
 
 <style>
   /* متن همیشه دیده باشد و چیزی جلوی کلیک را نگیرد */
@@ -51,4 +51,4 @@
   // هر چیزی از تم که پاپ‌آپ/زوم راه می‌اندازد را خنثی کن
   document.querySelectorAll('.grid-media-zoom, .image-popup, .box-media-zoom').forEach(el => el.remove());
 </script>
-{% endblock %}
+{% endblock page_content %}

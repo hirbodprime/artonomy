@@ -6,6 +6,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Q
 from core.utils.images import compress_image_field
+from core.utils.validators import validate_file_size_1mb
 
 User = get_user_model()
 
@@ -45,12 +46,15 @@ class Profile(models.Model):
         upload_to=upload_to_profile,
         blank=True,
         null=True,
+        validators=[validate_file_size_1mb],
         verbose_name=_("عکس پروفایل"),
         help_text=_("تصویری که در کنار نام شما نمایش داده می‌شود."),
     )
 
     # ستون سمت چپ (header/column-image)
     header_background = models.ImageField(
+        validators=[validate_file_size_1mb],
+
         upload_to=upload_to_profile, blank=True, null=True,
         help_text=_("تصویر پس‌زمینه ستون سمت چپ (17.jpg فعلی)."))
     header_title = models.CharField(max_length=200, default="درباره من")
@@ -275,7 +279,9 @@ class Testimonial(models.Model):
     quote = models.TextField()
     source_label = models.CharField(max_length=100, blank=True, default="")  # مثلاً "از طریق توییتر"
     source_url = models.URLField(blank=True, default="")
-    background_image = models.ImageField(upload_to=upload_to_profile_misc, blank=True, null=True)
+    background_image = models.ImageField(
+        validators=[validate_file_size_1mb],
+        upload_to=upload_to_profile_misc, blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
 
     class Meta:
@@ -305,7 +311,8 @@ class ClientLogo(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="clients")
     title = models.CharField(max_length=100, blank=True, default="")
     url = models.URLField(blank=True, default="")
-    image = models.ImageField(upload_to=upload_to_profile_misc)
+    image = models.ImageField(validators=[validate_file_size_1mb],
+        upload_to=upload_to_profile_misc)
     order = models.PositiveIntegerField(default=0)
 
     class Meta:

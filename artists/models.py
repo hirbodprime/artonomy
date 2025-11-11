@@ -2,7 +2,7 @@
 from django.db import models
 from django.utils.text import slugify
 from core.utils.images import compress_image_field   # ⬅️ این خط جدید
-
+from core.utils.validators import validate_file_size_1mb
 def upload_to_category(instance, filename):
     return f"artists/categories/{instance.pk or 'new'}/{filename}"
 
@@ -14,7 +14,8 @@ class Category(models.Model):
     name  = models.CharField(max_length=100, unique=True)
     slug  = models.SlugField(max_length=120, unique=True, blank=True)
     order = models.PositiveIntegerField(default=0)
-    image = models.ImageField(upload_to=upload_to_category, null=True, blank=True)
+    image = models.ImageField(validators=[validate_file_size_1mb],
+upload_to=upload_to_category, null=True, blank=True)
 
     class Meta:
         ordering = ["order", "name"]
@@ -42,7 +43,8 @@ class Subcategory(models.Model):
     name     = models.CharField(max_length=120)
     slug     = models.SlugField(max_length=140, blank=True)
     order    = models.PositiveIntegerField(default=0)
-    image    = models.ImageField(upload_to=upload_to_subcategory, null=True, blank=True)
+    image    = models.ImageField(validators=[validate_file_size_1mb],
+upload_to=upload_to_subcategory, null=True, blank=True)
 
     class Meta:
         ordering = ["category__order", "order", "name"]

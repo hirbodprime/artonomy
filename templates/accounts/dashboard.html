@@ -12,6 +12,10 @@
 </script>
 
 <style>
+  .field-error[data-upload-error]{
+  margin-top:6px;
+}
+
 /* ============ پایه (Mobile-first) ============ */
 :root{
   --bg-0:#f4f6fa;--page-bg:#f4f6fa;--panel:#fff;--panel-2:#f8f9fa;
@@ -736,39 +740,47 @@ html, body{ overflow-x:hidden }
   <div class="hr"></div>
 
   {# 2) عکس پروفایل #}
-  <div class="row">
-    <div>
-      <label>عکس پروفایل</label>
-      {{ form.avatar }}
-      {% if profile.avatar %}
-        <img class="preview preview--logo" src="{{ profile.avatar.url }}" alt="عکس پروفایل">
-      {% else %}
-        <img class="preview preview--logo" src="{% static 'images/placeholder/avatar.png' %}" alt="عکس پروفایل">
-      {% endif %}
-      <div class="muted">jpg / png – پیشنهاد می‌شود تصویر مربعی باشد.</div>
+<div class="row">
+  <div>
+    <label>عکس پروفایل</label>
+    {{ form.avatar }}
+    {% if profile.avatar %}
+      <img class="preview preview--logo" src="{{ profile.avatar.url }}" alt="عکس پروفایل" data-preview>
+    {% else %}
+      <img class="preview preview--logo" src="{% static 'images/placeholder/avatar.png' %}" alt="عکس پروفایل" data-preview>
+    {% endif %}
+    <div class="muted">
+      jpg / png – پیشنهاد می‌شود تصویر مربعی باشد. حداکثر حجم هر تصویر: <strong>۱ مگابایت</strong>.
     </div>
+    <div class="field-error" data-upload-error></div>
   </div>
+</div>
+
+
 
   <div class="hr"></div>
 
-  {# 3) عکس هدر + بایو کوتاه #}
-  <div class="row">
-    <div>
-      <label>تصویر هدر (کاور پروفایل)</label>
-      {{ form.header_background }}
-      {% if profile.header_background %}
-        <img class="preview" src="{{ profile.header_background.url }}" alt="">
-      {% else %}
-        <img class="preview" src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
-      {% endif %}
-      <div class="muted">نسبت پیشنهادی 16:9</div>
+
+<div class="row">
+  <div>
+    <label>تصویر هدر (کاور پروفایل)</label>
+    {{ form.header_background }}
+    {% if profile.header_background %}
+      <img class="preview" src="{{ profile.header_background.url }}" alt="" data-preview>
+    {% else %}
+      <img class="preview" src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="" data-preview>
+    {% endif %}
+    <div class="muted">
+      نسبت پیشنهادی 16:9 – حداکثر حجم هر تصویر: <strong>۱ مگابایت</strong>.
     </div>
-    <div>
-      <label>بایو کوتاه</label>
-      {{ form.header_subtitle }}
-      <div class="muted">یک جمله درباره خودتان (مثلاً: طراح گرافیک و تصویرگر)</div>
-    </div>
+    <div class="field-error" data-upload-error></div>
   </div>
+  <div>
+    <label>بایو کوتاه</label>
+    {{ form.header_subtitle }}
+    <div class="muted">یک جمله درباره خودتان (مثلاً: طراح گرافیک و تصویرگر)</div>
+  </div>
+</div>
 
   <div class="hr"></div>
 
@@ -846,14 +858,17 @@ html, body{ overflow-x:hidden }
             </div>
             <div class="row fsrow">
               <div>
-                <label>تصویر پس‌زمینه</label>
-                {{ f.background_image }}
-                {% if f.instance.pk and f.instance.background_image %}
-                  <img class="preview" src="{{ f.instance.background_image.url }}" alt="bg preview">
-                {% else %}
-                  <img class="preview" src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="bg preview">
-                {% endif %}
-              </div>
+  <label>تصویر پس‌زمینه</label>
+  {{ f.background_image }}
+  {% if f.instance.pk and f.instance.background_image %}
+    <img class="preview" src="{{ f.instance.background_image.url }}" alt="bg preview" data-preview>
+  {% else %}
+    <img class="preview" src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="bg preview" data-preview>
+  {% endif %}
+  <div class="muted">حداکثر حجم تصویر: <strong>۱ مگابایت</strong>.</div>
+  <div class="field-error" data-upload-error></div>
+</div>
+
               <div style="display:flex;align-items:center;margin-top: 24px">
                 {{ f.DELETE }}<span class="del-chip" data-del>حذف</span>
               </div>
@@ -973,7 +988,8 @@ html, body{ overflow-x:hidden }
 
             <div class="hr hr-accent"></div>
 
-            <h4 style="margin:0 0 8px">گالری تصاویر</h4>
+<h4 style="margin:0 0 8px">گالری تصاویر</h4>
+<div class="muted">حداکثر حجم هر تصویر: <strong>۱ مگابایت</strong>.</div>
 
             {% if pk %}
               {% with gfs=product_image_fsets|dict_get:pk %}
@@ -1121,16 +1137,19 @@ html, body{ overflow-x:hidden }
               مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
             </video>
           {% endif %}
-          <div class="muted">
-            فرمت‌های پیشنهادی: mp4, mov. بعد از ذخیره، ویدیو فشرده می‌شود.
-          </div>
+<div class="muted">
+  فرمت‌های پیشنهادی: mp4, mov. حداکثر حجم فایل: <strong>۱ مگابایت</strong>.
+</div>
+<div class="field-error" data-upload-error></div>
+
         </div>
       </div>
 
       <div class="hr hr-accent"></div>
 
       {# 🔹 گالری تصاویر - شبیه محصولات/خدمات، با دکمه «افزودن تصویر» #}
-      <h4 style="margin:0 0 8px">گالری تصاویر</h4>
+<h4 style="margin:0 0 8px">گالری تصاویر</h4>
+<div class="muted">حداکثر حجم هر تصویر: <strong>۱ مگابایت</strong>.</div>
 
       {% if pk %}
         {% with gfs=artpost_image_fsets|dict_get:pk %}
@@ -1264,7 +1283,8 @@ html, body{ overflow-x:hidden }
 
             <div class="hr hr-accent"></div>
 
-            <h4 style="margin:0 0 8px">گالری تصاویر</h4>
+<h4 style="margin:0 0 8px">گالری تصاویر</h4>
+<div class="muted">حداکثر حجم هر تصویر: <strong>۱ مگابایت</strong>.</div>
 
             {% if pk %}
               {% with gfs=service_image_fsets|dict_get:pk %}
@@ -1581,22 +1601,93 @@ document.addEventListener('click',function(e){
 });
 
 /* پیش‌نمایش زنده‌ی ورودی فایل */
-function attachLivePreview(scope=document){
-  scope.querySelectorAll('.gallery-item input[type="file"]').forEach(function(input){
-    input.addEventListener('change',function(){
-      const file=this.files && this.files[0];
-      const preview=this.closest('.gallery-item')?.querySelector('[data-preview]');
-      if(!preview) return;
-      if(file){
-        const url=URL.createObjectURL(file);
-        preview.src=url; preview.style.display='';
-      } else {
-        preview.removeAttribute('src'); preview.style.display='none';
+// حداکثر حجم: ۱ مگابایت
+const MAX_FILE_BYTES = 1 * 1024 * 1024;
+
+function handleFileInputChange(input) {
+  const file = input.files && input.files[0];
+
+  // 🔹 محدوده منطقی برای این فیلد:
+  // اول سعی می‌کنیم در گالری، بعد row، بعد formset، بعد panel
+  const scope =
+    input.closest('.gallery-item') ||
+    input.closest('.row') ||
+    input.closest('.formset') ||
+    input.closest('.panel');
+
+  if (!scope) return;
+
+  // ارور مخصوص همین محدوده (از قبل تو HTML هست)
+  const errorEl = scope.querySelector('[data-upload-error]');
+
+  // پیدا کردن preview مناسب:
+  const previews = Array.from(scope.querySelectorAll('[data-preview]'));
+  let preview = null;
+
+  if (previews.length === 1) {
+    preview = previews[0];
+  } else if (previews.length > 1) {
+    // اگر چند تا img هست، نزدیک‌ترین img بعد از input توی DOM را انتخاب می‌کنیم
+    previews.forEach(img => {
+      const rel = input.compareDocumentPosition(img);
+      const isAfter = rel & Node.DOCUMENT_POSITION_FOLLOWING;
+      if (!preview && isAfter) {
+        preview = img;
       }
+    });
+    // اگر هیچکدوم بعد از input نبود، اولین را می‌گیریم
+    if (!preview && previews.length) {
+      preview = previews[0];
+    }
+  }
+
+  if (!file) {
+    if (errorEl) errorEl.textContent = '';
+    return;
+  }
+
+  // 🔴 چک سایز
+  if (file.size > MAX_FILE_BYTES) {
+    if (errorEl) {
+      const mb = (file.size / (1024 * 1024)).toFixed(2);
+      errorEl.textContent = `حجم فایل ${mb} مگابایت است. حداکثر مجاز ۱ مگابایت می‌باشد.`;
+    }
+    // پاک کردن انتخاب تا نتونه با فایل بزرگ ذخیره کنه
+    input.value = '';
+    return;
+  }
+
+  // اوکی → ارور خالی
+  if (errorEl) errorEl.textContent = '';
+
+  // 🎨 پیش‌نمایش زنده
+  if (preview) {
+    try {
+      const url = URL.createObjectURL(file);
+      preview.src = url;
+      preview.style.display = '';
+    } catch (e) {
+      // اگر مرورگر اجازه نداد، نادیده می‌گیریم
+    }
+  }
+}
+
+function attachFileEnhancements(scope = document) {
+  scope.querySelectorAll('input[type="file"]').forEach(input => {
+    // روی empty_form template ها اجرا نکن
+    if (input.dataset.enhanced === '1') return;
+    if (input.closest('template') || input.closest('[data-empty-fields]')) return;
+
+    input.dataset.enhanced = '1';
+    input.addEventListener('change', function () {
+      handleFileInputChange(this);
     });
   });
 }
-attachLivePreview();
+
+// اجرای اولیه روی کل صفحه
+attachFileEnhancements();
+
 
 /* افزودن سطر جدید به فرم‌ست گالری */
 document.addEventListener('click',function(e){
@@ -1646,11 +1737,10 @@ document.addEventListener('click',function(e){
   if(deleteSlot) deleteSlot.appendChild(pick('-DELETE'));
 
   formsBox.appendChild(newRow);
-  mgmt.value=String(total+1);
+  mgmt.value = String(total + 1);
 
-  attachLivePreview(newRow);
+  attachFileEnhancements(newRow);
 });
-
 /* ساخت نوار ذخیره چسبان بالا برای هر پنل */
 (function(){
   document.querySelectorAll('.panel.tab-panel').forEach(function(section){
@@ -1760,6 +1850,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // فعال‌سازی اولیه با تب فعلی از سرور
   activate('{{ active_tab }}', false);
 })();
+
 </script>
 
 

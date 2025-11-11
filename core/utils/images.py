@@ -1,41 +1,46 @@
 # core/utils/images.py
-import io
-from PIL import Image
+import os
+from io import BytesIO
 from django.core.files.base import ContentFile
+from PIL import Image
 
-
-def compress_image_field(instance, field_name: str, max_width: int = 1600, quality: int = 70):
+def compress_image_field(instance, field_name, max_width=1600, quality=75):
     """
-    Opens instance.<field_name>, resizes if too wide, and re-saves as JPEG
-    with given quality. Uses save=False so caller can call super().save().
+    تصویر فیلد مشخص‌شده را کوچک و فشرده می‌کند
+    و دوباره روی همان فیلد می‌نویسد (بدون ساختن مسیر تودرتو).
     """
     field = getattr(instance, field_name, None)
     if not field:
         return
 
+    # اگر هیچ فایلی روی فیلد نیست
+    if not getattr(field, "name", None):
+        return
+
     try:
         img = Image.open(field)
     except Exception:
-        return  # not an image or something went wrong
-
-    # Skip GIF / animated images (optional)
-    if img.format == "GIF":
+        # اگر فایل تصویر نباشد، بی‌خیال فشرده‌سازی شو
         return
 
-    # Drop alpha for JPEG
+    # تبدیل به RGB (برای JPEG)
     if img.mode in ("RGBA", "P"):
         img = img.convert("RGB")
 
-    w, h = img.size
-    if w > max_width:
-        new_h = int(max_width * h / w)
-        img = img.resize((max_width, new_h), Image.LANCZOS)
+    # تغییر سایز اگر عرض از max_width بیشتر بود
+    if max_width and img.width > max_width:
+        ratio = max_width / float(img.width)
+        new_height = int(img.height * ratio)
+        img = img.resize((max_width, new_height), Image.LANCZOS)
 
-    buf = io.BytesIO()
-    # Strong compression: lower quality → smaller file
-    img.save(buf, format="JPEG", optimize=True, quality=quality)
-    buf.seek(0)
+    # ذخیره در حافظه
+    buffer = BytesIO()
+    img.save(buffer, format="JPEG", optimize=True, quality=quality)
+    buffer.seek(0)
+    file_content = ContentFile(buffer.read())
 
-    file_content = ContentFile(buf.read())
-    # reuse same name (storage will overwrite)
-    field.save(field.name, file_content, save=False)
+    # 🔴 نکته مهم: فقط اسم فایل، نه کل مسیر
+    original_name = os.path.basename(field.name)  # "file.jpg" از "artists/categories/1/file.jpg"
+
+    # اینجا دوباره upload_to روی original_name اعمال می‌شود و مسیر درست ساخته می‌شود
+    field.save(original_name, file_content, save=False)
