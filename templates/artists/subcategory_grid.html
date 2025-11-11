@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load static %}
 {% block page_content %}
-
 <style>
+  /* ---- CARD OVERLAY ---- */
   .home-gallery-card {
     position: relative;
     overflow: hidden;
@@ -12,25 +12,37 @@
 
   .art-card-info {
     position: absolute;
-    inset-inline: 16px;
-    bottom: 16px;
-    padding: 10px 14px;
-    background: rgba(0, 0, 0, 0.55);
-    border-radius: 14px;
+    inset-inline: 0;
+    bottom: 0;
+    padding: 18px 22px 20px;
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.82) 0%,
+      rgba(0,0,0,0.45) 40%,
+      transparent 100%
+    );
     color: #fff;
     z-index: 5;
     pointer-events: none;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    box-shadow: 0 8px 18px rgba(0,0,0,.35);
-    transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* در RTL یعنی بچسب به راست کارت */
+  text-align: right;       /* متن همچنان راست‌چین */
+    gap: 6px;
+  }
+
+  .art-card-rule {
+    width: 60px;
+    height: 2px;
+    border-radius: 999px;
+    background: #ffffff;
+    opacity: .9;
   }
 
   .art-card-title {
-    font-size: 16px;
-    font-weight: 800;
-    line-height: 1.25;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
   }
 
   .art-card-meta {
@@ -39,21 +51,64 @@
   }
 
   .home-gallery-card:hover .art-card-info {
-    background: rgba(0,0,0,0.82);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 26px rgba(0,0,0,.5);
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.92) 0%,
+      rgba(0,0,0,0.55) 45%,
+      transparent 100%
+    );
+    transform: translateY(-1px);
   }
 
   @media (max-width: 768px) {
     .art-card-info {
-      inset-inline: 12px;
-      bottom: 12px;
-      padding: 8px 12px;
-      max-width: 90%;
+      padding: 12px 16px 14px;
+      gap: 4px;
+    }
+    .art-card-title { font-size: 16px; }
+  }
+
+  /* ---- OVERRIDE HOME-GALLERY LAYOUT JUST FOR THIS PAGE ---- */
+  .home-gallery {
+    display: grid;                                   /* override column layout */
+    grid-template-columns: repeat(3, minmax(0, 1fr));/* همیشه ۳ تا کنار هم */
+    gap: 32px;
+  }
+
+  .home-gallery-item {
+    width: 100%;
+    margin: 0;  /* جلوگیری از marginهای ناخواسته */
+  }
+
+.home-gallery-card img {
+  display: block;
+  width: 100%;
+  height: auto;        /* let image decide height */
+  object-fit: contain; /* کل تصویر دیده شود، نه برش‌خورده */
+}
+  /* tablets */
+  @media (max-width: 1024px) {
+    .home-gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+  }
+
+  /* phones */
+  @media (max-width: 600px) {
+    .home-gallery {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+
+  /* very small phones */
+  @media (max-width: 380px) {
+    .home-gallery {
+      grid-template-columns: 1fr;
     }
   }
 </style>
-
 <div id="wrapper"><div class="content-holder">
   <div class="vertical-portfolio_wrap" id="port-scroll">
     <div class="home-gallery big-padding">
@@ -66,6 +121,7 @@
               alt="{{ s.name }}">
 
             <div class="art-card-info">
+              <span class="art-card-rule"></span>
               <div class="art-card-title">{{ s.name }}</div>
               <div class="art-card-meta">
                 {{ s.profiles.count }} هنرمند
