@@ -117,7 +117,7 @@
         <div class="home-gallery-item">
           <a class="home-gallery-card hov_zoom" href="{{ p.get_absolute_url }}">
             <img
-              src="{% if p.header_background %}{{ p.header_background.url %}{% else %}{% static 'images/placeholder/cover-16x9-dark.png' %}{% endif %}"
+              src="{% if p.header_background %}{{ p.header_background.url }}{% else %}{% static 'images/placeholder/cover-16x9-dark.png' %}{% endif %}"
               alt="{{ p.user.get_full_name|default:p.user.username }}">
 
             <div class="art-card-info">
