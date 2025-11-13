@@ -49,33 +49,38 @@
           </div>
 
           <!-- GALLERY -->
-          <div class="container small-container">
-            <div class="gallery-items lightgallery two-column big-padding sg_items scale_anim">
-              {% with gallery=obj.images.all %}
-                {% if gallery|length %}
-                  {% for gi in gallery %}
-                    <div class="gallery-item">
-                      <div class="grid-item-holder hov_zoom">
-                        <a href="{{ gi.image.url }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
-                        <img src="{{ gi.image.url }}" alt="{{ gi.alt_text|default:obj.title }}">
-                      </div>
-                    </div>
-                  {% endfor %}
-                {% else %}
-                  <div class="gallery-item">
-                    <div class="grid-item-holder hov_zoom">
-                      {% if obj.image %}
-                        <a href="{{ obj.image.url }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
-                        <img src="{{ obj.image.url }}" alt="{{ obj.title }}">
-                      {% else %}
-                        <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="{{ obj.title }}">
-                      {% endif %}
-                    </div>
-                  </div>
-                {% endif %}
-              {% endwith %}
+<div class="container small-container">
+  {% with gallery=obj.images.all %}
+    <div class="gallery-items lightgallery {% if gallery|length > 1 %}two-column{% endif %} big-padding sg_items scale_anim">
+      {% if gallery|length %}
+        {% for gi in gallery %}
+          <div class="gallery-item">
+            <div class="grid-item-holder hov_zoom">
+              <a href="{{ gi.image.url }}" class="box-media-zoom popup-image">
+                <i class="fal fa-search"></i>
+              </a>
+              <img src="{{ gi.image.url }}" alt="{{ gi.alt_text|default:obj.title }}">
             </div>
           </div>
+        {% endfor %}
+      {% else %}
+        <div class="gallery-item">
+          <div class="grid-item-holder hov_zoom">
+            {% if obj.image %}
+              <a href="{{ obj.image.url }}" class="box-media-zoom popup-image">
+                <i class="fal fa-search"></i>
+              </a>
+              <img src="{{ obj.image.url }}" alt="{{ obj.title }}">
+            {% else %}
+              <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="{{ obj.title }}">
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endwith %}
+</div>
+
 
           <div class="container small-container">
             <div class="single_det_wrap">

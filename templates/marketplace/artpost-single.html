@@ -108,8 +108,8 @@
 
         <!-- GALLERY -->
         <div class="container small-container">
-          <div class="gallery-items lightgallery two-column big-padding sg_items scale_anim">
-            {% with gallery=obj.images.all %}
+{% with gallery=obj.images.all %}
+  <div class="gallery-items lightgallery {% if gallery|length > 1 %}two-column{% endif %} big-padding sg_items scale_anim">
               {% if gallery|length %}
                 {% for gi in gallery %}
                   <div class="gallery-item">
