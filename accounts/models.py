@@ -32,6 +32,26 @@ class Profile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True, null=True, blank=True)
 
+    phone_number = models.CharField(
+        max_length=32,
+        blank=True,
+        default="",
+        verbose_name=_("شماره تماس برای سفارش‌ها"),
+        help_text=_("این شماره در پروفایل عمومی و در دکمه «تماس بگیرید» نمایش داده می‌شود."),
+    )
+    public_email = models.EmailField(
+        blank=True,
+        default="",
+        verbose_name=_("ایمیل جهت ارتباط"),
+        help_text=_("اگر خالی باشد، از ایمیل ورود شما استفاده می‌شود."),
+    )
+    contact_note = models.CharField(
+        max_length=200,
+        blank=True,
+        default="",
+        verbose_name=_("توضیح کوتاه برای نحوه تماس"),
+        help_text=_("مثلاً: ترجیحاً از طریق واتساپ پیام بدهید."),
+    )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     code = models.CharField(

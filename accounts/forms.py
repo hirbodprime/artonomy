@@ -139,7 +139,9 @@ class ProfileForm(forms.ModelForm):
             "story_paragraph_1",
             "story_paragraph_2",
             "avatar",  # 🔹 NEW
-
+            "phone_number",     # 🔹 NEW
+            "public_email",     # 🔹 NEW
+            "contact_note",     # 🔹 NEW
         ]
         widgets = {
             "story_paragraph_1": forms.Textarea(attrs={"rows": 5}),
@@ -152,7 +154,10 @@ class ProfileForm(forms.ModelForm):
         self.fields["header_background"].widget = forms.FileInput(
             attrs={"accept": "image/*"}
         )
-
+        # می‌تونی برای آواتار هم accept بزاری اگر خواستی:
+        self.fields["avatar"].widget = forms.FileInput(
+            attrs={"accept": "image/*"}
+        )
 
 CounterFormSet = inlineformset_factory(
     Profile, ProfileCounter,

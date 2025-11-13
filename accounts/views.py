@@ -416,6 +416,8 @@ def signup_view(request):
 def logout_view(request):
     logout(request)
     return redirect("/")
+
+
 def public_profile_view(request, username):
     user = get_object_or_404(User, username=username)
     profile = user.profile
@@ -432,6 +434,10 @@ def public_profile_view(request, username):
     has_products = products.exists()
     has_services = services.exists()
 
+    # 🔹 اطلاعات تماس برای نمایش در پاپ‌آپ
+    contact_phone = (profile.phone_number or "").strip()
+    contact_email = (profile.public_email or "").strip() or user.email
+
     return render(request, "accounts/profile.html", {
         "profile": profile,
         "products": products,
@@ -445,4 +451,7 @@ def public_profile_view(request, username):
         "counters": counters,
         "client_logos": client_logos,
         "completion": profile.completion,
+
+        "contact_phone": contact_phone,
+        "contact_email": contact_email,
     })

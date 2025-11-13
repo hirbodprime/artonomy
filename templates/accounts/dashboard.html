@@ -1141,6 +1141,34 @@ html, body{ overflow-x:hidden }
   </div>
 
   <div class="hr"></div>
+  {# 🔹 اطلاعات تماس عمومی #}
+  <div class="row">
+    <div>
+      <label>شماره تماس برای سفارش‌ها</label>
+      {{ form.phone_number }}
+      <div class="muted">
+        این شماره در پروفایل عمومی و داخل پاپ‌آپ «تماس بگیرید» نمایش داده می‌شود.
+      </div>
+    </div>
+    <div>
+      <label>ایمیل جهت ارتباط</label>
+      {{ form.public_email }}
+      <div class="muted">
+        اگر خالی بماند، از ایمیل ورود شما (<strong>{{ request.user.email }}</strong>) استفاده می‌شود.
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>توضیح کوتاه برای نحوه تماس</label>
+      {{ form.contact_note }}
+      <div class="muted">
+        مثلاً: «ترجیحاً از طریق واتساپ پیام بدهید» یا «پاسخگویی ۱۰ تا ۱۸».
+      </div>
+    </div>
+  </div>
+  <div class="hr"></div>
 
   <div class="actions">
     <button class="btn" type="submit">ذخیره تغییرات</button>
