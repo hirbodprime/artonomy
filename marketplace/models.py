@@ -79,7 +79,14 @@ upload_to="market/products/%Y/%m/", blank=True, null=True)
     @property
     def is_for_sale(self):
         return True
-
+    @property
+    def gallery_cover(self):
+        img = self.images.order_by('-is_primary', 'order', 'id').first()
+        if img:
+            return img.image.url
+        if self.image:
+            return self.image.url
+        return None
     def __str__(self):
         return self.title
 
@@ -162,6 +169,15 @@ upload_to="market/services/%Y/%m/", blank=True, null=True)  # legacy single
 
     def __str__(self):
         return self.title
+    @property
+    def gallery_cover(self):
+        img = self.images.order_by('-is_primary', 'order', 'id').first()
+        if img:
+            return img.image.url
+        if self.image:
+            return self.image.url
+        return None
+
     @property
     def cover_image(self):
         return self.images.order_by('-is_primary', 'order', 'id').first()

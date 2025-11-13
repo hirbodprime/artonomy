@@ -669,14 +669,6 @@
                   تماس با ما
                 </a>
               </li>
-        {% if request.user.is_authenticated %}
-
-                          <li>
-                <a href="{% url 'profile_dashboard' %}?tab=role">
-                  داشبورد
-                </a>
-              </li>
-              {% endif%}
             </ul>
           </nav>
         </div>

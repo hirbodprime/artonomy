@@ -45,6 +45,18 @@
     width: calc(var(--p, 0) * 1%);
     max-width: 100%;
   }
+  .is-hidden {
+  display: none;
+}
+  .skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .is-hidden {
+    display: none !important;
+  }
+
 </style>
 
 <!-- Header   end-->
@@ -143,7 +155,7 @@
                 </div>
             </section>
             <!--section end  -->
-{% if services.exists or products.exists %}
+{% if has_services or has_products %}
 <section id="sec2">
   <div class="container small-container">
     <div class="section-title fl-wrap">
@@ -155,27 +167,30 @@
     <div class="column-wrapper_item fl-wrap">
       <div class="column-wrapper_text fl-wrap">
 
-        <!-- ─────── خدمات ─────── -->
-        {% if services.exists %}
+        {# ─────── خدمات ─────── #}
+        {% if has_services %}
+        <h4 style="margin-bottom:10px;">خدمات</h4>
         <div class="serv-wrap fl-wrap">
           {% for s in services %}
-          <div class="serv-item">
-            <div class="serv-media">
-              <a href="{% url 'service_detail' s.slug s.pk %}">
-                {% if s.image %}
-                  <img src="{{ s.image.url }}" alt="{{ s.title }}">
-                {% else %}
-                  <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
-                {% endif %}
-              </a>
-            </div>
+          <div class="serv-item {% if forloop.counter > 2 %}is-hidden extra-service{% endif %}">
+<div class="serv-media">
+  <a href="{% url 'service_detail' s.slug s.pk %}">
+    {% with cover=s.gallery_cover %}
+      {% if cover %}
+        <img src="{{ cover }}" alt="{{ s.title }}">
+      {% else %}
+        <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
+      {% endif %}
+    {% endwith %}
+  </a>
+</div>
             <div class="serv-text">
               <h4>
                 <a href="{% url 'service_detail' s.slug s.pk %}">{{ s.title }}</a>
               </h4>
 
               {% if s.description %}
-                <p>{{ s.description }}</p>
+                <p>{{ s.description|truncatechars:140 }}</p>
               {% endif %}
 
               {% if s.tag_list %}
@@ -193,30 +208,41 @@
           </div>
           {% endfor %}
         </div>
+
+{% if services|length > 2 %}
+  <button class="btn btn-ghost more-toggle"
+          type="button"
+          data-target=".extra-service"
+          data-total="{{ services|length }}">
+    نمایش همه خدمات ({{ services|length }})
+  </button>
+{% endif %}
         {% endif %}
 
-
-        <!-- ─────── محصولات ─────── -->
-        {% if products.exists %}
-        <div class="serv-wrap fl-wrap" style="margin-top:20px">
+        {# ─────── محصولات ─────── #}
+        {% if has_products %}
+        <h4 style="margin:26px 0 10px;">محصولات</h4>
+        <div class="serv-wrap fl-wrap">
           {% for p in products %}
-          <div class="serv-item">
-            <div class="serv-media">
-              <a href="{% url 'artpiece_detail' p.slug p.pk %}">
-                {% if p.image %}
-                  <img src="{{ p.image.url }}" alt="{{ p.title }}">
-                {% else %}
-                  <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
-                {% endif %}
-              </a>
-            </div>
+          <div class="serv-item {% if forloop.counter > 2 %}is-hidden extra-product{% endif %}">
+<div class="serv-media">
+  <a href="{% url 'artpiece_detail' p.slug p.pk %}">
+    {% with cover=p.gallery_cover %}
+      {% if cover %}
+        <img src="{{ cover }}" alt="{{ p.title }}">
+      {% else %}
+        <img src="{% static 'images/placeholder/cover-16x9-dark.png' %}" alt="">
+      {% endif %}
+    {% endwith %}
+  </a>
+</div>
             <div class="serv-text">
               <h4>
                 <a href="{% url 'artpiece_detail' p.slug p.pk %}">{{ p.title }}</a>
               </h4>
 
               {% if p.description %}
-                <p>{{ p.description }}</p>
+                <p>{{ p.description|truncatechars:140 }}</p>
               {% endif %}
 
               <ul>
@@ -233,11 +259,18 @@
           </div>
           {% endfor %}
         </div>
+
+{% if products|length > 2 %}
+  <button class="btn btn-ghost more-toggle"
+          type="button"
+          data-target=".extra-product"
+          data-total="{{ products|length }}">
+    نمایش همه محصولات ({{ products|length }})
+  </button>
+{% endif %}
+
         {% endif %}
 
-        {% if not services.exists and not products.exists %}
-          <p class="muted">هنوز خدمتی یا محصولی ثبت نشده است.</p>
-        {% endif %}
       </div>
     </div>
   </div>
@@ -419,5 +452,39 @@
     <!-- social_links end-->
 </div>
 <!-- aside-column  end -->
+<script>
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('.more-toggle');
+  if (!btn) return;
+
+  const selector = btn.getAttribute('data-target');
+  if (!selector) return;
+
+  const items = document.querySelectorAll(selector);
+  const anyHidden = Array.from(items).some(el => el.classList.contains('is-hidden'));
+  const total = btn.getAttribute('data-total') || '';
+
+  if (anyHidden) {
+    // 🔓 حالت "نمایش همه"
+    items.forEach(el => el.classList.remove('is-hidden'));
+
+    if (selector === '.extra-service') {
+      btn.textContent = 'بستن لیست خدمات';
+    } else if (selector === '.extra-product') {
+      btn.textContent = 'بستن لیست محصولات';
+    }
+  } else {
+    // 🔒 برگرد به حالت "فقط ۲ تا اول"
+    items.forEach(el => el.classList.add('is-hidden'));
+
+    if (selector === '.extra-service') {
+      btn.textContent = `نمایش همه خدمات (${total})`;
+    } else if (selector === '.extra-product') {
+      btn.textContent = `نمایش همه محصولات (${total})`;
+    }
+  }
+});
+</script>
+
 
 {% endblock page_content %}

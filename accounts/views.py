@@ -416,10 +416,6 @@ def signup_view(request):
 def logout_view(request):
     logout(request)
     return redirect("/")
-
-
-
-
 def public_profile_view(request, username):
     user = get_object_or_404(User, username=username)
     profile = user.profile
@@ -429,13 +425,19 @@ def public_profile_view(request, username):
     counters = profile.counters.all()
     client_logos = profile.clients.all()
     profile.refresh_completion(save=False)
+
     products = profile.products.filter(is_active=True)
     services = profile.services.filter(is_active=True)
+
+    has_products = products.exists()
+    has_services = services.exists()
 
     return render(request, "accounts/profile.html", {
         "profile": profile,
         "products": products,
         "services": services,
+        "has_products": has_products,
+        "has_services": has_services,
 
         "skills": skills,
         "testimonials": testimonials,
@@ -444,6 +446,3 @@ def public_profile_view(request, username):
         "client_logos": client_logos,
         "completion": profile.completion,
     })
-
-
-
