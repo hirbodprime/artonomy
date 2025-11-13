@@ -2,6 +2,62 @@
 {% extends "base.html" %}
 {% load static %}
 {% block page_content %}
+<style>
+.service-author a {
+  color:#38bdf8;
+  font-size:14px;
+  margin-top:10px;
+  display:inline-block;
+}
+.contact-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.contact-modal {
+  background: #1e1e1e;
+  padding: 25px;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 14px;
+  position: relative;
+  color: #fff;
+}
+
+.contact-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  background: none;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+.gallery-items {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.gallery-item {
+  width: calc(50% - 20px);
+  border-radius: 16px;
+}
+
+.gallery-item img {
+  width: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+</style>
 
 <div id="wrapper">
   <div class="content-holder" data-pagetitle="{{ service.title }}">
@@ -13,10 +69,19 @@
           <div class="column-image">
             <div class="bg" data-bg="{{ hero.image.url }}"></div>
             <div class="overlay"></div>
-            <div class="column-title">
-              <h2>{{ service.title }}</h2>
-              {% if service.description %}<h3>{{ service.description|truncatewords:22 }}</h3>{% endif %}
-            </div>
+<div class="column-title">
+  <h2>{{ service.title }}</h2>
+
+  {% if service.description %}
+    <h3>{{ service.description|truncatewords:22 }}</h3>
+  {% endif %}
+
+  <div class="service-author">
+    <a href="{{ service.profile.get_absolute_url }}">
+      {{ service.profile.user.get_full_name|default:service.profile.user.username }}
+    </a>
+  </div>
+</div>
             <div class="ci_dec"><span></span></div>
           </div>
         {% endwith %}
@@ -95,10 +160,44 @@
         </div>
       </section>
 
-      <div class="order-wrap">
-        <div class="container small-container"><h4>آیا آماده سفارش هستید؟</h4></div>
-        <a href="{% url 'contacts' %}" class="order_btn">تماس بگیرید</a>
+<div class="order-wrap">
+    <div class="container small-container">
+        <h4>آیا آماده سفارش پروژه خود هستید؟</h4>
+    </div>
+
+    <button type="button" class="order_btn" id="contactModalTrigger">
+        تماس بگیرید
+    </button>
+</div>
+
+<!-- 🔹 پاپ‌آپ تماس -->
+<div class="contact-modal-backdrop" id="contactModalBackdrop">
+  <div class="contact-modal">
+    <button type="button" class="contact-modal__close" id="contactModalClose">✕</button>
+
+    <h3>تماس با {{ service.profile.user.get_full_name|default:service.profile.user.username }}</h3>
+
+    {% if contact_phone %}
+      <p>برای سفارش یا همکاری، تماس بگیرید:</p>
+      <div class="contact-modal__phone">
+        <span>شماره:</span>
+        <a href="tel:{{ contact_phone }}">{{ contact_phone }}</a>
       </div>
+    {% else %}
+      <p>این هنرمند هنوز شماره تماس عمومی ثبت نکرده است.</p>
+    {% endif %}
+
+    {% if contact_email %}
+      <div style="margin-top:10px;">
+        <span style="font-size:13px;color:#e5e7eb;">ایمیل:</span>
+        <a href="mailto:{{ contact_email }}" style="color:#38bdf8;font-weight:600;">
+          {{ contact_email }}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
     </div>
 
     <div class="fixed-bottom-container">
@@ -118,5 +217,14 @@
     </div>
   </div>
 </div>
+<script>
+const openBtn = document.getElementById("contactModalTrigger");
+const closeBtn = document.getElementById("contactModalClose");
+const backdrop = document.getElementById("contactModalBackdrop");
+
+openBtn.onclick = () => backdrop.style.display = "flex";
+closeBtn.onclick = () => backdrop.style.display = "none";
+backdrop.onclick = (e) => { if (e.target === backdrop) backdrop.style.display = "none"; };
+</script>
 
 {% endblock page_content %}

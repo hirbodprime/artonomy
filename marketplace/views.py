@@ -114,7 +114,18 @@ def service_detail(request, slug, pk):
         ),
         pk=pk, slug=slug
     )
-    return render(request, "marketplace/service_single.html", {"service": obj})
+    profile = obj.profile
+    contact_phone = getattr(profile, "contact_phone", None)
+    contact_email = getattr(profile, "contact_email", None)
+
+    ctx = {
+        "service": obj,
+        "profile": profile,
+        "contact_phone": contact_phone,
+        "contact_email": contact_email,
+    }
+    return render(request, "marketplace/service_single.html", ctx)
+
 def artpieces_list(request, username=None):
     # ---- محصولات (برای فروش) ----
     products_qs = (
