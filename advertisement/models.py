@@ -11,7 +11,8 @@ class HomepageAd(models.Model):
         (20, "اسلات 20"),
     ]
 
-    title = models.CharField("عنوان", max_length=150)
+    title = models.CharField("عنوان", max_length=150,        blank=True,
+        null=True)
     subtitle = models.CharField("زیرعنوان", max_length=250, blank=True)
     image = models.ImageField(
         "تصویر تبلیغ",
