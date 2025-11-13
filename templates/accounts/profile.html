@@ -56,6 +56,97 @@
   .is-hidden {
     display: none !important;
   }
+/* 🔹 بک‌دراپ مدال */
+.contact-modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.65);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+/* وقتی باز است */
+.contact-modal-backdrop.is-open{
+  display:flex;
+}
+
+/* 🔹 خود پنجره مدال */
+.contact-modal{
+  background:#0b1120;
+  color:#e5e7eb;
+  border-radius:16px;
+  padding:20px 20px 18px;
+  max-width:420px;
+  width:calc(100% - 40px);
+  box-shadow:0 20px 45px rgba(0,0,0,.4);
+  position:relative;
+  border:1px solid rgba(148,163,184,.4);
+}
+
+.contact-modal h3{
+  margin:0 0 8px;
+  font-size:18px;
+  font-weight:800;
+}
+
+.contact-modal p{
+  margin:0 0 10px;
+  font-size:14px;
+  color:#cbd5f5;
+}
+
+.contact-modal__phone{
+  margin:10px 0 8px;
+  padding:10px 12px;
+  border-radius:999px;
+  background:rgba(15,23,42,.85);
+  border:1px solid #38bdf8;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  font-size:14px;
+  direction:ltr;
+}
+
+.contact-modal__phone span{
+  direction:rtl;
+  font-size:13px;
+  color:#e5e7eb;
+}
+
+.contact-modal__phone a{
+  color:#22d3ee;
+  text-decoration:none;
+  font-weight:700;
+}
+
+.contact-modal__phone a:hover{
+  text-decoration:underline;
+}
+
+.contact-modal__hint{
+  font-size:12px;
+  color:#9ca3af;
+}
+
+/* دکمه بستن (X) */
+.contact-modal__close{
+  position:absolute;
+  top:8px;
+  inset-inline-start:10px; /* برای RTL - گوشه چپ */
+  border:none;
+  background:transparent;
+  color:#9ca3af;
+  font-size:16px;
+  cursor:pointer;
+  padding:4px;
+}
+.contact-modal__close:hover{
+  color:#f97316;
+}
 
 </style>
 
@@ -400,12 +491,31 @@
             </div>
 {% endif %}
 
-            <div class="order-wrap">
-                <div class="container small-container">
-                    <h4>آیا آماده سفارش پروژه خود هستید؟</h4>
-                </div>
-                <a href="{% url 'public_profile' user.username %}#contact" class="order_btn">تماس بگیرید</a>
-            </div>
+<div class="order-wrap">
+    <div class="container small-container">
+        <h4>آیا آماده سفارش پروژه خود هستید؟</h4>
+    </div>
+    <button type="button" class="order_btn" id="contactModalTrigger">
+        تماس بگیرید
+    </button>
+</div>
+
+{# 🔹 پاپ‌آپ شماره تماس #}
+<div class="contact-modal-backdrop" id="contactModalBackdrop">
+  <div class="contact-modal">
+    <button type="button" class="contact-modal__close" id="contactModalClose">✕</button>
+    <h3>تماس با هنرمند</h3>
+    <p>برای سفارش پروژه یا هماهنگی، می‌توانید مستقیماً تماس بگیرید:</p>
+
+    <div class="contact-modal__phone">
+      <span>شماره تماس:</span>
+      <a href="tel:09924026216">09924026216</a>
+    </div>
+
+
+  </div>
+</div>
+
         </div>
         <!-- column-wrapper -->
 
@@ -484,6 +594,36 @@ document.addEventListener('click', function (e) {
     }
   }
 });
+</script>
+<script>
+  (function(){
+    const trigger  = document.getElementById('contactModalTrigger');
+    const backdrop = document.getElementById('contactModalBackdrop');
+    const closeBtn = document.getElementById('contactModalClose');
+
+    if (!trigger || !backdrop) return;
+
+    function openModal(){
+      backdrop.classList.add('is-open');
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    function closeModal(){
+      backdrop.classList.remove('is-open');
+      document.documentElement.style.overflow = '';
+    }
+
+    trigger.addEventListener('click', openModal);
+    closeBtn && closeBtn.addEventListener('click', closeModal);
+
+    backdrop.addEventListener('click', function(e){
+      if (e.target === backdrop){ closeModal(); }
+    });
+
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape'){ closeModal(); }
+    });
+  })();
 </script>
 
 
