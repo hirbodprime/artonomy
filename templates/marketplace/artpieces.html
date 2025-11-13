@@ -6,15 +6,14 @@
   <div class="content-holder">
 
     {# ───────────────── گرید آثار ───────────────── #}
-<div class="vertical-portfolio_wrap" id="port-scroll">
-    <!-- portfolio start -->
-    <div class="home-gallery big-padding">
+    <div class="vertical-portfolio_wrap" id="port-scroll">
+      <div class="home-gallery big-padding lightgallery">
 
         {% for p in page_obj %}
-            <div class="home-gallery-item">
-                <div class="home-gallery-card hov_zoom">
+          <div class="home-gallery-item">
+            <div class="grid-item-holder hov_zoom home-gallery-card clickable-card"
+                 data-href="{{ p.get_absolute_url }}">
 
-              {# Cover selection order: primary gallery → first gallery → legacy image → placeholder #}
               {% with cover=p.cover_image %}
                 {% if cover %}
                   <img src="{{ cover.image.url }}" alt="{{ cover.alt_text|default:p.title }}">
@@ -26,47 +25,52 @@
                 {% endif %}
               {% endwith %}
 
-              <div class="grid-item-info">
-                <h3>
-                  <a href="{{ p.get_absolute_url }}" class="ajax">{{ p.title }}</a>
-                </h3>
+<div class="art-card-info">
+  <span class="art-card-rule"></span>
 
-                {% if p.description %}
-                  <p>{{ p.description|truncatechars:120 }}</p>
-                {% endif %}
+  <div class="art-card-title">
+    <a href="{{ p.get_absolute_url }}" class="ajax">
+      {{ p.title }}
+    </a>
+  </div>
 
-<p style="margin-top:6px;opacity:.9;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+  <div class="art-card-meta">
+    {% if p.description %}
+      <div style="margin-bottom:4px;">
+        {{ p.description|truncatechars:120 }}
+      </div>
+    {% endif %}
 
-  {# نوع آیتم: محصول برای فروش / محتوای هنری #}
-  {% if p.is_for_sale %}
-    <span class="chip"
-          style="background:rgba(16,185,129,.15);
-                 border:1px solid #10B981;
-                 padding:2px 8px;border-radius:9999px;">
-      محصول برای فروش
-    </span>
-    <span style="border:1px solid rgba(255,255,255,.15);
-                 padding:2px 8px;border-radius:9999px;">
-      {{ p.display_price }}
-    </span>
-  {% else %}
-    <span class="chip"
-          style="background:rgba(59,130,246,.15);
-                 border:1px solid #3B82F6;
-                 padding:2px 8px;border-radius:9999px;">
-      محتوای هنری
-    </span>
-  {% endif %}
+    <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
 
-  {# وضعیت کالا (در صورت تعریف) #}
-  {% if p.condition == 'new' %}
-    <span class="chip" style="margin-inline-start:6px;">نو</span>
-  {% elif p.condition == 'used' %}
-    <span class="chip" style="margin-inline-start:6px;">کارکرده</span>
-  {% endif %}
-</p>
+      {% if p.is_for_sale %}
+        <span class="chip"
+              style="background:rgba(16,185,129,.15);
+                     border:1px solid #10B981;
+                     padding:2px 8px;border-radius:9999px;">
+          محصول برای فروش
+        </span>
+        <span style="border:1px solid rgba(255,255,255,.15);
+                     padding:2px 8px;border-radius:9999px;">
+          {{ p.display_price }}
+        </span>
+      {% else %}
+        <span class="chip"
+              style="background:rgba(59,130,246,.15);
+                     border:1px solid #3B82F6;
+                     padding:2px 8px;border-radius:9999px;">
+          محتوای هنری
+        </span>
+      {% endif %}
 
-              </div>
+      {% if p.condition == 'new' %}
+        <span class="chip" style="margin-inline-start:6px;">نو</span>
+      {% elif p.condition == 'used' %}
+        <span class="chip" style="margin-inline-start:6px;">کارکرده</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
 
               <div class="pr_num"></div>
 
@@ -76,6 +80,9 @@
                 </a>
               {% endif %}
 
+              <span class="card-hover-icon">
+                <i class="fas fa-arrow-left-long"></i>
+              </span>
             </div>
           </div>
         {% empty %}
@@ -152,9 +159,6 @@
 
     {# ───────────────── پایین ثابت تم (دکمه فیلتر) ───────────────── #}
     <div class="fixed-bottom-container f_bc_vis">
-      <!-- <div class="scroll-down-wrap">
-        <div class="mousey"><div class="scroller"></div></div>
-      </div> -->
       <div class="filter-btn hid-filter">
         <div class="filter-btn_container"></div>
         <span class="filt-title">فیلترها</span>
@@ -176,7 +180,6 @@
                 class="fl-wrap"
                 style="display:flex;flex-direction:column;gap:14px;">
 
-            {# جستجو #}
             <input type="text" name="q" value="{{ q }}"
                    placeholder="جستجوی عنوان یا توضیح…"
                    style="width:100%; padding:10px 14px;
@@ -185,7 +188,6 @@
 
             <div style="display:flex;flex-wrap:wrap;gap:10px;">
 
-              {# نوع قیمت #}
               <select name="price_type"
                       style="flex:1; min-width:160px;padding:10px 12px;border-radius:20px;
                              border:1px solid rgba(255,255,255,.15);
@@ -198,7 +200,6 @@
                 {% endfor %}
               </select>
 
-              {# وضعیت کالا #}
               <select name="condition"
                       style="flex:1; min-width:150px;padding:10px 12px;border-radius:20px;
                              border:1px solid rgba(255,255,255,.15);
@@ -211,7 +212,6 @@
                 {% endfor %}
               </select>
 
-              {# ارز #}
               <select name="currency"
                       style="flex:1; min-width:140px;padding:10px 12px;border-radius:20px;
                              border:1px solid rgba(255,255,255,.15);
@@ -226,7 +226,6 @@
             </div>
 
             <div style="display:flex;flex-wrap:wrap;gap:10px;">
-              {# بازه قیمت #}
               <input type="number" name="min_price" value="{{ min_price }}"
                      placeholder="حداقل قیمت"
                      style="flex:1; min-width:140px;padding:10px 12px;border-radius:20px;
@@ -239,29 +238,26 @@
                             background:var(--bg-2,#181b2a);color:var(--text,#eef1ff);">
             </div>
 
-<div style="display:flex;gap:10px;justify-content:flex-start;margin-top:8px;">
-  <button class="btn" type="submit">اعمال فیلتر</button>
+            <div style="display:flex;gap:10px;justify-content:flex-start;margin-top:8px;">
+              <button class="btn" type="submit">اعمال فیلتر</button>
+              <button class="btn btn-clear" type="submit" name="clear" value="1">
+                حذف فیلترها
+              </button>
+            </div>
 
-  {# دکمه‌ی فرم؛ ویو اگر clear=1 ببیند، ریدایرکت می‌کند #}
-  <button class="btn btn-clear" type="submit" name="clear" value="1">
-    حذف فیلترها
-  </button>
-</div>
-
-<style>
-  .btn.btn-clear {
-    background: transparent;
-    color: #fff;
-    border: 1px solid rgba(255,255,255,.4);
-    transition: all 0.2s ease-in-out;
-  }
-  .btn.btn-clear:hover {
-    background: rgba(255,255,255,.15);
-    color: #fff;
-    border-color: rgba(255,255,255,.6);
-  }
-</style>
-
+            <style>
+              .btn.btn-clear {
+                background: transparent;
+                color: #fff;
+                border: 1px solid rgba(255,255,255,.4);
+                transition: all 0.2s ease-in-out;
+              }
+              .btn.btn-clear:hover {
+                background: rgba(255,255,255,.15);
+                color: #fff;
+                border-color: rgba(255,255,255,.6);
+              }
+            </style>
 
           </form>
         </div>

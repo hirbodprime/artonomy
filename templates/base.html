@@ -274,64 +274,64 @@
   /* === ARTONOMY HOME – FLEXIBLE / MASONRY GALLERY === */
 
   /* container as multi-column layout */
+/* container as multi-column layout */
+.home-gallery {
+  column-count: 3;         /* desktop: 3 columns */
+  column-gap: 32px;
+}
+
+.home-gallery-item {
+  break-inside: avoid;
+  margin-bottom: 32px;
+}
+
+/* card just fills its available width */
+.home-gallery-card {
+  position: relative;       /* 👈 برای اینکه آیکن زوم و متن روی خود کارت قرار بگیرند */
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+/* image keeps its natural aspect, but scales to width */
+.home-gallery-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* ---------- breakpoints ---------- */
+
+/* tablets / small laptops: 2 columns */
+@media (max-width: 1024px) {
   .home-gallery {
-    column-count: 3;         /* desktop: 3 columns */
-    column-gap: 32px;
+    column-count: 2;
+    column-gap: 24px;
   }
-
-  /* each item is a block that can't be split between columns */
   .home-gallery-item {
-    break-inside: avoid;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
+}
 
-  /* card just fills its available width */
-  .home-gallery-card {
-    width: 100%;
-    border-radius: 18px;
-    overflow: hidden;
+/* phones: still 2 columns */
+@media (max-width: 600px) {
+  .home-gallery {
+    column-count: 2;
+    column-gap: 16px;
   }
-
-  /* image keeps its natural aspect, but scales to width */
-  .home-gallery-card img {
-    display: block;
-    width: 100%;
-    height: auto;
-    object-fit: cover;  /* prevents distortion, still shows tall images fully */
+  .home-gallery-item {
+    margin-bottom: 16px;
   }
+}
 
-  /* ---------- breakpoints ---------- */
-
-  /* tablets / small laptops: 2 columns */
-  @media (max-width: 1024px) {
-    .home-gallery {
-      column-count: 2;
-      column-gap: 24px;
-    }
-
-    .home-gallery-item {
-      margin-bottom: 24px;
-    }
+/* very tiny phones: 1 column */
+@media (max-width: 380px) {
+  .home-gallery {
+    column-count: 1;
   }
+}
 
-  /* phones: still 2 columns */
-  @media (max-width: 600px) {
-    .home-gallery {
-      column-count: 2;
-      column-gap: 16px;
-    }
-
-    .home-gallery-item {
-      margin-bottom: 16px;
-    }
-  }
-
-  /* very tiny phones: 1 column */
-  @media (max-width: 380px) {
-    .home-gallery {
-      column-count: 1;
-    }
-  }
   /* === BIGGER MAIN MENU LINKS (خانه، هنرمندان، ...) === */
   .nav-holder.main-menu nav ul li a {
     font-size: 17px !important;   /* بزرگ‌ترش کن */
@@ -433,7 +433,102 @@
     }
   }
 
-  </style>
+  .home-gallery-card .card-hover-icon {
+    position: absolute;
+    inset: 0;                      /* تمام کارت */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .2s ease, transform .2s ease;
+    pointer-events: none;          /* کلیک رو خراب نکنه */
+    z-index: 10;
+  }
+
+  .home-gallery-card .card-hover-icon i {
+    font-size: 26px;
+    text-shadow: 0 4px 10px rgba(0,0,0,.6);
+  }
+
+  /* فقط روی دسکتاپ / دستگاه‌های با hover */
+  @media (hover: hover) and (pointer: fine) {
+    .home-gallery-card:hover .card-hover-icon {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* می‌تونی یکم تصویر رو تیره‌تر کنی روی hover که آیکن بهتر دیده بشه */
+    .home-gallery-card:hover img {
+      filter: brightness(.7);
+      transition: filter .2s ease;
+    }
+  }
+    .home-gallery-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px;
+    display: block;
+  }
+
+  .art-card-info {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    padding: 18px 22px 20px;
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.82) 0%,
+      rgba(0,0,0,0.45) 40%,
+      transparent 100%
+    );
+    color: #fff;
+    z-index: 5;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: right;
+    gap: 6px;
+  }
+
+  .art-card-rule {
+    width: 60px;
+    height: 2px;
+    border-radius: 999px;
+    background: #ffffff;
+    opacity: .9;
+  }
+
+  .art-card-title {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: -0.3px;
+  }
+
+  .art-card-meta {
+    font-size: 13px;
+    opacity: .9;
+  }
+
+  .home-gallery-card:hover .art-card-info {
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.92) 0%,
+      rgba(0,0,0,0.55) 45%,
+      transparent 100%
+    );
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    .art-card-info {
+      padding: 12px 16px 14px;
+      gap: 4px;
+    }
+    .art-card-title { font-size: 16px; }
+  }
+</style>
 
   <body>
   <!--loader-->
@@ -734,6 +829,21 @@
   <script src="{% static 'js/jquery.min.js' %}"></script>
   <script src="{% static 'js/plugins.js' %}"></script>
   <script src="{% static 'js/scripts.js' %}"></script>
+<script>
+  document.addEventListener('click', function (e) {
+    // هر المانی که .clickable-card و data-href داشته باشه
+    const card = e.target.closest('.clickable-card[data-href]');
+    if (!card) return;
+
+    // اگر روی خودِ لینک / دکمه / آیکن زوم کلیک شده، بذار همون کار رو بکنه
+    if (e.target.closest('a, button, .image-popup')) return;
+
+    const url = card.dataset.href;
+    if (url) {
+      window.location.href = url;
+    }
+  });
+</script>
 
   </body>
   </html>
