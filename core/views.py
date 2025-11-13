@@ -7,28 +7,32 @@ from .models import  SiteSettings
 
 def home_view(req):
     NUM_SLOTS = 20
+    FULL_AD_POSITIONS = [1, 2, 6, 12, 18, 20]  # همه جایگاه‌های ممکن تبلیغ
 
     settings_obj = SiteSettings.get_solo()
-    show_ads = settings_obj.show_homepage_ads
+    show_placeholders = settings_obj.show_homepage_ads  # فقط برای placeholder
 
-    # اگر خاموش باشد، هیچ جایگاهی برای تبلیغ نداریم
-    AD_POSITIONS = [1, 2, 6, 12, 18, 20] if show_ads else []
+    # 🔹 همیشه تبلیغ‌های فعال را لود کن (فارغ از show_placeholders)
+    all_ads = HomepageAd.objects.filter(
+        is_active=True,
+        position__in=FULL_AD_POSITIONS,
+    )
 
-    # تبلیغات فعال فقط اگر show_ads روشن باشد
-    ads_by_position = {}
-    if show_ads:
-        all_ads = HomepageAd.objects.filter(
-            is_active=True,
-            position__in=AD_POSITIONS,
-        )
-        ads_by_position = {
-            ad.position: ad
-            for ad in all_ads
-            if ad.is_currently_visible
-        }
+    ads_by_position = {
+        ad.position: ad
+        for ad in all_ads
+        if ad.is_currently_visible
+    }
 
-    # تعداد پروفایل‌ها = کل اسلات‌ها - تعداد اسلات‌های تبلیغی (ثابت)
-    profiles_needed = NUM_SLOTS - len(AD_POSITIONS)
+    # 🔹 اسلات‌هایی که عملاً برای پروفایل "رزرو" می‌شن
+    # اگر placeholders روشن باشد: همه جایگاه‌های تبلیغی رزرو می‌شوند
+    # اگر خاموش باشد: فقط همان اسلات‌هایی که واقعاً تبلیغ دارند رزرو می‌شوند
+    if show_placeholders:
+        reserved_positions = set(FULL_AD_POSITIONS)
+    else:
+        reserved_positions = set(ads_by_position.keys())
+
+    profiles_needed = NUM_SLOTS - len(reserved_positions)
 
     profiles_qs = (
         Profile.objects
@@ -40,24 +44,25 @@ def home_view(req):
     profiles_iter = iter(profiles)
 
     homepage_slots = []
+
     for pos in range(1, NUM_SLOTS + 1):
-        if pos in AD_POSITIONS:
-            # این اسلات مخصوص تبلیغ است
-            ad = ads_by_position.get(pos)
-            if ad:
-                homepage_slots.append({
-                    "kind": "ad",
-                    "position": pos,
-                    "ad": ad,
-                })
-            else:
-                # بدون تبلیغ → placeholder (فقط وقتی show_ads روشن است)
-                homepage_slots.append({
-                    "kind": "empty_ad",
-                    "position": pos,
-                })
+        ad = ads_by_position.get(pos)
+
+        if ad:
+            # ✅ تبلیغ واقعی، همیشه نمایش داده می‌شود
+            homepage_slots.append({
+                "kind": "ad",
+                "position": pos,
+                "ad": ad,
+            })
+        elif show_placeholders and pos in FULL_AD_POSITIONS:
+            # 🔸 جایگاه تبلیغی بدون تبلیغ → فقط اگر placeholders روشن باشد
+            homepage_slots.append({
+                "kind": "empty_ad",
+                "position": pos,
+            })
         else:
-            # اسلات هنرمند
+            # 🎨 اسلات پروفایل
             try:
                 prof = next(profiles_iter)
             except StopIteration:
@@ -69,9 +74,13 @@ def home_view(req):
                     "position": pos,
                     "profile": prof,
                 })
+            # اگر پروفایل هم نداشتیم، می‌تونی چیزی نسازی یا یک kind=empty_profile بگذاری (دلخواه)
+            # else:
+            #     homepage_slots.append({"kind": "empty", "position": pos})
 
-    return render(req, 'core/index.html', {"homepage_slots": homepage_slots})
-
+    return render(req, 'core/index.html', {
+        "homepage_slots": homepage_slots,
+    })
 
 def contact_view(req):
     return render(req, 'core/contacts.html')
