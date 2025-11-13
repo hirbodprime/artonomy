@@ -56,6 +56,91 @@
   border-radius: 16px;
   object-fit: cover;
 }
+/* ===========================
+   SERVICE GALLERY — NEW SYSTEM
+   =========================== */
+
+.service-gallery-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.service-gallery-item {
+  width: calc(50% - 12px);
+  background: #111;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+}
+
+.service-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Zoom Icon */
+.service-gallery-zoom {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  color: #fff;
+  z-index: 5;
+  opacity: 0;
+  transition: 0.25s ease;
+  text-decoration: none;
+}
+
+.service-gallery-item:hover .service-gallery-zoom {
+  opacity: 1;
+}
+
+/* Mobile full width */
+@media(max-width: 768px) {
+  .service-gallery-item {
+    width: 100%;
+  }
+}
+.contact-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.contact-modal {
+  background: #1e1e1e;
+  padding: 25px;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 14px;
+  color: #fff;
+  position: relative;
+}
+.contact-modal__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
 
 </style>
 
@@ -114,31 +199,24 @@
 
         {# --- GALLERY GRID --- #}
         <div class="container small-container">
-          <div class="gallery-items lightgallery two-column big-padding sg_items scale_anim">
-            {% with gallery=service.ordered_images %}
-              {% if gallery|length %}
-                {% for gi in gallery %}
-                  <div class="gallery-item">
-                    <div class="grid-item-holder hov_zoom">
-                      <a href="{{ gi.image.url }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
-                      <img src="{{ gi.image.url }}" alt="{{ gi.alt_text|default:service.title }}">
-                    </div>
-                  </div>
-                {% endfor %}
-              {% else %}
-                <div class="gallery-item">
-                  <div class="grid-item-holder hov_zoom">
-                    {% if service.image %}
-                      <a href="{{ service.image.url }}" class="box-media-zoom popup-image"><i class="fal fa-search"></i></a>
-                      <img src="{{ service.image.url }}" alt="{{ service.title }}">
-                    {% else %}
-                      <img src="{% static 'images/placeholder.jpg' %}" alt="{{ service.title }}">
-                    {% endif %}
-                  </div>
-                </div>
-              {% endif %}
-            {% endwith %}
-          </div>
+<div class="service-gallery-wrap">
+  {% with gallery=service.ordered_images %}
+    {% if gallery|length %}
+      {% for gi in gallery %}
+        <div class="service-gallery-item">
+          <a href="{{ gi.image.url }}" class="service-gallery-zoom popup-image">
+            <i class="fal fa-search"></i>
+          </a>
+          <img src="{{ gi.image.url }}" alt="{{ gi.alt_text|default:service.title }}">
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="service-gallery-item">
+        <img src="{{ service.image.url }}" alt="{{ service.title }}">
+      </div>
+    {% endif %}
+  {% endwith %}
+</div>
         </div>
 
         <div class="container small-container">
