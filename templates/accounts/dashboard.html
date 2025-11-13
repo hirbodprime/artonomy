@@ -1782,104 +1782,89 @@ html, body{ overflow-x:hidden }
   </section>
 {% endif %}
     {% endif %}
-<section class="panel tab-panel" data-tab="advertisement"
-         {% if active_tab != 'advertisement' %}style="display:none"{% endif %}>
-  <h3>تبلیغات در صفحهٔ اصلی آرتونومی</h3>
-  <p class="muted" style="margin-bottom:8px;">
-    اگر می‌خواهید برند، محصول یا رویداد هنری خود را در صفحهٔ اصلی آرتونومی نمایش بدهید،
-    از این بخش می‌توانید اطلاعات تماس و شرایط کلی را ببینید.
-  </p>
+<section class="panel tab-panel" data-tab="advertisement" style="max-width: 1000px; margin: 20px auto; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); font-family: Tahoma, Arial, sans-serif; direction: rtl; text-align: right; background-color: #ffffff;">
 
-  <div class="ad-wrap">
-    <div class="ad-meta-row">
-      <div class="ad-badge-main">
-        <i class="fas fa-bullhorn"></i>
-        جایگاه‌های تبلیغ در صفحهٔ اصلی
+  <div style="padding: 30px; border-bottom: 1px solid #f0f0f0;">
+    <h3 style="font-size: 24px; font-weight: bold; color: #1f2937; margin-bottom: 8px;">
+      تبلیغات در صفحهٔ اصلی آرتونومی
+    </h3>
+    <p style="font-size: 14px; color: #6b7280; line-height: 1.6;">
+      اگر می‌خواهید برند، محصول یا رویداد هنری خود را در صفحهٔ اصلی آرتونومی نمایش بدهید،
+      از این بخش می‌توانید اطلاعات تماس و شرایط کلی را ببینید.
+    </p>
+
+    <div style="margin-top: 15px;">
+      <span style="display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 500; background-color: #eef2ff; color: #4f46e5; border-radius: 15px; margin-left: 8px;">برندها و گالری‌ها</span>
+      <span style="display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 500; background-color: #eef2ff; color: #4f46e5; border-radius: 15px; margin-left: 8px;">رویدادهای هنری</span>
+      <span style="display: inline-block; padding: 4px 10px; font-size: 12px; font-weight: 500; background-color: #eef2ff; color: #4f46e5; border-radius: 15px;">کارگاه‌ها و دوره‌ها</span>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: row; flex-wrap: wrap;">
+
+    <div style="flex: 2; padding: 30px; min-width: 300px; box-sizing: border-box;">
+      <h4 style="font-size: 18px; font-weight: bold; color: #1f2937; border-right: 3px solid #4f46e5; padding-right: 10px; margin-bottom: 25px;">
+        چرا باید در آرتونومی تبلیغ کنید؟
+      </h4>
+
+      <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background-color: #eef2ff; color: #4f46e5; flex-shrink: 0; margin-left: 15px; font-size: 14px;">
+          <i class="fas fa-bullseye"></i>
+        </div>
+        <div>
+          <strong style="font-size: 15px; color: #1f2937; display: block; margin-bottom: 2px;">جایگاه‌های ویژه در صفحهٔ اصلی</strong>
+          <span style="font-size: 13px; color: #4b5563;">نمایش بین پروفایل‌های برتر؛ مناسب برای برندسازی و معرفی خدمات یا محصولات هنری.</span>
+        </div>
       </div>
-      <div class="ad-chip-group">
-        <span class="ad-chip">برندها و گالری‌ها</span>
-        <span class="ad-chip">رویدادهای هنری</span>
-        <span class="ad-chip">کارگاه‌ها و دوره‌ها</span>
+
+      <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background-color: #eef2ff; color: #4f46e5; flex-shrink: 0; margin-left: 15px; font-size: 14px;">
+          <i class="far fa-clock"></i>
+        </div>
+        <div>
+          <strong style="font-size: 15px; color: #1f2937; display: block; margin-bottom: 2px;">رزرو هفتگی یا ماهانه</strong>
+          <span style="font-size: 13px; color: #4b5563;">بسته به بودجه و اهداف کمپین، می‌توانید بازهٔ زمانی مناسب خود را انتخاب کنید.</span>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: flex-start;">
+        <div style="display: flex; align-items: center; justify-content: center; width: 35px; height: 35px; border-radius: 50%; background-color: #eef2ff; color: #4f46e5; flex-shrink: 0; margin-left: 15px; font-size: 14px;">
+          <i class="far fa-eye"></i>
+        </div>
+        <div>
+          <strong style="font-size: 15px; color: #1f2937; display: block; margin-bottom: 2px;">مخاطبان دقیق و علاقه‌مند به هنر</strong>
+          <span style="font-size: 13px; color: #4b5563;">تبلیغ شما در کنار آثار هنرمندان و محتوای هنری، به مخاطبان هدف نمایش داده می‌شود.</span>
+        </div>
       </div>
     </div>
 
-    <div class="ad-layout">
-      {# ستون مزایا #}
-      <div class="ad-benefits">
-        <div class="ad-benefit-card">
-          <div class="ad-benefit-icon">1</div>
-          <div class="ad-benefit-body">
-            <strong>جایگاه‌های ویژه در صفحهٔ اصلی</strong>
-            <span>نمایش بین پروفایل‌های برتر؛ مناسب برای برندسازی و معرفی خدمات یا محصولات هنری.</span>
-          </div>
-        </div>
+    <div style="flex: 1; padding: 30px; background-color: #4f46e5; color: #ffffff; min-width: 250px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;">
 
-        <div class="ad-benefit-card">
-          <div class="ad-benefit-icon">
-            <i class="far fa-clock"></i>
-          </div>
-          <div class="ad-benefit-body">
-            <strong>رزرو هفتگی یا ماهانه</strong>
-            <span>بسته به بودجه و اهداف کمپین، می‌توانید بازهٔ زمانی مناسب خود را انتخاب کنید.</span>
-          </div>
-        </div>
-
-        <div class="ad-benefit-card">
-          <div class="ad-benefit-icon">
-            <i class="far fa-eye"></i>
-          </div>
-          <div class="ad-benefit-body">
-            <strong>مخاطبان دقیق و علاقه‌مند به هنر</strong>
-            <span>تبلیغ شما در کنار آثار هنرمندان و محتوای هنری، به مخاطبان هدف نمایش داده می‌شود.</span>
-          </div>
-        </div>
+      <div style="margin-bottom: 20px;">
+        <div style="font-size: 18px; font-weight: bold; margin-bottom: 4px;">برای رزرو جایگاه اقدام کنید</div>
+        <div style="font-size: 13px; color: #c7d2fe;">شروع همکاری همین امروز</div>
       </div>
 
-      {# ستون CTA #}
-      <div class="ad-cta">
-        <div class="ad-cta-inner">
-          <div class="ad-cta-header">
-            <div>
-              <div class="ad-cta-title">رزرو جایگاه تبلیغ در صفحهٔ اصلی</div>
-              <div class="ad-cta-sub">
-                جایگاه‌های ثابت بین پروفایل هنرمندان، مخصوص تبلیغ‌های منتخب.
-              </div>
-            </div>
-            <div class="ad-cta-icon">
-              <i class="fas fa-bullhorn"></i>
-            </div>
-          </div>
+      <div style="margin-bottom: 20px;">
+        <a href="tel:+989121234567" style="display: block; background-color: #3730a3; color: #ffffff; text-decoration: none; padding: 12px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 10px;">
+          <i class="fas fa-phone" style="margin-left: 8px;"></i>
+          09924026216
+        </a>
+        <a href="mailto:hirbodprime@gmail.com" style="display: block; color: #ffffff; border: 1px solid #c7d2fe; text-decoration: none; padding: 12px; border-radius: 8px; text-align: center; font-weight: 500; font-size: 14px;">
+          <i class="far fa-envelope" style="margin-left: 8px;"></i>
+          هماهنگی از طریق ایمیل
+        </a>
+      </div>
 
-          <div class="ad-cta-contact">
-            <a href="tel:+989924026216" class="ad-cta-phone">
-              <i class="fas fa-phone"></i>
-              +98&nbsp;912&nbsp;123&nbsp;4567
-            </a>
-            <div class="ad-cta-actions">
-              <a href="tel:+989924026216" class="btn">
-                تماس برای رزرو تبلیغ
-              </a>
-              <a href="mailto:hirbodprime@gmail.com" class="btn-ghost">
-                هماهنگی از طریق ایمیل
-              </a>
-            </div>
-          </div>
-
-          <div class="ad-cta-email-pill">
-            <i class="far fa-envelope"></i>
-            <span>hirbodprime@gmail.com</span>
-          </div>
-
-          <p class="ad-footnote">
-            برای دریافت فایل تعرفه و جزئیات دقیق هر جایگاه، کافی است در تماس تلفنی یا ایمیل،
-            عبارت <strong>«تبلیغ در صفحهٔ اصلی آرتونومی»</strong> را ذکر کنید.
-          </p>
-        </div>
+      <div style="padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.2);">
+        <p style="font-size: 12px; color: #c7d2fe; line-height: 1.5;">
+          برای دریافت فایل تعرفه و جزئیات دقیق، لطفاً در تماس یا ایمیل خود، عبارت
+          <strong style="color: #ffffff;">«تبلیغ در صفحهٔ اصلی آرتونومی»</strong> را ذکر کنید.
+        </p>
       </div>
     </div>
   </div>
 </section>
-
 
       <!-- SECURITY TAB -->
       <section class="panel panel-security tab-panel" data-tab="security" {% if active_tab != 'security' %}style="display:none"{% endif %}>
