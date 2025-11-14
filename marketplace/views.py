@@ -107,6 +107,8 @@ def services_list(request, username=None):
     return render(request, "marketplace/services.html", ctx)
 
 def service_detail(request, slug, pk):
+
+
     obj = get_object_or_404(
         Service.objects.prefetch_related('images').select_related("profile__user").filter(
             is_active=True,
@@ -115,18 +117,20 @@ def service_detail(request, slug, pk):
         pk=pk, slug=slug
     )
     profile = obj.profile
-    contact_phone = getattr(profile, "contact_phone", None)
-    contact_email = getattr(profile, "contact_email", None)
+    contact_phone = (profile.phone_number or "").strip()
+    contact_email = (profile.public_email or "").strip()
 
     ctx = {
         "service": obj,
         "profile": profile,
         "contact_phone": contact_phone,
         "contact_email": contact_email,
+
     }
     return render(request, "marketplace/service_single.html", ctx)
 
 def artpieces_list(request, username=None):
+
     # ---- محصولات (برای فروش) ----
     products_qs = (
         Product.objects
@@ -231,6 +235,8 @@ def artpieces_list(request, username=None):
         "page_obj": page_obj,
         "q": q,
         "username": username,
+        
+
 
         "price_type": price_type,
         "condition": condition,
@@ -263,8 +269,14 @@ def artpiece_detail(request, slug, pk):
         .exclude(pk=obj.pk)
         .order_by("-updated_at")[:8]
     )
+    profile = obj.profile
+    contact_phone = (profile.phone_number or "").strip()
+    contact_email = (profile.public_email or "").strip()
 
-    ctx = {"obj": obj, "related": related}
+
+    ctx = {"obj": obj, "related": related,
+           "contact_phone": contact_phone,
+        "contact_email": contact_email,}
     return render(request, "marketplace/artpiece-single.html", ctx)
 
 def artpost_detail(request, slug, pk):
