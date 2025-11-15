@@ -437,6 +437,7 @@ def public_profile_view(request, username):
     # 🔹 اطلاعات تماس برای نمایش در پاپ‌آپ
     contact_phone = (profile.phone_number or "").strip()
     contact_email = (profile.public_email or "").strip() or user.email
+    share_url = request.build_absolute_uri(profile.get_absolute_url())
 
     return render(request, "accounts/profile.html", {
         "profile": profile,
@@ -454,4 +455,5 @@ def public_profile_view(request, username):
 
         "contact_phone": contact_phone,
         "contact_email": contact_email,
+        "share_url":share_url,
     })
