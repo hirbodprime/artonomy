@@ -25,6 +25,131 @@
   --container-max:1400px;
 }
 *{box-sizing:border-box}
+
+/* ==== Dark theme overrides (html[data-theme="dark"]) ==== */
+:root[data-theme="dark"]{
+  --bg-0:#020617;
+  --page-bg:#020617;
+  --panel:#020617;
+  --panel-2:#020617;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --accent:#38bdf8;
+  --accent-2:#0ea5e9;
+  --border:1px solid #1f2937;
+  --shadow:0 10px 30px rgba(0,0,0,.6);
+}
+
+/* Global dark tweaks */
+html[data-theme="dark"],
+html[data-theme="dark"] body{
+  background:var(--page-bg);
+  color:var(--text);
+}
+
+/* Panels / cards */
+html[data-theme="dark"] .panel{
+  background:var(--panel);
+  border:var(--border);
+  box-shadow:var(--shadow);
+}
+
+/* Formsets / gallery cards */
+html[data-theme="dark"] .formset{
+  background:#020617;
+  border:1px solid #1f2937;
+  box-shadow:0 2px 10px rgba(0,0,0,.6);
+}
+html[data-theme="dark"] .gallery-wrapper{
+  background:#020617;
+  border-color:#1f2937;
+}
+html[data-theme="dark"] .gallery-item{
+  background:#020617;
+  border-color:#1f2937;
+}
+
+/* Inputs */
+html[data-theme="dark"] input[type="text"],
+html[data-theme="dark"] input[type="url"],
+html[data-theme="dark"] input[type="number"],
+html[data-theme="dark"] input[type="file"],
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea{
+  background:#020617;
+  border:1px solid #1f2937;
+  color:var(--text);
+}
+
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] select:focus{
+  border-color:var(--accent-2);
+  box-shadow:0 0 0 1px rgba(56,189,248,.5);
+}
+
+/* Chips / muted text */
+html[data-theme="dark"] .muted{
+  color:#9ca3af;
+}
+html[data-theme="dark"] .chip{
+  background:#020617;
+  border:1px solid #1f2937;
+  color:#9ca3af;
+}
+html[data-theme="dark"] .chip--todo{
+  background:rgba(37,99,235,.2);
+  border-color:#4f46e5;
+  color:#e5e7eb;
+}
+
+/* Side menu, scrim */
+html[data-theme="dark"] .side{
+  background:#020617;
+  border-color:#1f2937;
+}
+html[data-theme="dark"] .scrim{
+  background:rgba(15,23,42,.8);
+}
+
+/* Password field / wrappers */
+html[data-theme="dark"] .panel-security .password-field{
+  background:#020617;
+  border-color:#1f2937;
+}
+html[data-theme="dark"] .password-wrapper{
+  background:#020617;
+  border-color:#1f2937;
+}
+
+/* Alert boxes */
+html[data-theme="dark"] .alert-error{
+  background:#7f1d1d;
+  border-color:#fca5a5;
+  color:#fee2e2;
+}
+html[data-theme="dark"] .alert-success{
+  background:#064e3b;
+  border-color:#34d399;
+  color:#ecfdf5;
+}
+
+/* Advertisement panel dark mode */
+html[data-theme="dark"] .tab-panel[data-tab="advertisement"]{
+  background:#020617;
+  color:var(--text);
+}
+html[data-theme="dark"] .tab-panel[data-tab="advertisement"] > div:first-child{
+  border-bottom-color:#1f2937 !important;
+}
+html[data-theme="dark"] .tab-panel[data-tab="advertisement"] [style*="background-color: #4f46e5"]{
+  background-color:#1d4ed8 !important;
+}
+html[data-theme="dark"] .tab-panel[data-tab="advertisement"] [style*="background-color: #eef2ff"]{
+  background-color:#0f172a !important;
+  color:#e5e7eb !important;
+}
+
 html{scroll-behavior:smooth}
 body{background:var(--page-bg);color:var(--text);line-height:1.5}
 
@@ -912,6 +1037,34 @@ html, body{ overflow-x:hidden }
     z-index: 999999;
   }
 }
+.theme-toggle-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:8px 14px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  border:1px solid #e5e7eb;
+  background:#ffffff;
+  color:#111827;
+  cursor:pointer;
+  box-shadow:0 4px 16px rgba(15,23,42,.15);
+}
+.theme-toggle-btn:hover{
+  background:#f3f4f6;
+}
+
+html[data-theme="dark"] .theme-toggle-btn{
+  background:#020617;
+  border-color:#1f2937;
+  color:#e5e7eb;
+  box-shadow:0 6px 20px rgba(0,0,0,.7);
+}
+html[data-theme="dark"] .theme-toggle-btn:hover{
+  background:#111827;
+}
 
 
 </style>
@@ -919,16 +1072,28 @@ html, body{ overflow-x:hidden }
 <div class="dash">
 
   <!-- دکمه باز/بستن سایدبار در موبایل -->
-  <div class="side-toggle">
-    <button type="button" class="btn-ghost" id="openSide"
-            aria-controls="sideNav" aria-expanded="false"
-            aria-label="باز کردن منو">☰ مدیریت پروفایل</button>
-  </div>
+<div class="side-toggle">
+  <button type="button" class="btn-ghost" id="openSide"
+          aria-controls="sideNav" aria-expanded="false"
+          aria-label="باز کردن منو">☰ مدیریت پروفایل</button>
+
+  <!-- 🔄 Theme toggle (mobile) -->
+  <button type="button" class="btn-ghost theme-toggle-btn" data-always-enabled="1">
+    🌙 حالت تیره
+  </button>
+</div>
 
   <aside class="side" id="sideNav" aria-hidden="true">
     <button type="button" class="side-close-btn" id="closeSide"
             aria-label="بستن منو">✕</button>
     <h4>مدیریت پروفایل</h4>
+        <!-- 🔄 Theme toggle (sidebar / desktop) -->
+    <button type="button" class="btn-ghost theme-toggle-btn"
+            style="width:100%;margin-bottom:10px;justify-content:center"
+            data-always-enabled="1">
+      🌙 حالت تیره
+    </button>
+
       <nav class="tabs" role="navigation">
       {% if profile.role == 'artist' or profile.role == 'business' %}
         <a href="?tab=role"
@@ -2391,6 +2556,49 @@ document.addEventListener("click", function(e){
 
     totalInput.value = total + 1;
 });
+</script>
+<script>
+/* ========= Theme toggle (light / dark, saved in localStorage) ========= */
+(function(){
+  const STORAGE_KEY = 'artonomy-theme';
+
+  function getInitialTheme(){
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+    // fallback: system preference
+    return window.matchMedia &&
+           window.matchMedia('(prefers-color-scheme: dark)').matches
+           ? 'dark'
+           : 'light';
+  }
+
+  function applyTheme(theme){
+    const root = document.documentElement;
+    root.setAttribute('data-theme', theme);
+
+    // label for all theme buttons
+    document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+      if (!btn) return;
+      if (theme === 'dark'){
+        btn.textContent = '☀️ حالت روشن';
+      } else {
+        btn.textContent = '🌙 حالت تیره';
+      }
+    });
+  }
+
+  const initial = getInitialTheme();
+  applyTheme(initial);
+
+  document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', function(){
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      localStorage.setItem(STORAGE_KEY, next);
+    });
+  });
+})();
 </script>
 
 
