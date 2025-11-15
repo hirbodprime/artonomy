@@ -1072,7 +1072,37 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
     display:none !important;
   }
 }
+  .locked-section{
+    text-align:center;
+    padding:48px 20px;
+    border-radius:16px;
+    border:1px dashed rgba(148,163,184,.6);  /* خط خاکستری روشن روی دارک */
+    background:rgba(15,23,42,.9);            /* پس‌زمینه تیره شیشه‌ای */
+    color:#e5e7eb;                            /* متن روشن */
+  }
 
+  .locked-section p{
+    margin:0 0 8px;
+  }
+
+  .locked-section-title{
+    font-size:1.1rem;
+    font-weight:600;
+    margin-bottom:12px;
+  }
+
+  .locked-section-sub{
+    font-size:.9rem;
+    color:#cbd5f5;
+  }
+
+  .locked-section-progress{
+    font-size:.9rem;
+  }
+
+  .locked-section .btn{
+    margin-top:16px;
+  }
 </style>
 
 <div class="dash">
@@ -1633,20 +1663,22 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
 {% else %}
-  <!-- 🔒 نسخه قفل شده برای کاربران ناقص -->
-  <section class="panel tab-panel" data-tab="products" {% if active_tab != 'products' %}style="display:none"{% endif %}>
+  <!-- 🔒 نسخه قفل شده برای کاربران ناقص - محصولات -->
+  <section class="panel tab-panel"
+           data-tab="products"
+           {% if active_tab != 'products' %}style="display:none"{% endif %}>
     <h3>محصولات فیزیکی</h3>
-    <div class="locked-section" style="
-        text-align:center;
-        padding:60px 20px;
-        border:2px dashed rgba(0,0,0,.1);
-        border-radius:16px;
-        background:rgba(250,250,250,.6);
-        ">
-      <p style="font-size:1.2rem; font-weight:600; margin-bottom:12px;">🔒 این بخش هنوز برای شما فعال نشده است.</p>
-      <p style="color:#6b7280;">برای افزودن محصولات، ابتدا پروفایل خود را تکمیل کنید.</p>
-      <p style="margin:10px 0;">درصد تکمیل فعلی: <strong>{{ profile.completion }}٪</strong></p>
-      <a href="?tab=profile" class="btn" style="margin-top:16px;">تکمیل پروفایل</a>
+    <div class="locked-section">
+      <p class="locked-section-title">
+        🔒 این بخش هنوز برای شما فعال نشده است.
+      </p>
+      <p class="locked-section-sub">
+        برای افزودن محصولات، ابتدا پروفایل خود را تکمیل کنید.
+      </p>
+      <p class="locked-section-progress">
+        درصد تکمیل فعلی: <strong>{{ profile.completion }}٪</strong>
+      </p>
+      <a href="?tab=profile" class="btn">تکمیل پروفایل</a>
     </div>
   </section>
 {% endif %}
@@ -1949,20 +1981,22 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
         <div class="actions"><button class="btn" type="submit">ذخیره</button></div>
       </section>
 {% else %}
-  <!-- 🔒 نسخه قفل شده برای کاربران ناقص -->
-  <section class="panel tab-panel" data-tab="services" {% if active_tab != 'services' %}style="display:none"{% endif %}>
-    <h3>خدمات</h3>
-    <div class="locked-section" style="
-        text-align:center;
-        padding:60px 20px;
-        border:2px dashed rgba(0,0,0,.1);
-        border-radius:16px;
-        background:rgba(250,250,250,.6);
-        ">
-      <p style="font-size:1.2rem; font-weight:600; margin-bottom:12px;">🔒 این بخش هنوز برای شما فعال نشده است.</p>
-      <p style="color:#6b7280;">برای افزودن خدمات، ابتدا پروفایل خود را تکمیل کنید.</p>
-      <p style="margin:10px 0;">درصد تکمیل فعلی: <strong>{{ profile.completion }}٪</strong></p>
-      <a href="?tab=profile" class="btn" style="margin-top:16px;">تکمیل پروفایل</a>
+  <!-- 🔒 نسخه قفل شده برای کاربران ناقص - خدمات -->
+  <section class="panel tab-panel"
+           data-tab="services"
+           {% if active_tab != 'services' %}style="display:none"{% endif %}>
+    <h3>خدمات من</h3>
+    <div class="locked-section">
+      <p class="locked-section-title">
+        🔒 این بخش هنوز برای شما فعال نشده است.
+      </p>
+      <p class="locked-section-sub">
+        برای افزودن خدمات، ابتدا پروفایل خود را تکمیل کنید.
+      </p>
+      <p class="locked-section-progress">
+        درصد تکمیل فعلی: <strong>{{ profile.completion }}٪</strong>
+      </p>
+      <a href="?tab=profile" class="btn">تکمیل پروفایل</a>
     </div>
   </section>
 {% endif %}
