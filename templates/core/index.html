@@ -78,6 +78,73 @@
 .home-gallery-card.ad-card .art-card-info {
   pointer-events: auto;
 }
+/* --- tiny, minimal signup CTA pill --- */
+.home-gallery-card.signup-cta-card{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
+  padding:6px 10px;
+  border-radius:999px;
+
+  background:rgba(15,23,42,.55);
+  border:1px dashed rgba(148,163,184,.6);
+  color:#e5e7eb;
+  font-size:11px;
+
+  box-shadow:0 4px 10px rgba(15,23,42,.35);
+}
+
+/* make this item a bit narrower and centered in the column */
+.home-gallery-item.signup-cta-item{
+  display:flex;
+  justify-content:center;
+}
+
+.signup-cta-text{
+  margin:0;
+  white-space:nowrap;
+}
+
+.signup-cta-actions{
+  display:flex;
+  gap:4px;
+}
+
+.signup-cta-btn{
+  padding:3px 8px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:600;
+  text-decoration:none;
+  border:1px solid rgba(248,250,252,.9);
+  color:#0f172a;
+  background:#f9fafb;
+  white-space:nowrap;
+}
+
+.signup-cta-btn--ghost{
+  background:transparent;
+  color:#e5e7eb;
+  border-color:rgba(148,163,184,.7);
+}
+
+.signup-cta-btn:hover{
+  background:#e5e7eb;
+}
+
+.signup-cta-btn--ghost:hover{
+  background:rgba(148,163,184,.18);
+}
+
+/* on very small screens, stack text & buttons nicely */
+@media (max-width: 480px){
+  .home-gallery-card.signup-cta-card{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
 
 </style>
 
@@ -196,7 +263,26 @@
             <div class="ad-badge">تبلیغ</div>
           </div>
         </div>
-      {% endif %}
+
+        {% elif slot.kind == "signup_cta" %}
+  <div class="home-gallery-item signup-cta-item">
+    <div class="grid-item-holder home-gallery-card signup-cta-card">
+      <span class="signup-cta-text">
+        برای دیدن هنرمندان بیشتری وارد شوید
+      </span>
+      <div class="signup-cta-actions">
+        <a href="{% url 'signup' %}" class="signup-cta-btn">
+          ثبت‌نام
+        </a>
+        <a href="{% url 'login' %}" class="signup-cta-btn signup-cta-btn--ghost">
+          ورود
+        </a>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+
     {% endfor %}
 
   </div>

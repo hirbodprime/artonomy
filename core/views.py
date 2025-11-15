@@ -4,15 +4,13 @@ from accounts.models import Profile
 from advertisement.models import HomepageAd 
 from .models import  SiteSettings
 
-
 def home_view(req):
     NUM_SLOTS = 20
-    FULL_AD_POSITIONS = [1, 2, 6, 12, 18, 20]  # همه جایگاه‌های ممکن تبلیغ
+    FULL_AD_POSITIONS = [1, 2, 6, 12, 18, 20]
 
     settings_obj = SiteSettings.get_solo()
-    show_placeholders = settings_obj.show_homepage_ads  # فقط برای placeholder
+    show_placeholders = settings_obj.show_homepage_ads
 
-    # 🔹 همیشه تبلیغ‌های فعال را لود کن (فارغ از show_placeholders)
     all_ads = HomepageAd.objects.filter(
         is_active=True,
         position__in=FULL_AD_POSITIONS,
@@ -24,9 +22,6 @@ def home_view(req):
         if ad.is_currently_visible
     }
 
-    # 🔹 اسلات‌هایی که عملاً برای پروفایل "رزرو" می‌شن
-    # اگر placeholders روشن باشد: همه جایگاه‌های تبلیغی رزرو می‌شوند
-    # اگر خاموش باشد: فقط همان اسلات‌هایی که واقعاً تبلیغ دارند رزرو می‌شوند
     if show_placeholders:
         reserved_positions = set(FULL_AD_POSITIONS)
     else:
@@ -49,20 +44,17 @@ def home_view(req):
         ad = ads_by_position.get(pos)
 
         if ad:
-            # ✅ تبلیغ واقعی، همیشه نمایش داده می‌شود
             homepage_slots.append({
                 "kind": "ad",
                 "position": pos,
                 "ad": ad,
             })
         elif show_placeholders and pos in FULL_AD_POSITIONS:
-            # 🔸 جایگاه تبلیغی بدون تبلیغ → فقط اگر placeholders روشن باشد
             homepage_slots.append({
                 "kind": "empty_ad",
                 "position": pos,
             })
         else:
-            # 🎨 اسلات پروفایل
             try:
                 prof = next(profiles_iter)
             except StopIteration:
@@ -74,9 +66,15 @@ def home_view(req):
                     "position": pos,
                     "profile": prof,
                 })
-            # اگر پروفایل هم نداشتیم، می‌تونی چیزی نسازی یا یک kind=empty_profile بگذاری (دلخواه)
-            # else:
-            #     homepage_slots.append({"kind": "empty", "position": pos})
+
+    # 🔒 Limit for visitors (not logged in)
+    if not req.user.is_authenticated:
+        MAX_PUBLIC_SLOTS = 4
+        homepage_slots = homepage_slots[:MAX_PUBLIC_SLOTS]
+        homepage_slots.append({
+            "kind": "signup_cta",
+            "position": MAX_PUBLIC_SLOTS + 1,
+        })
 
     return render(req, 'core/index.html', {
         "homepage_slots": homepage_slots,
