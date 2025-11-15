@@ -128,6 +128,88 @@ class UserForm(forms.ModelForm):
             "first_name": forms.TextInput(attrs={"placeholder": "نام"}),
             "last_name": forms.TextInput(attrs={"placeholder": "نام خانوادگی"}),
         }
+class ProfileCounterForm(forms.ModelForm):
+    class Meta:
+        model = ProfileCounter
+        fields = ("label", "value", "order")
+        widgets = {
+            "label": forms.TextInput(attrs={
+                "placeholder": "مثلاً: تعداد پروژه‌ها / نمایشگاه‌ها / مشتریان",
+            }),
+            "value": forms.NumberInput(attrs={
+                "placeholder": "مثلاً: ۱۲",
+            }),
+            "order": forms.NumberInput(attrs={
+                "placeholder": "مثلاً: ۱",
+            }),
+        }
+class SkillForm(forms.ModelForm):
+    class Meta:
+        model = Skill
+        fields = ("name", "percent", "order")
+        widgets = {
+            "name": forms.TextInput(attrs={
+                "placeholder": "مهارت — مثل عکاسی، طراحی، تدوین..."
+            }),
+            "percent": forms.NumberInput(attrs={
+                "placeholder": "درصد — مثلاً: ۸۰"
+            }),
+            "order": forms.NumberInput(attrs={
+                "placeholder": "ترتیب نمایش — مثلاً: ۱"
+            }),
+        }
+class SocialLinkForm(forms.ModelForm):
+    class Meta:
+        model = SocialLink
+        fields = ("title", "url", "order")
+        widgets = {
+            "title": forms.TextInput(attrs={
+                "placeholder": "نام شبکه اجتماعی — اینستاگرام / تیک‌تاک / پورتفولیو"
+            }),
+            "url": forms.URLInput(attrs={
+                "placeholder": "لینک کامل — مثل: https://instagram.com/user"
+            }),
+            "order": forms.NumberInput(attrs={
+                "placeholder": "ترتیب نمایش — مثلاً: ۱"
+            }),
+        }
+class ClientLogoForm(forms.ModelForm):
+    class Meta:
+        model = ClientLogo
+        fields = ("title", "url", "image", "order")
+        widgets = {
+            "title": forms.TextInput(attrs={
+                "placeholder": "نام مشتری یا برند"
+            }),
+            "url": forms.URLInput(attrs={
+                "placeholder": "لینک مربوطه (اختیاری)"
+            }),
+            "order": forms.NumberInput(attrs={
+                "placeholder": "ترتیب نمایش — مثلاً: ۱"
+            }),
+        }
+class TestimonialForm(forms.ModelForm):
+    class Meta:
+        model = Testimonial
+        fields = ("person_name", "quote", "source_label", "source_url", "background_image", "order")
+        widgets = {
+            "person_name": forms.TextInput(attrs={
+                "placeholder": "نام فرد — مثلاً: علی احمدی"
+            }),
+            "quote": forms.Textarea(attrs={
+                "rows": 3,
+                "placeholder": "متن نظر / تجربه مشتری — یک پاراگراف کوتاه"
+            }),
+            "source_label": forms.TextInput(attrs={
+                "placeholder": "منبع — اینستاگرام / سایت / لینکدین"
+            }),
+            "source_url": forms.URLInput(attrs={
+                "placeholder": "لینک منبع (اختیاری)"
+            }),
+            "order": forms.NumberInput(attrs={
+                "placeholder": "ترتیب نمایش — مثلاً: ۱"
+            }),
+        }
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -158,37 +240,37 @@ class ProfileForm(forms.ModelForm):
         self.fields["avatar"].widget = forms.FileInput(
             attrs={"accept": "image/*"}
         )
-
+        
 CounterFormSet = inlineformset_factory(
     Profile, ProfileCounter,
-    fields=("label", "value", "order"),
+    form=ProfileCounterForm,
     extra=2, can_delete=True
 )
 
 SkillFormSet = inlineformset_factory(
     Profile, Skill,
-    fields=("name", "percent", "order"),
+    form=SkillForm,
     extra=2, can_delete=True
 )
 
 SocialLinkFormSet = inlineformset_factory(
     Profile, SocialLink,
-    fields=("title", "url", "order"),
+    form=SocialLinkForm,
     extra=2, can_delete=True
 )
 
 ClientLogoFormSet = inlineformset_factory(
     Profile, ClientLogo,
-    fields=("title", "url", "image", "order"),
+    form=ClientLogoForm,
     extra=2, can_delete=True
 )
 
 TestimonialFormSet = inlineformset_factory(
     Profile, Testimonial,
-    fields=("person_name", "quote", "source_label", "source_url", "background_image", "order"),
-    widgets={"quote": forms.Textarea(attrs={"rows": 3})},
+    form=TestimonialForm,
     extra=1, can_delete=True
 )
+
 
 class LoginForm(forms.Form):
     username_or_email = forms.CharField()
@@ -291,30 +373,26 @@ from django.forms import inlineformset_factory
 from marketplace.models import Product, Service, ArtPost
 
 # ... بقیه فایل بدون تغییر ...
-from marketplace.forms import ProductForm, ServiceForm
+from marketplace.forms import ProductForm, ServiceForm, ArtPostForm
 
 
 ProductFormSet = inlineformset_factory(
-    Profile,
-    Product,
-    form=ProductForm,   # ← به جای fields=...
+    Profile, Product,
+    form=ProductForm,
     extra=1,
     can_delete=True,
 )
 
 ServiceFormSet = inlineformset_factory(
-    Profile,
-    Service,
-    form=ServiceForm,   # ← به جای fields=...
+    Profile, Service,
+    form=ServiceForm,
     extra=1,
     can_delete=True,
 )
+
 ArtPostFormSet = inlineformset_factory(
     Profile, ArtPost,
-    fields=("title", "description", "image", "is_active", "order","video"),
-    widgets={
-        "description": forms.Textarea(attrs={"rows": 3}),
-    },
+    form=ArtPostForm,
     extra=1,
     can_delete=True,
 )

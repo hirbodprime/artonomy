@@ -1356,7 +1356,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
             <div class="row-4 fsrow">
               <div><label>برچسب</label>{{ f.label }}</div>
               <div><label>مقدار</label>{{ f.value }}</div>
-              <div><label>ترتیب</label>{{ f.order }}</div>
               <div style="display:flex;align-items:center;margin-top: 12px">
                 {{ f.DELETE }}{{ f.id }}
                 <span class="del-chip" data-del>حذف</span>
@@ -1377,7 +1376,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
             <div class="row-4 fsrow">
               <div><label>نام مهارت</label>{{ f.name }}</div>
               <div><label>درصد</label>{{ f.percent }}</div>
-              <div><label>ترتیب</label>{{ f.order }}</div>
               <div style="display:flex;align-items:center;margin-top: 12px">
                 {{ f.DELETE }}{{ f.id }}
                 <span class="del-chip" data-del>حذف</span>
@@ -1397,7 +1395,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
           {% for f in fs_tests %}
             <div class="row fsrow">
               <div><label>نام</label>{{ f.person_name }}{{ f.id }}</div>
-              <div><label>ترتیب</label>{{ f.order }}</div>
             </div>
             <label>متن نظر</label>{{ f.quote }}
             <div class="row">
@@ -1436,7 +1433,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
             <div class="row-4 fsrow">
               <div><label>عنوان</label>{{ f.title }}</div>
               <div><label>آدرس</label>{{ f.url }}</div>
-              <div><label>ترتیب</label>{{ f.order }}</div>
               <div style="display:flex;align-items:center;margin-top: 12px">
                 {{ f.DELETE }}{{ f.id }}
                 <span class="del-chip" data-del>حذف</span>
@@ -1527,7 +1523,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
 
             <div class="row-4 fsrow" style="align-items:flex-end">
               <div><label>وضعیت</label>{{ f.condition }}</div>
-              <div><label>ترتیب</label>{{ f.order }}</div>
               <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
                 <label>فعال؟</label>{{ f.is_active }}
                 {% if f.DELETE %} {{ f.DELETE }} <span class="del-chip" data-del>حذف</span>{% endif %}
@@ -1552,7 +1547,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
                             {{ imgf.id }}
                             <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
                             <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
-                              <div><label>ترتیب</label>{{ imgf.order }}</div>
                               <div style="display:flex;flex-direction:column;">
                                 <label>اصلی؟</label>
                                 <div style="margin-top:8px">{{ imgf.is_primary }}</div>
@@ -1597,7 +1591,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
                         <div style="display:flex; flex-direction:column; gap:16px;">
                           <div><label>متن جایگزین</label> __ALT__</div>
                           <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
-                            <div><label>ترتیب</label> __ORDER__</div>
                             <div style="display:flex;flex-direction:column;">
                               <label>اصلی؟</label>
                               <div style="margin-top:8px"> __PRIMARY__</div>
@@ -1676,9 +1669,7 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
         <div><label>توضیح</label>{{ f.description }}</div>
       </div>
 
-      {# ترتیب + فعال بودن #}
       <div class="row-4 fsrow" style="align-items:flex-end">
-        <div><label>ترتیب</label>{{ f.order }}</div>
         <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
           <label>فعال؟</label>{{ f.is_active }}
           {% if f.DELETE %} {{ f.DELETE }} <span class="del-chip" data-del>حذف</span>{% endif %}
@@ -1726,7 +1717,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
                       {{ imgf.id }}
                       <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
                       <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
-                        <div><label>ترتیب</label>{{ imgf.order }}</div>
                         <div style="display:flex;flex-direction:column;">
                           <label>اصلی؟</label>
                           <div style="margin-top:8px">{{ imgf.is_primary }}</div>
@@ -1772,7 +1762,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
                   <div style="display:flex; flex-direction:column; gap:16px;">
                     <div><label>متن جایگزین</label> __ALT__</div>
                     <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
-                      <div><label>ترتیب</label> __ORDER__</div>
                       <div style="display:flex;flex-direction:column;">
                         <label>اصلی؟</label>
                         <div style="margin-top:8px"> __PRIMARY__</div>
@@ -1850,7 +1839,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
             </div>
 
             <div class="row-4 fsrow" style="align-items:flex-end">
-              <div><label>ترتیب</label>{{ f.order }}</div>
               <div style="display:flex;gap:12px;align-items:center;margin-top:12px">
                 <label>فعال؟</label>{{ f.is_active }}
                 {% if f.DELETE %} {{ f.DELETE }} <span class="del-chip" data-del>حذف</span>{% endif %}
@@ -1875,7 +1863,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
                             {{ imgf.id }}
                             <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
                             <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
-                              <div><label>ترتیب</label>{{ imgf.order }}</div>
                               <div style="display:flex;flex-direction:column;">
                                 <label>اصلی؟</label>
                                 <div style="margin-top:8px">{{ imgf.is_primary }}</div>
@@ -1920,7 +1907,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
                         <div style="display:flex; flex-direction:column; gap:16px;">
                           <div><label>متن جایگزین</label> __ALT__</div>
                           <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
-                            <div><label>ترتیب</label> __ORDER__</div>
                             <div style="display:flex;flex-direction:column;">
                               <label>اصلی؟</label>
                               <div style="margin-top:8px"> __PRIMARY__</div>
@@ -2171,7 +2157,6 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
               </div>
               <div><label>عنوان</label>{{ f.title }}</div>
               <div><label>آدرس (اختیاری)</label>{{ f.url }}</div>
-              <div><label>ترتیب</label>{{ f.order }}</div>
               <div style="display:flex;align-items:center;margin-top: 12px">{{ f.DELETE }}<span class="del-chip" data-del>حذف</span></div>
             </div>
             {% if not forloop.last %}<div class="hr"></div>{% endif %}
