@@ -1066,6 +1066,12 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
   background:#111827;
 }
 
+/* فقط روی دسکتاپ: دکمه تم داخل سایدبار */
+@media (max-width: 900px){
+  .side .theme-toggle-btn{
+    display:none !important;
+  }
+}
 
 </style>
 
@@ -1077,6 +1083,10 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
           aria-controls="sideNav" aria-expanded="false"
           aria-label="باز کردن منو">☰ مدیریت پروفایل</button>
 
+  <!-- 🔄 Theme toggle (mobile) -->
+  <button type="button" class="btn-ghost theme-toggle-btn" data-always-enabled="1">
+    🌙 حالت تیره
+  </button>
 </div>
 
   <aside class="side" id="sideNav" aria-hidden="true">
