@@ -457,3 +457,135 @@ def public_profile_view(request, username):
         "contact_email": contact_email,
         "share_url":share_url,
     })
+
+
+
+
+import random
+from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.contrib import messages
+from django.shortcuts import redirect
+from .tokens import email_verification_token
+
+def _security_tab_redirect():
+    from django.urls import reverse
+    return reverse("profile_dashboard") + "?tab=security"
+
+def send_verification_email(request):
+    profile = request.user.profile
+
+    if profile.verified_email:
+        messages.info(request, "ایمیل شما قبلاً تأیید شده است.")
+        return redirect(_security_tab_redirect())
+
+    # 1) ساخت توکن لینک
+    uid = urlsafe_base64_encode(force_bytes(request.user.pk))
+    token = email_verification_token.make_token(request.user)
+    verify_link = request.build_absolute_uri(
+        reverse("verify_email", kwargs={"uidb64": uid, "token": token})
+    )
+
+    # 2) ساخت کد ۶ رقمی
+    code_6 = f"{random.randint(0, 999999):06d}"
+
+    from django.utils import timezone
+    profile.email_verification_code = code_6
+    profile.email_verification_sent_at = timezone.now()
+    profile.save(update_fields=["email_verification_code", "email_verification_sent_at"])
+
+    # 3) ساخت HTML + متن ساده
+    user_display_name = request.user.get_full_name() or request.user.username
+
+    html_body = render_to_string("accounts/email_verify.html", {
+        "user_display_name": user_display_name,
+        "verify_link": verify_link,
+        "code_6": code_6,
+    })
+
+    text_body = (
+        f"سلام {user_display_name}\n\n"
+        "برای تأیید ایمیل خود در آرتونومی، روی لینک زیر کلیک کنید:\n"
+        f"{verify_link}\n\n"
+        f"همچنین می‌توانید این کد ۶ رقمی را در تب «امنیت حساب» وارد کنید:\n"
+        f"{code_6}\n\n"
+        "اگر شما این درخواست را انجام نداده‌اید، این ایمیل را نادیده بگیرید.\n"
+        "Artonomy"
+    )
+
+    subject = "تأیید ایمیل - Artonomy"
+
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=text_body,
+        from_email="artonomyofficial@gmail.com",
+        to=[request.user.email],
+    )
+    email.attach_alternative(html_body, "text/html")
+    email.send()
+
+    messages.success(request, "لینک و کد تأیید ایمیل برای شما ارسال شد.")
+    return redirect(_security_tab_redirect())
+from django.utils.http import urlsafe_base64_decode
+from django.contrib.auth import get_user_model
+
+def verify_email(request, uidb64, token):
+    User = get_user_model()
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except Exception:
+        user = None
+
+    if user and email_verification_token.check_token(user, token):
+        profile = user.profile
+        from django.utils import timezone
+        profile.verified_email = True
+        profile.email_verified_at = timezone.now()
+        profile.email_verification_code = ""
+        profile.save(update_fields=["verified_email", "email_verified_at", "email_verification_code"])
+
+        messages.success(request, "ایمیل شما با موفقیت تأیید شد.")
+    else:
+        messages.error(request, "لینک تأیید نامعتبر یا منقضی شده است.")
+
+    return redirect(_security_tab_redirect())
+from django.views.decorators.http import require_POST
+
+@require_POST
+def verify_email_code(request):
+    code = (request.POST.get("code") or "").strip()
+    profile = request.user.profile
+
+    if not code:
+        messages.error(request, "کد تأیید را وارد کنید.")
+        return redirect(_security_tab_redirect())
+
+    if not profile.email_verification_code:
+        messages.error(request, "برای شما کدی ثبت نشده است. لطفاً دوباره ایمیل تأیید را ارسال کنید.")
+        return redirect(_security_tab_redirect())
+
+    # چک انقضا (مثلاً ۳۰ دقیقه)
+    from django.utils import timezone
+    if profile.email_verification_sent_at:
+        delta = timezone.now() - profile.email_verification_sent_at
+        if delta.total_seconds() > 30 * 60:
+            messages.error(request, "کد تأیید منقضی شده است. لطفاً دوباره درخواست دهید.")
+            return redirect(_security_tab_redirect())
+
+    if code != profile.email_verification_code:
+        messages.error(request, "کد وارد شده صحیح نیست.")
+        return redirect(_security_tab_redirect())
+
+    # اوکی: تایید
+    profile.verified_email = True
+    profile.email_verified_at = timezone.now()
+    profile.email_verification_code = ""
+    profile.save(update_fields=["verified_email", "email_verified_at", "email_verification_code"])
+
+    messages.success(request, "ایمیل شما با موفقیت با کد ۶ رقمی تأیید شد.")
+    return redirect(_security_tab_redirect())

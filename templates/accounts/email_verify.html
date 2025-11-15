@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تأیید ایمیل - آرتونومی</title>
+</head>
+<body style="font-family:Tahoma, sans-serif;background:#0b1120;margin:0;padding:0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0b1120;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table width="480" cellpadding="0" cellspacing="0" style="background:#020617;border-radius:16px;border:1px solid #1e293b;color:#e5e7eb;padding:24px;">
+          <tr>
+            <td align="center" style="padding-bottom:12px;">
+              <h1 style="margin:0;font-size:20px;">تأیید ایمیل شما در آرتونومی</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size:14px;line-height:1.8;padding-bottom:12px;">
+              سلام {{ user_display_name }} عزیز،
+              <br>
+              برای تکمیل ثبت‌نام و فعال‌سازی حساب خود در آرتونومی، لطفاً ایمیل‌تان را تأیید کنید.
+            </td>
+          </tr>
+
+          <tr>
+            <td align="center" style="padding:12px 0 16px;">
+              <a href="{{ verify_link }}"
+                 style="display:inline-block;background:#22c55e;color:#020617;text-decoration:none;
+                        padding:10px 24px;border-radius:999px;font-weight:bold;font-size:14px;">
+                تأیید ایمیل
+              </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="font-size:13px;line-height:1.8;padding-bottom:16px;">
+              اگر دکمه بالا برای شما باز نشد، می‌توانید این لینک را در مرورگر خود کپی کنید:
+              <br>
+              <span style="direction:ltr;display:inline-block;margin-top:6px;color:#93c5fd;font-size:12px;">
+                {{ verify_link }}
+              </span>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="font-size:13px;line-height:1.8;padding:12px 0;border-top:1px solid #1f2937;">
+              همچنین می‌توانید این <strong>کد ۶ رقمی</strong> را در تب «امنیت حساب» وارد کنید:
+              <div style="margin-top:8px;font-size:22px;letter-spacing:4px;font-weight:bold;color:#facc15;">
+                {{ code_6 }}
+              </div>
+              <div style="margin-top:4px;font-size:11px;color:#9ca3af;">
+                این کد حدود ۳۰ دقیقه معتبر است.
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="font-size:11px;color:#6b7280;padding-top:10px;border-top:1px solid #1f2937;">
+              اگر شما درخواستی برای تأیید ایمیل نداده‌اید، می‌توانید این ایمیل را نادیده بگیرید.
+              <br>
+              با احترام،
+              <br>
+              تیم Artonomy
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

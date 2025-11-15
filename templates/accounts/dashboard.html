@@ -1103,6 +1103,65 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
   .locked-section .btn{
     margin-top:16px;
   }
+  .not-verified-box,
+.verified-box {
+  padding: 18px;
+  border-radius: 12px;
+  background: rgba(15,23,42,.6);
+  border: 1px solid rgba(255,255,255,.12);
+  color: #e5e7eb;
+  margin-bottom: 16px;
+}
+/* کادر کد ۶ رقمی – مناسب برای هر دو تم */
+.panel-security .verify-code-input{
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+/* دارک‌مود برای کد ۶ رقمی */
+html[data-theme="dark"] .panel-security .verify-code-input{
+  background:#020617;
+  border-color:#1f2937;
+  color:#e5e7eb;
+}
+
+/* placeholder کد در دارک‌مود (اختیاری) */
+html[data-theme="dark"] .panel-security .verify-code-input::placeholder{
+  color:rgba(148,163,184,.8);
+}
+.not-verified-box,
+.verified-box {
+  padding: 18px;
+  border-radius: 12px;
+  background: rgba(248,250,252,.9);
+  border: 1px solid #e5e7eb;
+  color: #0f172a;
+  margin-bottom: 16px;
+}
+
+/* نسخه دارک این باکس‌ها */
+html[data-theme="dark"] .not-verified-box,
+html[data-theme="dark"] .verified-box {
+  background: rgba(15,23,42,.6);
+  border-color: rgba(255,255,255,.12);
+  color: #e5e7eb;
+}
+
+/* فقط در دارک‌مود: ورودی‌های پسورد داخل پنل امنیت */
+html[data-theme="dark"] .panel-security .password-wrapper input[type="password"],
+html[data-theme="dark"] .panel-security .password-wrapper input[type="text"]{
+  background:#020617;
+  color:#e5e7eb;
+  caret-color:#e5e7eb;
+}
+
+/* placeholder در دارک‌مود */
+html[data-theme="dark"] .panel-security ::placeholder{
+  color:rgba(148,163,184,.8);
+}
+
 </style>
 
 <div class="dash">
@@ -2088,6 +2147,75 @@ html[data-theme="dark"] .theme-toggle-btn:hover{
       <!-- SECURITY TAB -->
       <section class="panel panel-security tab-panel" data-tab="security" {% if active_tab != 'security' %}style="display:none"{% endif %}>
         <h3>امنیت حساب و تغییر رمز عبور</h3>
+        <div style="margin-bottom:16px;padding:14px 16px;border-radius:12px;
+              background:rgba(15,23,42,.7);border:1px solid rgba(148,163,184,.15);color:#e5e7eb;">
+    <div style="font-size:13px;opacity:.8;margin-bottom:4px;">ایمیل فعلی شما:</div>
+    <div style="font-size:15px;font-weight:600;direction:ltr;">
+        {{ user.email }}
+    </div>
+  </div>
+
+  {% if profile.verified_email %}
+    <div class="verified-box" style="
+         padding:16px;
+         border-radius:12px;
+         background:rgba(22,163,74,.15);
+         border:1px solid rgba(34,197,94,.6);
+         color:#bbf7d0;
+         margin-bottom:16px;">
+      ✅ ایمیل شما تأیید شده است.
+      {% if profile.email_verified_at %}
+        <div style="font-size:12px;opacity:.8;margin-top:4px;">
+          تاریخ تأیید: {{ profile.email_verified_at|date:"Y/m/d H:i" }}
+        </div>
+      {% endif %}
+    </div>
+{% else %}
+  <div class="not-verified-box" style="
+       padding:16px;
+       border-radius:12px;
+       background:rgba(15,23,42,.7);
+       border:1px solid rgba(248,250,252,.1);
+       color:#e5e7eb;
+       margin-bottom:16px;">
+    <p style="margin:0 0 8px;font-weight:600;">❗ ایمیل شما هنوز تأیید نشده است.</p>
+    <p style="margin:0 0 10px;font-size:13px;color:#cbd5e1;">
+      برای امنیت بیشتر حساب و بازیابی رمز عبور، لطفاً ایمیل خود را تأیید کنید.
+    </p>
+
+    <a href="{% url 'send_verification_email' %}" class="btn" style="margin-bottom:10px;">
+      ارسال لینک و کد تأیید ایمیل
+    </a>
+
+    {# ⛔ اینجا دیگه فرم جدید باز نکن؛ داخل همان فرم اصلی هستیم #}
+    <div style="margin-top:10px;">
+      {# csrf_token همین فرم اصلی است، مشکلی ندارد اگر یک بار دیگر هم رندر شود #}
+      {% csrf_token %}
+      <label style="display:block;font-size:12px;margin-bottom:4px;">کد ۶ رقمی:</label>
+
+      <div style="display:flex;gap:8px;align-items:center;max-width:260px;">
+<input type="text" name="code" maxlength="6"
+       class="verify-code-input"
+       style="flex:1;padding:6px 8px;border-radius:8px;
+              font-size:14px;direction:ltr;text-align:center;">
+
+        <button type="submit"
+                class="btn"
+                style="padding:6px 12px;font-size:12px;"
+                formaction="{% url 'verify_email_code' %}"
+                formmethod="post"
+                formnovalidate>
+          تأیید کد
+        </button>
+      </div>
+
+      <p style="margin-top:6px;font-size:11px;color:#9ca3af;">
+        این کد حدود ۳۰ دقیقه معتبر است.
+      </p>
+    </div>
+  </div>
+{% endif %}
+
         {% if messages %}
           {% for message in messages %}
             {% if 'success' in message.tags %}

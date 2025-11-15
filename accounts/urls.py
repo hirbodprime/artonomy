@@ -7,6 +7,10 @@ urlpatterns = [
     path("signup/", views.signup_view, name="signup"),
     path("logout/", views.logout_view, name="logout"),
 
+    path("email/send/", views.send_verification_email, name="send_verification_email"),
+    path("email/verify/<uidb64>/<token>/", views.verify_email, name="verify_email"),
+    path("email/verify-code/", views.verify_email_code, name="verify_email_code"),
+
     # ریست رمز با ویوهای آماده جنگو
     path("password-reset/", auth_views.PasswordResetView.as_view(
         template_name="accounts/password_reset.html"

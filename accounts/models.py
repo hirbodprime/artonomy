@@ -107,6 +107,24 @@ class Profile(models.Model):
     # لوگوهای مشتریان (clients) در مدل ClientLogo
     completion = models.PositiveSmallIntegerField(default=0, editable=False, db_index=True)
 
+    verified_email = models.BooleanField(default=False)
+
+    email_verification_code = models.CharField(
+        max_length=6,
+        blank=True,
+        default="",
+        help_text="آخرین کد تأیید ایمیل (۶ رقمی)."
+    )
+    email_verification_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="زمان ارسال آخرین ایمیل تأیید."
+    )
+    email_verified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="زمان تأیید نهایی ایمیل."
+    )
 
     # fields that count toward completion
     COMPLETION_FIELDS = (
