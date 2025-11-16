@@ -1161,7 +1161,64 @@ html[data-theme="dark"] .panel-security .password-wrapper input[type="text"]{
 html[data-theme="dark"] .panel-security ::placeholder{
   color:rgba(148,163,184,.8);
 }
+/* 1. تنظیمات اصلی سایدبار (ثابت و تمام قد) */
+.side {
+    position: fixed; /* ثابت نگه داشتن در صفحه */
+    top: 0;
+    /* در زبان فارسی (RTL)، این سایدبار باید از سمت راست شروع شود. */
+    right: 0; 
+    z-index: 1000; /* مطمئن شدن از قرارگیری در بالای همه چیز */
+    height: 100vh; /* تمام ارتفاع پنجره */
+    width: 280px; /* عرض مناسب برای موبایل و دسکتاپ */
+    max-width: 80%; /* برای جلوگیری از پوشاندن کل صفحه در موبایل‌های بسیار کوچک */
+    overflow-y: auto; /* اگر محتوای سایدبار زیاد بود، خود آن اسکرول شود */
+    padding: 20px;
+    background-color: #1f2937; /* مثال: پس‌زمینه تیره */
+    color: #f9fafb;
+    /* استایل‌های ترنزیشن برای باز و بسته شدن */
+    transition: transform 0.3s ease-out; 
+    transform: translateX(100%); /* پنهان کردن اولیه به سمت راست */
+}
 
+/* 2. حالت باز سایدبار */
+.side:not([aria-hidden="true"]) {
+    transform: translateX(0); /* نمایش دادن سایدبار */
+}
+
+/* 3. مدیریت محتوای قابل اسکرول درون منو (Tabs) */
+.side nav.tabs {
+    display: flex;
+    flex-direction: column;
+    /* این خط مهم است: تعیین ارتفاعی که اجازه‌ی اسکرول را بدهد */
+    max-height: calc(100vh - 120px); /* کل ارتفاع صفحه منهای هدر و دکمه‌ها */
+    overflow-y: auto; /* فعال کردن اسکرول عمودی فقط برای بخش تب‌ها */
+    padding-bottom: 20px; /* فضای خالی در انتهای اسکرول */
+    margin-top: 15px;
+}
+
+/* 4. تنظیم استایل آیتم‌های داخل Tabs */
+.side nav.tabs a {
+    /* اطمینان از اینکه لینک‌ها تمام عرض را بگیرند */
+    width: 100%;
+    display: block;
+    padding: 10px 15px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* 5. بهینه‌سازی دکمه بستن و عنوان */
+.side-close-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #e5e7eb;
+    cursor: pointer;
+}
 </style>
 
 <div class="dash">
