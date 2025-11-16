@@ -2,6 +2,77 @@
 {% load static %}
 {% block page_content %}
 
+<style>
+/* ================================================= */
+/* 🚀 Responsive grid layout like index.html */
+/* ================================================= */
+
+.home-gallery {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr); /* mobile: 1 column */
+  gap: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .home-gallery {
+    grid-template-columns: repeat(2, 1fr); /* tablet: 2 columns */
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-gallery {
+    grid-template-columns: repeat(3, 1fr); /* desktop: 3 columns */
+    gap: 30px;
+    padding: 30px;
+  }
+}
+
+/* 🖼️ 16:9 covers like home */
+.home-gallery-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+
+/* 📝 card text */
+.art-card-info {
+  padding: 10px 14px;
+}
+
+.art-card-title {
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.art-card-meta {
+  font-size: 12px;
+  line-height: 1.4;
+  max-height: 2.8em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.home-gallery .art-card-meta {
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: none;              /* دیگه برش نزن */
+  overflow: visible;
+  display: block;                /* دیگه box-clamp نباشه */
+  -webkit-line-clamp: unset;
+  -webkit-box-orient: unset;
+}
+</style>
+
 <div id="wrapper">
   <div class="content-holder">
 
@@ -25,52 +96,46 @@
                 {% endif %}
               {% endwith %}
 
-<div class="art-card-info">
-  <span class="art-card-rule"></span>
+              <div class="art-card-info">
+                <span class="art-card-rule"></span>
 
-  <div class="art-card-title">
-    <a href="{{ p.get_absolute_url }}" class="ajax">
-      {{ p.title }}
-    </a>
-  </div>
+                <div class="art-card-title">
+                  <a href="{{ p.get_absolute_url }}" class="ajax">
+                    {{ p.title }}
+                  </a>
+                </div>
 
-  <div class="art-card-meta">
-    {% if p.description %}
-      <div style="margin-bottom:4px;">
-        {{ p.description|truncatechars:120 }}
-      </div>
-    {% endif %}
+                <div class="art-card-meta">
+                  {% if p.description %}
+                    <div style="margin-bottom:4px;">
+                      {{ p.description|truncatechars:120 }}
+                    </div>
+                  {% endif %}
 
-    <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
+                  <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;">
 
-      {% if p.is_for_sale %}
-        <span class="chip"
-              style="background:rgba(16,185,129,.15);
-                     border:1px solid #10B981;
-                     padding:2px 8px;border-radius:9999px;">
-          محصول برای فروش
-        </span>
-        <span style="border:1px solid rgba(255,255,255,.15);
-                     padding:2px 8px;border-radius:9999px;">
-          {{ p.display_price }}
-        </span>
-      {% else %}
-        <span class="chip"
-              style="background:rgba(59,130,246,.15);
-                     border:1px solid #3B82F6;
-                     padding:2px 8px;border-radius:9999px;">
-          محتوای هنری
-        </span>
-      {% endif %}
-
-      {% if p.condition == 'new' %}
-        <span class="chip" style="margin-inline-start:6px;">نو</span>
-      {% elif p.condition == 'used' %}
-        <span class="chip" style="margin-inline-start:6px;">کارکرده</span>
-      {% endif %}
-    </div>
-  </div>
-</div>
+                    {% if p.is_for_sale %}
+                      <span class="chip"
+                            style="background:rgba(16,185,129,.15);
+                                   border:1px solid #10B981;
+                                   padding:2px 8px;border-radius:9999px;">
+                        محصول برای فروش
+                      </span>
+                      <span style="border:1px solid rgba(255,255,255,.15);
+                                   padding:2px 8px;border-radius:9999px;">
+                        {{ p.display_price }}
+                      </span>
+                    {% else %}
+                      <span class="chip"
+                            style="background:rgba(59,130,246,.15);
+                                   border:1px solid #3B82F6;
+                                   padding:2px 8px;border-radius:9999px;">
+                        محتوای هنری
+                      </span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
 
               <div class="pr_num"></div>
 

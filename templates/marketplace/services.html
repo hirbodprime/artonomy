@@ -2,15 +2,77 @@
 {% load static %}
 {% block page_content %}
 
+<style>
+/* ================================================= */
+/* 🚀 Same responsive grid as index.html */
+/* ================================================= */
+
+.home-gallery {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr); /* mobile */
+  gap: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .home-gallery {
+    grid-template-columns: repeat(2, 1fr); /* tablet */
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-gallery {
+    grid-template-columns: repeat(3, 1fr); /* desktop */
+    gap: 30px;
+    padding: 30px;
+  }
+}
+
+/* 16:9 images */
+.home-gallery-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+
+/* card texts */
+.art-card-info {
+  padding: 10px 14px;
+}
+
+.art-card-title {
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.art-card-meta {
+  font-size: 12px;
+  line-height: 1.4;
+  max-height: 2.8em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+</style>
+
 <div id="wrapper">
   <div class="content-holder">
     <div class="vertical-portfolio_wrap" id="port-scroll">
 
       {# ─────────────── گرید سرویس‌ها ─────────────── #}
-      <div class="gallery-items big-padding lightgallery gi_left_al">
+      <div class="home-gallery big-padding lightgallery">
 
         {% for s in page_obj %}
-          <div class="gallery-item service">
+          <div class="home-gallery-item service">
             <div class="grid-item-holder hov_zoom home-gallery-card clickable-card"
                  data-href="{{ s.get_absolute_url }}">
 
@@ -25,45 +87,45 @@
                 {% endif %}
               {% endwith %}
 
-<div class="art-card-info">
-  <span class="art-card-rule"></span>
+              <div class="art-card-info">
+                <span class="art-card-rule"></span>
 
-  <div class="art-card-title">
-    <a href="{{ s.get_absolute_url }}" class="ajax">
-      {{ s.title }}
-    </a>
-  </div>
+                <div class="art-card-title">
+                  <a href="{{ s.get_absolute_url }}" class="ajax">
+                    {{ s.title }}
+                  </a>
+                </div>
 
-  <div class="art-card-meta">
-    {% if s.description %}
-      <div style="margin-bottom:4px;">
-        {{ s.description|truncatewords:20 }}
-      </div>
-    {% endif %}
+                <div class="art-card-meta">
+                  {% if s.description %}
+                    <div style="margin-bottom:4px;">
+                      {{ s.description|truncatewords:20 }}
+                    </div>
+                  {% endif %}
 
-    <div style="margin-top:4px;">
-      <strong>{{ s.display_price }}</strong>
-      {% if s.pricing_model %}
-        <span style="margin-inline-start:6px;opacity:.85">
-          ({{ s.get_pricing_model_display }})
-        </span>
-      {% endif %}
-    </div>
+                  <div style="margin-top:4px;">
+                    <strong>{{ s.display_price }}</strong>
+                    {% if s.pricing_model %}
+                      <span style="margin-inline-start:6px;opacity:.85">
+                        ({{ s.get_pricing_model_display }})
+                      </span>
+                    {% endif %}
+                  </div>
 
-    {% with tags=s.tag_list %}
-      {% if tags %}
-        <div style="margin-top:4px;font-size:12px;opacity:.8;">
-          {% for t in tags %}
-            <span style="border:1px solid rgba(255,255,255,.2);
-                         padding:1px 6px;border-radius:999px;margin-left:4px;">
-              {{ t }}
-            </span>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-  </div>
-</div>
+                  {% with tags=s.tag_list %}
+                    {% if tags %}
+                      <div style="margin-top:4px;font-size:12px;opacity:.8;">
+                        {% for t in tags %}
+                          <span style="border:1px solid rgba(255,255,255,.2);
+                                       padding:1px 6px;border-radius:999px;margin-left:4px;">
+                            {{ t }}
+                          </span>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  {% endwith %}
+                </div>
+              </div>
 
               <div class="pr_num"></div>
 
