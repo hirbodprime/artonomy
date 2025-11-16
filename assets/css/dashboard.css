@@ -1731,3 +1731,31 @@ html[data-theme="dark"] .cost-info strong {
     font-size: 14px;
   }
 }
+/* === FINAL mobile sidebar: scrollable + space for bottom nav === */
+@media (max-width: 900px) {
+  .side {
+    position: fixed !important;
+    top: var(--header-h);                 /* از زیر هدر شروع شود */
+    inset-inline-end: 0;
+    height: calc(100vh - var(--header-h));/* کل ارتفاع قابل‌دید */
+    
+    /* 🔽 اسکرول همیشه فعال */
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch;
+
+    /* 🔽 فضای اضافه پایین، تا زیر نوار تب نرود */
+    padding-bottom: calc(var(--footer-h) + 32px);
+  }
+
+  /* فقط برای زیبایی اسکرول‌بار روی کروم موبایل و ... */
+  .side::-webkit-scrollbar {
+    width: 6px;
+  }
+  .side::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .side::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.7);
+    border-radius: 999px;
+  }
+}
