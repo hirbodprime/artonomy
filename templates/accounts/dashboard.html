@@ -1161,6 +1161,30 @@ html[data-theme="dark"] .panel-security .password-wrapper input[type="text"]{
 html[data-theme="dark"] .panel-security ::placeholder{
   color:rgba(148,163,184,.8);
 }
+/* === Sidebar position + scroll on mobile === */
+@media (max-width: 900px) {
+  .side {
+    position: fixed;
+    top: var(--header-h);
+    inset-inline-end: 0;
+    height: calc(100vh - var(--header-h));
+    z-index: 99990;
+    background: var(--panel, #fff);
+    box-shadow: 0 4px 24px rgba(0,0,0,.1);
+
+    /* ⬇⬇ اسکرول فقط برای موبایل */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 24px;
+  }
+
+  .side nav.tabs {
+    padding-top: 8px;
+    /* دیگه روی خود tabs محدودیت اسکرول نمی‌ذاریم */
+    overflow: visible;
+    max-height: none;
+  }
+}
 
 </style>
 
