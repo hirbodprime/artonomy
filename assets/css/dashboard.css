@@ -1612,3 +1612,122 @@ html[data-theme="dark"] .cost-info p,
 html[data-theme="dark"] .cost-info strong {
     color: var(--text);
 }
+/* ===== Spotlight tab layout ===== */
+
+.tab-panel[data-tab="spotlight"] {
+  padding: 16px;
+}
+
+/* گرید دو ستونی روی دسکتاپ */
+.tab-panel[data-tab="spotlight"] .content-grid {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* هر ستون یک ستون کارت‌هاست */
+.tab-panel[data-tab="spotlight"] .grid-column {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* کارت‌های مینیمال داخل تب اسپات‌لایت */
+.tab-panel[data-tab="spotlight"] .minimal-card {
+  background: var(--panel-2, #0b1220);
+  border-radius: 12px;
+  padding: 16px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+/* لینک دعوت که روی موبایل نمی‌شکند */
+.tab-panel[data-tab="spotlight"] .invite-link-box {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.tab-panel[data-tab="spotlight"] .invite-link-code {
+  flex: 1;
+  max-width: 100%;
+  font-size: 12px;
+  direction: ltr;
+  text-align: left;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+/* دکمه فعال‌سازی */
+.tab-panel[data-tab="spotlight"] .activate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+/* ===== ریسپانسیو برای موبایل ===== */
+@media (max-width: 768px) {
+  .tab-panel[data-tab="spotlight"] {
+    padding: 12px 10px;
+  }
+
+  .tab-panel[data-tab="spotlight"] .content-grid {
+    flex-direction: column;
+  }
+
+  .tab-panel[data-tab="spotlight"] .grid-column {
+    width: 100%;
+  }
+
+  .tab-panel[data-tab="spotlight"] .minimal-card {
+    padding: 14px 12px;
+  }
+
+  .tab-panel[data-tab="spotlight"] .card-title {
+    font-size: 14px;
+  }
+
+  .tab-panel[data-tab="spotlight"] .header-title {
+    font-size: 15px;
+  }
+
+  .tab-panel[data-tab="spotlight"] .header-subtitle {
+    font-size: 12px;
+  }
+
+  .tab-panel[data-tab="spotlight"] .star-chip.large-chip {
+    font-size: 13px;
+    padding: 4px 10px;
+  }
+
+  /* لینک دعوت و دکمه در دو ردیف زیر هم */
+  .tab-panel[data-tab="spotlight"] .invite-link-box {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tab-panel[data-tab="spotlight"] .invite-link-code {
+    white-space: normal;
+    word-break: break-all;
+    font-size: 11px;
+  }
+
+  .tab-panel[data-tab="spotlight"] .copy-btn,
+  .tab-panel[data-tab="spotlight"] .activate-btn {
+    width: 100%;
+  }
+}
+
+/* موبایل خیلی باریک (زیر ~360px) */
+@media (max-width: 360px) {
+  .tab-panel[data-tab="spotlight"] .card-title {
+    font-size: 13px;
+  }
+  .tab-panel[data-tab="spotlight"] .header-title {
+    font-size: 14px;
+  }
+}
