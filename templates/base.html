@@ -528,6 +528,51 @@
     }
     .art-card-title { font-size: 16px; }
   }
+  /* ---- MAKE "اکانت من" LOOK LIKE A REAL BUTTON ---- */
+.ux-usernav__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 16px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,0.25);
+
+  background: rgba(255,255,255,0.10);      /* subtle pill button */
+  backdrop-filter: blur(6px);
+
+  cursor: pointer;
+  transition: background .2s ease, border-color .2s ease, transform .12s ease;
+}
+
+.ux-usernav__toggle:hover {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.35);
+}
+
+.ux-usernav__toggle:active {
+  transform: scale(0.97);
+}
+
+/* Make label look like a button text */
+.ux-usernav__label {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.3px;
+}
+
+/* Add a user icon for better UX */
+.ux-usernav__toggle::before {
+  content: "\f007"; /* Font Awesome user icon */
+  font-family: "Font Awesome 5 Pro";
+  font-weight: 300;
+  font-size: 18px;
+  opacity: .95;
+}
+
+.ux-usernav__toggle {
+  border: 1px solid #fff;
+}
 </style>
 
   <body>

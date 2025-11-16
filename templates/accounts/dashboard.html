@@ -1445,6 +1445,7 @@ html[data-theme="dark"] .panel-security ::placeholder{
             <div class="row-4 fsrow">
               <div><label>برچسب</label>{{ f.label }}</div>
               <div><label>مقدار</label>{{ f.value }}</div>
+                    {{ f.order.as_hidden }}
               <div style="display:flex;align-items:center;margin-top: 12px">
                 {{ f.DELETE }}{{ f.id }}
                 <span class="del-chip" data-del>حذف</span>
@@ -1465,6 +1466,7 @@ html[data-theme="dark"] .panel-security ::placeholder{
             <div class="row-4 fsrow">
               <div><label>نام مهارت</label>{{ f.name }}</div>
               <div><label>درصد</label>{{ f.percent }}</div>
+              {{ f.order.as_hidden }}
               <div style="display:flex;align-items:center;margin-top: 12px">
                 {{ f.DELETE }}{{ f.id }}
                 <span class="del-chip" data-del>حذف</span>
@@ -1522,6 +1524,8 @@ html[data-theme="dark"] .panel-security ::placeholder{
             <div class="row-4 fsrow">
               <div><label>عنوان</label>{{ f.title }}</div>
               <div><label>آدرس</label>{{ f.url }}</div>
+                    {{ f.order.as_hidden }}
+
               <div style="display:flex;align-items:center;margin-top: 12px">
                 {{ f.DELETE }}{{ f.id }}
                 <span class="del-chip" data-del>حذف</span>
@@ -1608,6 +1612,8 @@ html[data-theme="dark"] .panel-security ::placeholder{
               <div><label>مبلغ</label>{{ f.price_amount }}</div>
               <div><label>واحد پول</label>{{ f.currency }}</div>
               <div><label>تعداد</label>{{ f.quantity }}</div>
+                    {{ f.order.as_hidden }}
+
             </div>
 
             <div class="row-4 fsrow" style="align-items:flex-end">
@@ -1634,6 +1640,7 @@ html[data-theme="dark"] .panel-security ::placeholder{
                         <div class="fsrow gallery-item">
                           <div style="display:flex; flex-direction:column; gap:16px;">
                             {{ imgf.id }}
+                          {{imgf.order.as_hidden}}
                             <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
                             <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
                               <div style="display:flex;flex-direction:column;">
@@ -1758,6 +1765,7 @@ html[data-theme="dark"] .panel-security ::placeholder{
       <div class="row fsrow" style="align-items:flex-end">
         <div><label>عنوان پست</label>{{ f.title }}{{ f.id }}</div>
         <div><label>توضیح</label>{{ f.description }}</div>
+        {{ f.order.as_hidden }}
       </div>
 
       <div class="row-4 fsrow" style="align-items:flex-end">
@@ -1807,6 +1815,7 @@ html[data-theme="dark"] .panel-security ::placeholder{
                     <div style="display:flex; flex-direction:column; gap:16px;">
                       {{ imgf.id }}
                       <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
+                    {{imgf.order.as_hidden}}
                       <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
                         <div style="display:flex;flex-direction:column;">
                           <label>اصلی؟</label>
@@ -1916,6 +1925,7 @@ html[data-theme="dark"] .panel-security ::placeholder{
             <div class="row fsrow" style="align-items:flex-end">
               <div><label>عنوان</label>{{ f.title }}{{ f.id }}</div>
               <div><label>توضیح</label>{{ f.description }}</div>
+              {{ f.order.as_hidden }}
             </div>
 
             <div class="row fsrow" style="align-items:flex-end">
@@ -1952,6 +1962,7 @@ html[data-theme="dark"] .panel-security ::placeholder{
                         <div class="fsrow gallery-item">
                           <div style="display:flex; flex-direction:column; gap:16px;">
                             {{ imgf.id }}
+                          {{imgf.order.as_hidden}}
                             <div><label>متن جایگزین</label>{{ imgf.alt_text }}</div>
                             <div class="row-4" style="grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:0">
                               <div style="display:flex;flex-direction:column;">
@@ -2632,10 +2643,12 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // همه کنترل‌های یک پنل را فعال/غیرفعال می‌کند
   function setPanelEnabled(panel, enabled) {
-    panel.querySelectorAll('input, select, textarea, button').forEach(ctrl => {
-      // اگر خواستی چیزی همیشه فعال باشد، بهش data-always-enabled بده
-      if (ctrl.hasAttribute('data-always-enabled')) return;
-      ctrl.disabled = !enabled;
+    panel.querySelectorAll(
+      'input:not([type="hidden"]), select:not([multiple]), textarea, button'
+    ).forEach(ctrl => {
+      if (!ctrl.hasAttribute('data-always-enabled')) {
+        ctrl.disabled = !enabled;
+      }
     });
   }
 

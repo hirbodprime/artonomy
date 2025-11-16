@@ -370,29 +370,39 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect("/")
 
-    if request.method == "POST":
+    ref = request.GET.get("ref") or request.GET.get("g")
+    active_tab = "signup" if ref else "login"
+
+    if request.method == "POST" and active_tab == "login":
         form = LoginForm(request.POST)
         if form.is_valid():
             user = form.cleaned_data["user"]
             login(request, user)
-
             next_url = request.GET.get("next") or "/"
             return redirect(next_url)
     else:
         form = LoginForm()
 
-    return render(request, "accounts/auth.html", {
-        "active_tab": "login",
-        "login_form": form,
-        "signup_form": SignupForm(),  # برای نمایش همزمان
-        "featured_artpost": get_featured_artpost(),  # ⭐️ این خط
-    })
+    signup_initial = {}
+    if ref:
+        signup_initial["ref_code"] = ref
 
+    return render(request, "accounts/auth.html", {
+        "active_tab": active_tab,
+        "login_form": form,
+        "signup_form": SignupForm(initial=signup_initial),
+        "featured_artpost": get_featured_artpost(),
+    })
 
 @require_http_methods(["GET", "POST"])
 def signup_view(request):
     if request.user.is_authenticated:
         return redirect("/")
+
+    initial = {}
+    ref = request.GET.get("ref") or request.GET.get("g")
+    if ref:
+        initial["ref_code"] = ref
 
     if request.method == "POST":
         form = SignupForm(request.POST)
@@ -402,13 +412,13 @@ def signup_view(request):
             messages.success(request, "ثبت‌نام با موفقیت انجام شد.")
             return redirect("/")
     else:
-        form = SignupForm()
+        form = SignupForm(initial=initial)
 
     return render(request, "accounts/auth.html", {
         "active_tab": "signup",
         "login_form": LoginForm(),
         "signup_form": form,
-        "featured_artpost": get_featured_artpost(),  # ⭐️ این خط
+        "featured_artpost": get_featured_artpost(),
     })
 
 
