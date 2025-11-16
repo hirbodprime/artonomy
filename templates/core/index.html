@@ -1,8 +1,98 @@
+index.html
+
 {% extends "base.html" %}
+
 {% load static %}
 
+
+
 {% block page_content %}
+
 <style>
+
+/* ================================================= */
+/* 🚀 بهینه‌سازی ریسپانسیو با CSS Grid و Media Queries */
+/* ================================================= */
+
+.home-gallery {
+  display: grid;
+  /* موبایل (پیش‌فرض): تک ستونی */
+  grid-template-columns: repeat(1, 1fr);
+  gap: 20px; /* فاصله بین کارت‌ها */
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* تبلت‌های کوچک و بزرگتر (640px) */
+@media (min-width: 640px) {
+  .home-gallery {
+    /* دو ستون */
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* دسکتاپ و بزرگتر (1024px) */
+@media (min-width: 1024px) {
+  .home-gallery {
+    /* سه ستون */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 30px;
+  }
+}
+
+/* 🖼️ رفع مشکل نمایش تصویر و تنظیم نسبت تصویر (16:9) */
+.home-gallery-card img {
+  width: 100%;
+  /* استفاده از aspect-ratio برای مرورگرهای مدرن */
+  aspect-ratio: 16 / 9; 
+  height: auto; /* مهم برای سازگاری با aspect-ratio */
+  
+  /* اگر مرورگرهای قدیمی‌تر هدف شما هستند، خطوط بالا را کامنت کنید و از این استفاده کنید: */
+  /* height: 0; 
+  padding-bottom: 56.25%; 
+  */
+  
+  object-fit: cover;
+  border-radius: inherit;
+  /* اطمینان از دیده شدن */
+  display: block; 
+}
+
+
+/* 📝 بهینه‌سازی متون روی کارت برای فضای کمتر */
+.art-card-info {
+  padding: 10px 14px;
+}
+.art-card-title {
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.art-card-meta {
+  font-size: 12px;
+  line-height: 1.4;
+  /* نمایش حداکثر 2 خط */
+  max-height: 2.8em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* 📱 اطمینان از نمایش CTA در حالت تمام عرض موبایل */
+.home-gallery-item.signup-cta-item {
+  grid-column: 1 / -1; /* spans all columns */
+  flex:0 0 100%; /* overrides old flex properties */
+  max-width:100%;
+  margin-top:20px;
+}
+
+
+/* --- استایل‌های اصلی موجود (بدون تغییر) --- */
 .home-gallery-card.ad-card {
   position: relative;
   border: 1px dashed rgba(255,255,255,0.2);
@@ -78,7 +168,6 @@
 .home-gallery-card.ad-card .art-card-info {
   pointer-events: auto;
 }
-/* --- tiny, minimal signup CTA pill --- */
 /* --- refined minimal signup CTA card --- */
 .home-gallery-card.signup-cta-card{
   display:flex;
@@ -102,6 +191,7 @@
   margin:0 auto;
 
   box-shadow:0 4px 12px rgba(0,0,0,0.35);
+  pointer-events: auto; /* clicks ALWAYS work */
 }
 
 .signup-cta-text{
@@ -141,92 +231,18 @@
   background:rgba(255,255,255,0.1);
 }
 
-/* full width row in mobile */
-.home-gallery-item.signup-cta-item{
-  flex:0 0 100%;
-  max-width:100%;
-  margin-top:20px;
-}
-/* حتماً دکمه‌های CTA کلیک‌پذیر باشند */
-.home-gallery-card.signup-cta-card,
-.home-gallery-card.signup-cta-card * {
-  pointer-events: auto;
-  cursor: pointer;
-}
 /* --- CTA wrapper (safe, no conflicts) --- */
 .signup-cta-wrapper {
   width: 100%;
   display: flex;
   justify-content: center;
 }
-
-/* --- refined minimal signup CTA card --- */
-.signup-cta-card {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-
-  padding:14px 18px;
-  border-radius:18px;
-
-  background:rgba(15,23,42,0.55);
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
-
-  border:1px solid rgba(148,163,184,0.25);
-
-  color:#e5e7eb;
-  text-align:center;
-
-  max-width:420px;
-  margin:0 auto;
-
-  box-shadow:0 4px 12px rgba(0,0,0,0.35);
-
-  pointer-events: auto; /* clicks ALWAYS work */
-}
-
-.signup-cta-text{
-  font-size:13px;
-  margin-bottom:10px;
-  line-height:1.6;
-}
-
-.signup-cta-actions{
-  display:flex;
-  gap:8px;
-}
-
-.signup-cta-btn{
-  padding:5px 12px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:600;
-  text-decoration:none;
-
-  border:1px solid rgba(248,250,252,0.9);
-  color:#0f172a;
-  background:#f9fafb;
-}
-
-.signup-cta-btn--ghost{
-  background:transparent;
-  color:#e5e7eb;
-  border-color:rgba(148,163,184,0.6);
-}
-
-/* full-width row mobile */
-.home-gallery-item.signup-cta-item{
-  flex:0 0 100%;
-  max-width:100%;
-  margin-top:20px;
-}
-
 </style>
 
+
+
 <div class="vertical-portfolio_wrap" id="port-scroll">
-  <div class="home-gallery big-padding">
+  <div class="home-gallery">
     
     {% for slot in homepage_slots %}
       {% if slot.kind == "profile" %}
@@ -253,7 +269,8 @@
     {% if profile.story_subtitle %}
       {{ profile.story_subtitle }}
     {% elif profile.story_paragraph_1 %}
-      {{ profile.story_paragraph_1|truncatechars:80 }}
+      {# 🌟 کوتاه‌سازی متن به 35 کاراکتر برای نمایش بهتر در موبایل #}
+      {{ profile.story_paragraph_1|truncatechars:35 }} 
     {% else %}
       هنرمند در آرتونومی
     {% endif %}
@@ -293,7 +310,8 @@
   <div class="art-card-meta">
     {% if ad.subtitle %}
       <div style="margin-bottom:6px;">
-        {{ ad.subtitle }}
+        {# 🌟 کوتاه‌سازی زیرنویس تبلیغ به 45 کاراکتر #}
+        {{ ad.subtitle|truncatechars:45 }} 
       </div>
     {% endif %}
 
@@ -347,6 +365,7 @@
     {% endfor %}
 
   </div>
+{# ----------------- CTA برای کاربران مهمان ----------------- #}
 {% if not request.user.is_authenticated %}
   <div class="home-gallery-item signup-cta-item">
     <div class="signup-cta-wrapper">
