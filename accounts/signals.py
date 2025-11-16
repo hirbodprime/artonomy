@@ -7,9 +7,10 @@ User = get_user_model()
 @receiver(post_save, sender=User)
 def ensure_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.get_or_create(user=instance, defaults={"role": "normal"})
-
-
+        Profile.objects.get_or_create(
+            user=instance,
+            defaults={"role": "normal", "stars": 0}  # 👈 added stars=0
+        )
 def _touch_profile(instance):
     profile = getattr(instance, "profile", None)
     if profile:

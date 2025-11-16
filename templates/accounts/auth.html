@@ -458,6 +458,17 @@
                             {% endif %}
                         </div>
 <div class="field">
+  <label for="{{ signup_form.ref_code.id_for_label }}">کد دعوت‌نامه (اختیاری)</label>
+  {{ signup_form.ref_code }}
+  {% if signup_form.errors.ref_code %}
+    <div style="color:#ffb4b4; font-size:12px; margin-top:6px;">
+      {{ signup_form.errors.ref_code.0 }}
+    </div>
+  {% endif %}
+</div>
+
+
+<div class="field">
 <label>نوع عضویت</label>
   <div style="display:grid; gap:8px; font-size:14px; color:var(--text-2);">
     {% for value, label in signup_form.fields.role.choices %}

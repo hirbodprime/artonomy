@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load static dict_extras %}
 {% block page_content %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+{% endblock css %}
 <script>
 (function () {
   try {
@@ -11,1182 +15,7 @@
 })();
 </script>
 
-<style>
-  .field-error[data-upload-error]{
-  margin-top:6px;
-}
 
-/* ============ پایه (Mobile-first) ============ */
-:root{
-  --bg-0:#f4f6fa;--page-bg:#f4f6fa;--panel:#fff;--panel-2:#f8f9fa;
-  --text:#1f2733;--muted:#6b7a90;--accent:#1e3a8a;--accent-2:#3b82f6;
-  --border:1px solid #e2e8f0;--radius:10px;--shadow:0 4px 12px rgba(0,0,0,.04);
-  --header-h:72px;--footer-h:120px;--sidebar-w:240px;
-  --container-max:1400px;
-}
-*{box-sizing:border-box}
-
-/* ==== Dark theme overrides (html[data-theme="dark"]) ==== */
-:root[data-theme="dark"]{
-  --bg-0:#020617;
-  --page-bg:#020617;
-  --panel:#020617;
-  --panel-2:#020617;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
-  --accent:#38bdf8;
-  --accent-2:#0ea5e9;
-  --border:1px solid #1f2937;
-  --shadow:0 10px 30px rgba(0,0,0,.6);
-}
-
-/* Global dark tweaks */
-html[data-theme="dark"],
-html[data-theme="dark"] body{
-  background:var(--page-bg);
-  color:var(--text);
-}
-
-/* Panels / cards */
-html[data-theme="dark"] .panel{
-  background:var(--panel);
-  border:var(--border);
-  box-shadow:var(--shadow);
-}
-
-/* Formsets / gallery cards */
-html[data-theme="dark"] .formset{
-  background:#020617;
-  border:1px solid #1f2937;
-  box-shadow:0 2px 10px rgba(0,0,0,.6);
-}
-html[data-theme="dark"] .gallery-wrapper{
-  background:#020617;
-  border-color:#1f2937;
-}
-html[data-theme="dark"] .gallery-item{
-  background:#020617;
-  border-color:#1f2937;
-}
-
-/* Inputs */
-html[data-theme="dark"] input[type="text"],
-html[data-theme="dark"] input[type="url"],
-html[data-theme="dark"] input[type="number"],
-html[data-theme="dark"] input[type="file"],
-html[data-theme="dark"] select,
-html[data-theme="dark"] textarea{
-  background:#020617;
-  border:1px solid #1f2937;
-  color:var(--text);
-}
-
-html[data-theme="dark"] input:focus,
-html[data-theme="dark"] textarea:focus,
-html[data-theme="dark"] select:focus{
-  border-color:var(--accent-2);
-  box-shadow:0 0 0 1px rgba(56,189,248,.5);
-}
-
-/* Chips / muted text */
-html[data-theme="dark"] .muted{
-  color:#9ca3af;
-}
-html[data-theme="dark"] .chip{
-  background:#020617;
-  border:1px solid #1f2937;
-  color:#9ca3af;
-}
-html[data-theme="dark"] .chip--todo{
-  background:rgba(37,99,235,.2);
-  border-color:#4f46e5;
-  color:#e5e7eb;
-}
-
-/* Side menu, scrim */
-html[data-theme="dark"] .side{
-  background:#020617;
-  border-color:#1f2937;
-}
-html[data-theme="dark"] .scrim{
-  background:rgba(15,23,42,.8);
-}
-
-/* Password field / wrappers */
-html[data-theme="dark"] .panel-security .password-field{
-  background:#020617;
-  border-color:#1f2937;
-}
-html[data-theme="dark"] .password-wrapper{
-  background:#020617;
-  border-color:#1f2937;
-}
-
-/* Alert boxes */
-html[data-theme="dark"] .alert-error{
-  background:#7f1d1d;
-  border-color:#fca5a5;
-  color:#fee2e2;
-}
-html[data-theme="dark"] .alert-success{
-  background:#064e3b;
-  border-color:#34d399;
-  color:#ecfdf5;
-}
-
-/* Advertisement panel dark mode */
-html[data-theme="dark"] .tab-panel[data-tab="advertisement"]{
-  background:#020617;
-  color:var(--text);
-}
-html[data-theme="dark"] .tab-panel[data-tab="advertisement"] > div:first-child{
-  border-bottom-color:#1f2937 !important;
-}
-html[data-theme="dark"] .tab-panel[data-tab="advertisement"] [style*="background-color: #4f46e5"]{
-  background-color:#1d4ed8 !important;
-}
-html[data-theme="dark"] .tab-panel[data-tab="advertisement"] [style*="background-color: #eef2ff"]{
-  background-color:#0f172a !important;
-  color:#e5e7eb !important;
-}
-
-html{scroll-behavior:smooth}
-body{background:var(--page-bg);color:var(--text);line-height:1.5}
-
-/* تایپوگرافی و ورودی‌ها */
-body,input,select,textarea,button{font-size:clamp(14px,1.8vw,15px)}
-label{font-weight:600;display:block;margin-bottom:6px}
-input[type="text"],input[type="url"],input[type="number"],input[type="file"],select,textarea{
-  width:100%;background:var(--panel-2);color:var(--text);
-  border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;outline:none;font-size:14px
-}
-input:focus,textarea:focus,select:focus{border-color:var(--accent-2);box-shadow:0 0 0 1px var(--accent-2)}
-textarea{resize:vertical}
-input[type="checkbox"][name$="-DELETE"]{display:none!important}
-
-/* دکمه‌ها */
-.btn{appearance:none;border:1px solid transparent;cursor:pointer;padding:12px 20px;border-radius:8px;font-weight:700;color:#fff;background:var(--accent)}
-.btn:hover{background:color-mix(in srgb,var(--accent),black 10%)}
-.btn-ghost{background:none;color:var(--muted);border:1px solid #e2e8f0;font-weight:600}
-.btn-ghost:hover{background:var(--panel-2);color:var(--text)}
-
-/* تراشه‌ها */
-.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:var(--panel-2);border:1px solid #e2e8f0;color:var(--muted);font-size:13px;font-weight:600}
-.del-chip{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;color:#ef4444;background:#fee2e2;border:1px solid #fecaca;cursor:pointer;font-weight:700;font-size:14px;margin-top:2px}
-.row-deleting{opacity:.6;filter:saturate(.6);background:#fef2f2;border-radius:8px;padding:10px;margin:-10px -10px 10px}
-
-/* پنل/کارت */
-.panel{background:var(--panel);border:var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
-.panel h3{margin:0 0 14px;font-size:clamp(16px,2.4vw,18px);font-weight:800;color:var(--text)}
-.muted{color:var(--muted);font-size:12px}
-
-/* نوار پیشرفت */
-.progress-wrap{margin-top:12px}
-.progress-outer{width:100%;height:10px;border-radius:999px;background:var(--panel-2);border:1px solid #e2e8f0;overflow:hidden}
-.progress-inner{height:100%;border-radius:999px;background:var(--accent-2);transition:width .4s ease}
-
-/* پیش‌نمایش‌ها */
-.preview{width:100%;max-width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0;display:block;margin-top:8px}
-.preview--logo{width:auto;max-width:120px;aspect-ratio:auto;border-radius:8px}
-
-/* شبکه عمومی (mobile-first) */
-.row{display:grid;gap:16px;margin-bottom:16px;grid-template-columns:1fr}
-.row-3{display:grid;gap:16px;margin-bottom:16px;grid-template-columns:1fr}
-.row-4{display:grid;gap:16px;margin-bottom:16px;grid-template-columns:1fr}
-@media (min-width:560px){ .row{grid-template-columns:repeat(2,minmax(0,1fr))} }
-@media (min-width:1200px){ .row-3{grid-template-columns:repeat(3,minmax(0,1fr))} .row-4{grid-template-columns:repeat(4,minmax(220px,1fr))} }
-
-/* گالری */
-.gallery-wrapper,.gallery-forms,.gallery-item{width:100%}
-.gallery-item{display:grid;grid-template-columns:1fr;gap:16px;border:1px dashed #e2e8f0;padding:16px;border-radius:10px;margin-bottom:12px}
-@media (min-width:900px){ .gallery-item{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)} }
-
-/* --------- لایه‌بندی داشبورد و سایدبار --------- */
-.dash{
-  display:grid;gap:16px;padding:16px;
-  margin-top:calc(var(--header-h) + 12px);
-  padding-bottom:calc(var(--footer-h) + 24px);
-  max-width:var(--container-max);margin-inline:auto;
-  grid-template-columns:1fr;grid-template-areas:"main";
-}
-.side{grid-area:side}
-.main{grid-area:main}
-
-@media (min-width:900px){
-  .dash{
-    grid-template-columns:var(--sidebar-w) 1fr;
-    grid-template-areas:"side main";
-    gap:24px;
-  }
-}
-
-/* دکمه همبرگر: فقط موبایل */
-.side-toggle{
-  position:fixed;
-  top:12px;
-  inset-inline-end:12px;
-  z-index:105;
-  display:flex;align-items:center;justify-content:flex-end;
-}
-.side-toggle .btn-ghost{padding:10px 14px;border-radius:10px}
-@media (min-width:900px){ .side-toggle{display:none} }
-
-/* سایدبار موبایل: از راست باز شود */
-.side{
-  position:fixed; top:0; bottom:0; inset-inline-end:0;
-  width:min(86vw,320px);
-  background:var(--panel);
-  border-inline-start:none;
-  box-shadow:none;
-  padding:16px 12px;
-  transform:translateX(calc(100% + 16px));
-  transition:transform .25s ease, border .0s, box-shadow .0s;
-  z-index:110; overflow:auto;
-  will-change:transform;
-}
-.side.is-open{
-  transform:translateX(0);
-  border-inline-start:var(--border);
-  box-shadow:0 10px 30px rgba(0,0,0,.14);
-}
-@media (min-width:900px){
-  .side{
-    position:sticky;inset:auto;top:calc(var(--header-h) + 24px);
-    height:auto;width:auto;transform:none;box-shadow:none;z-index:1;
-    border-inline-start:none;border-inline-end:1px solid #e2e8f0;
-  }
-}
-
-/* اوورلی (فقط موبایل) */
-.scrim{
-  position:fixed;inset:0;background:rgba(0,0,0,.42);
-  backdrop-filter:saturate(110%) blur(1px);
-  opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:109;
-}
-.scrim.is-open{opacity:1;pointer-events:auto}
-@media (min-width:900px){ .scrim{display:none} }
-
-/* تب‌های ساید */
-.side h4{margin:8px 10px 16px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
-.tabs{display:flex;flex-direction:column;padding:0;margin:0;list-style:none}
-.tabs a{display:flex;gap:10px;align-items:center;padding:10px 14px;margin:2px 0;border-radius:8px;color:var(--text);text-decoration:none;border:1px solid.transparent;font-size:14px;font-weight:600;transition:background-color .2s}
-.tabs a:hover{background:var(--panel-2)}
-.tabs a[aria-current="page"]{background:var(--panel-2);color:var(--accent)}
-
-/* فرم‌ست‌ها */
-.formset{border:var(--border);border-radius:12px;padding:16px;background:var(--panel-2);margin-bottom:20px}
-.formset .hr{height:2px;background:#94a3b8;opacity:1;margin:18px 0;position:relative}
-.formset .hr::after{content:"";display:block;height:0;border-top:1px solid #cbd5e1;transform:translateY(-2px)}
-.formset .hr.hr-accent{height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-2));opacity:.7}
-.actions{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
-.actions .btn{min-width:140px}
-@media (max-width:560px){ .actions .btn{width:100%} }
-html, body{ overflow-x:hidden }
-
-/* همبرگر – جای دقیق */
-
-/* ========== Sidebar close button fix ========== */
-.side-close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;          /* ensure it's on the visible edge */
-  left: auto;
-  z-index: 999999;      /* bring above everything inside sidebar */
-  
-  background: #ffffff;  /* visible against white/gray panels */
-  border: 1px solid #d1d5db;
-  color: #111827;       /* dark X */
-  
-  border-radius: 999px;
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 1;
-  padding: 8px 12px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.side.is-open .side-close-btn {
-  display: block !important;  /* make sure it appears when sidebar is open */
-}
-
-@media (min-width: 901px) {
-  .side-close-btn { display: none !important; } /* hide on desktop */
-}
-
-/* خنثی‌سازی transform قدیمی و استفاده از right */
-.side{
-  transform:none !important;
-  right:-120vw; transition:right .25s.ease !important;
-}
-.side.is-open{ right:0; }
-
-@media (min-width:900px){
-  .dash{ align-items:start; }
-  .side{
-    position: sticky;
-    top: calc(var(--header-h) + 24px);
-    right:auto; left:auto;
-    max-height: calc(100vh - (var(--header-h) + 32px));
-    overflow: auto;
-    z-index: 0;
-    box-shadow: none;
-  }
-  footer{ position:relative; z-index:2; }
-}
-.scrim{ z-index:109; }
-
-/* نوار ذخیره بالای هر سکشن */
-.actions--top{
-  position: sticky;
-  top: calc(var(--header-h) + 8px);
-  z-index: 3;
-  background: var(--panel);
-  padding: 10px 0 12px;
-  margin: -6px -2px 12px;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-@media (max-width:560px){
-  .actions--top .btn{ width:100%; }
-}
-.panel > .actions:last-child{ margin-top:16px; }
-
-/* بنر وضعیت ساب/تریال */
-.sub-banner{
-  margin-bottom:12px;
-  padding:10px 12px;
-  border-radius:10px;
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  font-size:13px;
-}
-.sub-banner strong{font-weight:800;}
-.sub-banner--trial{
-  background:#ecfdf3;
-  border:1px solid #bbf7d0;
-  color:#166534;
-}
-.sub-banner--paid{
-  background:#eff6ff;
-  border:1px solid #bfdbfe;
-  color:#1d4ed8;
-}
-.sub-banner--expired{
-  background:#fef2f2;
-  border:1px solid #fecaca;
-  color:#b91c1c;
-}
-.sub-banner .btn-mini{
-  padding:6px 10px;
-  border-radius:999px;
-  border:1px solid currentColor;
-  background:transparent;
-  font-size:12px;
-  font-weight:700;
-  cursor:pointer;
-}
-
-/* Tabs disabled state when premium is not available */
-.tabs a.is-disabled{
-  opacity:.4;
-  pointer-events:none;
-  cursor:not-allowed;
-}
-
-/* پنل امنیت + فیلد رمز */
-.panel-security .password-field{
-  background: var(--panel-2);
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  padding: 10px 12px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.panel-security .password-label-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  margin-bottom:4px;
-}
-.panel-security .password-label-row label{
-  margin:0;
-  font-weight:700;
-  font-size:13px;
-}
-.field-tag{
-  font-size:11px;
-  padding:4px 8px;
-  border-radius:999px;
-  background:rgba(148,163,184,.1);
-  color:#64748b;
-  border:1px solid rgba(148,163,184,.4);
-}
-.field-tag--accent{
-  background:rgba(59,130,246,.05);
-  color:#1d4ed8;
-  border-color:rgba(59,130,246,.4);
-}
-.password-wrapper{
-  position:relative;
-  display:flex;
-  align-items:center;
-  border-radius:10px;
-  border:1px solid #e2e8f0;
-  background:#fff;
-  padding-inline:10px;
-  transition:border-color .2s.ease, box-shadow .2s.ease, background-color .2s.ease;
-}
-.panel-security .password-wrapper input{
-  border:none;
-  background:transparent;
-  padding:10px 0;
-  width:100%;
-  outline:none;
-  box-shadow:none;
-}
-.password-wrapper:focus-within{
-  border-color:var(--accent-2);
-  box-shadow:0 0 0 1px rgba(59,130,246,.25);
-  background:#f9fbff;
-}
-.toggle-password{
-  position:absolute;
-  inset-inline-end:6px;
-  background:none;
-  border:none;
-  cursor:pointer;
-  color:var(--muted);
-  font-size:16px;
-  padding:4px 6px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:999px;
-  transition:background-color .15s.ease, color .15s.ease, transform .1s.ease;
-}
-.toggle-password:hover{
-  background:rgba(148,163,184,.2);
-  color:var(--text);
-}
-.toggle-password:active{
-  transform:scale(.94);
-}
-.field-error{
-  color:#b91c1c;
-  font-size:12px;
-  margin-top:4px;
-}
-.field-help{
-  color:var(--muted);
-  font-size:11px;
-  margin-top:4px;
-}
-.alert-error{
-  background:#fef2f2;
-  border:1px solid #fecaca;
-  color:#b91c1c;
-  border-radius:10px;
-  padding:8px 10px;
-  font-size:12px;
-  margin-bottom:10px;
-}
-.alert-success {
-  background: #ecfdf5;
-  border: 1px solid #6ee7b7;
-  color: #065f46;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  animation: fadeIn 0.5s ease;
-}
-.alert-success i {
-  color: #059669;
-  font-size: 15px;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* 🎨 فرم‌ست‌ها و گالری */
-.panel h3 {
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-.panel .muted {
-  color: var(--muted, #6b7280);
-  font-size: 13px;
-  margin-bottom: 16px;
-}
-.formset {
-  background: var(--panel-2, #f9fafb);
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 18px 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,.04);
-  transition: all .2s ease;
-}
-.formset:hover {
-  border-color: var(--accent-2, #3b82f6);
-  box-shadow: 0 4px 12px rgba(0,0,0,.06);
-}
-.formset + .formset {
-  margin-top: 24px;
-}
-.formset h4 {
-  font-weight: 700;
-  font-size: 15px;
-  margin: 10px 0 8px;
-  color: var(--text, #111827);
-}
-.hr-accent {
-  border: none;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(59,130,246,.15), rgba(59,130,246,.05) 80%);
-  margin: 16px 0;
-}
-.fsrow {
-  display: grid;
-  gap: 14px;
-  margin-bottom: 12px;
-}
-.row {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-.row-4 {
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-}
-.formset label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--text, #111827);
-}
-.formset input[type="text"],
-.formset input[type="number"],
-.formset select,
-.formset textarea {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  font-size: 13px;
-  transition: border-color .2s ease, box-shadow .2s ease;
-}
-.formset input:focus,
-.formset select:focus,
-.formset textarea:focus {
-  border-color: var(--accent-2, #3b82f6);
-  box-shadow: 0 0 0 1px rgba(59,130,246,.2);
-  outline: none;
-}
-.del-chip {
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all .2s.ease;
-}
-.del-chip:hover {
-  background: #fecaca;
-  color: #7f1d1d;
-}
-.gallery-wrapper {
-  margin-top: 10px;
-  background: #fff;
-  border: 1px dashed #d1d5db;
-  border-radius: 10px;
-  padding: 14px;
-}
-.gallery-item {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
-  display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 14px;
-}
-.gallery-item img.preview {
-  width: 100%;
-  max-width: 200px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  margin-top: 6px;
-}
-.gallery-wrapper .btn-ghost {
-  margin-top: 8px;
-  background: rgba(59,130,246,.08);
-  border: 1px dashed var(--accent-2, #3b82f6);
-  color: var(--accent-2, #3b82f6);
-  font-size: 13px;
-  padding: 6px 10px;
-  border-radius: 8px;
-  transition: all .2s.ease;
-}
-.gallery-wrapper .btn-ghost:hover {
-  background: var(--accent-2, #3b82f6);
-  color: #fff;
-  border-style: solid;
-}
-.actions {
-  margin-top: 24px;
-  text-align: left;
-}
-.actions .btn {
-  background: linear-gradient(90deg, #3b82f6, #2563eb);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all .2s.ease;
-}
-.actions .btn:hover {
-  background: linear-gradient(90deg, #2563eb, #1d4ed8);
-  transform: translateY(-1px);
-}
-
-/* مسیر طولانی فایل در گالری‌ها */
-.gallery-item span.clearable-file-input {
-  display: block;
-  max-width: 100%;
-  font-size: 11px;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  white-space: normal;
-  direction: ltr;
-  text-align: left;
-}
-.gallery-item {
-  overflow: hidden;
-}
-  .todo-chips{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:8px;
-  }
-  .chip--todo{
-    background:#eff6ff;
-    border:1px solid #bfdbfe;
-    color:#1d4ed8;
-    cursor:pointer;
-    text-decoration:none;
-  }
-  .chip--todo:hover{
-    background:#dbeafe;
-  }
-/* ==== Advertisement tab v2 ==== */
-.ad-wrap{
-  margin-top:12px;
-  border-radius:20px;
-  background:linear-gradient(135deg,#eef2ff,#f9fafb);
-  border:1px solid #e5e7eb;
-  box-shadow:0 10px 30px rgba(15,23,42,.05);
-  padding:18px 18px 20px;
-}
-
-.ad-meta-row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:16px;
-  flex-wrap:wrap;
-}
-.ad-badge-main{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:5px 12px;
-  border-radius:999px;
-  background:#111827;
-  color:#f9fafb;
-  font-size:11px;
-  font-weight:700;
-}
-.ad-badge-main i{
-  font-size:12px;
-}
-
-.ad-chip-group{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-}
-.ad-chip{
-  padding:4px 10px;
-  border-radius:999px;
-  background:rgba(15,23,42,.04);
-  border:1px solid rgba(148,163,184,.5);
-  font-size:11px;
-  color:#4b5563;
-}
-
-/* main layout */
-.ad-layout{
-  display:grid;
-  grid-template-columns:1.4fr 1.3fr;
-  gap:18px;
-}
-@media (max-width:900px){
-  .ad-layout{
-    grid-template-columns:1fr;
-  }
-}
-
-/* left: benefits */
-.ad-benefits{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.ad-benefit-card{
-  display:flex;
-  gap:10px;
-  padding:10px 12px;
-  border-radius:14px;
-  background:#ffffff;
-  border:1px dashed #d1d5db;
-  align-items:flex-start;
-}
-.ad-benefit-icon{
-  width:32px;
-  height:32px;
-  border-radius:999px;
-  background:#2563eb;
-  color:#f9fafb;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:14px;
-  flex-shrink:0;
-}
-.ad-benefit-body strong{
-  display:block;
-  margin-bottom:3px;
-  font-size:13px;
-}
-.ad-benefit-body span{
-  font-size:12px;
-  color:#6b7280;
-}
-
-/* right: CTA card */
-.ad-cta{
-  background:#ffffff;
-  border-radius:18px;
-  padding:16px 16px 14px;
-  border:1px solid #d1d5db;
-  position:relative;
-  overflow:hidden;
-}
-.ad-cta::before{
-  content:"";
-  position:absolute;
-  inset:-40%;
-  background:radial-gradient(circle at top left,rgba(37,99,235,.12),transparent 60%);
-  opacity:.8;
-  pointer-events:none;
-}
-.ad-cta-inner{
-  position:relative;
-  z-index:1;
-}
-.ad-cta-header{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:8px;
-}
-.ad-cta-title{
-  font-weight:800;
-  font-size:15px;
-}
-.ad-cta-sub{
-  font-size:12px;
-  color:#6b7280;
-}
-.ad-cta-icon{
-  width:40px;
-  height:40px;
-  border-radius:14px;
-  background:#2563eb;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#f9fafb;
-  font-size:20px;
-}
-
-.ad-cta-contact{
-  margin-top:10px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  align-items:center;
-}
-.ad-cta-phone{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 14px;
-  border-radius:999px;
-  background:#020617;
-  color:#f9fafb;
-  font-weight:700;
-  font-size:13px;
-  direction:ltr;
-  text-decoration:none;
-}
-.ad-cta-phone i{
-  font-size:14px;
-}
-.ad-cta-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-.ad-cta-actions .btn{
-  padding:8px 14px;
-  border-radius:999px;
-  font-size:12px;
-}
-.ad-cta-actions .btn-ghost{
-  border-radius:999px;
-  padding:8px 12px;
-  font-size:12px;
-}
-.ad-cta-email-pill{
-  margin-top:8px;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:7px 12px;
-  border-radius:999px;
-  background:#f3f4ff;
-  border:1px solid #c7d2fe;
-  font-size:12px;
-  color:#1d4ed8;
-  direction:ltr;
-}
-.ad-cta-email-pill a{
-  color:inherit;
-  text-decoration:none;
-}
-
-/* footnote */
-.ad-footnote{
-  margin-top:8px;
-  font-size:11px;
-  color:#6b7280;
-}
-/* ===== Force dashboard mobile side menu button visible ===== */
-/* ===== FINAL: Dashboard mobile side menu button ===== */
-/* ===== FINAL: dashboard mobile side menu button ===== */
-@media (max-width: 900px) {
-  .side-toggle{
-    position: fixed;
-    top: calc(var(--header-h) + 36px);  /* ⬅️ moved lower */
-    right: 16px;
-    left: auto;
-
-    display: flex !important;
-    align-items: center;
-    justify-content: flex-end;
-
-    z-index: 99999;
-    pointer-events: auto;
-  }
-
-  .side-toggle .btn-ghost{
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 999px;
-    padding: 10px 16px;
-    min-width: 80px;
-
-    font-size: 14px;
-    font-weight: 700;
-    color: #111827;
-    line-height: 1;
-    box-shadow: 0 8px 24px rgba(15,23,42,.18);
-  }
-}
-
-
-/* hide the button on desktop (we keep sidebar always visible there) */
-@media (min-width: 901px) {
-  .side-toggle{
-    display: none !important;
-  }
-}
-
-@media (max-width: 900px) {
-  .side-close-btn{
-    top: calc(var(--header-h) + 12px); /* 72px header + 12px gap */
-  }
-}
-/* === FINAL override for mobile close button === */
-/* === FINAL: close X aligned with first tab (mobile) === */
-@media (max-width: 900px) {
-  .side-close-btn {
-    position: absolute !important;
-    /* vertical: roughly at the first tab row */
-    top: 56px !important;                 /* tweak 50–70px if needed */
-
-    /* put it on the opposite side of tabs */
-    inset-inline-start: 12px !important;  /* in RTL: left side */
-    inset-inline-end: auto !important;
-
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-
-    width: 28px;
-    height: 28px;
-    padding: 0;
-
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    border-radius: 999px;
-    font-size: 18px;
-    font-weight: 700;
-    color: #111827;
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    z-index: 999999;
-  }
-
-  /* hide X while menu is closed */
-  .side:not(.is-open) .side-close-btn {
-    display: none !important;
-  }
-}
-
-/* still hide completely on desktop */
-@media (min-width: 901px) {
-  .side-close-btn {
-    display: none !important;
-  }
-}
-/* === Sidebar position fix (avoid header overlap) === */
-@media (max-width: 900px) {
-  .side {
-    position: fixed;
-    top: var(--header-h);                 /* start below the header */
-    height: calc(100vh - var(--header-h));/* fill rest of screen */
-    z-index: 99990;
-    background: var(--panel, #fff);
-    box-shadow: 0 4px 24px rgba(0,0,0,.1);
-  }
-
-  /* make sure sidebar content is scrollable */
-  .side nav.tabs {
-    padding-top: 8px; /* small breathing room below header */
-    overflow-y: auto;
-    max-height: calc(100vh - var(--header-h) - 40px);
-  }
-}
-/* === Move X to the opposite side (right side, aligned with first tab) === */
-@media (max-width: 900px) {
-  .side-close-btn {
-    position: absolute !important;
-    top: 36px !important;                /* aligns with first tab */
-    inset-inline-end: 12px !important;  /* move to right side */
-    inset-inline-start: auto !important;
-
-    width: 28px;
-    height: 28px;
-    padding: 0;
-
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    border-radius: 999px;
-    font-size: 18px;
-    font-weight: 700;
-    color: #111827;
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    z-index: 999999;
-  }
-}
-.theme-toggle-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  padding:8px 14px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700;
-  border:1px solid #e5e7eb;
-  background:#ffffff;
-  color:#111827;
-  cursor:pointer;
-  box-shadow:0 4px 16px rgba(15,23,42,.15);
-}
-.theme-toggle-btn:hover{
-  background:#f3f4f6;
-}
-
-html[data-theme="dark"] .theme-toggle-btn{
-  background:#020617;
-  border-color:#1f2937;
-  color:#e5e7eb;
-  box-shadow:0 6px 20px rgba(0,0,0,.7);
-}
-html[data-theme="dark"] .theme-toggle-btn:hover{
-  background:#111827;
-}
-
-/* فقط روی دسکتاپ: دکمه تم داخل سایدبار */
-@media (max-width: 900px){
-  .side .theme-toggle-btn{
-    display:none !important;
-  }
-}
-  .locked-section{
-    text-align:center;
-    padding:48px 20px;
-    border-radius:16px;
-    border:1px dashed rgba(148,163,184,.6);  /* خط خاکستری روشن روی دارک */
-    background:rgba(15,23,42,.9);            /* پس‌زمینه تیره شیشه‌ای */
-    color:#e5e7eb;                            /* متن روشن */
-  }
-
-  .locked-section p{
-    margin:0 0 8px;
-  }
-
-  .locked-section-title{
-    font-size:1.1rem;
-    font-weight:600;
-    margin-bottom:12px;
-  }
-
-  .locked-section-sub{
-    font-size:.9rem;
-    color:#cbd5f5;
-  }
-
-  .locked-section-progress{
-    font-size:.9rem;
-  }
-
-  .locked-section .btn{
-    margin-top:16px;
-  }
-  .not-verified-box,
-.verified-box {
-  padding: 18px;
-  border-radius: 12px;
-  background: rgba(15,23,42,.6);
-  border: 1px solid rgba(255,255,255,.12);
-  color: #e5e7eb;
-  margin-bottom: 16px;
-}
-/* کادر کد ۶ رقمی – مناسب برای هر دو تم */
-.panel-security .verify-code-input{
-  width: 100%;
-  border: 1px solid #e2e8f0;
-  background: var(--panel-2);
-  color: var(--text);
-}
-
-/* دارک‌مود برای کد ۶ رقمی */
-html[data-theme="dark"] .panel-security .verify-code-input{
-  background:#020617;
-  border-color:#1f2937;
-  color:#e5e7eb;
-}
-
-/* placeholder کد در دارک‌مود (اختیاری) */
-html[data-theme="dark"] .panel-security .verify-code-input::placeholder{
-  color:rgba(148,163,184,.8);
-}
-.not-verified-box,
-.verified-box {
-  padding: 18px;
-  border-radius: 12px;
-  background: rgba(248,250,252,.9);
-  border: 1px solid #e5e7eb;
-  color: #0f172a;
-  margin-bottom: 16px;
-}
-
-/* نسخه دارک این باکس‌ها */
-html[data-theme="dark"] .not-verified-box,
-html[data-theme="dark"] .verified-box {
-  background: rgba(15,23,42,.6);
-  border-color: rgba(255,255,255,.12);
-  color: #e5e7eb;
-}
-
-/* فقط در دارک‌مود: ورودی‌های پسورد داخل پنل امنیت */
-html[data-theme="dark"] .panel-security .password-wrapper input[type="password"],
-html[data-theme="dark"] .panel-security .password-wrapper input[type="text"]{
-  background:#020617;
-  color:#e5e7eb;
-  caret-color:#e5e7eb;
-}
-
-/* placeholder در دارک‌مود */
-html[data-theme="dark"] .panel-security ::placeholder{
-  color:rgba(148,163,184,.8);
-}
-/* === Sidebar position + scroll on mobile === */
-@media (max-width: 900px) {
-  .side {
-    position: fixed;
-    top: var(--header-h);
-    inset-inline-end: 0;
-    height: calc(100vh - var(--header-h));
-    z-index: 99990;
-    background: var(--panel, #fff);
-    box-shadow: 0 4px 24px rgba(0,0,0,.1);
-
-    /* ⬇⬇ اسکرول فقط برای موبایل */
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 24px;
-  }
-
-  .side nav.tabs {
-    padding-top: 8px;
-    /* دیگه روی خود tabs محدودیت اسکرول نمی‌ذاریم */
-    overflow: visible;
-    max-height: none;
-  }
-}
-
-</style>
 
 <div class="dash">
 
@@ -1266,17 +95,19 @@ html[data-theme="dark"] .panel-security ::placeholder{
          aria-current="{% if active_tab == 'clients' %}page{% else %}false{% endif %}">
         لوگو مشتریان
       </a> -->
-          <a href="?tab=advertisement" data-tab="advertisement"
-       aria-current="{% if active_tab == 'advertisement' %}page{% else %}false{% endif %}">
-      تبلیغات در آرتونومی
-    </a>
-        <a href="?tab=security"
-           data-tab="security"
-           aria-current="{% if active_tab == 'security' %}page{% else %}false{% endif %}">
-          امنیت حساب / تغییر رمز
-        </a>
+  <a href="?tab=spotlight"
+     data-tab="spotlight"
+     aria-current="{% if active_tab == 'spotlight' %}page{% else %}false{% endif %}">
+    اسپات‌لایت و ستاره‌ها
+  </a>
       {% else %}
-        {# 👇 کاربر عادی: فقط تب امنیت #}
+
+      <a href="?tab=spotlight"
+     data-tab="spotlight"
+     aria-current="{% if active_tab == 'spotlight' %}page{% else %}false{% endif %}">
+    دعوت دوستان و ستاره‌ها
+  </a>
+      {% endif %}
         <a href="?tab=security"
            data-tab="security"
            aria-current="page">
@@ -1286,8 +117,14 @@ html[data-theme="dark"] .panel-security ::placeholder{
        aria-current="{% if active_tab == 'advertisement' %}page{% else %}false{% endif %}">
       تبلیغات در آرتونومی
     </a>
-    
-      {% endif %}
+            <a href="?tab=support"
+           data-tab="support"
+           aria-current="{% if active_tab == 'support' %}page{% else %}false{% endif %}">
+          پشتیبانی / تیکت‌ها
+        </a>
+
+
+
     </nav>
   </aside>
 
@@ -2339,6 +1176,251 @@ html[data-theme="dark"] .panel-security ::placeholder{
           <button class="btn" type="submit">ذخیره تغییرات رمز عبور</button>
         </div>
       </section>
+      <!-- SUPPORT TAB -->
+      <section class="panel tab-panel"
+               data-tab="support"
+               {% if active_tab != 'support' %}style="display:none"{% endif %}>
+
+        <h3>پشتیبانی و تیکت‌ها</h3>
+        <p class="muted">
+          اگر باگی در سایت دیدید، مشکلی در داشبورد داشتید یا پیشنهادی برای بهبود آرتونومی دارید،
+          از این بخش می‌توانید تیکت ثبت کنید.
+        </p>
+
+        <div class="formset" style="margin-top:16px">
+          <div class="row fsrow">
+            <div>
+              <label>موضوع</label>
+              {{ support_form.subject }}
+            </div>
+          </div>
+          <div class="row fsrow">
+            <div>
+              <label>توضیح مشکل / درخواست</label>
+              {{ support_form.message }}
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">ارسال تیکت جدید</button>
+          </div>
+        </div>
+
+        {% if tickets %}
+          <div class="hr" style="margin-top:24px"></div>
+          <h4 style="margin:16px 0 8px;font-size:15px;font-weight:700;">تیکت‌های قبلی شما</h4>
+
+          {% for t in tickets %}
+            <div class="formset" style="margin-top:12px">
+              <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                <div style="font-weight:700;font-size:14px;">
+                  {{ t.subject }}
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;font-size:11px;">
+                  <span class="chip" style="font-size:11px;">
+                    وضعیت:
+                    {% if t.status == "open" %}باز
+                    {% elif t.status == "answered" %}پاسخ داده شده
+                    {% elif t.status == "closed" %}بسته شده
+                    {% endif %}
+                  </span>
+                  <span class="muted" style="font-size:11px;">
+                    ثبت: {{ t.created_at|date:"Y/m/d H:i" }}
+                  </span>
+                </div>
+              </div>
+
+              <div style="margin-top:8px;font-size:13px;white-space:pre-wrap;">
+                {{ t.message }}
+              </div>
+
+              {% if t.admin_reply %}
+                <div class="hr" style="margin:14px 0 10px;"></div>
+                <div style="font-size:12px;color:#16a34a;font-weight:600;margin-bottom:4px;">
+                  پاسخ پشتیبانی:
+                </div>
+                <div style="font-size:13px;white-space:pre-wrap;">
+                  {{ t.admin_reply }}
+                </div>
+              {% endif %}
+            </div>
+          {% empty %}
+            {# اگر queryset خالی باشد، این بلاک خالی می‌ماند #}
+          {% endfor %}
+        {% else %}
+          <p class="muted" style="margin-top:16px;">
+            تا الان هیچ تیکتی ثبت نکرده‌اید.
+          </p>
+        {% endif %}
+      </section>
+<section 
+  class="panel tab-panel" 
+  data-tab="spotlight" 
+  {% if active_tab != 'spotlight' %}style="display:none"{% endif %}
+>
+
+  <header class="panel-header">
+    <h2 class="header-title">⭐ دعوت دوستان و ارتقاء به اسپات‌لایت</h2>
+    <p class="header-subtitle">
+      با معرفی «آرتونومی» به دوستانتان ستاره جمع کنید و پروفایل خود را در صفحه اصلی به نمایش بگذارید.
+    </p>
+  </header>
+
+  <div class="content-grid">
+
+    <div class="grid-column">
+
+      <div class="status-card minimal-card">
+        <div class="card-header">
+          <h3 class="card-title">وضعیت ستاره‌های شما</h3>
+          <span class="star-chip large-chip">
+            {{ profile.stars }} ⭐
+          </span>
+        </div>
+
+        <ul class="reward-list">
+          <li class="list-item">
+            <span class="item-label">پاداش برای هر دعوت موفق</span>
+            <span class="item-value">+{{ settings.referral_reward }} ⭐</span>
+          </li>
+          <li class="list-item">
+            <span class="item-label">پاداش برای دوست دعوت‌شونده</span>
+            <span class="item-value">+{{ settings.invited_reward }} ⭐</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="progress-card minimal-card">
+        <h3 class="card-title">پیشرفت به سمت اسپات‌لایت</h3>
+
+        {% if remaining_to_spotlight > 0 %}
+          <div class="progress-info">
+            <span class="info-text">
+              **{{ remaining_to_spotlight }} ⭐** تا فعال‌سازی اسپات‌لایت بعدی مانده است.
+            </span>
+            <span class="info-target">
+              (هدف: {{ settings.spotlight_cost }} ⭐)
+            </span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-fill"
+              style="width: {{ spotlight_progress }}%;"></div>
+          </div>
+        {% else %}
+          <div class="progress-success">
+            <span class="success-icon">✅</span>
+            <p class="success-message">
+              تبریک! تعداد ستاره‌های شما برای فعال‌سازی اسپات‌لایت کافی است.
+            </p>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="activation-card minimal-card">
+        <h3 class="card-title">وضعیت اسپات‌لایت 🔥</h3>
+
+        {% if profile.role == "normal" %}
+          <div class="role-alert">
+            <span class="alert-icon">⚠️</span>
+            <p class="alert-text">
+              
+              **اسپات‌لایت** فعلا ویژه هنرمندان و کسب‌وکارهاست.
+              در اینده شامل کد تخفیف برای مخاطبان هنر خواهد شد
+            </p>
+          </div>
+        {% else %}
+          {% if spotlight_active %}
+            <div class="spotlight-active-status">
+              <span class="active-icon">✨</span>
+              <p class="active-text">
+                شما در حال حاضر در **اسپات‌لایت** هستید.
+              </p>
+              <p class="expiry-text">
+                **انقضا:** {{ spotlight_expires|date:"Y/m/d H:i" }}
+              </p>
+            </div>
+          {% endif %}
+
+          <form method="post" action="{% url 'activate_spotlight' %}">
+            {% if profile.stars >= settings.spotlight_cost %}
+<a href="{% url 'activate_spotlight' %}" class="primary-btn activate-btn">
+  فعال‌سازی اسپات‌لایت (پرداخت {{ settings.spotlight_cost }} ⭐)
+</a>
+
+            {% else %}
+              <div class="cost-info">
+                <p>
+                  برای فعال‌سازی نیاز به **{{ settings.spotlight_cost }} ⭐** دارید.
+                </p>
+                <p class="current-stars">
+                  ستاره‌های شما: **{{ profile.stars }} ⭐**
+                </p>
+              </div>
+            {% endif %}
+          </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="grid-column">
+
+      <div class="link-card minimal-card">
+        <h3 class="card-title">لینک اختصاصی دعوت</h3>
+        <p class="card-description">
+          این لینک را برای دوستان خود ارسال کنید. پس از ثبت‌نام موفق و تکمیل پروفایل، ستاره‌ها به حساب هر دوی شما اضافه خواهند شد.
+        </p>
+
+        <div class="invite-link-box">
+          <code id="invite-url" class="invite-link-code">
+            {{ request.scheme }}://{{ request.get_host }}/accounts/signup/?ref={{ profile.code }}
+          </code>
+          <button type="button" class="copy-btn" onclick="copyInvite()">
+            <span class="copy-icon">📋</span> کپی لینک
+          </button>
+        </div>
+
+        <p class="link-note">
+          **نکته:** تنها ثبت‌نام‌هایی که منجر به تکمیل پروفایل شوند، به‌عنوان دعوت موفق منظور می‌گردند.
+        </p>
+      </div>
+
+      <div class="invites-card minimal-card">
+        <h3 class="card-title">آخرین دعوت‌های موفق</h3>
+
+        {% if recent_invites %}
+          <ul class="recent-invites-list">
+            {% for inv in recent_invites %}
+              <li class="invite-item">
+                <div class="invite-details">
+                  <span class="invited-user-name">
+                    {{ inv.invited_name|default:inv.invited_email }}
+                  </span>
+                  <span class="invited-user-email">
+                    {{ inv.invited_email }}
+                  </span>
+                </div>
+                <div class="invite-reward-meta">
+                  <span class="invite-date">
+                    {{ inv.created_at|date:"Y/m/d" }}
+                  </span>
+                  <span class="reward-chip">+{{ settings.referral_reward }} ⭐</span>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="empty-state">
+            <span class="empty-icon">✉️</span>
+            <p class="empty-message">
+              هنوز دعوت موفقی ثبت نشده است. لینک اختصاصی خود را به اشتراک بگذارید تا اولین ستاره‌ها را کسب کنید!
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
 
       <!-- CLIENTS TAB -->
       <!-- <section class="panel tab-panel" data-tab="clients" {% if active_tab != 'clients' %}style="display:none"{% endif %}>
@@ -2795,5 +1877,13 @@ document.addEventListener("click", function(e){
 })();
 </script>
 
+<script>
+function copyInvite() {
+  const text = document.getElementById('invite-url').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("لینک دعوت کپی شد!");
+  });
+}
+</script>
 
 {% endblock page_content %}

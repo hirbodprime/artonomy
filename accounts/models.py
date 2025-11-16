@@ -31,6 +31,7 @@ class Profile(models.Model):
     ]
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, db_index=True, null=True, blank=True)
+    stars = models.PositiveIntegerField(default=0)
 
     phone_number = models.CharField(
         max_length=32,
@@ -134,24 +135,16 @@ class Profile(models.Model):
         "avatar",   
     )
     def clean(self):
-        # consistency between role and fields
+        """
+        اعتبارسنجی خیلی پایه‌ای که همیشه معتبر باشد، مگر در صورت ناسازگاری واضح.
+        ولیدیشن سخت‌گیر برای نقش/دسته‌بندی در RoleCategoryForm انجام می‌شود.
+        """
         from django.core.exceptions import ValidationError
-        if self.role == "artist":
-            if not self.category:
-                raise ValidationError({"category": "دسته‌بندی هنری را انتخاب کنید."})
-            if not self.subcategory:
-                raise ValidationError({"subcategory": "زیرشاخه مرتبط را انتخاب کنید."})
-            # ensure subcategory belongs to selected category
-            if self.subcategory and self.category and self.subcategory.category_id != self.category_id:
-                raise ValidationError({"subcategory": "این زیرشاخه متعلق به دسته انتخاب‌شده نیست."})
+        super().clean()
 
-        if self.role == "business":
-            if not self.business_kind:
-                raise ValidationError({"business_kind": "نوع کسب‌وکار را انتخاب کنید."})
-            # business role does not require artist categories
-            # (optional) clear them:
-            # self.category = None
-            # self.subcategory = None
+        # فقط چک کن اگر هر دو ست شده‌اند، زیرشاخه متعلق به دسته باشد
+        if self.subcategory and self.category and self.subcategory.category_id != self.category_id:
+            raise ValidationError({"subcategory": "این زیرشاخه متعلق به دسته انتخاب‌شده نیست."})
     def missing_completion_items(self):
         """
         لیست بخش‌های ناقص پروفایل را برمی‌گرداند.

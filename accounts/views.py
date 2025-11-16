@@ -17,6 +17,10 @@ from .forms import (
     ProductFormSet, ServiceFormSet, ArtPostFormSet, LoginForm, SignupForm, PasswordChangeForm
 )
 
+from support.forms import SupportTicketForm
+from support.models import SupportTicket
+from spotlight.models import Referral, StarTransaction, SpotlightSettings, SpotlightBoost
+from django.utils import timezone
 
 
 User = get_user_model()
@@ -43,7 +47,8 @@ def profile_dashboard_view(request):
     valid = {
         "profile", "counters", "skills", "testimonials", "social",
         "clients", "role", "products", "services", "content",
-        "security", "advertisement",      # 👈 جدید
+        "security", "advertisement", "support",  "spotlight",
+
     }
 
     # 👇 روی POST از hidden استفاده می‌کنیم، روی GET از querystring
@@ -56,7 +61,7 @@ def profile_dashboard_view(request):
         tab = "profile"
     # 🔒 Normal users (not artist/business) may only access the security tab
     if profile.role not in ("artist", "business"):
-        if tab not in ("security", "advertisement"):
+        if tab not in ("security", "advertisement", "support"):
             tab = "security"
     # --- helper to construct all forms/formsets ---
     def build_forms(bound: bool):
@@ -102,6 +107,9 @@ def profile_dashboard_view(request):
             fs_artposts=ArtPostFormSet(
                 *(((request.POST, request.FILES)) if bound and tab == "content" else ()),
                 instance=profile, prefix="art"
+            ),
+            support_form=SupportTicketForm(
+                request.POST if (bound and tab == "support") else None
             ),
         )
 
@@ -158,6 +166,8 @@ def profile_dashboard_view(request):
                 ok = f["role_form"].is_valid()
                 if ok:
                     f["role_form"].save()
+            elif tab == "spotlight":
+                ok = True
 
             # ---------- PRODUCTS ----------
             elif tab == "products":
@@ -299,6 +309,16 @@ def profile_dashboard_view(request):
                     user = pwd_form.save()
                     update_session_auth_hash(request, user)
                     messages.success(request, "رمز عبور شما با موفقیت تغییر کرد.")
+            # ---------- SUPPORT (tickets) ----------
+            elif tab == "support":
+                form = f["support_form"]
+                ok = form.is_valid()
+                if ok:
+                    ticket = form.save(commit=False)
+                    ticket.profile = profile
+                    ticket.user = request.user
+                    ticket.save()
+                    messages.success(request, "تیکت شما ثبت شد. تیم پشتیبانی به زودی بررسی می‌کند.")
 
         # ✅ refresh cached percent after any change
         profile.refresh_completion(save=True)
@@ -351,6 +371,7 @@ def profile_dashboard_view(request):
             post.pk: ArtPostImageFormSet(instance=post, prefix=f"artimg-{post.pk}")
             for post in ArtPost.objects.filter(profile=profile)
         }
+    tickets = SupportTicket.objects.filter(profile=profile).order_by("-created_at")
 
     ctx.update(
         dict(
@@ -358,9 +379,55 @@ def profile_dashboard_view(request):
             active_tab=tab,
             subcat_map=subcat_map,
             completion=profile.completion,
-            missing_items=missing_items,   # 👈 این
+            missing_items=missing_items,   
+            tickets=tickets,
+
         )
     )
+
+
+
+    settings = SpotlightSettings.get()
+    active_boost = SpotlightBoost.objects.filter(
+        profile=profile,
+        expires_at__gt=timezone.now()
+    ).first()
+
+    # 🎯 پروگرس تا اسپات‌لایت بعدی
+    spotlight_cost = settings.spotlight_cost or 0
+    remaining_to_spotlight = max(0, spotlight_cost - profile.stars)
+
+    if spotlight_cost > 0:
+        spotlight_progress = min(100, round(profile.stars * 100 / spotlight_cost))
+    else:
+        spotlight_progress = 0
+
+    # 🧩 آخرین دعوت‌های موفق (بر اساس rewarded = True)
+    recent_invites = (
+        Referral.objects
+        .filter(inviter=profile, rewarded=True)
+        .select_related("invited__user")
+        .order_by("-created_at")[:4]
+    )
+
+    ctx.update(
+        dict(
+            profile=profile,
+            active_tab=tab,
+            subcat_map=subcat_map,
+            completion=profile.completion,
+            missing_items=missing_items,
+            tickets=tickets,
+            spotlight_active=bool(active_boost),
+            spotlight_expires=active_boost.expires_at if active_boost else None,
+            settings=settings,
+            remaining_to_spotlight=remaining_to_spotlight,
+            spotlight_progress=spotlight_progress,
+            recent_invites=recent_invites,
+        )
+    )
+
+
     return render(request, "accounts/dashboard.html", ctx)
 
 
@@ -406,11 +473,27 @@ def signup_view(request):
 
     if request.method == "POST":
         form = SignupForm(request.POST)
+
         if form.is_valid():
-            user = form.create_user()
+            user = form.create_user()  # ⭐ ایجاد کاربر + profile
+            profile = user.profile
+
+            # ---- پردازش ref_code اگر وجود دارد ----
+            ref_code = form.cleaned_data.get("ref_code")
+
+            if ref_code:
+                inviter = Profile.objects.filter(code=ref_code).first()
+                if inviter and inviter != profile:
+                    # Only create if not already referred
+                    if not hasattr(profile, "referral"):
+                        Referral.objects.create(inviter=inviter, invited=profile)
+                    # Optional: log or track duplicate attempts
+
+            # ---- لاگین ----
             login(request, user)
             messages.success(request, "ثبت‌نام با موفقیت انجام شد.")
             return redirect("/")
+
     else:
         form = SignupForm(initial=initial)
 
@@ -420,7 +503,6 @@ def signup_view(request):
         "signup_form": form,
         "featured_artpost": get_featured_artpost(),
     })
-
 
 
 def logout_view(request):
@@ -554,10 +636,17 @@ def verify_email(request, uidb64, token):
     if user and email_verification_token.check_token(user, token):
         profile = user.profile
         from django.utils import timezone
-        profile.verified_email = True
-        profile.email_verified_at = timezone.now()
+
+        # فقط بار اول verified_email را ست کن
+        if not profile.verified_email:
+            profile.verified_email = True
+            profile.email_verified_at = timezone.now()
+
         profile.email_verification_code = ""
         profile.save(update_fields=["verified_email", "email_verified_at", "email_verification_code"])
+
+        # ⭐ اینجا پاداش دعوت را اعمال می‌کنیم
+        apply_referral_rewards(profile)
 
         messages.success(request, "ایمیل شما با موفقیت تأیید شد.")
     else:
@@ -597,5 +686,59 @@ def verify_email_code(request):
     profile.email_verification_code = ""
     profile.save(update_fields=["verified_email", "email_verified_at", "email_verification_code"])
 
+    # ⭐ پاداش دعوت بعد از تأیید ایمیل
+    apply_referral_rewards(profile)
+
     messages.success(request, "ایمیل شما با موفقیت با کد ۶ رقمی تأیید شد.")
     return redirect(_security_tab_redirect())
+
+
+from django.db.models import F
+
+def apply_referral_rewards(profile):
+    """
+    پاداش دعوت فقط وقتی اعمال می‌شود که:
+    - پروفایل از طریق Referral آمده باشد
+    - هنوز rewarded=False باشد
+    - نقش فعلی پروفایل normal باشد
+    """
+    # فقط برای مخاطب عادی (normal)
+    if profile.role != "normal":
+        return
+
+    try:
+        ref = profile.referral   # invited → Referral (OneToOne)
+    except Referral.DoesNotExist:
+        return
+
+    if ref.rewarded:
+        # قبلاً پاداش داده شده
+        return
+
+    settings = SpotlightSettings.get()
+    inviter = ref.inviter
+    invited = profile
+
+    inviter_amount = settings.referral_reward or 0
+    invited_amount = settings.invited_reward or 0
+
+    if inviter_amount:
+        inviter.stars = F("stars") + inviter_amount
+        inviter.save(update_fields=["stars"])
+        StarTransaction.objects.create(
+            profile=inviter,
+            amount=inviter_amount,
+            reason="پاداش دعوت کاربر normal پس از تأیید ایمیل"
+        )
+
+    if invited_amount:
+        invited.stars = F("stars") + invited_amount
+        invited.save(update_fields=["stars"])
+        StarTransaction.objects.create(
+            profile=invited,
+            amount=invited_amount,
+            reason="پاداش تأیید ایمیل برای حساب normal دعوت‌شده"
+        )
+
+    ref.rewarded = True
+    ref.save(update_fields=["rewarded"])

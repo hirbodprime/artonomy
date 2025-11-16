@@ -128,6 +128,7 @@ class ProfileAdmin(admin.ModelAdmin):
                 "subcategory",
                 "business_kind",
                 "completion",
+                "stars",
                 "code",
             )
         }),

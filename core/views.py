@@ -29,13 +29,27 @@ def home_view(req):
 
     profiles_needed = NUM_SLOTS - len(reserved_positions)
 
-    profiles_qs = (
+    from spotlight.models import SpotlightBoost
+    from django.utils import timezone
+
+    boosted = list(
+        SpotlightBoost.objects
+        .filter(expires_at__gt=timezone.now())
+        .select_related("profile","profile__user")
+        .order_by("-expires_at")
+    )
+
+    boosted_profiles = [b.profile for b in boosted]
+
+    regular_profiles = list(
         Profile.objects
         .filter(completion=100)
-        .select_related('user')
-        .order_by('-id')
+        .exclude(id__in=[p.id for p in boosted_profiles])
+        .order_by("-id")
     )
-    profiles = list(profiles_qs[:profiles_needed])
+
+    profiles = boosted_profiles + regular_profiles
+
     profiles_iter = iter(profiles)
 
     homepage_slots = []

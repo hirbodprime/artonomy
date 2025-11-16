@@ -211,23 +211,32 @@ class TestimonialForm(forms.ModelForm):
             }),
         }
 
+from django import forms
+from .models import Profile
+
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
             "header_background",
             "header_subtitle",
-            "story_subtitle",
             "story_paragraph_1",
             "story_paragraph_2",
-            "avatar",  # 🔹 NEW
-            "phone_number",     # 🔹 NEW
-            "public_email",     # 🔹 NEW
-            "contact_note",     # 🔹 NEW
+            "avatar",
+            "phone_number",
+            "public_email",
+            "contact_note",
+            "category",       # 👈 اضافه شد
+            "subcategory",    # 👈 اضافه شد
+            "business_kind",  # 👈 اضافه شد
         ]
         widgets = {
             "story_paragraph_1": forms.Textarea(attrs={"rows": 5}),
             "story_paragraph_2": forms.Textarea(attrs={"rows": 5}),
+            # 👇 چون توی تب «پروفایل» نمی‌خوای مستقیم این‌ها ادیت بشن:
+            "category": forms.HiddenInput(),
+            "subcategory": forms.HiddenInput(),
+            "business_kind": forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -236,11 +245,10 @@ class ProfileForm(forms.ModelForm):
         self.fields["header_background"].widget = forms.FileInput(
             attrs={"accept": "image/*"}
         )
-        # می‌تونی برای آواتار هم accept بزاری اگر خواستی:
         self.fields["avatar"].widget = forms.FileInput(
             attrs={"accept": "image/*"}
         )
-        
+
 CounterFormSet = inlineformset_factory(
     Profile, ProfileCounter,
     form=ProfileCounterForm,
@@ -306,7 +314,7 @@ class SignupForm(forms.Form):
     ROLE_CHOICES = (
         ("artist",   "هنرمند"),
         ("business", "صاحب کسب و کار(گالری،استودیو،استور)"),
-        ("normal",   "مخاظب هنر"),
+        ("normal",   "مخاطب هنر"),
     )
 
     first_name = forms.CharField(max_length=150)
@@ -316,6 +324,7 @@ class SignupForm(forms.Form):
     role       = forms.ChoiceField(choices=ROLE_CHOICES, initial="artist")
     password   = forms.CharField(min_length=8, widget=forms.PasswordInput)
     password2  = forms.CharField(min_length=8, widget=forms.PasswordInput)
+    ref_code = forms.CharField(required=False)
 
     def clean_username(self):
         username = self.cleaned_data["username"].strip()
@@ -364,6 +373,14 @@ class SignupForm(forms.Form):
         profile, created = Profile.objects.get_or_create(user=user)
         profile.role = data.get("role", "normal")
         profile.save(update_fields=["role"])
+        ref_code = data.get("ref_code")
+        if ref_code:
+            from spotlight.models import Referral
+            from accounts.models import Profile
+
+            inviter = Profile.objects.filter(code=ref_code).first()
+            if inviter:
+                Referral.objects.create(inviter=inviter, invited=user.profile)
 
         return user
 
