@@ -15,29 +15,34 @@ from core.models import Visit
 User = get_user_model()
 
 
-@staff_member_required  # ✅ only staff / admin can see this
+@staff_member_required
 def admin_kpi_dashboard(request):
     now = timezone.now()
     week_ago = now - timedelta(days=7)
     month_ago = now - timedelta(days=30)
 
-    # ───── Users & Profiles ─────
-    total_users = User.objects.count()
-    total_profiles = Profile.objects.count()
-    completed_profiles = Profile.objects.filter(completion=100).count()
-    avg_completion = Profile.objects.aggregate(avg=Avg("completion"))["avg"] or 0
+    IGNORED_ANALYTICS_USERNAMES = ["Mohi", "artonomy"]  # 👈 اینو با اسم‌های خودت عوض کن
 
-    # new users / profiles
+    # ───── Base querysets بدون یوزرهای داخلی ─────
+    user_qs = User.objects.exclude(username__in=IGNORED_ANALYTICS_USERNAMES)
+    profile_qs = Profile.objects.exclude(user__username__in=IGNORED_ANALYTICS_USERNAMES)
+    visit_qs = Visit.objects.exclude(user__username__in=IGNORED_ANALYTICS_USERNAMES)
+
+    # ───── Users & Profiles ─────
+    total_users = user_qs.count()
+    total_profiles = profile_qs.count()
+    completed_profiles = profile_qs.filter(completion=100).count()
+    avg_completion = profile_qs.aggregate(avg=Avg("completion"))["avg"] or 0
+
     users_last_7 = (
-        User.objects.filter(date_joined__gte=week_ago).count()
+        user_qs.filter(date_joined__gte=week_ago).count()
         if hasattr(User, "date_joined")
         else None
     )
-    profiles_last_7 = Profile.objects.filter(created_at__gte=week_ago).count()
+    profiles_last_7 = profile_qs.filter(created_at__gte=week_ago).count()
 
-    # Role distribution
     role_breakdown = (
-        Profile.objects
+        profile_qs
         .values("role")
         .annotate(c=Count("id"))
         .order_by("-c")
@@ -56,7 +61,7 @@ def admin_kpi_dashboard(request):
         .order_by("-profile_count", "category__order", "order", "name")[:10]
     )
 
-    # ───── Marketplace KPIs ─────
+    # ───── Marketplace KPIs (اگر نمی‌خوای پاک شن لازم نیست فیلتر کنی) ─────
     total_products = Product.objects.count()
     active_products = Product.objects.filter(is_active=True).count()
     products_last_7 = Product.objects.filter(created_at__gte=week_ago).count()
@@ -72,22 +77,23 @@ def admin_kpi_dashboard(request):
     artposts_last_7 = ArtPost.objects.filter(created_at__gte=week_ago).count()
     artposts_last_30 = ArtPost.objects.filter(created_at__gte=month_ago).count()
     artposts_with_likes = ArtPost.objects.filter(likes__isnull=False).distinct().count()
-    # ───── Visit KPIs ─────
-    # ───── Visit KPIs ─────
-    total_visits = Visit.objects.count()
-    visits_last_7 = Visit.objects.filter(created_at__gte=week_ago).count()
-    visits_last_30 = Visit.objects.filter(created_at__gte=month_ago).count()
+
+    # ───── Visit KPIs (اینجا مهمه) ─────
+    total_visits = visit_qs.count()
+    visits_last_7 = visit_qs.filter(created_at__gte=week_ago).count()
+    visits_last_30 = visit_qs.filter(created_at__gte=month_ago).count()
 
     # Unique visitors
-    unique_visitors_all = Visit.objects.values("visitor_id").distinct().count()
+    unique_visitors_all = visit_qs.values("visitor_id").distinct().count()
     unique_visitors_30 = (
-        Visit.objects
+        visit_qs
         .filter(created_at__gte=month_ago)
         .values("visitor_id")
         .distinct()
         .count()
     )
-    # نسبت و قیف تبدیل: Visitor -> Signup -> Profile 100%
+
+    # Conversion funnel
     visitors_total = unique_visitors_all or 0
     users_total = total_users or 0
     completed_total = completed_profiles or 0
@@ -108,55 +114,51 @@ def admin_kpi_dashboard(request):
     else:
         completion_from_users = 0
 
-    # All QR scans (lifetime + 30 days)
-    qr_visits_total = Visit.objects.filter(utm_source="qr").count()
-    qr_visits_30 = Visit.objects.filter(
+    # QR stats با visit_qs (بدون این دوتا یوزر)
+    qr_visits_total = visit_qs.filter(utm_source="qr").count()
+    qr_visits_30 = visit_qs.filter(
         utm_source="qr",
         created_at__gte=month_ago,
     ).count()
 
-    # Breakdown per campaign – lifetime
-    artists_poster_total = Visit.objects.filter(
+    artists_poster_total = visit_qs.filter(
         utm_source="qr",
         utm_campaign="artists",
     ).count()
-    audience_poster_total = Visit.objects.filter(
+    audience_poster_total = visit_qs.filter(
         utm_source="qr",
         utm_campaign="audience",
     ).count()
-    visitcard_total = Visit.objects.filter(
+    visitcard_total = visit_qs.filter(
         utm_source="qr",
         utm_campaign="visitcard",
     ).count()
 
-    # Breakdown per campaign – last 30 days
-    artists_poster_30 = Visit.objects.filter(
+    artists_poster_30 = visit_qs.filter(
         utm_source="qr",
         utm_campaign="artists",
         created_at__gte=month_ago,
     ).count()
-    audience_poster_30 = Visit.objects.filter(
+    audience_poster_30 = visit_qs.filter(
         utm_source="qr",
         utm_campaign="audience",
         created_at__gte=month_ago,
     ).count()
-    visitcard_30 = Visit.objects.filter(
+    visitcard_30 = visit_qs.filter(
         utm_source="qr",
         utm_campaign="visitcard",
         created_at__gte=month_ago,
     ).count()
 
-    # direct = بدون utm_source و بدون referrer
-    direct_visits_total = Visit.objects.filter(
+    direct_visits_total = visit_qs.filter(
         utm_source="",
         referrer="",
     ).count()
-    direct_visits_30 = Visit.objects.filter(
+    direct_visits_30 = visit_qs.filter(
         created_at__gte=month_ago,
         utm_source="",
         referrer="",
     ).count()
-
     # Top creators by products/services/artposts
     top_profiles_by_products = (
         Profile.objects
