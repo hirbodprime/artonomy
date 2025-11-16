@@ -1,0 +1,38 @@
+<div class="ticket-detail-box" style="border:1px solid #e5e7eb;border-radius:12px;padding:16px;">
+  <div style="margin-bottom:12px;">
+    <div style="font-size:13px;color:#6b7280;">موضوع تیکت:</div>
+    <div style="font-size:15px;font-weight:600;">{{ ticket.subject }}</div>
+  </div>
+
+  <div style="max-height:260px;overflow-y:auto;padding-right:4px;margin-bottom:12px;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;">
+    {% for m in messages %}
+      <div style="margin:10px 0;">
+        <div style="font-size:12px;color:#9ca3af;">
+          {{ m.created_at|date:"Y/m/d H:i" }}
+          {% if m.is_staff_reply %}
+            — <span style="color:#2563eb;">پاسخ پشتیبانی</span>
+          {% else %}
+            — <span>شما</span>
+          {% endif %}
+        </div>
+        <div style="font-size:14px;line-height:1.7;margin-top:4px;white-space:pre-wrap;">
+          {{ m.body }}
+        </div>
+        {% if m.attachment %}
+          <div style="margin-top:4px;">
+            <a href="{{ m.attachment.url }}" target="_blank" style="font-size:12px;text-decoration:underline;">
+              مشاهده فایل ضمیمه
+            </a>
+          </div>
+        {% endif %}
+      </div>
+      {% if not forloop.last %}
+        <hr class="hr">
+      {% endif %}
+    {% empty %}
+      <p class="muted">هنوز پیامی برای این تیکت ثبت نشده است.</p>
+    {% endfor %}
+  </div>
+
+  {# اگر خواستی فرم پاسخ کاربر را هم اینجا اضافه کن (بعداً می‌توانیم ReplyForm هم وصل کنیم) #}
+</div>

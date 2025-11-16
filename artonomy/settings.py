@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "accounts","artists","marketplace", "core","advertisement"
+    "accounts","artists","marketplace", "core","advertisement","support"
 ]
 
 MIDDLEWARE = [

@@ -17,6 +17,8 @@ from .forms import (
     ProductFormSet, ServiceFormSet, ArtPostFormSet, LoginForm, SignupForm, PasswordChangeForm
 )
 
+from support.models import Ticket, TicketMessage
+from support.forms import TicketCreateForm
 
 
 User = get_user_model()
@@ -43,7 +45,7 @@ def profile_dashboard_view(request):
     valid = {
         "profile", "counters", "skills", "testimonials", "social",
         "clients", "role", "products", "services", "content",
-        "security", "advertisement",      # 👈 جدید
+        "security", "advertisement", "tickets",   # 👈 اضافه شد
     }
 
     # 👇 روی POST از hidden استفاده می‌کنیم، روی GET از querystring
@@ -56,8 +58,9 @@ def profile_dashboard_view(request):
         tab = "profile"
     # 🔒 Normal users (not artist/business) may only access the security tab
     if profile.role not in ("artist", "business"):
-        if tab not in ("security", "advertisement"):
+        if tab not in ("security", "advertisement", "tickets"):   # 👈 tickets مجاز شد
             tab = "security"
+
     # --- helper to construct all forms/formsets ---
     def build_forms(bound: bool):
         kw = (request.POST, request.FILES) if bound else (None, None)
@@ -70,6 +73,7 @@ def profile_dashboard_view(request):
                 *(((request.POST,)) if bound and tab == "counters" else ()),
                 instance=profile, prefix="cnt"
             ),
+            
             fs_skills=SkillFormSet(
                 *(((request.POST,)) if bound and tab == "skills" else ()),
                 instance=profile, prefix="sk"
@@ -104,7 +108,9 @@ def profile_dashboard_view(request):
                 instance=profile, prefix="art"
             ),
         )
-
+        forms["ticket_form"] = TicketCreateForm(
+            *(kw if bound and tab == "tickets" else (None, None))
+        )
         # ✅ PasswordChangeForm را همیشه بساز، فقط برای tab=security بایندش کن
         if bound and tab == "security":
             forms["pwd_form"] = PasswordChangeForm(user=request.user, data=request.POST)
@@ -299,14 +305,32 @@ def profile_dashboard_view(request):
                     user = pwd_form.save()
                     update_session_auth_hash(request, user)
                     messages.success(request, "رمز عبور شما با موفقیت تغییر کرد.")
+            elif tab == "tickets":
+                ok = f["ticket_form"].is_valid()
+                if ok:
+                    ticket = f["ticket_form"].save(commit=False)
+                    ticket.user = request.user
+                    ticket.status = Ticket.STATUS_OPEN
+                    ticket.save()
+
+                    # اولین پیام (conversation)
+                    TicketMessage.objects.create(
+                        ticket=ticket,
+                        sender=request.user,
+                        body=f["ticket_form"].cleaned_data["first_message"],
+                        attachment=f["ticket_form"].cleaned_data.get("attachment"),
+                        is_staff_reply=False,
+                    )
+                    messages.success(request, "تیکت شما ثبت شد. به زودی پاسخ داده می‌شود.")
 
         # ✅ refresh cached percent after any change
         profile.refresh_completion(save=True)
 
         if ok:
-            if tab != "security":
+            if tab != "security" and tab != "tickets":
                 messages.success(request, "تغییرات ذخیره شد.")
-            # NOTE: برای سوییچ تب‌ها از JS استفاده می‌کنیم، ولی بعد submit می‌تونی همین تب را دوباره لود کنی
+
+            # برای تیکت هم به تب خودش برگردیم
             return redirect(f"{request.path}?tab={tab}")
         else:
             messages.error(request, "لطفاً خطاها را بررسی کنید.")
@@ -351,6 +375,18 @@ def profile_dashboard_view(request):
             post.pk: ArtPostImageFormSet(instance=post, prefix=f"artimg-{post.pk}")
             for post in ArtPost.objects.filter(profile=profile)
         }
+    user_tickets = Ticket.objects.filter(user=request.user).order_by("-updated_at")
+
+    ticket_id = request.GET.get("ticket")
+    selected_ticket = None
+    ticket_messages = None
+    if ticket_id:
+        try:
+            selected_ticket = Ticket.objects.get(pk=ticket_id, user=request.user)
+            ticket_messages = selected_ticket.messages.select_related("sender").order_by("created_at")
+        except Ticket.DoesNotExist:
+            selected_ticket = None
+            ticket_messages = None
 
     ctx.update(
         dict(
@@ -358,9 +394,26 @@ def profile_dashboard_view(request):
             active_tab=tab,
             subcat_map=subcat_map,
             completion=profile.completion,
-            missing_items=missing_items,   # 👈 این
+            missing_items=missing_items,
+            user_tickets=user_tickets,               # 👈 اضافه شد
+            selected_ticket=selected_ticket,         # 👈 اضافه شد
+            ticket_messages=ticket_messages,         # 👈 اضافه شد
         )
     )
+    if (
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+        and tab == "tickets"
+        and selected_ticket
+    ):
+        return render(
+            request,
+            "support/_ticket_detail_inline.html",
+            {
+                "ticket": selected_ticket,
+                "messages": ticket_messages,
+            },
+        )
+
     return render(request, "accounts/dashboard.html", ctx)
 
 

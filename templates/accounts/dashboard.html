@@ -1251,6 +1251,10 @@ html[data-theme="dark"] .panel-security ::placeholder{
            aria-current="{% if active_tab == 'security' %}page{% else %}false{% endif %}">
           امنیت حساب / تغییر رمز
         </a>
+        <a href="?tab=tickets" data-tab="tickets"
+   aria-current="{% if active_tab == 'tickets' %}page{% else %}false{% endif %}">
+  پشتیبانی / تیکت‌ها
+</a>
       {% else %}
         {# 👇 کاربر عادی: فقط تب امنیت #}
         <a href="?tab=security"
@@ -1258,6 +1262,14 @@ html[data-theme="dark"] .panel-security ::placeholder{
            aria-current="page">
           امنیت حساب / تغییر رمز
         </a>
+          <a href="?tab=advertisement" data-tab="advertisement"
+       aria-current="{% if active_tab == 'advertisement' %}page{% else %}false{% endif %}">
+      تبلیغات در آرتونومی
+    </a>
+    <a href="?tab=tickets" data-tab="tickets"
+   aria-current="{% if active_tab == 'tickets' %}page{% else %}false{% endif %}">
+  پشتیبانی / تیکت‌ها
+</a>
       {% endif %}
     </nav>
   </aside>
@@ -2154,6 +2166,109 @@ html[data-theme="dark"] .panel-security ::placeholder{
     </div>
   </div>
 </section>
+      <!-- TICKETS TAB -->
+      <section class="panel tab-panel" data-tab="tickets"
+               {% if active_tab != 'tickets' %}style="display:none"{% endif %}>
+
+        <h3>پشتیبانی و تیکت‌ها</h3>
+
+        {# ---- فرم ایجاد تیکت جدید ---- #}
+        <form method="post" enctype="multipart/form-data" style="margin-bottom:24px;">
+          {% csrf_token %}
+          <input type="hidden" name="active_tab" value="tickets">
+
+          <div class="row-2">
+            <div>
+              <label>موضوع تیکت</label>
+              {{ ticket_form.subject }}
+              {% if ticket_form.subject.errors %}
+                <div class="field-error">{{ ticket_form.subject.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>متن پیام</label>
+              {{ ticket_form.first_message }}
+              {% if ticket_form.first_message.errors %}
+                <div class="field-error">{{ ticket_form.first_message.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>فایل ضمیمه (اختیاری)</label>
+              {{ ticket_form.attachment }}
+              {% if ticket_form.attachment.errors %}
+                <div class="field-error">{{ ticket_form.attachment.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">ثبت تیکت</button>
+          </div>
+        </form>
+
+        <hr class="hr">
+
+        {# ---- لیست تیکت‌ها ---- #}
+        <h4 style="margin-top:18px;">تیکت‌های شما</h4>
+
+        <div class="row-2" style="margin-top:12px;gap:16px;">
+          <div style="flex:1;min-width:0;">
+            {% if user_tickets %}
+              <div class="table-wrap" style="overflow-x:auto;">
+                <table class="table" style="width:100%;font-size:14px;">
+                  <thead>
+                    <tr>
+                      <th style="text-align:right;padding:8px;">#</th>
+                      <th style="text-align:right;padding:8px;">موضوع</th>
+                      <th style="text-align:right;padding:8px;">وضعیت</th>
+                      <th style="text-align:right;padding:8px;">آخرین بروزرسانی</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for t in user_tickets %}
+                      <tr class="ticket-row"
+                          data-ticket-id="{{ t.id }}"
+                          data-detail-url="{% url 'profile_dashboard' %}?tab=tickets&ticket={{ t.id }}">
+                        <td style="padding:8px;">{{ t.id }}</td>
+                        <td style="padding:8px;cursor:pointer;">{{ t.subject }}</td>
+                        <td style="padding:8px;">
+                          {% if t.status == 'open' %}
+                            <span style="color:#ef4444;">باز</span>
+                          {% elif t.status == 'answered' %}
+                            <span style="color:#f59e0b;">پاسخ داده شده</span>
+                          {% else %}
+                            <span style="color:#22c55e;">بسته شده</span>
+                          {% endif %}
+                        </td>
+                        <td style="padding:8px;">{{ t.updated_at|date:"Y/m/d H:i" }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="muted">هنوز تیکتی ثبت نکرده‌اید.</p>
+            {% endif %}
+          </div>
+
+          {# ---- جزئیات تیکت انتخاب‌شده (Server-side + AJAX) ---- #}
+          <div style="flex:1;min-width:0;">
+            <div id="ticket-detail-panel">
+              {% if selected_ticket %}
+                {% include "support/_ticket_detail_inline.html" with ticket=selected_ticket messages=ticket_messages %}
+              {% else %}
+                <p class="muted">برای مشاهده جزئیات، یکی از تیکت‌ها را از لیست انتخاب کنید.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- SECURITY TAB -->
       <section class="panel panel-security tab-panel" data-tab="security" {% if active_tab != 'security' %}style="display:none"{% endif %}>
@@ -2767,5 +2882,33 @@ document.addEventListener("click", function(e){
 })();
 </script>
 
+<script>
+document.addEventListener('click', function (e) {
+  const row = e.target.closest('.ticket-row');
+  if (!row) return;
+
+  const url = row.getAttribute('data-detail-url');
+  if (!url) return;
+
+  // اگر جاوااسکریپت فعال است، AJAX برو
+  fetch(url, {
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+    .then(res => res.text())
+    .then(html => {
+      const panel = document.getElementById('ticket-detail-panel');
+      if (panel) {
+        panel.innerHTML = html;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      // اگر خطا شد، می‌تونی fallback کنی:
+      window.location.href = url;
+    });
+});
+</script>
 
 {% endblock page_content %}
