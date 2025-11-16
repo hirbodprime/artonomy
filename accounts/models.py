@@ -183,7 +183,7 @@ class Profile(models.Model):
 
         # ----- فرم‌ست‌ها -----
         if not self.counters.exists():
-            items.append(("counters", "افزودن دستاوردهای هنری"))
+            items.append(("counters", "افزودن تجربه‌های من"))
         if not self.skills.exists():
             items.append(("skills", "افزودن حداقل یک مهارت"))
         # if not self.testimonials.exists():
