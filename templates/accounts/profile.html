@@ -299,6 +299,14 @@
     <h3>{{ profile.story_title|default:"داستان من" }}</h3>
     <h4>{{ profile.story_subtitle }}</h4>
     <!-- <div class="section-number">01.</div> -->
+    {% if request.user == profile.user %}
+  <a href="{% url 'profile_dashboard' %}?tab=role"
+     class="edit-btn"
+     title="ویرایش پروفایل"
+     style="font-size: 14px; color: #38bdf8; text-decoration: none;">
+     ✏️ ویرایش
+  </a>
+  {% endif %}
   </div>
 
 
