@@ -1885,5 +1885,92 @@ function copyInvite() {
   });
 }
 </script>
+<script>
+/* 🔁 وقتی نوار ذخیره از بالای پنل خارج شد، آن را شناور کن (فقط موبایل) */
+(function(){
+  const MOBILE_MAX = 768;
+  const headerH = parseInt(
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--header-h')
+  ) || 72;
+
+  // برای هر پنل یک sentinel درست کن که بالای نوار ذخیره قرار بگیره
+  document.querySelectorAll('.panel.tab-panel').forEach(panel => {
+    const bar = panel.querySelector(':scope > .actions--top');
+    if (!bar) return;
+
+    let sentinel = panel.querySelector(':scope > .actions-sentinel');
+    if (!sentinel) {
+      sentinel = document.createElement('div');
+      sentinel.className = 'actions-sentinel';
+      sentinel.style.height = '1px';
+      sentinel.style.marginTop = '-1px';
+      panel.insertBefore(sentinel, bar);
+    }
+  });
+
+  if (!('IntersectionObserver' in window)) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const panel = entry.target.closest('.panel.tab-panel');
+      if (!panel) return;
+      const bar = panel.querySelector(':scope > .actions--top');
+      if (!bar) return;
+
+      const isMobile = window.innerWidth <= MOBILE_MAX;
+      const panelVisible = !!panel.offsetParent;   // فقط تب فعال
+
+      if (!isMobile || !panelVisible) {
+        bar.classList.remove('is-floating');
+        return;
+      }
+
+      // اگر sentinel دیده میشه => نوار در حالت عادی؛ اگر نه => شناور
+      if (entry.isIntersecting) {
+        bar.classList.remove('is-floating');
+      } else {
+        bar.classList.add('is-floating');
+      }
+    });
+  }, {
+    root: null,
+    threshold: 0,
+    rootMargin: `-${headerH + 10}px 0px 0px 0px`
+  });
+
+  document.querySelectorAll('.actions-sentinel').forEach(s => observer.observe(s));
+
+  // روی resize هم منطق را ریست کنیم
+  window.addEventListener('resize', () => {
+    document
+      .querySelectorAll('.panel .actions--top')
+      .forEach(bar => bar.classList.remove('is-floating'));
+  });
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const actionsTop = document.querySelector('.panel .actions--top');
+  if (!actionsTop) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.intersectionRatio < 1) {
+        // دکمه ذخیره شناور شده
+        actionsTop.classList.add('is-floating');
+        document.documentElement.classList.add('has-floating-save');
+      } else {
+        // برگشت به حالت عادی
+        actionsTop.classList.remove('is-floating');
+        document.documentElement.classList.remove('has-floating-save');
+      }
+    },
+    { threshold: 1 }
+  );
+
+  observer.observe(actionsTop);
+});
+</script>
 
 {% endblock page_content %}
