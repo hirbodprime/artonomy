@@ -134,6 +134,7 @@ class ProfileAdmin(admin.ModelAdmin):
         }),
         ("هدر پروفایل", {
             "fields": (
+                "avatar",
                 "header_background",
                 "header_background_preview",
                 "header_title",
